@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
@@ -10,6 +10,18 @@ import PageWrapper from '../../components/layout/PageWrapper'
 
 const RATE_LIMIT_AFTER = 3
 const COOLDOWN_SEC = 60
+
+const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'   // hai-teal @ 32%
+const ERROR_SHADOW = '0 0 0 3px rgba(220,38,38,0.18)'
+
+const onInputFocus = (hasError: boolean) => (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+  e.currentTarget.style.borderColor = hasError ? '#DC2626' : '#36213E'
+  e.currentTarget.style.boxShadow = hasError ? ERROR_SHADOW : FOCUS_SHADOW
+}
+const onInputBlur = (hasError: boolean) => (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+  e.currentTarget.style.borderColor = hasError ? '#DC2626' : '#E5E5E5'
+  e.currentTarget.style.boxShadow = 'none'
+}
 
 export default function LoginPage() {
   const { login, isAuthenticated, isLoading, error, clearError } = useAuthStore()
@@ -53,49 +65,62 @@ export default function LoginPage() {
   }
 
   return (
-    <PageWrapper maxWidth={440} padTop="clamp(48px,8vw,96px)">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+    <PageWrapper maxWidth={480} padTop="clamp(32px, 6vw, 64px)">
+      {/* Section label */}
+      <div className="inline-flex items-center gap-2 bg-white border border-hai-teal/30 rounded-full px-4 py-1.5 mb-8 text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
+        <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
+        <span className="text-hai-plum/70">02</span>
+        <span>Sign in</span>
+      </div>
 
-        {/* Section label */}
-        <div style={{ fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.16em', textTransform: 'uppercase', color: 'var(--ink-muted)', paddingBottom: 14, borderBottom: '1px solid var(--rule)', marginBottom: 40, display: 'flex', gap: 16 }}>
-          <span style={{ color: 'var(--primary)' }}>02</span>
-          <span>Sign In</span>
-          <span style={{ width: 4, height: 4, background: 'var(--ink-muted)', borderRadius: '50%', alignSelf: 'center', display: 'inline-block' }} />
-          <span>Institutional access only</span>
-        </div>
+      {/* Headline */}
+      <h1 className="font-headline font-bold text-[42px] md:text-[54px] leading-[0.98] tracking-[-0.035em] text-hai-plum mb-3">
+        Welcome<br />back<span className="text-hai-teal">.</span>
+      </h1>
+      <p className="text-[15px] md:text-base text-neutral-600 leading-relaxed mb-8 max-w-md">
+        Sign in with your institutional{' '}
+        <span className="font-mono bg-hai-mint/60 text-hai-plum px-1.5 py-0.5 rounded font-bold">.edu</span>
+        {' '}account.
+      </p>
 
-        <h1 style={{ fontFamily: 'var(--ff-display)', fontWeight: 400, fontSize: 'clamp(32px,5vw,48px)', letterSpacing: '-0.025em', margin: '0 0 8px', color: 'var(--ink)' }}>
-          Welcome back.
-        </h1>
-        <p style={{ color: 'var(--ink-muted)', fontSize: 15, margin: '0 0 40px', lineHeight: 1.5 }}>
-          Sign in with your institutional <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--ink)' }}>.edu</span> account.
-        </p>
+      {/* Card */}
+      <div className="bg-white rounded-[2rem] shadow-[0_30px_80px_-30px_rgba(54,33,62,0.2)] border border-neutral-100 p-6 md:p-8">
 
         {/* Rate limit banner */}
         {cooldown > 0 && (
-          <div role="alert" style={{ padding: '12px 16px', background: 'color-mix(in oklab, #d97706 8%, var(--paper))', border: '1px solid #d97706', marginBottom: 24, fontSize: 14, color: '#92400e', fontFamily: 'var(--ff-sans)' }}>
-            <strong>Too many failed attempts.</strong> Please wait <span style={{ fontFamily: 'var(--ff-mono)', fontWeight: 700 }}>{cooldown}s</span> before trying again.
-            <div style={{ marginTop: 8, height: 3, background: 'oklch(0.93 0.07 75)', borderRadius: 2 }}>
-              <div style={{ height: '100%', background: '#d97706', width: `${(cooldown / COOLDOWN_SEC) * 100}%`, transition: 'width 1s linear', borderRadius: 2 }} />
+          <div role="alert" className="mb-5 p-4 bg-amber-50 border border-amber-300 rounded-2xl">
+            <div className="flex items-start gap-3">
+              <span className="material-symbols-outlined text-amber-700 text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>timer</span>
+              <div className="flex-1">
+                <div className="text-sm font-bold text-amber-900 mb-1">Too many failed attempts</div>
+                <div className="text-[13px] text-amber-800">
+                  Please wait <span className="font-mono font-bold">{cooldown}s</span> before trying again.
+                </div>
+                <div className="mt-2 h-1 bg-amber-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-amber-600 transition-[width] duration-1000 ease-linear" style={{ width: `${(cooldown / COOLDOWN_SEC) * 100}%` }} />
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {/* Attempt warning */}
         {failedAttempts > 0 && failedAttempts < RATE_LIMIT_AFTER && cooldown === 0 && (
-          <div role="alert" style={{ padding: '10px 16px', background: 'color-mix(in oklab, #d97706 6%, var(--paper))', border: '1px solid #d97706', marginBottom: 16, fontSize: 13, color: '#92400e', fontFamily: 'var(--ff-sans)' }}>
-            {RATE_LIMIT_AFTER - failedAttempts} attempt{RATE_LIMIT_AFTER - failedAttempts !== 1 ? 's' : ''} remaining before temporary lockout.
+          <div role="alert" className="mb-5 p-3 bg-amber-50 border border-amber-200 rounded-xl text-[13px] text-amber-800 font-medium">
+            <span className="font-bold">{RATE_LIMIT_AFTER - failedAttempts}</span>
+            {' '}attempt{RATE_LIMIT_AFTER - failedAttempts !== 1 ? 's' : ''} remaining before temporary lockout.
           </div>
         )}
 
         {/* Server error banner */}
         {error && cooldown === 0 && (
-          <div role="alert" style={{ padding: '12px 16px', background: 'color-mix(in oklab, #ef4444 8%, var(--paper))', border: '1px solid #ef4444', marginBottom: 24, fontSize: 14, color: '#ef4444', fontFamily: 'var(--ff-sans)' }}>
-            {error}
+          <div role="alert" className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
+            <span className="material-symbols-outlined text-red-600 text-xl shrink-0" style={{ fontVariationSettings: '"FILL" 1' }}>error</span>
+            <div className="text-sm text-red-700 font-medium">{error}</div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
           <FormField label="Institutional email" error={errors.email?.message} required>
             <input
               {...register('email')}
@@ -103,8 +128,8 @@ export default function LoginPage() {
               placeholder="you@university.edu"
               autoComplete="email"
               style={inputStyle(errors.email?.message)}
-              onFocus={e => { e.currentTarget.style.borderColor = errors.email ? '#ef4444' : 'var(--primary)'; e.currentTarget.style.boxShadow = `0 0 0 3px ${errors.email ? 'rgba(239,68,68,.12)' : 'rgba(59,130,246,.12)'}` }}
-              onBlur={e => { e.currentTarget.style.borderColor = errors.email ? '#ef4444' : 'var(--rule)'; e.currentTarget.style.boxShadow = 'none' }}
+              onFocus={onInputFocus(!!errors.email)}
+              onBlur={onInputBlur(!!errors.email)}
             />
           </FormField>
 
@@ -115,41 +140,54 @@ export default function LoginPage() {
               placeholder="••••••••"
               autoComplete="current-password"
               style={inputStyle(errors.password?.message)}
-              onFocus={e => { e.currentTarget.style.borderColor = errors.password ? '#ef4444' : 'var(--primary)'; e.currentTarget.style.boxShadow = `0 0 0 3px ${errors.password ? 'rgba(239,68,68,.12)' : 'rgba(59,130,246,.12)'}` }}
-              onBlur={e => { e.currentTarget.style.borderColor = errors.password ? '#ef4444' : 'var(--rule)'; e.currentTarget.style.boxShadow = 'none' }}
+              onFocus={onInputFocus(!!errors.password)}
+              onBlur={onInputBlur(!!errors.password)}
             />
           </FormField>
 
           <button
             type="submit"
             disabled={isLoading || cooldown > 0}
-            style={{ marginTop: 8, padding: '13px 0', background: (isLoading || cooldown > 0) ? 'var(--ink-muted)' : 'var(--ink)', color: 'var(--paper)', border: 'none', fontFamily: 'var(--ff-sans)', fontSize: 15, fontWeight: 500, cursor: (isLoading || cooldown > 0) ? 'not-allowed' : 'pointer', transition: 'background .2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+            className="mt-2 w-full py-3.5 rounded-full bg-hai-plum text-white font-bold text-[15px] hover:bg-black disabled:bg-neutral-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2.5 font-body"
           >
             {isLoading ? (
               <>
-                <span style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin .7s linear infinite', display: 'inline-block' }} />
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Signing in…
               </>
-            ) : 'Sign in →'}
+            ) : (
+              <>Sign in <span aria-hidden="true">→</span></>
+            )}
           </button>
         </form>
-
-        <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--rule)', fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-muted)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-          <span>No account?</span>
-          <Link to={ROUTES.REGISTER} style={{ color: 'var(--primary)' }}>Request access →</Link>
-        </div>
-
-        {/* Demo hint */}
-        <div style={{ marginTop: 28, padding: '14px 16px', background: 'var(--paper-2)', border: '1px solid var(--rule)', fontFamily: 'var(--ff-mono)', fontSize: 10.5, color: 'var(--ink-muted)', lineHeight: 1.8 }}>
-          <div style={{ color: 'var(--primary)', fontWeight: 500, marginBottom: 6, letterSpacing: '.14em', textTransform: 'uppercase' }}>Demo credentials</div>
-          <div><b style={{ color: 'var(--ink)' }}>Healthcare Pro:</b> e.muller@charite.edu</div>
-          <div><b style={{ color: 'var(--ink)' }}>Engineer:</b> m.rossi@polimi.edu</div>
-          <div><b style={{ color: 'var(--ink)' }}>Admin:</b> admin@healthai.edu</div>
-          <div style={{ marginTop: 4 }}>Password: <span style={{ color: 'var(--ink)' }}>password123</span> (admin: admin123)</div>
-        </div>
       </div>
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      {/* Footer link */}
+      <div className="mt-6 flex items-center justify-between text-[11px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold px-2">
+        <span>No account?</span>
+        <Link to={ROUTES.REGISTER} className="text-hai-plum hover:text-hai-teal transition-colors">
+          Request access →
+        </Link>
+      </div>
+
+      {/* Demo credentials */}
+      <div className="mt-6 p-5 bg-hai-cream/50 border border-hai-plum/10 rounded-2xl">
+        <div className="flex items-center gap-2 text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold mb-3">
+          <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>key</span>
+          Demo credentials
+        </div>
+        <div className="space-y-1.5 text-[12.5px] font-body text-neutral-700 leading-relaxed">
+          <div><span className="font-bold text-hai-plum">Healthcare Pro:</span> <span className="font-mono">e.muller@charite.edu</span></div>
+          <div><span className="font-bold text-hai-plum">Engineer:</span> <span className="font-mono">m.rossi@polimi.edu</span></div>
+          <div><span className="font-bold text-hai-plum">Admin:</span> <span className="font-mono">admin@healthai.edu</span></div>
+          <div className="pt-1 mt-2 border-t border-hai-plum/10">
+            Password: <span className="font-mono font-bold text-hai-plum">password123</span>
+            <span className="text-neutral-500"> (admin: </span>
+            <span className="font-mono font-bold text-hai-plum">admin123</span>
+            <span className="text-neutral-500">)</span>
+          </div>
+        </div>
+      </div>
     </PageWrapper>
   )
 }

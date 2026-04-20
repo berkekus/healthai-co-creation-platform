@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
@@ -10,49 +10,121 @@ import FormField, { inputStyle } from '../../components/ui/FormField'
 import PageWrapper from '../../components/layout/PageWrapper'
 import { ROUTES } from '../../constants/routes'
 
-const focusIn = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-  e.currentTarget.style.borderColor = 'var(--primary)'
-  e.currentTarget.style.boxShadow = 'oklch(0.28 0.04 220 / .10) 0 0 0 3px'
+const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'
+const ERROR_SHADOW = '0 0 0 3px rgba(220,38,38,0.18)'
+
+const onInputFocus = (hasError: boolean) => (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  e.currentTarget.style.borderColor = hasError ? '#DC2626' : '#36213E'
+  e.currentTarget.style.boxShadow = hasError ? ERROR_SHADOW : FOCUS_SHADOW
 }
-const focusOut = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>, err?: string) => {
-  e.currentTarget.style.borderColor = err ? '#ef4444' : 'var(--rule)'
+const onInputBlur = (hasError: boolean) => (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  e.currentTarget.style.borderColor = hasError ? '#DC2626' : '#E5E5E5'
   e.currentTarget.style.boxShadow = 'none'
+}
+
+const ROLE_LABEL: Record<string, string> = {
+  engineer:                'Engineer',
+  healthcare_professional: 'Healthcare Professional',
+  admin:                   'Administrator',
+}
+const ROLE_ICON: Record<string, string> = {
+  engineer:                'memory',
+  healthcare_professional: 'stethoscope',
+  admin:                   'admin_panel_settings',
+}
+
+function SectionCard({
+  index, title, subtitle, children,
+}: {
+  index: string
+  title: string
+  subtitle?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="bg-white rounded-[1.75rem] border border-neutral-100 p-6 md:p-7 flex flex-col gap-5">
+      <div className="flex items-start gap-3">
+        <div className="shrink-0 w-9 h-9 rounded-full bg-hai-mint text-hai-plum flex items-center justify-center font-mono font-bold text-[11px] tracking-[0.08em]">
+          {index}
+        </div>
+        <div>
+          <div className="font-headline font-bold text-[20px] leading-tight tracking-[-0.015em] text-hai-plum">
+            {title}
+          </div>
+          {subtitle && (
+            <div className="text-[12.5px] text-neutral-500 leading-relaxed mt-1">{subtitle}</div>
+          )}
+        </div>
+      </div>
+      {children}
+    </div>
+  )
 }
 
 function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
   const [typed, setTyped] = useState('')
+  const canDelete = typed === 'DELETE'
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onCancel])
+
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / .55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '24px 16px' }}>
-      <div style={{ background: 'var(--paper)', border: '1px solid #ef4444', width: '100%', maxWidth: 440, padding: 32 }}>
-        <div style={{ fontFamily: 'var(--ff-mono)', fontSize: 10, letterSpacing: '.14em', textTransform: 'uppercase', color: '#ef4444', marginBottom: 16 }}>Danger zone</div>
-        <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: 22, fontWeight: 400, color: 'var(--ink)', margin: '0 0 16px' }}>Delete your account?</h2>
-        <p style={{ fontFamily: 'var(--ff-sans)', fontSize: 14, color: 'var(--ink-muted)', lineHeight: 1.6, margin: '0 0 20px' }}>
-          This action cannot be undone. All your posts and meetings will be removed.
-          In this demo, no data is actually deleted.
-        </p>
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-muted)', display: 'block', marginBottom: 8 }}>
-            Type <strong style={{ color: 'var(--ink)' }}>DELETE</strong> to confirm
+    <div
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-6 bg-hai-plum/70 backdrop-blur-sm font-body"
+      onClick={e => { if (e.target === e.currentTarget) onCancel() }}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="bg-white w-full max-w-[480px] rounded-[2rem] shadow-[0_40px_120px_-20px_rgba(54,33,62,0.5)] overflow-hidden">
+        <div className="px-7 pt-7 pb-6">
+          <div className="inline-flex items-center gap-2 bg-red-50 text-red-600 rounded-full px-3 py-1 mb-4 text-[10.5px] font-mono tracking-[0.16em] uppercase font-bold">
+            <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>warning</span>
+            Danger zone
+          </div>
+          <h2 className="font-headline font-bold text-[24px] leading-tight tracking-[-0.02em] text-hai-plum mb-3">
+            Delete your account?
+          </h2>
+          <p className="text-[14px] text-neutral-600 leading-relaxed mb-5">
+            This action cannot be undone. All your posts and meetings will be removed.
+            In this demo, no data is actually deleted — you'll simply be signed out.
+          </p>
+
+          <label className="block mb-5">
+            <span className="block text-[11px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold mb-2">
+              Type <span className="text-hai-plum">DELETE</span> to confirm
+            </span>
+            <input
+              value={typed}
+              onChange={e => setTyped(e.target.value)}
+              placeholder="DELETE"
+              autoFocus
+              className="w-full bg-hai-offwhite border border-neutral-200 rounded-xl px-4 py-3 text-[14px] font-mono font-bold text-hai-plum outline-none focus:border-red-400 focus:bg-white focus:shadow-[0_0_0_3px_rgba(220,38,38,0.18)] transition-all"
+            />
           </label>
-          <input
-            value={typed}
-            onChange={e => setTyped(e.target.value)}
-            placeholder="DELETE"
-            style={{ ...inputStyle(), fontFamily: 'var(--ff-mono)' }}
-            autoFocus
-          />
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button onClick={onCancel} style={{ flex: 1, padding: '11px', background: 'none', border: '1px solid var(--rule)', fontFamily: 'var(--ff-sans)', fontSize: 14, cursor: 'pointer', color: 'var(--ink)' }}>
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={typed !== 'DELETE'}
-            style={{ flex: 1, padding: '11px', background: typed === 'DELETE' ? '#ef4444' : 'var(--rule)', border: 'none', fontFamily: 'var(--ff-sans)', fontSize: 14, fontWeight: 500, cursor: typed === 'DELETE' ? 'pointer' : 'not-allowed', color: 'var(--paper)' }}
-          >
-            Delete account
-          </button>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onCancel}
+              className="flex-1 px-5 py-3 rounded-full bg-white border border-neutral-200 text-hai-plum text-[13px] font-bold hover:bg-neutral-100 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={!canDelete}
+              className={`flex-1 px-5 py-3 rounded-full text-[13px] font-bold transition-colors inline-flex items-center justify-center gap-1.5 ${
+                canDelete
+                  ? 'bg-red-600 text-white hover:bg-red-700 shadow-[0_10px_30px_-10px_rgba(220,38,38,0.5)]'
+                  : 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">delete_forever</span>
+              Delete account
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -67,6 +139,7 @@ export default function ProfilePage() {
 
   const [saved, setSaved] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
+  const [exportSuccess, setExportSuccess] = useState(false)
   const [tagInput, setTagInput] = useState('')
   const [tags, setTags] = useState<string[]>(user?.expertiseTags ?? [])
 
@@ -94,7 +167,6 @@ export default function ProfilePage() {
     if (t && !tags.includes(t)) setTags(prev => [...prev, t])
     setTagInput('')
   }
-
   const removeTag = (t: string) => setTags(prev => prev.filter(x => x !== t))
 
   const handleExport = () => {
@@ -114,6 +186,8 @@ export default function ProfilePage() {
     a.download = `healthai-data-${user.id}-${new Date().toISOString().split('T')[0]}.json`
     a.click()
     URL.revokeObjectURL(url)
+    setExportSuccess(true)
+    setTimeout(() => setExportSuccess(false), 2500)
   }
 
   const handleDelete = () => {
@@ -121,144 +195,260 @@ export default function ProfilePage() {
     navigate(ROUTES.HOME)
   }
 
-  const ROLE_LABEL: Record<string, string> = {
-    engineer: 'Engineer', healthcare_professional: 'Healthcare Professional', admin: 'Administrator',
-  }
-
-  const mono: React.CSSProperties = { fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.16em', textTransform: 'uppercase', color: 'var(--ink-muted)' }
+  const initials = user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+  const userPostCount = posts.filter(p => p.authorId === user.id).length
+  const userMeetingCount = meetings.filter(m => m.requesterId === user.id || m.ownerId === user.id).length
+  const memberSince = new Date(user.createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
 
   return (
-    <PageWrapper maxWidth={660}>
-      <div style={{ ...mono, paddingBottom: 14, borderBottom: '1px solid var(--rule)', marginBottom: 40, display: 'flex', gap: 16 }}>
-        <span style={{ color: 'var(--primary)' }}>16</span>
-        <span>Profile</span>
-      </div>
+    <PageWrapper maxWidth={820}>
 
-      <h1 style={{ fontFamily: 'var(--ff-display)', fontWeight: 400, fontSize: 'clamp(28px,4vw,40px)', letterSpacing: '-0.025em', margin: '0 0 36px', color: 'var(--ink)' }}>
-        Your profile.
-      </h1>
+      {/* Header card */}
+      <div className="bg-white rounded-[2rem] border border-neutral-100 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.12)] p-6 md:p-10 mb-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-72 h-72 pointer-events-none opacity-60" style={{ background: 'radial-gradient(circle, #B8F3FF 0%, transparent 70%)' }} />
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-4 py-1.5 mb-5 text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
+            <span className="text-hai-plum/70">16</span>
+            <span>Profile</span>
+          </div>
 
-      {/* Avatar + role header */}
-      <div style={{ display: 'flex', gap: 20, alignItems: 'center', padding: '20px 24px', background: 'var(--paper-2)', border: '1px solid var(--rule)', marginBottom: 36 }}>
-        <div style={{ width: 52, height: 52, borderRadius: '50%', border: '1.5px solid var(--rule)', background: 'color-mix(in oklab, var(--primary) 12%, var(--paper))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--ff-sans)', fontWeight: 700, fontSize: 18, color: 'var(--primary)', flexShrink: 0 }}>
-          {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-        </div>
-        <div>
-          <div style={{ fontFamily: 'var(--ff-sans)', fontWeight: 600, fontSize: 17, color: 'var(--ink)' }}>{user.name}</div>
-          <div style={{ fontFamily: 'var(--ff-mono)', fontSize: 10.5, color: 'var(--ink-muted)', marginTop: 3 }}>{ROLE_LABEL[user.role]} · {user.email}</div>
-          <div style={{ fontFamily: 'var(--ff-mono)', fontSize: 10, color: 'var(--ink-muted)', marginTop: 2 }}>
-            Member since {new Date(user.createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
+          <h1 className="font-headline font-bold text-[40px] md:text-[56px] leading-[0.98] tracking-[-0.035em] text-hai-plum mb-6">
+            Your profile<span className="text-hai-teal">.</span>
+          </h1>
+
+          {/* Identity row */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-5 bg-hai-offwhite rounded-[1.5rem] p-5">
+            <div className="shrink-0 w-16 h-16 rounded-full bg-hai-plum text-hai-mint flex items-center justify-center font-mono font-bold text-[20px] tracking-[0.06em]">
+              {initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-headline font-bold text-[22px] leading-tight text-hai-plum truncate">{user.name}</div>
+              <div className="mt-1.5 flex items-center gap-2 flex-wrap text-[11px] font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold">
+                <span className="inline-flex items-center gap-1.5 bg-white rounded-full px-2.5 py-1 text-hai-plum">
+                  <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+                    {ROLE_ICON[user.role] ?? 'person'}
+                  </span>
+                  {ROLE_LABEL[user.role]}
+                </span>
+                {user.isVerified && (
+                  <span className="inline-flex items-center gap-1 bg-hai-mint text-hai-plum rounded-full px-2.5 py-1">
+                    <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: '"FILL" 1' }}>verified</span>
+                    Verified
+                  </span>
+                )}
+              </div>
+              <div className="mt-1 font-mono text-[11.5px] text-neutral-500 truncate">{user.email}</div>
+              <div className="mt-1 font-mono text-[10.5px] text-neutral-400">Member since {memberSince}</div>
+            </div>
+            <div className="flex sm:flex-col gap-2 shrink-0">
+              <div className="bg-white rounded-2xl px-4 py-2.5 text-center min-w-[76px]">
+                <div className="font-headline font-bold text-[20px] leading-none text-hai-plum">{userPostCount}</div>
+                <div className="mt-1 text-[9.5px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold">Posts</div>
+              </div>
+              <div className="bg-white rounded-2xl px-4 py-2.5 text-center min-w-[76px]">
+                <div className="font-headline font-bold text-[20px] leading-none text-hai-plum">{userMeetingCount}</div>
+                <div className="mt-1 text-[9.5px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold">Meetings</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Save success banner */}
       {saved && (
-        <div style={{ marginBottom: 24, padding: '11px 16px', background: 'oklch(0.93 0.06 145)', border: '1px solid oklch(0.52 0.14 145)', fontFamily: 'var(--ff-sans)', fontSize: 13.5, color: 'oklch(0.32 0.10 145)' }}>
+        <div className="mb-5 bg-hai-mint border border-hai-teal/40 rounded-2xl p-3.5 flex items-center gap-2.5 text-[13.5px] text-hai-plum font-body font-medium">
+          <span className="material-symbols-outlined text-hai-plum text-[18px]" style={{ fontVariationSettings: '"FILL" 1' }}>check_circle</span>
           Profile updated successfully.
         </div>
       )}
 
       {/* Edit form */}
-      <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 22, marginBottom: 48 }}>
-        <FormField label="Full name" error={errors.name?.message} required>
-          <input {...register('name')} type="text" style={inputStyle(errors.name?.message)}
-            onFocus={focusIn} onBlur={e => focusOut(e, errors.name?.message)} />
-        </FormField>
-
-        <FormField label="Institution" error={errors.institution?.message} required>
-          <input {...register('institution')} type="text" style={inputStyle(errors.institution?.message)}
-            onFocus={focusIn} onBlur={e => focusOut(e, errors.institution?.message)} />
-        </FormField>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-          <FormField label="City" error={errors.city?.message} required>
-            <input {...register('city')} type="text" style={inputStyle(errors.city?.message)}
-              onFocus={focusIn} onBlur={e => focusOut(e, errors.city?.message)} />
-          </FormField>
-          <FormField label="Country" error={errors.country?.message} required>
-            <input {...register('country')} type="text" style={inputStyle(errors.country?.message)}
-              onFocus={focusIn} onBlur={e => focusOut(e, errors.country?.message)} />
-          </FormField>
-        </div>
-
-        <FormField label="Bio" hint="Optional · max 400 chars">
-          <textarea {...register('bio')} rows={4} placeholder="Briefly describe your background and interests…"
-            style={{ ...inputStyle(errors.bio?.message), resize: 'vertical', lineHeight: 1.6 }}
-            onFocus={focusIn} onBlur={e => focusOut(e, errors.bio?.message)} />
-        </FormField>
-
-        {/* Expertise tags */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <label style={{ fontFamily: 'var(--ff-sans)', fontWeight: 500, fontSize: 13.5, color: 'var(--ink)' }}>
-            Expertise tags <span style={{ fontWeight: 400, fontSize: 12, color: 'var(--ink-muted)' }}>— press Enter to add</span>
-          </label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input
-              value={tagInput}
-              onChange={e => setTagInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag() } }}
-              placeholder="e.g. Cardiology"
-              style={{ ...inputStyle(), flex: 1 }}
-              onFocus={focusIn} onBlur={focusOut}
-            />
-            <button type="button" onClick={addTag} style={{ padding: '10px 16px', background: 'var(--paper-2)', border: '1.5px solid var(--rule)', fontFamily: 'var(--ff-mono)', fontSize: 11, cursor: 'pointer', color: 'var(--ink)', whiteSpace: 'nowrap' }}>
-              Add
-            </button>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
+        <SectionCard index="01" title="Identity" subtitle="Your name and affiliation — visible to other members.">
+          <div className="flex flex-col gap-4">
+            <FormField label="Full name" error={errors.name?.message} required>
+              <input {...register('name')} type="text"
+                style={inputStyle(errors.name?.message)}
+                onFocus={onInputFocus(!!errors.name)}
+                onBlur={onInputBlur(!!errors.name)} />
+            </FormField>
+            <FormField label="Institution" error={errors.institution?.message} required>
+              <input {...register('institution')} type="text"
+                style={inputStyle(errors.institution?.message)}
+                onFocus={onInputFocus(!!errors.institution)}
+                onBlur={onInputBlur(!!errors.institution)} />
+            </FormField>
           </div>
-          {tags.length > 0 && (
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', paddingTop: 4 }}>
-              {tags.map(t => (
-                <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--paper-2)', border: '1px solid var(--rule)', padding: '4px 10px', fontFamily: 'var(--ff-mono)', fontSize: 11 }}>
-                  {t}
-                  <button type="button" onClick={() => removeTag(t)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-muted)', fontSize: 14, lineHeight: 1, padding: 0 }}>×</button>
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
+        </SectionCard>
 
-        <button
-          type="submit"
-          style={{ padding: '13px', background: 'var(--ink)', color: 'var(--paper)', border: 'none', fontFamily: 'var(--ff-sans)', fontSize: 15, fontWeight: 500, cursor: 'pointer', marginTop: 4 }}
-        >
-          Save changes →
-        </button>
+        <SectionCard index="02" title="Location" subtitle="Helps surface posts in your region for cross-team matching.">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField label="City" error={errors.city?.message} required>
+              <input {...register('city')} type="text"
+                style={inputStyle(errors.city?.message)}
+                onFocus={onInputFocus(!!errors.city)}
+                onBlur={onInputBlur(!!errors.city)} />
+            </FormField>
+            <FormField label="Country" error={errors.country?.message} required>
+              <input {...register('country')} type="text"
+                style={inputStyle(errors.country?.message)}
+                onFocus={onInputFocus(!!errors.country)}
+                onBlur={onInputBlur(!!errors.country)} />
+            </FormField>
+          </div>
+        </SectionCard>
+
+        <SectionCard index="03" title="About" subtitle="Briefly describe your background, interests, and what you bring to collaborations.">
+          <FormField label="Bio" hint="Optional · max 400 chars" error={errors.bio?.message}>
+            <textarea {...register('bio')} rows={5} placeholder="Briefly describe your background and interests…"
+              style={{ ...inputStyle(errors.bio?.message), resize: 'vertical', lineHeight: 1.6 }}
+              onFocus={onInputFocus(!!errors.bio)}
+              onBlur={onInputBlur(!!errors.bio)} />
+          </FormField>
+        </SectionCard>
+
+        <SectionCard index="04" title="Expertise tags" subtitle="Used by our matching engine to surface relevant collaboration posts.">
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-2">
+              <input
+                value={tagInput}
+                onChange={e => setTagInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag() } }}
+                placeholder="e.g. Cardiology, Federated Learning, DICOM…"
+                style={inputStyle()}
+                onFocus={onInputFocus(false)}
+                onBlur={onInputBlur(false)}
+              />
+              <button
+                type="button"
+                onClick={addTag}
+                disabled={!tagInput.trim()}
+                className="shrink-0 px-5 rounded-xl bg-hai-plum text-white text-[12px] font-mono tracking-[0.1em] uppercase font-bold hover:bg-black disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-[15px]">add</span>
+                Add
+              </button>
+            </div>
+            {tags.length === 0 ? (
+              <div className="border-2 border-dashed border-neutral-200 rounded-2xl py-6 px-4 text-center">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-hai-mint/40 mb-2">
+                  <span className="material-symbols-outlined text-hai-plum text-[18px]" style={{ fontVariationSettings: '"FILL" 1' }}>auto_awesome</span>
+                </div>
+                <p className="text-[12.5px] text-neutral-500 font-body leading-relaxed">
+                  No tags yet. Add keywords to improve post matching.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {tags.map(t => (
+                  <span key={t} className="inline-flex items-center gap-1.5 bg-hai-lime text-hai-plum rounded-full pl-3 pr-1.5 py-1 text-[12px] font-body font-bold">
+                    {t}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(t)}
+                      aria-label={`Remove ${t}`}
+                      className="w-5 h-5 rounded-full bg-hai-plum/10 hover:bg-hai-plum hover:text-hai-mint text-hai-plum flex items-center justify-center transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[13px]">close</span>
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </SectionCard>
+
+        {/* Save action */}
+        <div className="sticky bottom-4 z-10 mt-2 bg-white rounded-full border border-neutral-100 shadow-[0_20px_50px_-20px_rgba(54,33,62,0.25)] p-2 flex items-center gap-2">
+          <span className="hidden sm:inline-flex items-center gap-2 pl-4 text-[10.5px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
+            Unsaved changes are kept locally
+          </span>
+          <button
+            type="submit"
+            className="ml-auto px-6 py-3 rounded-full bg-hai-plum text-white text-[13px] font-bold hover:bg-black transition-colors inline-flex items-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]"
+          >
+            Save changes <span aria-hidden="true">→</span>
+          </button>
+        </div>
       </form>
 
       {/* GDPR section */}
-      <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 36 }}>
-        <div style={{ ...mono, marginBottom: 20 }}>GDPR — Your data rights</div>
+      <div className="mt-10">
+        <div className="flex items-center gap-2 mb-4 px-1">
+          <span className="material-symbols-outlined text-hai-plum text-[18px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+            shield_lock
+          </span>
+          <span className="text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
+            GDPR · Your data rights
+          </span>
+        </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {/* Export */}
-          <div style={{ padding: '20px 24px', border: '1px solid var(--rule)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <div>
-              <div style={{ fontFamily: 'var(--ff-sans)', fontWeight: 500, fontSize: 14.5, color: 'var(--ink)', marginBottom: 4 }}>Export my data</div>
-              <div style={{ fontFamily: 'var(--ff-sans)', fontSize: 13, color: 'var(--ink-muted)' }}>Download all your profile, post and meeting data as JSON (GDPR Art. 20).</div>
+        {exportSuccess && (
+          <div className="mb-4 bg-hai-mint border border-hai-teal/40 rounded-2xl p-3.5 flex items-center gap-2.5 text-[13.5px] text-hai-plum font-body font-medium">
+            <span className="material-symbols-outlined text-hai-plum text-[18px]" style={{ fontVariationSettings: '"FILL" 1' }}>download_done</span>
+            Your data export has started. Check your downloads.
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Export card */}
+          <div className="bg-white rounded-[1.5rem] border border-neutral-100 p-5 flex flex-col gap-4 relative overflow-hidden">
+            <div className="absolute -top-4 -right-4 w-28 h-28 pointer-events-none opacity-70" style={{ background: 'radial-gradient(circle, #D2FF74 0%, transparent 70%)' }} />
+            <div className="relative">
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-hai-lime text-hai-plum mb-3">
+                <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: '"FILL" 1' }}>download</span>
+              </div>
+              <div className="font-headline font-bold text-[17px] leading-tight text-hai-plum mb-1">
+                Export my data
+              </div>
+              <p className="text-[13px] text-neutral-600 leading-relaxed mb-4">
+                Download your profile, posts and meetings as a portable JSON file.
+              </p>
+              <div className="text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-400 font-bold mb-4">
+                GDPR Art. 20 · Right to data portability
+              </div>
+              <button
+                onClick={handleExport}
+                className="inline-flex items-center gap-2 bg-hai-plum text-white rounded-full px-5 py-2.5 text-[12px] font-mono tracking-[0.1em] uppercase font-bold hover:bg-black transition-colors"
+              >
+                <span className="material-symbols-outlined text-[15px]">file_download</span>
+                Export JSON
+              </button>
             </div>
-            <button
-              onClick={handleExport}
-              style={{ fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', background: 'var(--paper-2)', border: '1px solid var(--rule)', padding: '10px 20px', cursor: 'pointer', color: 'var(--ink)', whiteSpace: 'nowrap' }}
-            >
-              ↓ Export JSON
-            </button>
           </div>
 
-          {/* Delete */}
-          <div style={{ padding: '20px 24px', border: '1px solid #ef4444', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <div>
-              <div style={{ fontFamily: 'var(--ff-sans)', fontWeight: 500, fontSize: 14.5, color: '#ef4444', marginBottom: 4 }}>Delete account</div>
-              <div style={{ fontFamily: 'var(--ff-sans)', fontSize: 13, color: 'var(--ink-muted)' }}>Permanently delete your account and all associated data (GDPR Art. 17). Demo only.</div>
+          {/* Delete card */}
+          <div className="bg-white rounded-[1.5rem] border-2 border-red-100 p-5 flex flex-col gap-4 relative overflow-hidden">
+            <div className="relative">
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-red-50 text-red-600 mb-3">
+                <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: '"FILL" 1' }}>delete_forever</span>
+              </div>
+              <div className="font-headline font-bold text-[17px] leading-tight text-red-600 mb-1">
+                Delete account
+              </div>
+              <p className="text-[13px] text-neutral-600 leading-relaxed mb-4">
+                Permanently remove your account and all associated data. This action cannot be undone.
+              </p>
+              <div className="text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-400 font-bold mb-4">
+                GDPR Art. 17 · Right to erasure · Demo only
+              </div>
+              <button
+                onClick={() => setShowDelete(true)}
+                className="inline-flex items-center gap-2 bg-white border border-red-200 text-red-600 rounded-full px-5 py-2.5 text-[12px] font-mono tracking-[0.1em] uppercase font-bold hover:bg-red-50 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[15px]">warning</span>
+                Delete account
+              </button>
             </div>
-            <button
-              onClick={() => setShowDelete(true)}
-              style={{ fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', background: 'none', border: '1px solid #ef4444', padding: '10px 20px', cursor: 'pointer', color: '#ef4444', whiteSpace: 'nowrap' }}
-            >
-              Delete account
-            </button>
           </div>
         </div>
+
+        <p className="mt-6 flex items-start gap-2 text-[11.5px] font-mono tracking-[0.06em] text-neutral-500 leading-relaxed px-1">
+          <span className="material-symbols-outlined text-[14px] mt-0.5 shrink-0" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
+          All data is stored encrypted at rest. Audit logs related to your account are retained for 24 months per our privacy policy, even after account deletion.
+        </p>
       </div>
 
       {showDelete && (

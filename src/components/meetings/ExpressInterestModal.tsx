@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Post } from '../../types/post.types'
 import type { TimeSlot } from '../../types/meeting.types'
 import { useMeetingStore } from '../../store/meetingStore'
@@ -14,35 +14,26 @@ interface Props {
 
 const NDA_TEXT = `By proceeding, you acknowledge that any information shared during this collaboration process is confidential. You agree not to disclose, reproduce, or use the information shared by the other party without explicit written consent.`
 
-const overlay: React.CSSProperties = {
-  position: 'fixed', inset: 0, background: 'oklch(0 0 0 / .55)',
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-  zIndex: 1000, padding: '24px 16px',
-}
+const STEP_LABELS = ['Your message', 'NDA agreement', 'Propose times']
 
-const panel: React.CSSProperties = {
-  background: 'var(--paper)', border: '1px solid var(--rule)',
-  width: '100%', maxWidth: 560, maxHeight: '90vh',
-  overflow: 'auto', display: 'flex', flexDirection: 'column',
-}
+const inputCls =
+  'w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-[14.5px] font-body font-medium text-hai-plum outline-none transition-colors focus:border-hai-plum focus:shadow-[0_0_0_3px_rgba(138,198,208,0.32)]'
 
-const inputBase: React.CSSProperties = {
-  width: '100%', background: 'var(--paper-2)', border: '1px solid var(--rule)',
-  padding: '10px 12px', fontSize: 14, fontFamily: 'var(--ff-sans)',
-  color: 'var(--ink)', borderRadius: 0, boxSizing: 'border-box', outline: 'none',
-}
-
-function StepDot({ n, active, done }: { n: number; active: boolean; done: boolean }) {
+function StepPill({ n, active, done, label }: { n: number; active: boolean; done: boolean; label: string }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      <div style={{
-        width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: done ? 'var(--ink)' : active ? 'var(--primary)' : 'var(--paper-2)',
-        border: `1.5px solid ${done || active ? 'var(--ink)' : 'var(--rule)'}`,
-        fontFamily: 'var(--ff-mono)', fontSize: 11, color: done || active ? 'var(--paper)' : 'var(--ink-muted)', fontWeight: 600,
-      }}>
+    <div className={`flex items-center gap-2 px-3 py-2 rounded-full transition-colors ${
+      done ? 'bg-hai-plum text-hai-mint' :
+      active ? 'bg-hai-mint text-hai-plum' :
+      'bg-hai-offwhite text-neutral-500'
+    }`}>
+      <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-mono font-bold ${
+        done ? 'bg-hai-mint text-hai-plum' :
+        active ? 'bg-hai-plum text-hai-mint' :
+        'bg-white text-neutral-500'
+      }`}>
         {done ? '✓' : n}
-      </div>
+      </span>
+      <span className="text-[10.5px] font-mono tracking-[0.12em] uppercase font-bold hidden sm:inline">{label}</span>
     </div>
   )
 }
@@ -63,6 +54,13 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
   ])
   const [error, setError] = useState('')
 
+  // Close on Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
   const minDate = new Date()
   minDate.setDate(minDate.getDate() + 1)
   const minDateStr = minDate.toISOString().split('T')[0]
@@ -70,9 +68,7 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
   const updateSlot = (i: number, field: keyof TimeSlot, val: string) => {
     setSlots(prev => prev.map((s, idx) => idx === i ? { ...s, [field]: val } : s))
   }
-
   const addSlot = () => setSlots(prev => [...prev, { date: '', time: '' }])
-
   const removeSlot = (i: number) => {
     if (slots.length <= 3) return
     setSlots(prev => prev.filter((_, idx) => idx !== i))
@@ -80,170 +76,225 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
 
   const validateStep = () => {
     setError('')
-    if (step === 1) {
-      if (message.trim().length < 20) { setError('Please write at least 20 characters about your interest.'); return false }
+    if (step === 1 && message.trim().length < 20) {
+      setError('Please write at least 20 characters about your interest.'); return false
     }
-    if (step === 2) {
-      if (!ndaChecked) { setError('You must accept the NDA to continue.'); return false }
+    if (step === 2 && !ndaChecked) {
+      setError('You must accept the NDA to continue.'); return false
     }
-    if (step === 3) {
-      const filled = slots.filter(s => s.date && s.time)
-      if (filled.length < 3) { setError('Please propose at least 3 time slots.'); return false }
+    if (step === 3 && slots.filter(s => s.date && s.time).length < 3) {
+      setError('Please propose at least 3 time slots.'); return false
     }
     return true
   }
 
-  const handleNext = () => {
-    if (!validateStep()) return
-    setStep(s => s + 1)
-  }
+  const handleNext = () => { if (validateStep()) setStep(s => s + 1) }
 
   const handleSubmit = () => {
     if (!validateStep() || !user) return
     const filledSlots = slots.filter(s => s.date && s.time)
     request(
       { postId: post.id, message, ndaAccepted: true, proposedSlots: filledSlots },
-      user.id, user.name, post.authorId, post.authorName, post.title
+      user.id, user.name, post.authorId, post.authorName, post.title,
     )
     update(post.id, { status: 'meeting_scheduled' })
     push({ userId: post.authorId, type: 'meeting_request', title: 'New meeting request', body: `${user.name} expressed interest in your post.`, isRead: false, linkTo: '/meetings' })
-    push({ userId: user.id, type: 'meeting_request', title: 'Interest expressed', body: `Your request for "${post.title}" has been sent.`, isRead: false, linkTo: '/meetings' })
+    push({ userId: user.id,        type: 'meeting_request', title: 'Interest expressed',  body: `Your request for "${post.title}" has been sent.`,     isRead: false, linkTo: '/meetings' })
     onSuccess()
   }
 
-  const STEP_LABELS = ['Your message', 'NDA Agreement', 'Propose times']
+  const filledCount = slots.filter(s => s.date && s.time).length
 
   return (
-    <div style={overlay} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div style={panel}>
+    <div
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-6 bg-hai-plum/70 backdrop-blur-sm font-body"
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="express-interest-title"
+    >
+      <div className="bg-white w-full max-w-[640px] max-h-[92vh] rounded-[2rem] shadow-[0_40px_120px_-20px_rgba(54,33,62,0.5)] overflow-hidden flex flex-col">
+
         {/* Header */}
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--rule)', background: 'var(--paper-2)' }}>
-          <div style={{ fontFamily: 'var(--ff-mono)', fontSize: 9.5, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--ink-muted)', marginBottom: 6 }}>Express Interest</div>
-          <div style={{ fontFamily: 'var(--ff-display)', fontSize: 18, color: 'var(--ink)', fontWeight: 400, lineHeight: 1.3 }}>{post.title}</div>
+        <div className="relative px-6 md:px-8 pt-7 pb-5 border-b border-neutral-100 overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 pointer-events-none opacity-60" style={{ background: 'radial-gradient(circle, #B8F3FF 0%, transparent 70%)' }} />
+          <div className="relative flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-3 py-1 mb-3 text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
+                Express interest
+              </div>
+              <h2 id="express-interest-title" className="font-headline font-bold text-[22px] md:text-[26px] leading-[1.15] tracking-[-0.02em] text-hai-plum line-clamp-2">
+                {post.title}
+              </h2>
+              <div className="mt-1.5 text-[12px] font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold">
+                To {post.authorName}
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              className="shrink-0 w-9 h-9 rounded-full bg-hai-offwhite hover:bg-hai-mint/60 text-hai-plum flex items-center justify-center transition-colors"
+            >
+              <span className="material-symbols-outlined text-[20px]">close</span>
+            </button>
+          </div>
         </div>
 
         {/* Step indicator */}
-        <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--rule)', display: 'flex', alignItems: 'center', gap: 0 }}>
+        <div className="px-6 md:px-8 py-4 border-b border-neutral-100 flex items-center gap-2 overflow-x-auto">
           {STEP_LABELS.map((label, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', flex: i < 2 ? 1 : 'none' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-                <StepDot n={i + 1} active={step === i + 1} done={step > i + 1} />
-                <span style={{ fontFamily: 'var(--ff-mono)', fontSize: 9, letterSpacing: '.1em', textTransform: 'uppercase', color: step === i + 1 ? 'var(--ink)' : 'var(--ink-muted)', whiteSpace: 'nowrap' }}>{label}</span>
-              </div>
-              {i < 2 && <div style={{ flex: 1, height: 1, background: step > i + 1 ? 'var(--ink)' : 'var(--rule)', margin: '0 8px', marginBottom: 20 }} />}
+            <div key={label} className="flex items-center gap-2 shrink-0">
+              <StepPill n={i + 1} active={step === i + 1} done={step > i + 1} label={label} />
+              {i < STEP_LABELS.length - 1 && (
+                <span className={`block w-6 h-px ${step > i + 1 ? 'bg-hai-plum' : 'bg-neutral-200'}`} />
+              )}
             </div>
           ))}
         </div>
 
         {/* Body */}
-        <div style={{ padding: '24px 24px', flex: 1 }}>
-
+        <div className="px-6 md:px-8 py-6 flex-1 overflow-auto">
           {step === 1 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <p style={{ fontFamily: 'var(--ff-sans)', fontSize: 14, color: 'var(--ink-muted)', margin: 0, lineHeight: 1.6 }}>
-                Write a short message to <strong style={{ color: 'var(--ink)' }}>{post.authorName}</strong> explaining your background and why you're interested in this collaboration.
+            <div className="flex flex-col gap-4">
+              <p className="text-[14.5px] text-neutral-600 leading-relaxed">
+                Write a short message to <strong className="text-hai-plum">{post.authorName}</strong> explaining your background and why you're interested in this collaboration.
               </p>
               <textarea
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 placeholder="Describe your relevant experience and what you can bring to this collaboration…"
-                style={{ ...inputBase, minHeight: 140, resize: 'vertical', lineHeight: 1.6 }}
-                onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
-                onBlur={e => (e.currentTarget.style.borderColor = 'var(--rule)')}
+                rows={6}
+                className={`${inputCls} resize-y leading-relaxed`}
               />
-              <div style={{ fontFamily: 'var(--ff-mono)', fontSize: 10, color: message.length >= 20 ? 'var(--ink-muted)' : '#d97706', letterSpacing: '.08em' }}>
+              <div className={`inline-flex items-center gap-2 text-[10.5px] font-mono tracking-[0.12em] uppercase font-bold ${
+                message.length >= 20 ? 'text-neutral-500' : 'text-amber-700'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${message.length >= 20 ? 'bg-hai-teal' : 'bg-amber-500'}`} />
                 {message.length} / 20 min characters
               </div>
             </div>
           )}
 
           {step === 2 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <div style={{ padding: '16px 18px', background: 'var(--paper-2)', border: '1px solid var(--rule)', fontFamily: 'var(--ff-sans)', fontSize: 14, color: 'var(--ink)', lineHeight: 1.7 }}>
-                <div style={{ fontFamily: 'var(--ff-mono)', fontSize: 9.5, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--ink-muted)', marginBottom: 10 }}>Non-Disclosure Agreement</div>
-                {NDA_TEXT}
+            <div className="flex flex-col gap-4">
+              <div className="bg-hai-cream/60 border border-hai-plum/10 rounded-2xl p-5">
+                <div className="flex items-center gap-2 mb-3 text-[10.5px] font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
+                  <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+                    shield_lock
+                  </span>
+                  Non-disclosure agreement
+                </div>
+                <p className="text-[14px] text-hai-plum leading-relaxed">{NDA_TEXT}</p>
               </div>
-              <label style={{ display: 'flex', gap: 12, cursor: 'pointer', padding: '14px 16px', border: `1.5px solid ${ndaChecked ? 'var(--ink)' : 'var(--rule)'}`, transition: 'border-color .15s' }}>
+
+              <label className={`cursor-pointer flex items-start gap-3 p-4 rounded-2xl border-2 transition-all ${
+                ndaChecked ? 'border-hai-plum bg-hai-mint/40' : 'border-neutral-200 hover:border-hai-plum/40 bg-white'
+              }`}>
+                <span className={`shrink-0 w-5 h-5 rounded-md flex items-center justify-center transition-colors ${
+                  ndaChecked ? 'bg-hai-plum text-hai-mint' : 'bg-hai-offwhite text-transparent border border-neutral-300'
+                }`}>
+                  <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>check</span>
+                </span>
                 <input
                   type="checkbox"
                   checked={ndaChecked}
                   onChange={e => setNdaChecked(e.target.checked)}
-                  style={{ marginTop: 2, accentColor: 'var(--primary)', flexShrink: 0, width: 16, height: 16 }}
+                  className="sr-only"
                 />
-                <span style={{ fontFamily: 'var(--ff-sans)', fontSize: 14, color: 'var(--ink)', lineHeight: 1.5 }}>
-                  I have read and accept the terms of this NDA. I understand that all information shared is confidential.
+                <span className="text-[14px] text-hai-plum leading-relaxed">
+                  I have read and accept the terms of this NDA. I understand that all information shared during this collaboration is confidential.
                 </span>
               </label>
             </div>
           )}
 
           {step === 3 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <p style={{ fontFamily: 'var(--ff-sans)', fontSize: 14, color: 'var(--ink-muted)', margin: 0, lineHeight: 1.6 }}>
-                Propose at least 3 time slots when you're available. {post.authorName} will confirm one.
-              </p>
-              {slots.map((slot, i) => (
-                <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                  <div style={{ fontFamily: 'var(--ff-mono)', fontSize: 10.5, color: 'var(--ink-muted)', width: 20, flexShrink: 0, textAlign: 'right' }}>{i + 1}</div>
-                  <input
-                    type="date"
-                    value={slot.date}
-                    min={minDateStr}
-                    onChange={e => updateSlot(i, 'date', e.target.value)}
-                    style={{ ...inputBase, flex: 1 }}
-                    onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
-                    onBlur={e => (e.currentTarget.style.borderColor = 'var(--rule)')}
-                  />
-                  <input
-                    type="time"
-                    value={slot.time}
-                    onChange={e => updateSlot(i, 'time', e.target.value)}
-                    style={{ ...inputBase, width: 110 }}
-                    onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
-                    onBlur={e => (e.currentTarget.style.borderColor = 'var(--rule)')}
-                  />
-                  {slots.length > 3 && (
-                    <button onClick={() => removeSlot(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-muted)', fontSize: 18, lineHeight: 1, padding: '0 4px' }}>×</button>
-                  )}
-                </div>
-              ))}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <p className="text-[14.5px] text-neutral-600 leading-relaxed flex-1 min-w-[240px]">
+                  Propose at least 3 time slots when you're available. <strong className="text-hai-plum">{post.authorName}</strong> will confirm one.
+                </p>
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10.5px] font-mono tracking-[0.12em] uppercase font-bold ${
+                  filledCount >= 3 ? 'bg-hai-mint text-hai-plum' : 'bg-hai-offwhite text-neutral-500'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${filledCount >= 3 ? 'bg-hai-teal' : 'bg-neutral-400'}`} />
+                  {filledCount} / 3 filled
+                </span>
+              </div>
+
+              <div className="flex flex-col gap-2.5">
+                {slots.map((slot, i) => (
+                  <div key={i} className="flex items-center gap-2 bg-hai-offwhite rounded-2xl p-2 pr-3">
+                    <div className="shrink-0 w-8 h-8 rounded-full bg-white flex items-center justify-center font-mono font-bold text-[11px] text-hai-plum">
+                      {i + 1}
+                    </div>
+                    <input
+                      type="date"
+                      value={slot.date}
+                      min={minDateStr}
+                      onChange={e => updateSlot(i, 'date', e.target.value)}
+                      className={`${inputCls} flex-1 min-w-0 !py-2 !rounded-xl`}
+                    />
+                    <input
+                      type="time"
+                      value={slot.time}
+                      onChange={e => updateSlot(i, 'time', e.target.value)}
+                      className={`${inputCls} w-[110px] shrink-0 !py-2 !rounded-xl`}
+                    />
+                    {slots.length > 3 && (
+                      <button
+                        onClick={() => removeSlot(i)}
+                        aria-label={`Remove slot ${i + 1}`}
+                        className="shrink-0 w-8 h-8 rounded-full bg-white hover:bg-red-50 text-neutral-400 hover:text-red-500 flex items-center justify-center transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">close</span>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
               <button
                 onClick={addSlot}
-                style={{ fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--primary)', background: 'none', border: '1px dashed var(--rule)', padding: '8px', cursor: 'pointer', width: '100%' }}
+                className="w-full rounded-full border-2 border-dashed border-neutral-300 py-3 text-[11px] font-mono tracking-[0.14em] uppercase font-bold text-hai-plum hover:border-hai-plum hover:bg-hai-mint/20 transition-colors flex items-center justify-center gap-2"
               >
-                + Add another slot
+                <span className="material-symbols-outlined text-[16px]">add</span>
+                Add another slot
               </button>
             </div>
           )}
 
           {error && (
-            <div role="alert" style={{ marginTop: 14, padding: '10px 14px', background: 'color-mix(in oklab, #ef4444 8%, var(--paper))', border: '1px solid #ef4444', fontSize: 13, color: '#ef4444', fontFamily: 'var(--ff-sans)' }}>
+            <div role="alert" className="mt-5 flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-2xl p-3.5 text-[13px] text-red-700 font-medium leading-relaxed">
+              <span className="material-symbols-outlined text-[18px] shrink-0 mt-px" style={{ fontVariationSettings: '"FILL" 1' }}>error</span>
               {error}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div style={{ padding: '16px 24px', borderTop: '1px solid var(--rule)', display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+        <div className="px-6 md:px-8 py-4 border-t border-neutral-100 bg-hai-offwhite/60 flex items-center justify-between gap-3">
           <button
             onClick={step === 1 ? onClose : () => setStep(s => s - 1)}
-            style={{ fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', background: 'none', border: '1px solid var(--rule)', padding: '10px 18px', cursor: 'pointer', color: 'var(--ink-muted)' }}
+            className="px-5 py-2.5 rounded-full bg-white border border-neutral-200 text-hai-plum text-[13px] font-bold hover:bg-neutral-100 transition-colors inline-flex items-center gap-1.5"
           >
-            {step === 1 ? 'Cancel' : '← Back'}
+            {step === 1 ? 'Cancel' : <><span aria-hidden="true">←</span> Back</>}
           </button>
           {step < 3 ? (
             <button
               onClick={handleNext}
-              style={{ fontFamily: 'var(--ff-sans)', fontSize: 14, fontWeight: 500, background: 'var(--ink)', color: 'var(--paper)', border: 'none', padding: '10px 28px', cursor: 'pointer' }}
+              className="px-6 py-2.5 rounded-full bg-hai-plum text-white text-[13px] font-bold hover:bg-black transition-colors inline-flex items-center gap-1.5"
             >
-              {step === 2 ? 'I Accept & Continue →' : 'Next →'}
+              {step === 2 ? 'I accept & continue' : 'Next'} <span aria-hidden="true">→</span>
             </button>
           ) : (
             <button
               onClick={handleSubmit}
-              style={{ fontFamily: 'var(--ff-sans)', fontSize: 14, fontWeight: 500, background: 'var(--primary)', color: 'var(--paper)', border: 'none', padding: '10px 28px', cursor: 'pointer' }}
+              className="px-6 py-2.5 rounded-full bg-hai-plum text-white text-[13px] font-bold hover:bg-black transition-colors inline-flex items-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]"
             >
-              Send Request →
+              <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: '"FILL" 1' }}>send</span>
+              Send request
             </button>
           )}
         </div>

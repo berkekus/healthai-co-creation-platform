@@ -1,33 +1,40 @@
 import type { PostStatus } from '../../types/post.types'
 
-const CONFIG: Record<PostStatus, { label: string; bg: string; color: string; dot: string }> = {
-  draft:             { label: 'Draft',            bg: 'oklch(0.93 0.005 240)',   color: 'oklch(0.44 0.02 250)', dot: 'oklch(0.65 0.01 240)' },
-  active:            { label: 'Active',           bg: 'oklch(0.93 0.06 145)',    color: 'oklch(0.32 0.10 145)', dot: 'oklch(0.52 0.14 145)' },
-  meeting_scheduled: { label: 'Meeting Scheduled', bg: 'oklch(0.94 0.07 75)',    color: 'oklch(0.40 0.10 60)',  dot: 'oklch(0.65 0.14 75)'  },
-  partner_found:     { label: 'Partner Found',    bg: 'oklch(0.92 0.05 220)',    color: 'oklch(0.28 0.08 220)', dot: 'oklch(0.45 0.12 220)' },
-  expired:           { label: 'Expired',          bg: 'oklch(0.93 0.04 25)',     color: 'oklch(0.44 0.08 25)',  dot: 'oklch(0.60 0.10 25)'  },
+type Tone = {
+  label: string
+  /** Tailwind bg class */
+  bg: string
+  /** Tailwind text color class */
+  text: string
+  /** Dot color (Tailwind bg-*) */
+  dot: string
+}
+
+const CONFIG: Record<PostStatus, Tone> = {
+  draft:             { label: 'Draft',             bg: 'bg-neutral-100',        text: 'text-neutral-600',  dot: 'bg-neutral-400' },
+  active:            { label: 'Active',            bg: 'bg-hai-mint',           text: 'text-hai-plum',     dot: 'bg-hai-teal' },
+  meeting_scheduled: { label: 'Meeting Scheduled', bg: 'bg-hai-lime',           text: 'text-hai-plum',     dot: 'bg-hai-plum' },
+  partner_found:     { label: 'Partner Found',     bg: 'bg-hai-plum',           text: 'text-hai-mint',     dot: 'bg-hai-mint' },
+  expired:           { label: 'Expired',           bg: 'bg-hai-cream/60',       text: 'text-neutral-500',  dot: 'bg-neutral-400' },
 }
 
 interface Props {
   status: PostStatus
-  size?: 'sm' | 'md'
+  size?: 'sm' | 'md' | 'lg'
 }
 
 export default function PostStatusBadge({ status, size = 'md' }: Props) {
   const c = CONFIG[status]
-  const fs = size === 'sm' ? 10 : 11
-  const px = size === 'sm' ? 7 : 9
-  const py = size === 'sm' ? 2 : 3
+  const sizeCls =
+    size === 'sm' ? 'text-[9.5px] px-2 py-0.5 gap-1.5' :
+    size === 'lg' ? 'text-[11.5px] px-3 py-1 gap-2' :
+                    'text-[10.5px] px-2.5 py-1 gap-1.5'
+  const dotSize = size === 'lg' ? 'w-1.5 h-1.5' : 'w-1 h-1'
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 5,
-      background: c.bg, color: c.color,
-      fontFamily: 'var(--ff-mono)', fontSize: fs, letterSpacing: '.12em',
-      textTransform: 'uppercase', fontWeight: 500,
-      padding: `${py}px ${px}px`, borderRadius: 2,
-      whiteSpace: 'nowrap',
-    }}>
-      <span style={{ width: 5, height: 5, borderRadius: '50%', background: c.dot, flexShrink: 0 }} />
+    <span
+      className={`inline-flex items-center rounded-full font-mono font-bold tracking-[0.14em] uppercase whitespace-nowrap ${c.bg} ${c.text} ${sizeCls}`}
+    >
+      <span className={`rounded-full ${c.dot} ${dotSize} shrink-0`} />
       {c.label}
     </span>
   )

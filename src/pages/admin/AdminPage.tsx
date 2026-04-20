@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { usePostStore } from '../../store/postStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import PageWrapper from '../../components/layout/PageWrapper'
@@ -7,7 +7,7 @@ import { mockLogs } from '../../data/mockLogs'
 import type { ActivityLog } from '../../types/common.types'
 import type { User } from '../../types/auth.types'
 
-type Tab = 'users' | 'posts' | 'logs'
+type TabId = 'users' | 'posts' | 'logs'
 
 const ROLE_LABEL: Record<string, string> = {
   engineer: 'Engineer',
@@ -15,13 +15,37 @@ const ROLE_LABEL: Record<string, string> = {
   admin: 'Admin',
 }
 
-const ACTION_COLORS: Record<string, string> = {
-  LOGIN_FAILED:           '#ef4444',
-  SECURITY_RATE_LIMIT_HIT:'#ef4444',
-  USER_SUSPENDED:         '#d97706',
-  USER_DEACTIVATED:       '#d97706',
-  POST_REMOVED_BY_ADMIN:  '#d97706',
-  ADMIN_LOGIN:            'var(--primary)',
+const ROLE_ICON: Record<string, string> = {
+  engineer: 'memory',
+  healthcare_professional: 'stethoscope',
+  admin: 'admin_panel_settings',
+}
+
+const CRITICAL_ACTIONS = new Set([
+  'LOGIN_FAILED',
+  'SECURITY_RATE_LIMIT_HIT',
+  'USER_SUSPENDED',
+  'USER_DEACTIVATED',
+  'POST_REMOVED_BY_ADMIN',
+])
+
+const selectStyle: React.CSSProperties = {
+  background: '#FFFFFF',
+  border: '1.5px solid #E5E5E5',
+  borderRadius: 9999,
+  padding: '8px 32px 8px 14px',
+  fontSize: 12,
+  fontFamily: '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif',
+  fontWeight: 600,
+  color: '#36213E',
+  outline: 'none',
+  appearance: 'none',
+  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2336213E' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
+  backgroundRepeat: 'no-repeat',
+  backgroundPosition: 'right 12px center',
+  cursor: 'pointer',
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
 }
 
 function downloadCSV(logs: ActivityLog[]) {
@@ -30,7 +54,7 @@ function downloadCSV(logs: ActivityLog[]) {
     headers.map(h => {
       const v = (l as unknown as Record<string, unknown>)[h] ?? ''
       return `"${String(v).replace(/"/g, '""')}"`
-    }).join(',')
+    }).join(','),
   )
   const csv = [headers.join(','), ...rows].join('\n')
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -42,32 +66,80 @@ function downloadCSV(logs: ActivityLog[]) {
   URL.revokeObjectURL(url)
 }
 
-const th: React.CSSProperties = {
-  fontFamily: 'var(--ff-mono)', fontSize: 9.5, letterSpacing: '.14em', textTransform: 'uppercase',
-  color: 'var(--ink-muted)', padding: '10px 14px', borderBottom: '1px solid var(--rule)',
-  textAlign: 'left', background: 'var(--paper-2)', whiteSpace: 'nowrap',
-}
-const td: React.CSSProperties = {
-  fontFamily: 'var(--ff-mono)', fontSize: 12, color: 'var(--ink)',
-  padding: '10px 14px', borderBottom: '1px solid var(--rule-soft)', verticalAlign: 'middle',
+function StatCard({
+  label, value, icon, tone,
+}: {
+  label: string
+  value: number | string
+  icon: string
+  tone: 'teal' | 'mint' | 'lime' | 'cream' | 'plum'
+}) {
+  const ring = {
+    teal:  'from-hai-teal/30',
+    mint:  'from-hai-mint',
+    lime:  'from-hai-lime',
+    cream: 'from-hai-cream',
+    plum:  'from-hai-plum/20',
+  }[tone]
+  const iconBg = {
+    teal:  'bg-hai-teal/20 text-hai-plum',
+    mint:  'bg-hai-mint text-hai-plum',
+    lime:  'bg-hai-lime text-hai-plum',
+    cream: 'bg-hai-cream text-hai-plum',
+    plum:  'bg-hai-plum text-hai-mint',
+  }[tone]
+  return (
+    <div className="relative bg-white rounded-[1.5rem] border border-neutral-100 p-5 overflow-hidden">
+      <div className={`absolute -top-4 -right-4 w-28 h-28 pointer-events-none opacity-60 rounded-full bg-gradient-radial ${ring}`}
+           style={{ background: `radial-gradient(circle, var(--tw-gradient-from) 0%, transparent 70%)` }} />
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2">
+            {label}
+          </div>
+          <div className="font-headline font-bold text-[34px] leading-none tracking-[-0.03em] text-hai-plum">
+            {value}
+          </div>
+        </div>
+        <div className={`shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center ${iconBg}`}>
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+            {icon}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function AdminPage() {
-  const [tab, setTab] = useState<Tab>('users')
+  const [tab, setTab] = useState<TabId>('users')
   const [users, setUsers] = useState<User[]>([...mockUsers])
+  const [userQuery, setUserQuery] = useState('')
   const { posts, remove: removePost } = usePostStore()
   const { push } = useNotificationStore()
 
-  // Log filters
   const [logAction, setLogAction] = useState('')
   const [logResult, setLogResult] = useState('')
 
-  const filteredLogs = mockLogs.filter(l =>
-    (!logAction || l.action === logAction) &&
-    (!logResult || l.result === logResult)
+  const uniqueActions = useMemo(
+    () => [...new Set(mockLogs.map(l => l.action))].sort(),
+    [],
   )
 
-  const uniqueActions = [...new Set(mockLogs.map(l => l.action))].sort()
+  const filteredLogs = useMemo(() => mockLogs.filter(l =>
+    (!logAction || l.action === logAction) &&
+    (!logResult || l.result === logResult),
+  ), [logAction, logResult])
+
+  const filteredUsers = useMemo(() => {
+    const q = userQuery.trim().toLowerCase()
+    return users.filter(u => u.role !== 'admin' && (
+      !q ||
+      u.name.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q) ||
+      u.institution.toLowerCase().includes(q)
+    ))
+  }, [users, userQuery])
 
   const handleSuspend = (userId: string) => {
     const idx = mockUsers.findIndex(u => u.id === userId)
@@ -85,178 +157,253 @@ export default function AdminPage() {
     push({ userId: ownerId, type: 'post_closed', title: 'Post removed', body: 'One of your posts was removed by an administrator.', isRead: false, linkTo: '/posts' })
   }
 
-  // Stats
-  const totalUsers = users.filter(u => u.role !== 'admin').length
+  const totalUsers     = users.filter(u => u.role !== 'admin').length
   const suspendedCount = users.filter(u => u.isSuspended).length
-  const activePosts = posts.filter(p => p.status === 'active').length
-  const failedLogins = mockLogs.filter(l => l.action === 'LOGIN_FAILED' || l.action === 'SECURITY_RATE_LIMIT_HIT').length
+  const activePosts    = posts.filter(p => p.status === 'active').length
+  const failedLogins   = mockLogs.filter(l => l.action === 'LOGIN_FAILED' || l.action === 'SECURITY_RATE_LIMIT_HIT').length
 
-  const mono: React.CSSProperties = {
-    fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.16em',
-    textTransform: 'uppercase', color: 'var(--ink-muted)',
-  }
-
-  const tabBtn = (t: Tab, label: string) => (
-    <button
-      onClick={() => setTab(t)}
-      style={{
-        fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.12em', textTransform: 'uppercase',
-        padding: '10px 20px', border: 'none', cursor: 'pointer',
-        background: tab === t ? 'var(--ink)' : 'transparent',
-        color: tab === t ? 'var(--paper)' : 'var(--ink-muted)',
-        borderBottom: tab === t ? 'none' : '1px solid var(--rule)',
-        transition: 'background .15s, color .15s',
-      }}
-    >
-      {label}
-    </button>
-  )
+  const tabs: { id: TabId; label: string; icon: string; count: number }[] = [
+    { id: 'users', label: 'Users',         icon: 'group',  count: totalUsers },
+    { id: 'posts', label: 'Posts',         icon: 'article', count: posts.length },
+    { id: 'logs',  label: 'Activity logs', icon: 'history', count: mockLogs.length },
+  ]
 
   return (
-    <PageWrapper>
-      {/* Section label */}
-      <div style={{ ...mono, paddingBottom: 14, borderBottom: '1px solid var(--rule)', marginBottom: 36, display: 'flex', gap: 16, alignItems: 'center' }}>
-        <span style={{ color: 'var(--primary)' }}>ADMIN</span>
-        <span>Control Panel</span>
-        <span style={{ width: 4, height: 4, background: 'var(--ink-muted)', borderRadius: '50%' }} />
-        <span>Administrator access only</span>
-      </div>
-
-      <h1 style={{ fontFamily: 'var(--ff-display)', fontWeight: 400, fontSize: 'clamp(26px,3.5vw,44px)', letterSpacing: '-0.025em', margin: '0 0 32px', color: 'var(--ink)' }}>
-        Admin panel.
-      </h1>
-
-      {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, marginBottom: 36, background: 'var(--rule)' }}>
-        {[
-          { label: 'Total users',     value: totalUsers },
-          { label: 'Suspended',       value: suspendedCount },
-          { label: 'Active listings', value: activePosts },
-          { label: 'Security events', value: failedLogins },
-        ].map(s => (
-          <div key={s.label} style={{ background: 'var(--paper)', padding: '18px 20px' }}>
-            <div style={{ fontFamily: 'var(--ff-mono)', fontSize: 9.5, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--ink-muted)', marginBottom: 8 }}>{s.label}</div>
-            <div style={{ fontFamily: 'var(--ff-display)', fontSize: 32, fontWeight: 400, color: 'var(--ink)', lineHeight: 1 }}>{s.value}</div>
+    <PageWrapper maxWidth={1280}>
+      {/* Header card */}
+      <div className="bg-white rounded-[2rem] border border-neutral-100 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.12)] p-6 md:p-10 mb-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-72 h-72 pointer-events-none opacity-50" style={{ background: 'radial-gradient(circle, #B8F3FF 0%, transparent 70%)' }} />
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 bg-hai-plum text-hai-mint rounded-full px-4 py-1.5 mb-5 text-[11px] font-mono tracking-[0.18em] uppercase font-bold">
+            <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+              admin_panel_settings
+            </span>
+            Admin · Restricted
           </div>
-        ))}
+
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div className="min-w-0">
+              <h1 className="font-headline font-bold text-[40px] md:text-[56px] leading-[0.98] tracking-[-0.035em] text-hai-plum">
+                Control panel<span className="text-hai-teal">.</span>
+              </h1>
+              <p className="text-[15px] text-neutral-600 leading-relaxed mt-3 max-w-xl">
+                Moderate accounts, audit listings, and export security logs — all actions are recorded and tamper-resistant.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 flex-wrap">
+              {suspendedCount > 0 && (
+                <div className="inline-flex items-center gap-2 bg-red-50 text-red-600 rounded-full px-4 py-2 font-mono text-[10.5px] tracking-[0.14em] uppercase font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                  {suspendedCount} suspended
+                </div>
+              )}
+              {failedLogins > 0 && (
+                <div className="inline-flex items-center gap-2 bg-hai-lime text-hai-plum rounded-full px-4 py-2 font-mono text-[10.5px] tracking-[0.14em] uppercase font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-hai-plum" />
+                  {failedLogins} security events
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid var(--rule)', marginBottom: 28 }}>
-        {tabBtn('users', 'Users')}
-        {tabBtn('posts', 'Posts')}
-        {tabBtn('logs',  'Activity Logs')}
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <StatCard label="Total users"     value={totalUsers}     icon="group"             tone="mint"  />
+        <StatCard label="Suspended"       value={suspendedCount} icon="person_off"        tone="cream" />
+        <StatCard label="Active listings" value={activePosts}    icon="article"           tone="lime"  />
+        <StatCard label="Security events" value={failedLogins}   icon="shield"            tone="plum"  />
       </div>
 
-      {/* ── USERS TAB ── */}
+      {/* Tab row */}
+      <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1 -mx-1 px-1">
+        {tabs.map(t => {
+          const active = tab === t.id
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11.5px] font-mono tracking-[0.14em] uppercase font-bold transition-colors ${
+                active
+                  ? 'bg-hai-plum text-white'
+                  : 'bg-white border border-neutral-200 text-hai-plum hover:bg-hai-mint/40'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: '"FILL" 1' }}>{t.icon}</span>
+              {t.label}
+              <span className={`inline-flex items-center justify-center min-w-[20px] h-5 rounded-full text-[10px] px-1.5 font-bold ${
+                active ? 'bg-hai-mint text-hai-plum' : 'bg-hai-offwhite text-hai-plum'
+              }`}>
+                {t.count}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* ── USERS ── */}
       {tab === 'users' && (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid var(--rule)' }}>
-            <thead>
-              <tr>
-                {['Name', 'Email', 'Role', 'Institution', 'Status', 'Last active', 'Actions'].map(h => (
-                  <th key={h} style={th}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {users.filter(u => u.role !== 'admin').map(u => (
-                <tr key={u.id} style={{ background: u.isSuspended ? 'color-mix(in oklab, #ef4444 5%, var(--paper))' : 'var(--paper)' }}>
-                  <td style={td}>{u.name}</td>
-                  <td style={{ ...td, fontFamily: 'var(--ff-mono)', fontSize: 11 }}>{u.email}</td>
-                  <td style={td}>{ROLE_LABEL[u.role] ?? u.role}</td>
-                  <td style={{ ...td, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.institution}</td>
-                  <td style={td}>
-                    <span style={{
-                      fontFamily: 'var(--ff-mono)', fontSize: 9.5, letterSpacing: '.12em', textTransform: 'uppercase',
-                      padding: '2px 8px', borderRadius: 2,
-                      background: u.isSuspended ? 'oklch(0.93 0.04 25)' : 'oklch(0.93 0.06 145)',
-                      color: u.isSuspended ? '#ef4444' : 'oklch(0.32 0.10 145)',
-                    }}>
-                      {u.isSuspended ? 'Suspended' : 'Active'}
-                    </span>
-                  </td>
-                  <td style={{ ...td, fontSize: 11, color: 'var(--ink-muted)' }}>
-                    {new Date(u.lastActive).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                  </td>
-                  <td style={td}>
-                    <button
-                      onClick={() => handleSuspend(u.id)}
-                      style={{
-                        fontFamily: 'var(--ff-mono)', fontSize: 9.5, letterSpacing: '.1em', textTransform: 'uppercase',
-                        background: 'none', border: `1px solid ${u.isSuspended ? 'oklch(0.52 0.14 145)' : '#ef4444'}`,
-                        color: u.isSuspended ? 'oklch(0.32 0.10 145)' : '#ef4444',
-                        padding: '4px 10px', cursor: 'pointer',
-                      }}
-                    >
-                      {u.isSuspended ? 'Reinstate' : 'Suspend'}
-                    </button>
-                  </td>
+        <div className="bg-white rounded-[1.75rem] border border-neutral-100 overflow-hidden font-body">
+          <div className="px-5 md:px-6 py-4 border-b border-neutral-100 bg-hai-offwhite flex items-center gap-3 flex-wrap">
+            <div className="relative flex-1 min-w-[220px]">
+              <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-hai-plum/50 text-[18px] pointer-events-none">
+                search
+              </span>
+              <input
+                type="search"
+                value={userQuery}
+                onChange={e => setUserQuery(e.target.value)}
+                placeholder="Search by name, email, or institution…"
+                className="w-full bg-white border-2 border-transparent rounded-full pl-11 pr-4 py-2.5 text-[13px] font-body font-medium text-hai-plum placeholder:text-neutral-400 focus:border-hai-plum outline-none transition-colors"
+              />
+            </div>
+            <span className="text-[10.5px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold">
+              {filteredUsers.length} of {totalUsers} shown
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse min-w-[760px]">
+              <thead>
+                <tr>
+                  {['Member', 'Role', 'Institution', 'Status', 'Last active', 'Actions'].map(h => (
+                    <th key={h} className="text-left text-[10px] font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold px-5 py-3 bg-hai-offwhite/60 border-b border-neutral-100 whitespace-nowrap">
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredUsers.map(u => {
+                  const initials = u.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+                  return (
+                    <tr key={u.id} className={`border-b border-neutral-100 last:border-b-0 transition-colors ${u.isSuspended ? 'bg-red-50/40' : 'hover:bg-hai-mint/20'}`}>
+                      <td className="px-5 py-4 align-middle">
+                        <div className="flex items-center gap-3">
+                          <div className="shrink-0 w-9 h-9 rounded-full bg-hai-plum text-hai-mint flex items-center justify-center font-mono font-bold text-[11px] tracking-[0.06em]">
+                            {initials}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-body font-bold text-[13.5px] text-hai-plum truncate">{u.name}</div>
+                            <div className="font-mono text-[11px] text-neutral-500 truncate">{u.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 align-middle">
+                        <span className="inline-flex items-center gap-1.5 bg-hai-offwhite text-hai-plum rounded-full px-2.5 py-1 text-[10px] font-mono tracking-[0.1em] uppercase font-bold whitespace-nowrap">
+                          <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+                            {ROLE_ICON[u.role] ?? 'person'}
+                          </span>
+                          {ROLE_LABEL[u.role] ?? u.role}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 align-middle">
+                        <span className="text-[12.5px] text-neutral-600 font-body truncate max-w-[220px] inline-block align-bottom">{u.institution}</span>
+                      </td>
+                      <td className="px-5 py-4 align-middle">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-mono tracking-[0.1em] uppercase font-bold whitespace-nowrap ${
+                          u.isSuspended ? 'bg-red-50 text-red-600' : 'bg-hai-mint text-hai-plum'
+                        }`}>
+                          <span className={`w-1 h-1 rounded-full ${u.isSuspended ? 'bg-red-500' : 'bg-hai-teal'}`} />
+                          {u.isSuspended ? 'Suspended' : 'Active'}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 align-middle font-mono text-[11.5px] text-neutral-500 whitespace-nowrap">
+                        {new Date(u.lastActive).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                      </td>
+                      <td className="px-5 py-4 align-middle">
+                        <button
+                          onClick={() => handleSuspend(u.id)}
+                          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10.5px] font-mono tracking-[0.1em] uppercase font-bold transition-colors whitespace-nowrap ${
+                            u.isSuspended
+                              ? 'bg-white border border-hai-plum text-hai-plum hover:bg-hai-mint/40'
+                              : 'bg-white border border-red-200 text-red-600 hover:bg-red-50'
+                          }`}
+                        >
+                          <span className="material-symbols-outlined text-[13px]">
+                            {u.isSuspended ? 'person_add' : 'block'}
+                          </span>
+                          {u.isSuspended ? 'Reinstate' : 'Suspend'}
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
-      {/* ── POSTS TAB ── */}
+      {/* ── POSTS ── */}
       {tab === 'posts' && (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid var(--rule)' }}>
-            <thead>
-              <tr>
-                {['Title', 'Author', 'Domain', 'Status', 'Created', 'Actions'].map(h => (
-                  <th key={h} style={th}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {posts.map(p => (
-                <tr key={p.id} style={{ background: 'var(--paper)' }}>
-                  <td style={{ ...td, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--ff-sans)', fontSize: 13 }}>{p.title}</td>
-                  <td style={td}>{p.authorName}</td>
-                  <td style={{ ...td, fontSize: 11, color: 'var(--ink-muted)' }}>{p.domain}</td>
-                  <td style={td}>
-                    <span style={{
-                      fontFamily: 'var(--ff-mono)', fontSize: 9.5, letterSpacing: '.12em', textTransform: 'uppercase',
-                      padding: '2px 8px', borderRadius: 2,
-                      background: p.status === 'active' ? 'oklch(0.93 0.06 145)' : 'oklch(0.93 0.005 240)',
-                      color: p.status === 'active' ? 'oklch(0.32 0.10 145)' : 'oklch(0.44 0.02 250)',
-                    }}>
-                      {p.status}
-                    </span>
-                  </td>
-                  <td style={{ ...td, fontSize: 11, color: 'var(--ink-muted)' }}>
-                    {new Date(p.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                  </td>
-                  <td style={td}>
-                    <button
-                      onClick={() => handleRemovePost(p.id, p.authorId)}
-                      style={{
-                        fontFamily: 'var(--ff-mono)', fontSize: 9.5, letterSpacing: '.1em', textTransform: 'uppercase',
-                        background: 'none', border: '1px solid #ef4444', color: '#ef4444',
-                        padding: '4px 10px', cursor: 'pointer',
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </td>
+        <div className="bg-white rounded-[1.75rem] border border-neutral-100 overflow-hidden font-body">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse min-w-[820px]">
+              <thead>
+                <tr>
+                  {['Title', 'Author', 'Domain', 'Status', 'Created', 'Actions'].map(h => (
+                    <th key={h} className="text-left text-[10px] font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold px-5 py-3 bg-hai-offwhite/60 border-b border-neutral-100 whitespace-nowrap">
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {posts.map(p => (
+                  <tr key={p.id} className="border-b border-neutral-100 last:border-b-0 hover:bg-hai-mint/20 transition-colors">
+                    <td className="px-5 py-4 align-middle max-w-[320px]">
+                      <div className="font-body font-bold text-[13.5px] text-hai-plum truncate">{p.title}</div>
+                    </td>
+                    <td className="px-5 py-4 align-middle">
+                      <span className="text-[12.5px] text-neutral-600 font-body">{p.authorName}</span>
+                    </td>
+                    <td className="px-5 py-4 align-middle">
+                      <span className="inline-flex items-center gap-1.5 bg-hai-mint/60 text-hai-plum rounded-full px-2.5 py-1 text-[10px] font-mono tracking-[0.1em] uppercase font-bold whitespace-nowrap">
+                        <span className="w-1 h-1 rounded-full bg-hai-teal" />
+                        {p.domain}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 align-middle">
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-mono tracking-[0.1em] uppercase font-bold whitespace-nowrap ${
+                        p.status === 'active'            ? 'bg-hai-mint text-hai-plum' :
+                        p.status === 'partner_found'     ? 'bg-hai-plum text-hai-mint' :
+                        p.status === 'meeting_scheduled' ? 'bg-hai-lime text-hai-plum' :
+                        p.status === 'expired'           ? 'bg-hai-cream/60 text-neutral-500' :
+                                                          'bg-neutral-100 text-neutral-500'
+                      }`}>
+                        {p.status.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 align-middle font-mono text-[11.5px] text-neutral-500 whitespace-nowrap">
+                      {new Date(p.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                    </td>
+                    <td className="px-5 py-4 align-middle">
+                      <button
+                        onClick={() => handleRemovePost(p.id, p.authorId)}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-red-200 text-red-600 text-[10.5px] font-mono tracking-[0.1em] uppercase font-bold hover:bg-red-50 transition-colors whitespace-nowrap"
+                      >
+                        <span className="material-symbols-outlined text-[13px]">delete</span>
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
-      {/* ── LOGS TAB ── */}
+      {/* ── LOGS ── */}
       {tab === 'logs' && (
-        <div>
-          {/* Filters + export */}
-          <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div className="bg-white rounded-[1.75rem] border border-neutral-100 overflow-hidden font-body">
+          <div className="px-5 md:px-6 py-4 border-b border-neutral-100 bg-hai-offwhite flex items-center gap-2.5 flex-wrap">
             <select
               value={logAction}
               onChange={e => setLogAction(e.target.value)}
-              style={{ fontFamily: 'var(--ff-mono)', fontSize: 11, background: 'var(--paper)', border: '1px solid var(--rule)', padding: '8px 12px', color: 'var(--ink)', cursor: 'pointer' }}
+              style={selectStyle}
+              aria-label="Filter by action"
             >
               <option value="">All actions</option>
               {uniqueActions.map(a => <option key={a} value={a}>{a}</option>)}
@@ -264,63 +411,95 @@ export default function AdminPage() {
             <select
               value={logResult}
               onChange={e => setLogResult(e.target.value)}
-              style={{ fontFamily: 'var(--ff-mono)', fontSize: 11, background: 'var(--paper)', border: '1px solid var(--rule)', padding: '8px 12px', color: 'var(--ink)', cursor: 'pointer' }}
+              style={selectStyle}
+              aria-label="Filter by result"
             >
               <option value="">All results</option>
               <option value="success">Success</option>
               <option value="failure">Failure</option>
             </select>
-            <span style={{ fontFamily: 'var(--ff-mono)', fontSize: 10.5, color: 'var(--ink-muted)', marginLeft: 4 }}>
+            {(logAction || logResult) && (
+              <button
+                onClick={() => { setLogAction(''); setLogResult('') }}
+                className="inline-flex items-center gap-1 text-[10.5px] font-mono tracking-[0.12em] uppercase font-bold text-neutral-500 hover:text-hai-plum transition-colors"
+              >
+                <span className="material-symbols-outlined text-[14px]">close</span>
+                Clear
+              </button>
+            )}
+            <span className="text-[10.5px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold">
               {filteredLogs.length} of {mockLogs.length} entries
             </span>
             <button
               onClick={() => downloadCSV(filteredLogs)}
-              style={{ marginLeft: 'auto', fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase', background: 'var(--ink)', color: 'var(--paper)', border: 'none', padding: '9px 18px', cursor: 'pointer' }}
+              className="ml-auto inline-flex items-center gap-1.5 bg-hai-plum text-white rounded-full px-4 py-2 text-[10.5px] font-mono tracking-[0.12em] uppercase font-bold hover:bg-black transition-colors"
             >
-              ↓ Export CSV
+              <span className="material-symbols-outlined text-[14px]">download</span>
+              Export CSV
             </button>
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid var(--rule)', fontSize: 12 }}>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse min-w-[920px]">
               <thead>
                 <tr>
                   {['Timestamp', 'User', 'Role', 'Action', 'Target', 'Result', 'IP'].map(h => (
-                    <th key={h} style={th}>{h}</th>
+                    <th key={h} className="text-left text-[10px] font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold px-5 py-3 bg-hai-offwhite/60 border-b border-neutral-100 whitespace-nowrap">
+                      {h}
+                    </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {filteredLogs.map(log => (
-                  <tr key={log.id} style={{ background: log.result === 'failure' ? 'color-mix(in oklab, #ef4444 4%, var(--paper))' : 'var(--paper)' }}>
-                    <td style={{ ...td, fontSize: 11, whiteSpace: 'nowrap', color: 'var(--ink-muted)' }}>
-                      {new Date(log.timestamp).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                    </td>
-                    <td style={{ ...td, fontSize: 11 }}>{log.userEmail}</td>
-                    <td style={{ ...td, fontSize: 10, color: 'var(--ink-muted)' }}>{ROLE_LABEL[log.role] ?? log.role}</td>
-                    <td style={{ ...td, color: ACTION_COLORS[log.action] ?? 'var(--ink)', fontWeight: ACTION_COLORS[log.action] ? 600 : 400 }}>
-                      {log.action}
-                    </td>
-                    <td style={{ ...td, fontSize: 11, color: 'var(--ink-muted)' }}>{log.targetEntityId ?? '—'}</td>
-                    <td style={td}>
-                      <span style={{
-                        fontFamily: 'var(--ff-mono)', fontSize: 9.5, letterSpacing: '.1em', textTransform: 'uppercase',
-                        padding: '2px 7px', borderRadius: 2,
-                        background: log.result === 'success' ? 'oklch(0.93 0.06 145)' : 'oklch(0.93 0.04 25)',
-                        color: log.result === 'success' ? 'oklch(0.32 0.10 145)' : '#ef4444',
-                      }}>
-                        {log.result}
-                      </span>
-                    </td>
-                    <td style={{ ...td, fontSize: 11, color: 'var(--ink-muted)' }}>{log.ipAddress ?? '—'}</td>
-                  </tr>
-                ))}
+                {filteredLogs.map(log => {
+                  const isCritical = CRITICAL_ACTIONS.has(log.action)
+                  return (
+                    <tr key={log.id} className={`border-b border-neutral-100 last:border-b-0 ${log.result === 'failure' ? 'bg-red-50/30' : 'hover:bg-hai-mint/15'} transition-colors`}>
+                      <td className="px-5 py-3 align-middle font-mono text-[11px] text-neutral-500 whitespace-nowrap">
+                        {new Date(log.timestamp).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                      <td className="px-5 py-3 align-middle font-mono text-[11.5px] text-hai-plum font-medium whitespace-nowrap">{log.userEmail}</td>
+                      <td className="px-5 py-3 align-middle">
+                        <span className="text-[10.5px] font-mono uppercase tracking-[0.08em] text-neutral-500">
+                          {ROLE_LABEL[log.role] ?? log.role}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 align-middle">
+                        <span className={`inline-flex items-center font-mono text-[11px] tracking-[0.06em] ${
+                          isCritical ? 'text-red-600 font-bold' : 'text-hai-plum font-semibold'
+                        }`}>
+                          {isCritical && (
+                            <span className="material-symbols-outlined text-[13px] mr-1" style={{ fontVariationSettings: '"FILL" 1' }}>warning</span>
+                          )}
+                          {log.action}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 align-middle font-mono text-[11px] text-neutral-500">
+                        {log.targetEntityId ?? <span className="text-neutral-300">—</span>}
+                      </td>
+                      <td className="px-5 py-3 align-middle">
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] font-mono tracking-[0.1em] uppercase font-bold ${
+                          log.result === 'success' ? 'bg-hai-mint text-hai-plum' : 'bg-red-50 text-red-600'
+                        }`}>
+                          <span className={`w-1 h-1 rounded-full ${log.result === 'success' ? 'bg-hai-teal' : 'bg-red-500'}`} />
+                          {log.result}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 align-middle font-mono text-[11px] text-neutral-500 whitespace-nowrap">
+                        {log.ipAddress ?? <span className="text-neutral-300">—</span>}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
 
-          <div style={{ marginTop: 12, fontFamily: 'var(--ff-mono)', fontSize: 10, color: 'var(--ink-muted)', letterSpacing: '.08em' }}>
-            Logs are tamper-resistant. No deletion permitted. Retention period: 24 months.
+          <div className="px-5 md:px-6 py-3 border-t border-neutral-100 bg-hai-offwhite/60 flex items-center gap-2">
+            <span className="material-symbols-outlined text-hai-plum/60 text-[15px]" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
+            <span className="text-[10.5px] font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold">
+              Logs are tamper-resistant · No deletion permitted · Retention 24 months
+            </span>
           </div>
         </div>
       )}

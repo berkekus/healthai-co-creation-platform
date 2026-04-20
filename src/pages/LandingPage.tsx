@@ -1,606 +1,847 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ROUTES } from '../constants/routes'
+import { useAuthStore } from '../store/authStore'
 
-// ── Palette switcher state ────────────────────────────────────────────
-type Palette = 'A' | 'B' | 'C' | 'D'
-type FontSet = 'newsreader' | 'instrument'
-type StampVis = 'on' | 'off'
+// ─────────────────────────────────────────────────────────────────────
+// HEALTH AI · Co-Creation Platform — Landing (Faz 0 refresh)
+//
+// Visual language adapted from the Payard reference:
+//   · Teal (#8AC6D0) → Mint (#B8F3FF) → Plum (#36213E)
+//   · Plus Jakarta Sans (display / pill caps) + Source Sans 3 (body) + Material Symbols
+//   · Rounded white panels, floating tiles, dev wordmarks, dot atmospheres
+// Content: structured clinician ↔ engineer co-creation directory
+//
+// Gradient plan: the hero zone fades from teal (top) to off-white at the
+// midpoint of the "Join the directory" panel, so the entire bottom half
+// of the hero — and everything through the "Ready to co-create?" CTA —
+// sits on a calm off-white surface.
+// ─────────────────────────────────────────────────────────────────────
 
-// ── Utility ───────────────────────────────────────────────────────────
-function SecLabel({ num, title, sub }: { num: string; title: string; sub: string }) {
+// ── Icon helper ─────────────────────────────────────────────────────
+function Icon({ name, className = '', filled = false }: { name: string; className?: string; filled?: boolean }) {
   return (
-    <div className="sec-label">
-      <span className="num">{num}</span>
-      <span>{title}</span>
-      <span className="dot" />
-      <span>{sub}</span>
-    </div>
-  )
-}
-
-// ── Button ────────────────────────────────────────────────────────────
-function Btn({ children, variant = 'default', href = '#', style: extraStyle }: {
-  children: React.ReactNode
-  variant?: 'default' | 'primary' | 'ghost'
-  href?: string
-  style?: React.CSSProperties
-}) {
-  const base: React.CSSProperties = {
-    display: 'inline-flex', alignItems: 'center', gap: 10,
-    padding: '10px 18px', border: '1px solid var(--ink)',
-    fontFamily: 'var(--ff-sans)', fontSize: 13.5, fontWeight: 500,
-    cursor: 'pointer', position: 'relative', overflow: 'hidden',
-    transition: 'box-shadow .3s, border-color .3s',
-    textDecoration: 'none',
-  }
-  const variants: Record<string, React.CSSProperties> = {
-    default:  { background: 'var(--ink)', color: 'var(--paper)' },
-    primary:  { background: 'var(--accent)', borderColor: 'var(--accent)', color: 'var(--paper)' },
-    ghost:    { background: 'transparent', color: 'var(--ink)', borderColor: 'var(--ink)' },
-  }
-  return (
-    <a href={href} className="btn-slide" style={{ ...base, ...variants[variant], ...extraStyle }}>
-      {children}
-    </a>
-  )
-}
-
-// ── Index Card (hero right) ───────────────────────────────────────────
-function IndexCard({ showStamp }: { showStamp: boolean }) {
-  return (
-    <aside aria-label="Example collaboration post" style={{
-      position: 'relative',
-      background: 'var(--paper-2)',
-      border: '1px solid var(--ink)',
-      padding: 0, fontSize: 13,
-      boxShadow: '6px 6px 0 0 var(--primary), 6px 6px 0 1px var(--ink)',
-      transform: 'rotate(-0.6deg)',
-      transition: 'transform .4s cubic-bezier(.2,.7,.2,1)',
-    }}
-      onMouseEnter={e => (e.currentTarget.style.transform = 'rotate(0deg) translateY(-2px)')}
-      onMouseLeave={e => (e.currentTarget.style.transform = 'rotate(-0.6deg)')}
+    <span
+      className={`material-symbols-outlined ${className}`}
+      style={filled ? { fontVariationSettings: '"FILL" 1' } : undefined}
     >
-      {showStamp && (
-        <div style={{
-          position: 'absolute', right: -18, top: 72,
-          fontFamily: 'var(--ff-mono)', fontSize: 10, letterSpacing: '.2em',
-          color: 'var(--primary)', border: '1.5px solid var(--primary)',
-          padding: '4px 10px', transform: 'rotate(8deg)', opacity: 0.85, zIndex: 2,
-          background: 'color-mix(in oklab, var(--paper) 92%, transparent)',
-        }}>NDA REQUIRED</div>
-      )}
-      {/* head */}
-      <div style={{
-        padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        borderBottom: '1px solid var(--ink)',
-        fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase',
-        background: 'var(--ink)', color: 'var(--paper)',
-      }}>
-        <span style={{ opacity: 0.7 }}>POST · #HAI-0427</span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 0 2px color-mix(in oklab, var(--accent) 40%, transparent)' }} />
-          ACTIVE
-        </span>
-      </div>
-      {/* body */}
-      <div style={{ padding: '22px 24px 8px' }}>
-        <div style={{ fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 14 }}>
-          Healthcare Professional · Berlin
-        </div>
-        <h3 style={{ fontFamily: 'var(--ff-display)', fontWeight: 400, fontSize: 26, lineHeight: 1.12, letterSpacing: '-0.015em', color: 'var(--ink)', margin: '0 0 14px' }}>
-          Low-latency <span style={{ fontWeight: 500, color: 'var(--primary)' }}>ECG anomaly</span> detection for ICU bedside monitors.
-        </h3>
-        <p style={{ color: 'var(--ink-muted)', fontSize: 14, lineHeight: 1.55, margin: '0 0 22px' }}>
-          Seeking a signal-processing or ML engineer to co-develop an on-device classifier. Clinical dataset and validation protocol already in place. Details shared under NDA.
-        </p>
-        {/* table */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', fontSize: 12.5, borderTop: '1px solid var(--rule)' }}>
-          {[
-            ['Domain',          'Cardiology · ICU'],
-            ['Needs',           <><b style={{ fontWeight: 500 }}>Signal Processing, Embedded ML</b></>],
-            ['Stage',           'Concept Validation → Prototype'],
-            ['Commitment',      'Research Partner'],
-            ['Confidentiality', 'Meeting Only'],
-            ['Expires',         '14 May 2026'],
-          ].map(([k, v], i) => (
-            <>
-              <div key={`k${i}`} style={{ padding: '9px 0', borderBottom: '1px dashed var(--rule-soft)', fontFamily: 'var(--ff-mono)', fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ink-muted)', paddingRight: 24 }}>{k}</div>
-              <div key={`v${i}`} style={{ padding: '9px 0', borderBottom: '1px dashed var(--rule-soft)', color: 'var(--ink)' }}>{v}</div>
-            </>
-          ))}
-        </div>
-      </div>
-      {/* foot */}
-      <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '14px 24px', borderTop: '1px solid var(--ink)',
-        fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase',
-        color: 'var(--ink-muted)',
-      }}>
-        <span>03 interests · 01 meeting scheduled</span>
-        <span style={{ color: 'var(--paper)', background: 'var(--primary)', padding: '6px 12px', letterSpacing: '.08em', fontWeight: 500 }}>Express Interest →</span>
-      </div>
-    </aside>
+      {name}
+    </span>
   )
 }
 
-// ── Feature Cell ──────────────────────────────────────────────────────
-function Feat({ num, title, desc, colSpan, children, className = '' }: {
-  num: string; title: React.ReactNode; desc: string; colSpan: number; children?: React.ReactNode; className?: string
-}) {
+// ── Logo ────────────────────────────────────────────────────────────
+function Logo({ inverted = false }: { inverted?: boolean }) {
   return (
-    <div className={className} style={{
-      background: 'var(--paper)', padding: '48px 40px',
-      display: 'flex', flexDirection: 'column', gap: 18,
-      gridColumn: `span ${colSpan}`, minHeight: 340,
-      transition: 'background .4s ease',
-    }}
-      onMouseEnter={e => (e.currentTarget.style.background = 'color-mix(in oklab, var(--paper) 70%, var(--paper-2) 100%)')}
-      onMouseLeave={e => (e.currentTarget.style.background = 'var(--paper)')}
-    >
-      <span style={{ fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.16em', color: 'var(--primary)', fontWeight: 500 }}>{num}</span>
-      <h3 style={{ fontFamily: 'var(--ff-display)', fontWeight: 400, fontSize: 30, lineHeight: 1.12, letterSpacing: '-0.015em', margin: 0 }}>{title}</h3>
-      <p style={{ color: 'var(--ink-muted)', fontSize: 14.5, lineHeight: 1.6, margin: 0, maxWidth: '46ch' }}>{desc}</p>
-      {children}
+    <div className="flex items-center gap-2.5">
+      <div className={`p-1.5 rounded-lg ${inverted ? 'bg-white' : 'bg-black'}`}>
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="16.5" y="5"    width="7"  height="30" rx="1.5" fill={inverted ? 'black' : 'white'} />
+          <rect x="5"    y="16.5" width="30" height="7"  rx="1.5" fill={inverted ? 'black' : 'white'} />
+        </svg>
+      </div>
+      <span className={`text-[22px] font-extrabold tracking-tight font-body ${inverted ? 'text-white' : 'text-black'}`}>
+        healthai<span className="text-hai-plum">.</span>
+      </span>
     </div>
   )
 }
 
-// ── Art components ────────────────────────────────────────────────────
-function ArtDirectory() {
-  return (
-    <div className="art-hatch" style={{ marginTop: 'auto', border: '1px solid var(--rule)', minHeight: 120, position: 'relative', overflow: 'hidden', display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', padding: '0 20px', fontFamily: 'var(--ff-display)', fontSize: 20, lineHeight: 1.1 }}>
-      <div style={{ padding: '20px 8px', borderRight: '1px dashed var(--rule)', color: 'var(--ink)' }}>
-        <small style={{ display: 'block', fontFamily: 'var(--ff-mono)', fontSize: 10, letterSpacing: '.16em', color: 'var(--ink-muted)', textTransform: 'uppercase', fontStyle: 'normal', marginBottom: 6 }}>Engineer</small>
-        Machine Learning<br />Computer Vision<br />Signal Processing
-      </div>
-      <div style={{ padding: '20px 8px', paddingLeft: 24, color: 'var(--primary)', fontWeight: 500 }}>
-        <small style={{ display: 'block', fontFamily: 'var(--ff-mono)', fontSize: 10, letterSpacing: '.16em', color: 'var(--ink-muted)', textTransform: 'uppercase', fontStyle: 'normal', marginBottom: 6 }}>Healthcare</small>
-        Cardiology<br />Radiology<br />Emergency Medicine
-      </div>
-    </div>
-  )
+// ── Top Nav ─────────────────────────────────────────────────────────
+
+/**
+ * Thin vertical separator rendered between center-nav links.
+ * Lives outside every `<a>`'s hover box on purpose — the rounded-lg black/5
+ * wash can animate freely without ever clipping against a hard divider line.
+ * `aria-hidden` so screen readers skip it.
+ */
+function NavDivider() {
+  return <span aria-hidden className="mx-0.5 h-4 w-px self-center bg-neutral-200" />
 }
 
-function ArtLifecycle() {
-  const steps = ['Interest', 'NDA', 'Meeting', 'Partner']
+function TopNav() {
+  const { user } = useAuthStore()
   return (
-    <div className="art-hatch" style={{ marginTop: 'auto', border: '1px solid var(--rule)', minHeight: 120, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 22px', fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--ink-muted)' }}>
-      {steps.map((s, i) => (
-        <>
-          <div key={s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 10, height: 10, border: '1px solid var(--ink)', background: i < 3 ? 'var(--primary)' : 'var(--paper)', borderColor: i < 3 ? 'var(--primary)' : 'var(--ink)' }} />
-            <span>{s}</span>
+    <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 md:px-12 py-5 bg-transparent font-body">
+      <Logo />
+
+      {/* Center pill — hidden below lg.
+          Each anchor uses the same premium micro-interaction as the
+          authenticated Navbar: px-4 py-2 tap target, rounded-lg corners,
+          and a quiet black/5 wash that fades in over 200 ms.
+          The vertical dividers are rendered as standalone <span>s between
+          links instead of `border-r` on the anchor itself — this way the
+          divider is visually outside the rounded-lg hover chamber, so the
+          wash never clips against a hard line. */}
+      <div className="hidden lg:flex items-center bg-white/25 backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+        <div className="flex items-center bg-white rounded-full h-full">
+          <div className="flex items-center px-1">
+            <a href="#platform"  className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">Platform</a>
+            <NavDivider />
+            <a href="#directory" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">Directory</a>
+            <NavDivider />
+            <a href="#how"       className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">How it works</a>
+            <NavDivider />
+            <a href="#trust"     className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">Trust</a>
           </div>
-          {i < steps.length - 1 && <div key={`arr${i}`} style={{ flex: 1, height: 1, background: 'var(--ink)', margin: '0 8px', position: 'relative', top: -8 }} />}
-        </>
-      ))}
+          <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
+            {/* Request Access — plum bg + white font. Same premium hover
+                recipe as Sign in / Sign up: soft lift, blooming shadow,
+                eased color shift. Shadow is plum-tinted (rgba(54,33,62,·))
+                so the drop feels branded against the white pill chamber. */}
+            <Link
+              to={ROUTES.REGISTER}
+              className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out will-change-transform"
+            >
+              Request Access
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Right auth actions — premium hover effect:
+           · soft lift (-translate-y-0.5)
+           · shadow blooms from a tight base glow into a wider, softer drop
+           · background color eases smoothly (no jump)
+           · `active:translate-y-0` + shadow shrink gives a crisp press feedback
+          transition-all runs over 250 ms ease-out so all three properties
+          (transform / shadow / color) resolve in perfect sync. */}
+      <div className="flex items-center gap-2 md:gap-3">
+        {user ? (
+          <Link
+            to={ROUTES.DASHBOARD}
+            className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
+          >
+            Go to Dashboard →
+          </Link>
+        ) : (
+          <>
+            <Link
+              to={ROUTES.LOGIN}
+              className="hidden sm:inline-flex text-neutral-900 font-bold text-sm px-5 py-2.5 rounded-full border border-neutral-900/30 bg-white/0 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] hover:bg-white/70 hover:border-neutral-900/50 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-10px_rgba(0,0,0,0.25)] active:translate-y-0 active:shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] transition-all duration-[250ms] ease-out will-change-transform"
+            >
+              Sign in
+            </Link>
+            <Link
+              to={ROUTES.REGISTER}
+              className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
+            >
+              Sign up
+            </Link>
+          </>
+        )}
+      </div>
+    </nav>
+  )
+}
+
+// ── Hero open-card: stylized mock post (clinician / engineer side) ──
+function HeroPostMock({ side }: { side: 'clinician' | 'engineer' }) {
+  const isClinician = side === 'clinician'
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute right-0 bottom-16 w-[85%] h-[240px] flex items-end justify-end pointer-events-none"
+      style={{ transform: isClinician ? 'rotate(-8deg) translateX(10px)' : 'rotate(5deg) translateX(20px)' }}
+    >
+      <div className="relative w-full h-full">
+        <div className="absolute inset-0 bg-white rounded-[1.6rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.25)] border border-black/5"
+             style={{ transform: 'rotate(-4deg) translate(-16px, -8px)' }} />
+        <div className="absolute inset-0 bg-neutral-50 rounded-[1.6rem] shadow-[0_25px_60px_-20px_rgba(0,0,0,0.3)] border border-black/10"
+             style={{ transform: 'rotate(2deg) translate(8px, 4px)' }}>
+          <div className="p-5 flex flex-col h-full">
+            <div className="flex items-center justify-between text-[9px] font-mono tracking-[0.15em] uppercase text-neutral-500 mb-3">
+              <span>Post · #HAI-{isClinician ? '0427' : '0319'}</span>
+              <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> ACTIVE</span>
+            </div>
+            <div className={`text-[9px] font-mono tracking-[0.14em] uppercase mb-2 font-bold ${isClinician ? 'text-rose-700' : 'text-indigo-700'}`}>
+              {isClinician ? 'Healthcare Professional · Berlin' : 'Engineer · Delft'}
+            </div>
+            <h4 className="font-headline font-medium text-[17px] leading-[1.15] tracking-tight text-black mb-3 line-clamp-3">
+              {isClinician
+                ? <>Low-latency <span className="text-rose-700 font-bold">ECG anomaly</span> detection for ICU bedside monitors.</>
+                : <>Embedded ML toolkit for <span className="text-indigo-700 font-bold">real-time biosignal</span> classification.</>}
+            </h4>
+            <div className="mt-auto flex items-center justify-between pt-3 border-t border-neutral-200 text-[9px] font-mono tracking-[0.12em] uppercase">
+              <span className="text-neutral-500">03 interests</span>
+              <span className="bg-hai-plum text-hai-mint px-2.5 py-1 rounded-full">Express Interest →</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
 
-function ArtGDPR() {
-  const items: [string, boolean][] = [
-    ['Export my data', false], ['Delete account', false], ['Session timeout', false],
-    ['File upload', true], ['Patient records', true], ['Chat history', true],
-    ['.edu verification', false], ['RBAC', false], ['Rate-limited auth', false],
-    ['Tamper-resistant log', false],
+// ── Platform card icon square ───────────────────────────────────────
+function IconSquare({ color, bg, icon }: { color: string; bg: string; icon: string }) {
+  return (
+    <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: bg, color }}>
+      <Icon name={icon} filled />
+    </div>
+  )
+}
+
+// ── Step data & visuals for the interactive user guide ──────────────
+type Step = {
+  num: string
+  name: string
+  tagline: string
+  desc: string
+  icon: string
+  accent: string  // subtle tint for the illustration panel
+  Visual: () => JSX.Element
+}
+
+const PostVisual = () => (
+  <div className="relative w-full max-w-[340px] aspect-[5/4] mx-auto">
+    <div className="absolute inset-0 bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5 flex flex-col gap-2.5">
+      <div className="flex items-center gap-2 text-[9px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold mb-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Draft · new post
+      </div>
+      <div className="h-6 bg-gradient-to-r from-hai-teal/30 to-hai-mint/40 rounded-md w-5/6" />
+      <div className="grid grid-cols-2 gap-2 mt-1">
+        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-[10px] font-mono tracking-wider uppercase text-neutral-500">Domain</div>
+        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-[10px] font-mono tracking-wider uppercase text-neutral-500">Stage</div>
+      </div>
+      <div className="h-2 bg-neutral-100 rounded-full w-full" />
+      <div className="h-2 bg-neutral-100 rounded-full w-4/5" />
+      <div className="h-2 bg-neutral-100 rounded-full w-3/5" />
+      <div className="mt-auto flex items-center justify-between pt-2">
+        <span className="text-[10px] font-mono tracking-[0.12em] uppercase text-neutral-400">0 / 0 files</span>
+        <span className="bg-hai-plum text-white text-[11px] font-bold px-3 py-1.5 rounded-full">Publish →</span>
+      </div>
+    </div>
+    <div className="absolute -bottom-3 -right-3 w-14 h-14 bg-hai-lime rounded-2xl shadow-lg flex items-center justify-center rotate-6">
+      <Icon name="edit_note" className="text-hai-plum text-[30px]" filled />
+    </div>
+  </div>
+)
+
+const MatchVisual = () => {
+  const chips: [string, boolean][] = [
+    ['Cardiology', true], ['Oncology', false], ['Radiology', false], ['Neurology', true],
+    ['Embedded ML', true], ['Signal Proc.', false], ['Computer Vision', false], ['ICU · Berlin', true],
   ]
   return (
-    <div className="art-hatch" style={{ marginTop: 'auto', border: '1px solid var(--rule)', minHeight: 80, padding: '22px 24px', fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.06em', color: 'var(--ink-muted)', lineHeight: 1.9 }}>
-      {items.map(([label, struck]) => (
-        <span key={label}>
-          <b style={{ color: 'var(--primary)', fontWeight: 500 }}>· </b>
-          {struck
-            ? <s style={{ textDecorationColor: 'var(--primary)', color: 'var(--ink-muted)' }}>{label}</s>
-            : <span>{label}</span>
-          }
-          {'  '}
-        </span>
-      ))}
+    <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold">Directory · filters</span>
+        <span className="flex items-center gap-1 text-[10px] font-mono tracking-[0.15em] uppercase text-hai-plum"><Icon name="tune" className="text-[14px]" filled /> 04 active</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {chips.map(([label, active]) => (
+          <span key={label} className={`text-[11px] font-bold px-3 py-1.5 rounded-full transition ${active ? 'bg-hai-plum text-white' : 'bg-neutral-100 text-neutral-500'}`}>
+            {label}
+          </span>
+        ))}
+      </div>
+      <div className="mt-5 pt-4 border-t border-neutral-100 flex items-center gap-3">
+        <Icon name="location_on" className="text-hai-plum text-[18px]" filled />
+        <span className="text-[11px] font-mono tracking-wider uppercase text-neutral-500">12 European cities · 20 domains</span>
+      </div>
     </div>
   )
 }
 
-// ── Main Page ─────────────────────────────────────────────────────────
+const MeetVisual = () => (
+  <div className="w-full max-w-[340px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
+    <div className="flex items-start gap-3 mb-4 pb-4 border-b border-neutral-100">
+      <div className="w-9 h-9 rounded-xl bg-hai-mint/60 flex items-center justify-center shrink-0">
+        <Icon name="shield_lock" className="text-hai-plum text-[20px]" filled />
+      </div>
+      <div className="flex-1">
+        <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-0.5">Step 01 · NDA</div>
+        <div className="font-headline text-[15px] font-bold text-hai-plum leading-tight">One-page NDA, accepted inline.</div>
+      </div>
+      <Icon name="check_circle" className="text-emerald-600 text-[22px]" filled />
+    </div>
+    {[
+      ['Mon · 28 Apr', '14:00 CET'],
+      ['Wed · 30 Apr', '10:30 CET'],
+      ['Fri · 02 May', '16:00 CET'],
+    ].map(([date, time], i) => (
+      <div key={date} className="flex items-center justify-between py-2.5 border-b border-neutral-100 last:border-0">
+        <span className="flex items-center gap-2.5">
+          <span className={`w-5 h-5 rounded-full border-2 ${i === 1 ? 'bg-hai-teal border-hai-teal' : 'border-neutral-300'}`} />
+          <span className="text-[13px] font-semibold text-neutral-800">{date}</span>
+        </span>
+        <span className="text-[11px] font-mono tracking-wider text-neutral-500">{time}</span>
+      </div>
+    ))}
+  </div>
+)
+
+const BuildVisual = () => (
+  <div className="relative w-full max-w-[340px] aspect-square mx-auto flex items-center justify-center">
+    <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-hai-mint via-hai-teal/60 to-hai-plum/10 shadow-[0_25px_60px_-25px_rgba(54,33,62,0.4)]" />
+    <div className="absolute inset-6 rounded-[1.6rem] bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 border border-white/60">
+      <div className="w-16 h-16 bg-hai-plum rounded-2xl flex items-center justify-center shadow-lg">
+        <Icon name="handshake" className="text-hai-mint text-[36px]" filled />
+      </div>
+      <div className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold">Partner Found</div>
+      <div className="font-headline text-[20px] font-bold text-hai-plum text-center leading-tight">The handshake,<br />on record.</div>
+      <div className="flex items-center gap-1.5 text-[10px] font-mono tracking-wider uppercase text-hai-plum/60">
+        <Icon name="verified" className="text-[14px]" filled /> Logged · immutable
+      </div>
+    </div>
+    <div className="absolute -top-3 -left-3 w-12 h-12 bg-hai-lime rounded-2xl shadow-lg flex items-center justify-center -rotate-12">
+      <Icon name="rocket_launch" className="text-hai-plum text-[24px]" filled />
+    </div>
+  </div>
+)
+
+const STEPS: Step[] = [
+  { num: '01', name: 'Post',  tagline: 'Publish the need. Structure it.',        desc: 'Describe your domain, the expertise you need, the project stage, and the confidentiality level. No file uploads. No patient data. Ever.',              icon: 'edit_note',     accent: '#B8F3FF', Visual: PostVisual  },
+  { num: '02', name: 'Match', tagline: '20 domains · 12 specialties.',            desc: 'Browse the directory. Filter by medical domain, engineering specialty, city, or project stage. Every profile is tied to an institutional .edu account.', icon: 'tune',          accent: '#D2FF74', Visual: MatchVisual },
+  { num: '03', name: 'Meet',  tagline: 'NDA inline. Three slots. Done.',          desc: 'Express interest. Accept a one-page NDA inline. Propose three timeslots. The post owner confirms — the meeting is scheduled and logged immutably.',   icon: 'handshake',     accent: '#E3DCD2', Visual: MeetVisual  },
+  { num: '04', name: 'Build', tagline: "The platform steps aside.",               desc: "Real collaboration happens off-platform, where it belongs. Mark the post as Partner Found. Your handshake — and its full history — stays on record.",  icon: 'rocket_launch', accent: '#8AC6D0', Visual: BuildVisual },
+]
+
+// ── Main ────────────────────────────────────────────────────────────
 export default function LandingPage() {
-  const [scrollPct, setScrollPct] = useState(0)
-  const [palette, setPalette] = useState<Palette>('B')
-  const [fontSet, setFontSet] = useState<FontSet>('newsreader')
-  const [stamp, setStamp] = useState<StampVis>('off')
-  const [tweaksOpen, setTweaksOpen] = useState(false)
-  const [howStep, setHowStep] = useState(0)
-  const [howDir, setHowDir] = useState<'right' | 'left'>('right')
-  // scroll handler
-  useEffect(() => {
-    function onScroll() {
-      const h = document.documentElement.scrollHeight - window.innerHeight
-      const p = h > 0 ? window.scrollY / h : 0
-      setScrollPct(p)
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  const [step, setStep] = useState(0)
+  const [dir, setDir] = useState<'right' | 'left'>('right')
 
-  // reveal on scroll
-  useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>('.reveal-on-scroll')
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) }
-      })
-    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' })
-    els.forEach(el => io.observe(el))
-    return () => io.disconnect()
-  }, [])
+  const goTo = (i: number) => {
+    setDir(i > step ? 'right' : 'left')
+    setStep(i)
+  }
+  const next = () => step < STEPS.length - 1 && goTo(step + 1)
+  const prev = () => step > 0 && goTo(step - 1)
 
-  // hero word reveal
-  useEffect(() => {
-    const words = document.querySelectorAll<HTMLElement>('.hero-word-reveal')
-    words.forEach((el, i) => { el.style.animationDelay = `${i * 80}ms` })
-  }, [])
+  const active = STEPS[step]
+  const ActiveVisual = active.Visual
 
-  // palette on body
-  useEffect(() => {
-    document.body.dataset.palette = palette
-  }, [palette])
-
-  // font switching
-  useEffect(() => {
-    const root = document.documentElement
-    if (fontSet === 'instrument') {
-      root.style.setProperty('--ff-display', '"Instrument Serif", "Newsreader", serif')
-      root.style.setProperty('--ff-sans', '"Geist", "IBM Plex Sans", system-ui, sans-serif')
-      if (!document.getElementById('alt-fonts')) {
-        const l = document.createElement('link')
-        l.id = 'alt-fonts'; l.rel = 'stylesheet'
-        l.href = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&display=swap'
-        document.head.appendChild(l)
-      }
-    } else {
-      root.style.setProperty('--ff-display', '"Newsreader", serif')
-      root.style.setProperty('--ff-sans', '"IBM Plex Sans", system-ui, sans-serif')
-    }
-  }, [fontSet])
-
-  const HOW_STEPS = [
-    { num: '01', name: 'Post', desc: 'Publish a collaboration opportunity: your domain, the expertise you need, project stage, and confidentiality level. No file uploads. No patient data. Ever.' },
-    { num: '02', name: 'Match', desc: 'Browse the directory. Filter by medical domain, engineering specialty, city, or project stage. Every profile is tied to an institutional .edu account.' },
-    { num: '03', name: 'Meet', desc: 'Express interest. Accept a one-page NDA inline. Propose three time slots. The post owner confirms — a meeting is scheduled and logged, immutably.' },
-    { num: '04', name: 'Build', desc: "The platform's role ends here. Real collaboration happens off-platform, where it belongs. Mark the post as Partner Found when your work begins." },
+  const heroStats: [string, string][] = [
+    ['.edu', 'institutional email only'],
+    ['20',   'medical domains'],
+    ['12',   'engineering specialties'],
+    ['0',    'file uploads or patient data'],
   ]
-
-  const domains = [
-    'Cardiology', 'Oncology', 'Radiology & Imaging', 'Neurology', 'Orthopedics',
-    'Dermatology', 'Ophthalmology', 'Pediatrics', 'Psychiatry & Mental Health', 'Emergency Medicine',
-    'Intensive Care', 'Surgical Robotics', 'Genomics & Precision Medicine', 'Rehabilitation & Physio',
-    'Clinical Pharmacy', 'Public Health', 'Pathology & Lab Diagnostics', 'Endocrinology & Diabetes',
-    'Remote Patient Monitoring', 'Mental Health AI',
-  ]
-  const highlightedDomains = new Set(['Oncology', 'Dermatology', 'Intensive Care', 'Public Health', 'Mental Health AI'])
-  const cities = ['Berlin', 'Amsterdam', 'London', 'Paris', 'Stockholm', 'Vienna', 'Zurich', 'Helsinki', 'Copenhagen', 'Barcelona', 'Istanbul', 'Warsaw']
 
   return (
-    <div style={{ minHeight: '100vh' }}>
-      {/* atmosphere */}
-      <div aria-hidden="true" style={{
-        position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none',
-        background: `radial-gradient(50vw 45vh at 85% 10%, var(--glow), transparent 65%), radial-gradient(45vw 40vh at 5% 85%, color-mix(in oklab, var(--accent-2) 22%, transparent), transparent 70%), linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%)`,
-      }} />
+    <div className="min-h-screen flex flex-col font-body bg-hai-teal overflow-x-hidden antialiased">
+      <TopNav />
 
-      {/* scroll indicator */}
-      <div className="scroll-ind" aria-hidden="true" style={{
-        position: 'fixed', right: 14, top: '50%', transform: 'translateY(-50%)', zIndex: 40,
-        fontFamily: 'var(--ff-mono)', fontSize: 9.5, color: 'var(--ink-muted)', letterSpacing: '.04em',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, mixBlendMode: 'multiply', width: 32, textAlign: 'center',
-      }}>
-        <span>{scrollPct.toFixed(2)}</span>
-        <div style={{ width: 1, height: 120, background: 'var(--rule)', position: 'relative', overflow: 'hidden' }}>
-          <span style={{ position: 'absolute', left: 0, top: 0, width: '100%', background: 'var(--ink)', height: `${scrollPct * 100}%`, display: 'block' }} />
-        </div>
-        <span>SCROLL</span>
-      </div>
+      <main className="flex-grow pb-0 relative bg-hai-offwhite">
+        {/*
+          HERO ZONE — gradient that keeps the top half teal and fades to
+          off-white by the midpoint of the "Join the directory" panel, so
+          everything from card-midpoint through the "Ready to co-create?"
+          CTA row reads on a calm off-white surface.
+        */}
+        <div
+          className="relative pt-32"
+          style={{ background: 'linear-gradient(180deg, #8AC6D0 0%, #8AC6D0 44%, #F3F4F6 72%, #F3F4F6 100%)' }}
+        >
+          {/* ── HERO ─────────────────────────────────────────── */}
+          <section
+            id="directory"
+            className="max-w-7xl mx-auto px-6 md:px-8 pb-20 md:pb-24 relative"
+            style={{ backgroundImage: 'radial-gradient(circle at center, rgba(0,0,0,0.05) 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+          >
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-hai-mint/30 rounded-full blur-[120px] -z-10 pointer-events-none" />
 
-      {/* ── HERO ────────────────────────────────────── */}
-      <section className="hero-section reveal-on-scroll" style={{ paddingTop: 'clamp(48px,7vw,96px)', paddingBottom: 'clamp(64px,10vw,140px)' }}>
-        <div className="wrap">
-          <SecLabel num="00" title="Co-Creation Platform" sub="Spring 2026 · v0.1" />
-          <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr', gap: 'clamp(32px,5vw,80px)', alignItems: 'end' }}>
-            {/* left */}
-            <div style={{ textAlign: 'center' }}>
-              <h1 style={{ fontFamily: 'var(--ff-display)', fontWeight: 400, fontSize: 'clamp(44px,6.8vw,104px)', lineHeight: 1.02, letterSpacing: '-0.035em', margin: '0 0 44px', color: 'var(--ink)' }}>
-                {['Where', 'clinicians', 'meet the', 'engineers', 'who can', 'build', 'their\u00A0ideas.'].map((w, i) => {
-                  const isAccent = w === 'clinicians' || w === 'build'
-                  return (
-                    <span key={i}>
-                      <span className="hero-word-reveal" style={isAccent ? { fontWeight: 500, color: 'var(--primary)' } : {}}>
-                        {w}
-                      </span>
-                      {i < 6 && (i === 1 || i === 3 || i === 5 ? <br /> : ' ')}
-                    </span>
-                  )
-                })}
+            <div className="text-center mb-14 md:mb-16 max-w-5xl mx-auto pt-2">
+              <div className="inline-flex items-center gap-2 bg-white/30 backdrop-blur-md border border-white/50 rounded-full px-4 py-1.5 mb-8 text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-hai-plum animate-pulse" />
+                SENG 384 · Spring 2026 · v0.1
+              </div>
+              <h1 className="font-headline font-bold text-white leading-[0.98] tracking-[-0.03em] text-[48px] sm:text-[72px] md:text-[92px] lg:text-[104px]">
+                Healthcare co-creation,<br />
+                <span className="opacity-30">without the silos.</span>
               </h1>
-
-              <p style={{ maxWidth: '48ch', fontSize: 17, lineHeight: 1.55, color: 'var(--ink-muted)', margin: '0 auto 36px', textWrap: 'pretty' } as React.CSSProperties}>
-                HEALTH AI is a structured, GDPR-native directory for European medical professionals and engineers to co-create credible healthcare technology — <b style={{ color: 'var(--ink)', fontWeight: 500 }}>not a job board, not a chat app</b>, not a place for patient data. Post a collaboration opportunity. Find one. Meet.
-              </p>
-
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 40 }}>
-                <Btn variant="primary" href="#">Post an opportunity <span className="arr">→</span></Btn>
-                <Btn variant="ghost" href="#">Browse the directory</Btn>
-              </div>
-
-              <div style={{ display: 'flex', gap: 28, alignItems: 'center', fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.1em', color: 'var(--ink-muted)', textTransform: 'uppercase', paddingTop: 20, borderTop: '1px solid var(--rule)', flexWrap: 'wrap' }}>
-                {[
-                  ['.edu', 'institutional email only'],
-                  ['20', 'medical domains'],
-                  ['12', 'European cities'],
-                  ['0', 'files, uploads or patient data'],
-                ].map(([strong, rest]) => (
-                  <span key={strong}><strong style={{ color: 'var(--ink)', fontWeight: 500 }}>{strong}</strong> {rest}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* right: index card */}
-            <IndexCard showStamp={stamp === 'on'} />
-          </div>
-        </div>
-      </section>
-
-      {/* ── FEATURES ──────────────────────────────── */}
-      <section className="features-section reveal-on-scroll" id="features" style={{ padding: 'clamp(64px,9vw,120px) 0', borderTop: '1px solid var(--rule)' }}>
-        <div className="wrap">
-          <SecLabel num="01" title="What the platform does" sub="Six primitives" />
-          <h2 style={{ fontFamily: 'var(--ff-display)', fontWeight: 400, fontSize: 'clamp(28px,3.6vw,52px)', lineHeight: 1.1, letterSpacing: '-0.02em', maxWidth: '22ch', margin: '0 0 60px' }}>
-            Three <span style={{ fontWeight: 500, color: 'var(--primary)' }}>deliberate</span> primitives.
-          </h2>
-          <div className="feat-grid">
-            <Feat
-              num="01 — Directory"
-              title={<>Two worlds, <span style={{ fontWeight: 500, color: 'var(--primary)' }}>one</span> ledger.</>}
-              desc="Engineers publish capability. Clinicians publish need. The grammar is enforced so matches are meaningful."
-              colSpan={6}
-            >
-              <ArtDirectory />
-            </Feat>
-            <Feat
-              num="02 — NDA → Meeting"
-              title={<>Confidentiality <span style={{ fontWeight: 500, color: 'var(--primary)' }}>before</span> conversation.</>}
-              desc="Interest triggers a one-page NDA. Then three timeslots. Then a meeting. Every step is logged and immutable."
-              colSpan={6}
-            >
-              <ArtLifecycle />
-            </Feat>
-            <Feat
-              num="03 — Trust"
-              title={<>GDPR-native. No file uploads. No patient data. <span style={{ fontWeight: 500, color: 'var(--primary)' }}>No exceptions.</span></>}
-              desc="Export everything. Delete everything. Every login, post edit, and meeting acceptance lands in a 24-month tamper-resistant audit trail."
-              colSpan={12}
-              className="feat-w12"
-            >
-              <ArtGDPR />
-            </Feat>
-          </div>
-        </div>
-      </section>
-
-      {/* ── COVERAGE ──────────────────────────────── */}
-      <section className="proof-section reveal-on-scroll" id="coverage" style={{ padding: 'clamp(64px,9vw,110px) 0', borderTop: '1px solid var(--rule)' }}>
-        <div className="wrap">
-          <SecLabel num="02" title="Coverage" sub="20 medical domains · 12 engineering specialties" />
-          <div className="proof-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'clamp(24px,4vw,80px)', alignItems: 'start' }}>
-            <div>
-              <h2 style={{ fontFamily: 'var(--ff-display)', fontWeight: 400, fontSize: 'clamp(28px,3.4vw,44px)', lineHeight: 1.1, letterSpacing: '-0.02em', margin: 0, maxWidth: '14ch' }}>
-                Every field where an engineer and a clinician should already <span style={{ fontStyle: 'normal', color: 'var(--primary)', fontWeight: 500 }}>be talking</span>.
-              </h2>
-              <p style={{ fontSize: 14.5, color: 'var(--ink-muted)', marginTop: 14, maxWidth: '30ch' }}>
-                Twenty medical domains, twelve engineering specialties, vetted and indexed. No vague "health tech" category — specificity is the design.
+              <p className="mt-8 max-w-2xl mx-auto text-[17px] md:text-[18px] leading-relaxed text-hai-plum/85 font-medium">
+                A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional <span className="font-bold text-hai-plum">.edu</span> verification and an immutable audit trail.
               </p>
             </div>
-            <div style={{ border: '1px solid var(--rule)', padding: 0 }}>
-              <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--rule)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--ink-muted)' }}>
-                <b style={{ color: 'var(--ink)', fontWeight: 500 }}>Medical Domains</b>
-                <span>20 / 20</span>
+
+            {/* Join the Directory panel (spans the teal → off-white boundary) */}
+            <div className="bg-white rounded-[2rem] p-4 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.35)] mb-14">
+              <div className="flex items-center justify-between px-3 mb-4">
+                <p className="text-[11px] font-mono tracking-[0.18em] uppercase text-neutral-500 font-bold">Join the Directory</p>
+                <p className="text-[11px] font-mono tracking-[0.18em] uppercase text-neutral-400">02 pathways</p>
               </div>
-              <div style={{ padding: '22px 20px', fontFamily: 'var(--ff-display)', fontSize: 'clamp(18px,2vw,26px)', lineHeight: 1.35, letterSpacing: '-0.01em', columnCount: 2, columnGap: 40 } as React.CSSProperties}>
-                {domains.map(d => (
-                  <span key={d} style={{ display: 'block', breakInside: 'avoid', color: highlightedDomains.has(d) ? 'var(--accent)' : 'var(--ink)', fontWeight: highlightedDomains.has(d) ? 500 : 400 }}>{d}</span>
-                ))}
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* For clinicians */}
+                <div className="rounded-[2rem] p-8 text-neutral-900 relative overflow-hidden min-h-[440px] flex flex-col"
+                     style={{ background: 'linear-gradient(155deg, #B8F3FF 0%, #8AC6D0 100%)' }}>
+                  <div className="relative z-10">
+                    <p className="text-[10px] font-mono tracking-[0.2em] uppercase text-hai-plum/70 mb-2 font-bold">01 · Clinician</p>
+                    <h2 className="text-2xl font-headline font-bold">For healthcare professionals.</h2>
+                  </div>
+
+                  <HeroPostMock side="clinician" />
+
+                  <div className="relative z-10 bg-white/30 backdrop-blur-xl border border-white/40 p-6 rounded-2xl mt-auto">
+                    <p className="font-body text-[17px] text-neutral-900 mb-6 leading-snug font-medium">
+                      Publish the clinical need. Describe the domain, the project stage, and what you want built. Meet NDA-protected engineers — <span className="font-bold">no patient data, no file uploads, ever</span>.
+                    </p>
+                    <Link to={ROUTES.REGISTER} className="inline-block bg-black text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-hai-plum transition-all">
+                      Create Clinician Profile →
+                    </Link>
+                  </div>
+                </div>
+
+                {/* For engineers */}
+                <div className="rounded-[2rem] p-8 text-neutral-900 relative overflow-hidden min-h-[440px] flex flex-col"
+                     style={{ background: 'linear-gradient(155deg, #E3DCD2 0%, #D2FF74 100%)' }}>
+                  <div className="relative z-10">
+                    <p className="text-[10px] font-mono tracking-[0.2em] uppercase text-hai-plum/70 mb-2 font-bold">02 · Engineer</p>
+                    <h2 className="text-2xl font-headline font-bold">For engineers &amp; researchers.</h2>
+                  </div>
+
+                  <HeroPostMock side="engineer" />
+
+                  <div className="relative z-10 bg-white/30 backdrop-blur-xl border border-white/40 p-6 rounded-2xl mt-auto">
+                    <p className="font-body text-[17px] text-neutral-900 mb-6 leading-snug font-medium">
+                      Publish your capability. Receive curated clinician requests across 20 medical domains. Every meeting logged in a <span className="font-bold">24-month tamper-resistant</span> trail.
+                    </p>
+                    <Link to={ROUTES.REGISTER} className="inline-block bg-black text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-hai-plum transition-all">
+                      Create Engineer Profile →
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* cities marquee */}
-          <div aria-hidden="true" style={{ marginTop: 28, overflow: 'hidden', whiteSpace: 'nowrap', borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', padding: '14px 0', fontFamily: 'var(--ff-mono)', fontSize: 12, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--ink-muted)' }}>
-            <div className="cities-inner">
-              {[...cities, ...cities].map((city, i) => <span key={i}>{city}</span>)}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── STATEMENT ─────────────────────────────── */}
-      <section className="statement-section reveal-on-scroll" id="how" style={{ padding: 'clamp(80px,12vw,160px) 0', borderTop: '1px solid var(--rule)' }}>
-        <div className="wrap">
-          <SecLabel num="03" title="How it works" sub="Four deliberate steps" />
-          {/* Step stepper */}
-          <div style={{ overflow: 'hidden', borderBottom: '1px solid var(--rule)' }}>
-            <div key={howStep} className={howDir === 'right' ? 'step-in-right' : 'step-in-left'} style={{ padding: '48px 0 44px' }}>
-              <div style={{ fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 20 }}>
-                Step {HOW_STEPS[howStep].num} / 04
-              </div>
-              <p style={{ fontFamily: 'var(--ff-display)', fontWeight: 500, fontSize: 'clamp(56px,9vw,140px)', lineHeight: 1, letterSpacing: '-0.03em', color: 'var(--ink)', margin: '0 0 32px' }}>
-                {HOW_STEPS[howStep].name}<span style={{ color: 'var(--accent)' }}>.</span>
-              </p>
-              <p style={{ maxWidth: '52ch', fontSize: 18, lineHeight: 1.6, color: 'var(--ink-muted)', margin: 0 }}>
-                {HOW_STEPS[howStep].desc}
-              </p>
-            </div>
-          </div>
-
-          {/* Step nav */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '32px 0 48px' }}>
-            <button
-              onClick={() => { setHowDir('left'); setHowStep(s => Math.max(s - 1, 0)) }}
-              disabled={howStep === 0}
-              aria-label="Previous step"
-              style={{
-                width: 44, height: 44, border: '1px solid var(--ink)', background: 'var(--paper)',
-                cursor: howStep === 0 ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                opacity: howStep === 0 ? 0.25 : 1, transition: 'opacity .2s',
-                fontFamily: 'var(--ff-mono)', fontSize: 18, color: 'var(--ink)',
-              }}
-            >←</button>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              {HOW_STEPS.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => { setHowDir(i > howStep ? 'right' : 'left'); setHowStep(i) }}
-                  aria-label={`Step ${i + 1}`}
-                  style={{
-                    width: i === howStep ? 28 : 8, height: 8,
-                    border: '1px solid var(--ink)',
-                    background: i === howStep ? 'var(--ink)' : 'transparent',
-                    cursor: 'pointer', padding: 0,
-                    transition: 'width .3s ease, background .2s',
-                  }}
-                />
+            {/* Hero stats ribbon — sits on off-white half now */}
+            <div className="flex flex-wrap items-center justify-center gap-x-8 md:gap-x-10 gap-y-4 mb-14 font-mono text-[11px] tracking-[0.18em] uppercase text-hai-plum/80 font-bold">
+              {heroStats.map(([num, label]) => (
+                <span key={label} className="flex items-center gap-2">
+                  <strong className="text-hai-plum text-lg font-headline font-bold">{num}</strong> {label}
+                </span>
               ))}
             </div>
-            <button
-              onClick={() => { setHowDir('right'); setHowStep(s => Math.min(s + 1, HOW_STEPS.length - 1)) }}
-              disabled={howStep === HOW_STEPS.length - 1}
-              aria-label="Next step"
-              style={{
-                width: 44, height: 44, border: '1px solid var(--ink)',
-                background: howStep === HOW_STEPS.length - 1 ? 'var(--paper)' : 'var(--ink)',
-                cursor: howStep === HOW_STEPS.length - 1 ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                opacity: howStep === HOW_STEPS.length - 1 ? 0.25 : 1,
-                transition: 'opacity .2s, background .2s',
-                fontFamily: 'var(--ff-mono)', fontSize: 18,
-                color: howStep === HOW_STEPS.length - 1 ? 'var(--ink)' : 'var(--paper)',
-              }}
-            >→</button>
+
+            {/* Giant "Platform" wordmark — on off-white, uses ghost tone */}
+            <div className="text-center">
+              <h2 className="text-[5.5rem] sm:text-[8rem] md:text-[10rem] font-headline font-bold leading-none tracking-[-0.04em]"
+                  style={{ color: '#36213E', opacity: 0.08 }}>
+                Platform
+              </h2>
+            </div>
+          </section>
+
+          {/* ── PLATFORM · 4 cards ─────────────────────────── */}
+          <section id="platform" className="max-w-7xl mx-auto px-6 md:px-8 pb-20 md:pb-24 text-neutral-900">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+              {/* Card 1 — Structured Directory */}
+              <div className="bg-white rounded-3xl p-7 shadow-sm border border-neutral-100 flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-5">
+                  <IconSquare icon="account_tree" color="#006C7A" bg="rgba(138,198,208,0.25)" />
+                  <h3 className="text-xl font-headline font-bold">Structured Directory</h3>
+                </div>
+                <div className="flex-grow flex items-center justify-center mb-5 min-h-[200px] bg-hai-cream rounded-2xl p-4 relative overflow-hidden">
+                  <div className="w-28 h-36 bg-gradient-to-b from-white to-neutral-200 shadow-xl rounded-sm relative">
+                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-20 h-10 bg-white/95 rounded shadow-md border border-neutral-200" />
+                    <div className="absolute inset-x-3 top-9  h-1.5 bg-neutral-300 rounded-full" />
+                    <div className="absolute inset-x-3 top-12 h-1   bg-neutral-200 rounded-full" />
+                    <div className="absolute inset-x-3 bottom-4 h-1.5 bg-hai-teal rounded-full w-1/2" />
+                  </div>
+                </div>
+                <p className="font-body text-[13.5px] text-neutral-600 leading-relaxed">
+                  Every post follows a clinical–engineering grammar: domain, expertise required, project stage, confidentiality level. Engineers publish capability, clinicians publish need — matches become meaningful.
+                </p>
+              </div>
+
+              {/* Card 2 — NDA → Meeting */}
+              <div className="bg-white rounded-3xl p-7 shadow-sm border border-neutral-100 flex flex-col h-full">
+                <div className="flex flex-col mb-5">
+                  <IconSquare icon="shield_lock" color="#5B9E00" bg="rgba(210,255,116,0.35)" />
+                  <h3 className="text-xl font-headline font-bold leading-tight mt-4">NDA-first meetings, logged &amp; immutable.</h3>
+                </div>
+                <div className="grid grid-cols-1 gap-3 mb-5 flex-grow">
+                  <div className="bg-neutral-100 rounded-2xl flex items-center justify-between px-5 py-4 min-h-[72px]">
+                    <span className="text-neutral-900 font-semibold text-sm">One-page NDA</span>
+                    <Icon name="check_circle" filled className="text-emerald-600" />
+                  </div>
+                  <div className="bg-neutral-100 rounded-2xl flex items-center justify-between px-5 py-4 min-h-[72px]">
+                    <span className="text-neutral-900 font-semibold text-sm">Three timeslots</span>
+                    <span className="flex gap-1">
+                      <span className="w-2 h-2 rounded-full bg-hai-teal" />
+                      <span className="w-2 h-2 rounded-full bg-hai-teal" />
+                      <span className="w-2 h-2 rounded-full bg-hai-teal" />
+                    </span>
+                  </div>
+                </div>
+                <p className="font-body text-[13.5px] text-neutral-600 leading-relaxed">
+                  Express interest. Accept a one-page NDA inline. Propose three timeslots. The post owner confirms — a meeting is scheduled and the handshake is logged in a 24-month audit trail.
+                </p>
+              </div>
+
+              {/* Card 3 — Matching */}
+              <div className="bg-white rounded-3xl p-7 shadow-sm border border-neutral-100 flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-5">
+                  <IconSquare icon="tune" color="#1E40AF" bg="rgba(59,130,246,0.18)" />
+                  <h3 className="text-xl font-headline font-bold leading-tight">Intelligent matching across disciplines.</h3>
+                </div>
+                <div className="flex-grow flex flex-col items-center justify-center mb-5 bg-indigo-700 rounded-2xl p-6 min-h-[200px] relative overflow-hidden">
+                  <div className="w-full max-w-[200px] bg-hai-cream h-11 rounded-lg mb-2 relative z-10 shadow-lg border border-white/20 flex items-center px-3 text-[10px] font-mono uppercase tracking-widest text-neutral-700">
+                    Cardiology · ICU
+                  </div>
+                  <button className="bg-hai-plum text-hai-mint font-bold py-2 px-7 rounded-full relative z-20 -my-3 shadow-lg border-[3px] border-indigo-700 w-max text-sm">
+                    Match
+                  </button>
+                  <div className="w-full max-w-[200px] bg-hai-mint h-11 rounded-lg mt-2 relative z-10 shadow-lg border border-white/20 flex items-center px-3 text-[10px] font-mono uppercase tracking-widest text-hai-plum">
+                    Embedded ML · Berlin
+                  </div>
+                </div>
+                <p className="font-body text-[13.5px] text-neutral-600 leading-relaxed">
+                  Filter across <b>20 medical domains</b> and <b>12 engineering specialties</b>. By city. By project stage. By collaboration type. City-based match highlights surface the nearest credible partner.
+                </p>
+              </div>
+
+              {/* Card 4 — GDPR native (dark) */}
+              <div className="bg-black text-white rounded-3xl p-7 shadow-sm border border-neutral-800 flex flex-col h-full relative overflow-hidden">
+                <div className="flex items-start gap-3 mb-5 relative z-10">
+                  <IconSquare icon="public" color="#FFFFFF" bg="rgba(59,130,246,0.9)" />
+                  <h3 className="text-xl font-headline font-bold leading-tight">GDPR-native by design.</h3>
+                </div>
+                <div className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-blue-500/30 blur-2xl z-0" />
+                <div className="flex-grow flex items-center justify-center relative z-10 mb-5 min-h-[200px]">
+                  <div className="relative w-40 h-40">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400 via-blue-600 to-black shadow-[0_0_60px_rgba(37,99,235,0.6)] border border-blue-400/40" />
+                    <div className="absolute inset-4 rounded-full border border-blue-300/30" />
+                    <div className="absolute inset-8 rounded-full border border-blue-300/20" />
+                  </div>
+                </div>
+                <p className="font-body text-[13.5px] text-neutral-300 leading-relaxed relative z-10">
+                  Institutional .edu verification, tamper-resistant audit log, export everything, delete everything. No file uploads. No patient data. <b className="text-white">No exceptions.</b>
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* ── CTA row — last piece of the off-white hero zone ─ */}
+          <section className="max-w-7xl mx-auto px-6 md:px-8 pb-20">
+            <div className="bg-white rounded-full p-5 md:p-6 shadow-sm border border-neutral-100 flex items-center justify-between gap-4 flex-wrap">
+              <h2 className="text-xl md:text-2xl font-headline font-bold text-neutral-900 ml-2 md:ml-4">Ready to co-create?</h2>
+              <Link to={ROUTES.REGISTER} className="bg-hai-teal text-hai-plum px-7 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-all">
+                Request Access
+              </Link>
+            </div>
+          </section>
+        </div>
+        {/* ── end hero zone gradient container ────────────────── */}
+
+        {/* ── HOW IT WORKS · interactive step-by-step guide ───── */}
+        <section id="how" className="w-full bg-hai-offwhite py-24 md:py-28 border-t border-neutral-200">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+
+            {/* Section header */}
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+              <div>
+                <p className="text-[11px] font-mono tracking-[0.2em] uppercase text-hai-plum/70 font-bold mb-3">03 · How it works</p>
+                <h2 className="text-[3rem] md:text-[5.5rem] font-headline font-bold text-hai-plum tracking-[-0.03em] leading-[0.95]">
+                  Four deliberate<br />steps.
+                </h2>
+              </div>
+              <p className="text-base md:text-lg text-neutral-600 max-w-sm leading-relaxed">
+                From publishing a collaboration post to logging the handshake — the protocol is the same for every user, every time.
+              </p>
+            </div>
+
+            {/* Stepper stage */}
+            <div className="bg-white rounded-[2rem] shadow-[0_40px_100px_-40px_rgba(54,33,62,0.25)] border border-neutral-100 overflow-hidden relative">
+              {/* Progress bar */}
+              <div className="h-1.5 bg-neutral-100 relative">
+                <div
+                  className="absolute top-0 left-0 h-full bg-hai-plum transition-all duration-500 ease-out"
+                  style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+                />
+              </div>
+
+              {/* Slide viewport */}
+              <div className="overflow-hidden">
+                <div key={step} className={dir === 'right' ? 'step-in-right' : 'step-in-left'}>
+                  <div className="grid md:grid-cols-2 gap-0 items-stretch min-h-[500px]">
+                    {/* Left — copy */}
+                    <div className="p-8 md:p-12 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-3 mb-5">
+                          <div className="w-12 h-12 rounded-xl bg-hai-mint flex items-center justify-center">
+                            <Icon name={active.icon} className="text-hai-plum text-[26px]" filled />
+                          </div>
+                          <span className="text-[11px] font-mono tracking-[0.2em] uppercase text-hai-plum/70 font-bold">
+                            Step {active.num} / 0{STEPS.length}
+                          </span>
+                        </div>
+
+                        <h3 className="font-headline font-bold text-hai-plum tracking-[-0.035em] leading-[0.95] text-[3.5rem] md:text-[5rem] mb-2">
+                          {active.name}<span className="text-hai-teal">.</span>
+                        </h3>
+                        <p className="text-lg md:text-xl font-headline text-neutral-700 leading-snug mb-6">
+                          {active.tagline}
+                        </p>
+                        <p className="text-[15px] md:text-base text-neutral-600 leading-relaxed max-w-md">
+                          {active.desc}
+                        </p>
+                      </div>
+
+                      {/* Step breadcrumbs */}
+                      <div className="mt-10 flex items-center gap-3 flex-wrap">
+                        {STEPS.map((s, i) => (
+                          <button
+                            key={s.num}
+                            onClick={() => goTo(i)}
+                            className={`flex items-center gap-2 text-[12px] font-mono tracking-[0.14em] uppercase font-bold transition-colors ${i === step ? 'text-hai-plum' : 'text-neutral-400 hover:text-neutral-700'}`}
+                            aria-label={`Jump to step ${s.num}`}
+                          >
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] transition-all ${i === step ? 'bg-hai-plum text-white' : i < step ? 'bg-hai-teal text-hai-plum' : 'bg-neutral-100 text-neutral-400'}`}>
+                              {i < step ? '✓' : s.num}
+                            </span>
+                            {s.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Right — visual */}
+                    <div
+                      className="flex items-center justify-center p-8 md:p-12 relative overflow-hidden"
+                      style={{ background: `linear-gradient(160deg, ${active.accent}44 0%, #F3F4F6 100%)` }}
+                    >
+                      <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{ backgroundImage: 'radial-gradient(circle at center, rgba(54,33,62,0.05) 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+                      />
+                      <div className="relative z-10 w-full">
+                        <ActiveVisual />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Nav buttons */}
+            <div className="flex items-center justify-between mt-8 gap-4">
+              <button
+                onClick={prev}
+                disabled={step === 0}
+                aria-label="Previous step"
+                className="group flex items-center gap-3 bg-white border border-neutral-200 rounded-full pl-3 pr-5 py-3 font-bold text-sm text-hai-plum shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                <span className="w-9 h-9 rounded-full bg-hai-plum text-white flex items-center justify-center group-hover:-translate-x-0.5 transition-transform">
+                  <Icon name="arrow_back" className="text-[20px]" />
+                </span>
+                {step > 0 ? STEPS[step - 1].name : 'Start'}
+              </button>
+
+              <div className="hidden sm:flex items-center gap-2">
+                {STEPS.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goTo(i)}
+                    aria-label={`Go to step ${i + 1}`}
+                    className="transition-all"
+                    style={{
+                      width:  i === step ? 32 : 10,
+                      height: 10,
+                      background: i === step ? '#36213E' : i < step ? '#8AC6D0' : '#D4D4D4',
+                      borderRadius: 9999,
+                    }}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={next}
+                disabled={step === STEPS.length - 1}
+                aria-label="Next step"
+                className="group flex items-center gap-3 bg-hai-plum text-white rounded-full pr-3 pl-5 py-3 font-bold text-sm shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                {step < STEPS.length - 1 ? STEPS[step + 1].name : 'Done'}
+                <span className="w-9 h-9 rounded-full bg-hai-mint text-hai-plum flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
+                  <Icon name="arrow_forward" className="text-[20px]" />
+                </span>
+              </button>
+            </div>
           </div>
-          <div style={{ marginTop: 56, display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 20, borderTop: '1px solid var(--rule)', fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--ink-muted)', flexWrap: 'wrap', gap: 16 }}>
-            <span>Access is restricted to institutional <b style={{ color: 'var(--ink)' }}>.edu</b> accounts.</span>
-            <span><a href="#" style={{ color: 'var(--primary)' }}>Read the privacy policy →</a></span>
-            <span>SENG 384 · Spring 2026 · v0.1</span>
+        </section>
+
+        {/* ── STACKED HEADLINES · guarantees ─────────────────── */}
+        <section
+          id="trust"
+          className="w-full bg-hai-mint py-6 pb-28"
+          style={{ backgroundImage: 'radial-gradient(circle at center, rgba(54,33,62,0.06) 2px, transparent 2px)', backgroundSize: '32px 32px' }}
+        >
+          <div className="max-w-7xl mx-auto px-6 md:px-8 text-center flex flex-col gap-6 pt-10">
+            <div className="border-y border-hai-teal/50 py-4">
+              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-[-0.025em]">GDPR-native</h2>
+            </div>
+            <div className="border-b border-hai-teal/50 pb-4">
+              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-[-0.025em]">Built for European institutions</h2>
+            </div>
+            <div className="border-b border-hai-teal/50 py-8 max-w-3xl mx-auto w-full">
+              <p className="text-hai-plum font-semibold text-lg leading-relaxed">
+                Planning a medical–engineering collaboration? Every interaction is governed by institutional <b>.edu</b> verification, a <b>24-month tamper-resistant audit log</b>, and a zero-patient-data policy. No file uploads. No ambiguity. Every Article 6 &amp; 15–22 right is exercisable from your profile, one click away.
+              </p>
+            </div>
+            <div className="border-b border-hai-teal/50 pb-4">
+              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-[-0.025em]">Immutable audit trail</h3>
+            </div>
+            <div className="border-b border-hai-teal/50 pb-4">
+              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-[-0.025em]">Zero patient data</h3>
+            </div>
+          </div>
+        </section>
+
+        {/* ── STRUCTURED COLLABORATION ──────────────────────── */}
+        <section className="w-full bg-hai-offwhite py-28 md:py-32 relative">
+          <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-hai-mint to-transparent pointer-events-none" />
+          <div className="max-w-5xl mx-auto px-6 md:px-8 relative z-10">
+            <h2 className="text-[3rem] md:text-[5rem] font-headline font-bold text-black tracking-[-0.025em] leading-[0.95] mb-10">
+              Structured<br />collaboration.
+            </h2>
+
+            <div className="max-w-4xl mb-14 space-y-6">
+              <p className="text-xl md:text-[28px] font-headline text-neutral-900 leading-snug">
+                We know medical–engineering partnerships can stall in legal uncertainty, vague scope, and the wrong introduction. Our protocol is designed to make the first conversation easy — and the handshake legitimate.
+              </p>
+              <p className="text-xl md:text-[28px] font-headline text-neutral-900 leading-snug">
+                Think of the platform as the common ground: a shared grammar, a shared NDA, a shared log — so every meeting starts on record.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-5">
+                <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-neutral-100 flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow">
+                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">Directory &amp; Matching</span>
+                  <Icon name="add" className="text-neutral-400 group-hover:text-neutral-900 transition-colors" />
+                </div>
+                <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-neutral-100 flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow">
+                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">Institutional Verification</span>
+                  <Icon name="add" className="text-neutral-400 group-hover:text-neutral-900 transition-colors" />
+                </div>
+              </div>
+
+              <div className="space-y-5">
+                <div className="bg-hai-teal rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow h-[88px]">
+                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">NDA &amp; Meeting Flow</span>
+                  <Icon name="add" className="text-neutral-900" />
+                </div>
+                <div className="bg-hai-teal rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between">
+                  <span className="font-body text-base md:text-lg font-semibold text-neutral-900 max-w-[170px] leading-tight">Have any questions about the platform?</span>
+                  <Link to={ROUTES.PRIVACY} className="bg-hai-plum text-hai-mint px-6 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-sm whitespace-nowrap">
+                    Read policy →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── UPCOMING FEATURES ──────────────────────────────── */}
+        <section className="w-full bg-hai-offwhite py-24 border-t border-neutral-200">
+          <div className="max-w-5xl mx-auto px-6 md:px-8 text-center mb-14">
+            <h2 className="text-[4rem] md:text-[7rem] font-headline font-bold text-black tracking-[-0.04em] leading-[0.95] mb-4">
+              Upcoming<br />Features
+            </h2>
+            <p className="text-base md:text-lg text-neutral-600 max-w-xl mx-auto">
+              The protocol is live. Here is what we're scoping next.
+            </p>
+          </div>
+          <div className="max-w-4xl mx-auto px-6 md:px-8">
+            {[
+              { icon: 'payments',   title: 'Cross-Institutional Grants', desc: 'Co-apply to European funding calls with shared draft templates, compliance checklists, and a joint submission timeline.' },
+              { icon: 'monitoring', title: 'Outcome Tracking',           desc: 'Track collaboration milestones after the first meeting, with opt-in timelines and post-publication logging.' },
+              { icon: 'groups',     title: 'Multi-Site Clinical Trials', desc: 'Coordinate recruitment and protocol reviews across multiple institutions within the directory.' },
+            ].map((f) => (
+              <div key={f.title} className="flex flex-col md:flex-row items-start md:items-center py-7 border-b border-neutral-300 gap-6 md:gap-12">
+                <div className="flex items-center gap-5 w-full md:w-1/2">
+                  <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-neutral-100 flex items-center justify-center shrink-0">
+                    <Icon name={f.icon} className="text-[28px] text-hai-plum" filled />
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-headline font-semibold text-black">{f.title}</h3>
+                </div>
+                <p className="text-[15px] md:text-base text-neutral-600 font-body leading-relaxed w-full md:w-1/2">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      {/* ── FOOTER ───────────────────────────────────────────── */}
+      <footer className="w-full bg-hai-plum pt-16 font-body text-hai-mint relative flex flex-col">
+        <div className="px-6 md:px-16 lg:px-24 grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-12 relative z-10">
+          <div>
+            <h4 className="font-bold mb-4 text-lg font-headline">Contact</h4>
+            <p className="font-semibold text-[15px] leading-snug text-hai-mint/90">
+              Bilkent University<br />
+              Dept. of Software Engineering<br />
+              06800 Çankaya, Ankara<br />
+              TÜRKİYE
+            </p>
+          </div>
+
+          <div>
+            <h4 className="font-bold mb-4 text-lg font-headline">Platform</h4>
+            <ul className="space-y-2 text-sm font-medium">
+              <li><a href="#platform"  className="hover:text-white transition-colors">Platform</a></li>
+              <li><a href="#directory" className="hover:text-white transition-colors">Directory</a></li>
+              <li><a href="#how"       className="hover:text-white transition-colors">How it works</a></li>
+              <li><a href="#trust"     className="hover:text-white transition-colors">Trust &amp; GDPR</a></li>
+              <li><Link to={ROUTES.LOGIN} className="hover:text-white transition-colors">Sign in</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-bold mb-4 text-lg font-headline">Legal</h4>
+            <ul className="space-y-2 text-sm font-medium">
+              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">GDPR &amp; your rights</Link></li>
+              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Data Export</Link></li>
+              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Terms of Use</Link></li>
+              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Account Deletion</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-bold mb-4 text-lg font-headline">Access</h4>
+            <ul className="space-y-2 text-sm font-medium">
+              <li><Link to={ROUTES.REGISTER} className="hover:text-white transition-colors">For Clinicians</Link></li>
+              <li><Link to={ROUTES.REGISTER} className="hover:text-white transition-colors">For Engineers</Link></li>
+              <li><Link to={ROUTES.REGISTER} className="hover:text-white transition-colors">Request Access</Link></li>
+              <li><a href="mailto:team@healthai.edu" className="hover:text-white transition-colors">Contact team</a></li>
+            </ul>
           </div>
         </div>
-      </section>
 
-      {/* ── FOOTER ────────────────────────────────── */}
-      <footer className="foot-bg" id="trust" style={{ color: 'var(--paper)', padding: '100px 0 0', position: 'relative', overflow: 'hidden' }}>
-        <div className="wrap" style={{ position: 'relative' }}>
-          <h2 style={{ fontFamily: 'var(--ff-display)', fontWeight: 400, fontSize: 'clamp(72px,14vw,200px)', lineHeight: 0.9, letterSpacing: '-0.03em', color: 'var(--paper)', margin: '0 0 56px' }}>
-            <small style={{ display: 'block', fontFamily: 'var(--ff-mono)', fontStyle: 'normal', fontSize: 11, letterSpacing: '.2em', textTransform: 'uppercase', color: 'color-mix(in oklab, var(--paper) 60%, var(--ink))', marginBottom: 24 }}>HEALTH · AI · CO-CREATION</small>
-            Health<span style={{ fontStyle: 'normal', color: 'var(--accent)', fontWeight: 500 }}>AI</span><span style={{ color: 'var(--accent)', fontWeight: 500 }}>.</span>
-          </h2>
+        {/*
+          Giant wordmark — sized so the entire word is visible within the
+          viewport without clipping. clamp() scales between min/max caps,
+          and we keep it centered with no negative margin.
+        */}
+        <div className="w-full px-6 mt-12 flex items-center justify-center">
+          <span
+            className="font-headline font-bold text-white tracking-[-0.05em] leading-[0.9] w-full text-center block whitespace-nowrap"
+            style={{ fontSize: 'clamp(56px, 16vw, 240px)' }}
+          >
+            healthai
+          </span>
+        </div>
 
-          <div className="foot-cols" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr 1fr', gap: 40, paddingBottom: 64, borderBottom: '1px solid color-mix(in oklab, var(--paper) 20%, var(--ink))' }}>
-            {/* CTA */}
-            <div>
-              <h4 style={{ fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.16em', textTransform: 'uppercase', fontWeight: 500, margin: '0 0 18px', color: 'color-mix(in oklab, var(--paper) 70%, var(--ink))' }}>Join the directory</h4>
-              <p style={{ fontFamily: 'var(--ff-sans)', fontSize: 14.5, color: 'color-mix(in oklab, var(--paper) 70%, var(--ink))', margin: '0 0 10px', lineHeight: 1.55 }}>Institutional .edu accounts only. Verification is automated and one-time.</p>
-              <Btn href="#" style={{ background: 'var(--accent)', color: 'var(--ink)', borderColor: 'var(--accent)', marginTop: 8 }}>Request access <span className="arr">→</span></Btn>
-            </div>
-            {/* Platform */}
-            <FootCol title="Platform" links={['Browse posts', 'Post an opportunity', 'Meetings', 'Notifications', 'Sign in']} />
-            {/* Trust */}
-            <FootCol title="Trust & Legal" links={['Privacy policy', 'GDPR & your rights', 'Data export', 'Terms of use', 'Security disclosure']} />
-            {/* Context */}
-            <FootCol title="Context" links={['About HEALTH AI', 'SENG 384 · Spring 2026', 'Demo scenarios', 'Roadmap', 'Contact']} />
+        {/* Bottom strip */}
+        <div className="px-6 md:px-16 lg:px-24 py-8 mt-6 flex justify-between items-end relative z-10 w-full text-hai-teal gap-8 flex-wrap border-t border-hai-teal/20">
+          <div className="text-xs font-medium text-hai-teal font-mono tracking-wider">
+            2026<br />Copyright<br />HealthAI
           </div>
-
-          <div style={{ padding: '22px 0 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.12em', textTransform: 'uppercase', color: 'color-mix(in oklab, var(--paper) 55%, var(--ink))', gap: 16, flexWrap: 'wrap' }}>
-            <span><b style={{ color: 'var(--paper)', fontWeight: 500 }}>HEALTH AI</b> · Co-Creation Platform · Built in Europe</span>
-            <span>v0.1 · Last audited 19 · 04 · 2026</span>
-            <span>© 2026 · All rights reserved</span>
+          <div className="flex items-end justify-between flex-grow ml-4 md:ml-12 gap-6 flex-wrap">
+            <div className="text-[10px] font-medium text-hai-teal/80 leading-snug font-mono tracking-wide max-w-sm">
+              <p>SENG 384 · Spring 2026 · v0.1 · last audited 20·04·2026</p>
+              <p>Institutional .edu accounts only. Verification is automated and one-time.</p>
+              <p>No file uploads. No patient data. No exceptions.</p>
+            </div>
+            <div className="text-[10px] font-medium text-hai-teal/80 shrink-0 ml-4 font-mono tracking-wide">
+              Built in Europe · by Team HealthAI
+            </div>
           </div>
         </div>
       </footer>
-
-      {/* ── TWEAKS PANEL ──────────────────────────── */}
-      <button
-        onClick={() => setTweaksOpen(o => !o)}
-        aria-label="Open tweaks panel"
-        style={{
-          position: 'fixed', right: tweaksOpen ? 316 : 16, bottom: 16, zIndex: 101,
-          width: 36, height: 36, border: '1px solid var(--ink)', background: 'var(--paper)',
-          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: 'var(--ff-mono)', fontSize: 16, color: 'var(--ink)',
-          transition: 'right .25s ease',
-        }}
-      >⚙</button>
-
-      {tweaksOpen && (
-        <div style={{
-          position: 'fixed', right: 16, bottom: 16, zIndex: 100, width: 300,
-          background: 'var(--paper)', border: '1px solid var(--ink)',
-          boxShadow: '8px 8px 0 0 var(--primary)',
-          fontFamily: 'var(--ff-sans)', fontSize: 13,
-        }}>
-          <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: 'var(--ink)', color: 'var(--paper)', fontFamily: 'var(--ff-mono)', fontSize: 11, letterSpacing: '.15em', textTransform: 'uppercase' }}>
-            <span>Tweaks</span>
-            <button onClick={() => setTweaksOpen(false)} style={{ background: 'none', border: 0, color: 'var(--paper)', cursor: 'pointer', fontSize: 'inherit', fontFamily: 'inherit' }}>×</button>
-          </header>
-          <TweakSection title="Color palette">
-            {(['A', 'B', 'C', 'D'] as Palette[]).map((p, i) => (
-              <TweakBtn key={p} active={palette === p} onClick={() => setPalette(p)}>
-                {['A · Oxblood', 'B · Graphite', 'C · Terracotta', 'D · Navy'][i]}
-              </TweakBtn>
-            ))}
-          </TweakSection>
-          <TweakSection title="Typography">
-            <TweakBtn active={fontSet === 'newsreader'} onClick={() => setFontSet('newsreader')}>Newsreader + Plex</TweakBtn>
-            <TweakBtn active={fontSet === 'instrument'} onClick={() => setFontSet('instrument')}>Instrument + Geist</TweakBtn>
-          </TweakSection>
-          <TweakSection title="Confidential stamp" last>
-            <TweakBtn active={stamp === 'on'} onClick={() => setStamp('on')}>Show</TweakBtn>
-            <TweakBtn active={stamp === 'off'} onClick={() => setStamp('off')}>Hide</TweakBtn>
-          </TweakSection>
-        </div>
-      )}
     </div>
-  )
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────
-function FootCol({ title, links }: { title: string; links: string[] }) {
-  return (
-    <div>
-      <h4 style={{ fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.16em', textTransform: 'uppercase', fontWeight: 500, margin: '0 0 18px', color: 'color-mix(in oklab, var(--paper) 55%, var(--ink))' }}>{title}</h4>
-      {links.map(l => (
-        <a key={l} href="#" style={{ display: 'block', fontFamily: 'var(--ff-sans)', fontSize: 14.5, color: 'color-mix(in oklab, var(--paper) 88%, var(--ink))', margin: '0 0 10px', transition: 'color .2s' }}
-          onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'color-mix(in oklab, var(--paper) 88%, var(--ink))')}
-        >{l}</a>
-      ))}
-    </div>
-  )
-}
-
-function TweakSection({ title, children, last }: { title: string; children: React.ReactNode; last?: boolean }) {
-  return (
-    <section style={{ padding: 14, borderBottom: last ? 0 : '1px solid var(--rule)' }}>
-      <h5 style={{ margin: '0 0 10px', fontFamily: 'var(--ff-mono)', fontSize: 10, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--ink-muted)', fontWeight: 500 }}>{title}</h5>
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>{children}</div>
-    </section>
-  )
-}
-
-function TweakBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button onClick={onClick} style={{
-      background: active ? 'var(--ink)' : 'var(--paper)',
-      border: `1px solid ${active ? 'var(--ink)' : 'var(--rule)'}`,
-      padding: '6px 10px', fontFamily: 'var(--ff-mono)', fontSize: 10.5, letterSpacing: '.08em',
-      textTransform: 'uppercase', color: active ? 'var(--paper)' : 'var(--ink-muted)', cursor: 'pointer',
-    }}>{children}</button>
   )
 }

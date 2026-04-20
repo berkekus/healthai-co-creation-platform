@@ -1,10 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Bell, Menu, X, LogOut, User, Settings } from 'lucide-react'
+import { Bell, Menu, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import { ROUTES } from '../../constants/routes'
 
+/**
+ * Authenticated-app Navbar (Faz 1 refresh).
+ * Visual language matches the landing page: hai-* palette, Plus Jakarta Sans
+ * (display / caps pills) + Source Sans 3 (body), "healthai." logo mark,
+ * pill-style active link state, round Request Access / Sign in buttons.
+ */
 export default function Navbar() {
   const { user, logout } = useAuthStore()
   const unreadCount = useNotificationStore(s => s.unreadCount)
@@ -12,12 +18,14 @@ export default function Navbar() {
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const profileRef = useRef<HTMLDivElement>(null)
 
   const unread = user ? unreadCount(user.id) : 0
 
   const navLinks: { to: string; label: string }[] = [
-    { to: ROUTES.POSTS,    label: 'Browse Posts' },
-    { to: ROUTES.MEETINGS, label: 'Meetings' },
+    { to: ROUTES.DASHBOARD, label: 'Dashboard' },
+    { to: ROUTES.POSTS,     label: 'Browse Posts' },
+    { to: ROUTES.MEETINGS,  label: 'Meetings' },
   ]
   if (user?.role === 'admin') navLinks.push({ to: ROUTES.ADMIN, label: 'Admin' })
 
@@ -27,83 +35,116 @@ export default function Navbar() {
     setProfileOpen(false)
   }
 
+  // close profile dropdown on outside click
+  useEffect(() => {
+    if (!profileOpen) return
+    const onDoc = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [profileOpen])
+
+  const isActive = (to: string) =>
+    to === ROUTES.DASHBOARD
+      ? location.pathname === to
+      : location.pathname === to || location.pathname.startsWith(to + '/')
+
   return (
-    <header style={{
-      position: 'sticky', top: 0, zIndex: 50, height: 64,
-      background: 'color-mix(in oklab, var(--paper) 88%, transparent)',
-      backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
-      borderBottom: '1px solid var(--rule)',
-    }}>
-      <div className="wrap" style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
+    <header className="sticky top-0 z-50 h-16 bg-white/85 backdrop-blur-md border-b border-neutral-200 font-body">
+      <div className="max-w-7xl mx-auto h-full px-6 md:px-8 flex items-center justify-between gap-6">
 
         {/* Brand */}
-        <Link to={ROUTES.HOME} style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--ff-display)', fontWeight: 500, fontSize: 19, letterSpacing: '-0.01em', textDecoration: 'none', color: 'var(--ink)', flexShrink: 0 }}>
-          <span style={{ width: 26, height: 26, border: '1px solid var(--ink)', position: 'relative', flexShrink: 0 }}>
-            <span style={{ position: 'absolute', left: '50%', top: 3, bottom: 3, width: 1, background: 'var(--ink)', transform: 'translateX(-50%)' }} />
-            <span style={{ position: 'absolute', top: '50%', left: 3, right: 3, height: 1, background: 'var(--ink)', transform: 'translateY(-50%)' }} />
-            <span style={{ position: 'absolute', left: '50%', top: '50%', width: 5, height: 5, background: 'var(--primary)', borderRadius: '50%', transform: 'translate(-50%,-50%)' }} />
+        <Link to={ROUTES.HOME} className="flex items-center gap-2.5 shrink-0">
+          <div className="bg-black p-1.5 rounded-lg">
+            <svg width="18" height="18" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="16.5" y="5"    width="7"  height="30" rx="1.5" fill="white" />
+              <rect x="5"    y="16.5" width="30" height="7"  rx="1.5" fill="white" />
+            </svg>
+          </div>
+          <span className="text-[19px] font-extrabold tracking-tight text-black font-body">
+            healthai<span className="text-hai-plum">.</span>
           </span>
-          Health<em style={{ fontStyle: 'normal', color: 'var(--primary)' }}>AI</em>
         </Link>
 
-        {/* Desktop Nav */}
-        <nav style={{ display: 'flex', gap: 4, flex: 1 }}>
-          {user ? navLinks.map(({ to, label }) => (
-            <Link key={to} to={to} style={{
-              padding: '6px 12px', fontSize: 14, fontWeight: 500, borderRadius: 6,
-              color: location.pathname.startsWith(to) ? 'var(--primary)' : 'var(--ink-muted)',
-              background: location.pathname.startsWith(to) ? 'color-mix(in oklab, var(--primary) 10%, transparent)' : 'transparent',
-              textDecoration: 'none', transition: 'color .2s, background .2s',
-            }}>
-              {label}
-            </Link>
-          )) : (
-            [{ href: '#features', label: 'Features' }, { href: '#coverage', label: 'Coverage' }, { href: '#about', label: 'About' }].map(({ href, label }) => (
-              <a key={href} href={href} style={{
-                padding: '6px 12px', fontSize: 14, fontWeight: 500, borderRadius: 6,
-                color: 'var(--ink-muted)', textDecoration: 'none', transition: 'color .2s',
-              }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'var(--ink)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-muted)')}
+        {/* Center nav — premium micro-interaction:
+            generous px-4 py-2 tap target, soft rounded-lg corners, and a
+            barely-there black/5 wash that fades in over 200 ms. Text color
+            only shifts by a hair (neutral-600 → neutral-900) so it stays in
+            harmony with the background tint instead of fighting it. */}
+        <nav className="hidden md:flex flex-1 items-center gap-1">
+          {user ? navLinks.map(({ to, label }) => {
+            const active = isActive(to)
+            return (
+              <Link
+                key={to}
+                to={to}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-200 ease-in-out ${
+                  active
+                    ? 'bg-hai-mint text-hai-plum'
+                    : 'text-neutral-600 hover:text-neutral-900 hover:bg-black/5'
+                }`}
               >
                 {label}
-              </a>
-            ))
+              </Link>
+            )
+          }) : (
+            <div className="flex items-center gap-1">
+              <Link
+                to="/"
+                className="px-4 py-2 rounded-lg text-sm font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out"
+              >
+                Home
+              </Link>
+            </div>
           )}
         </nav>
 
-        {/* Right side */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        {/* Right cluster */}
+        <div className="flex items-center gap-2 md:gap-3 shrink-0">
           {user ? (
             <>
-              {/* Notification bell */}
-              <Link to={ROUTES.NOTIFICATIONS} style={{ position: 'relative', padding: 8, color: 'var(--ink-muted)', display: 'flex', alignItems: 'center' }}>
-                <Bell size={18} />
+              {/* Notifications */}
+              <Link
+                to={ROUTES.NOTIFICATIONS}
+                aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
+                className="relative w-10 h-10 rounded-full border border-neutral-200 bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
+              >
+                <Bell size={17} />
                 {unread > 0 && (
-                  <span style={{ position: 'absolute', top: 4, right: 4, width: 16, height: 16, background: 'var(--accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontFamily: 'var(--ff-mono)', color: 'var(--paper)', fontWeight: 600 }}>
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-hai-plum text-hai-mint rounded-full flex items-center justify-center text-[10px] font-mono font-bold border-2 border-white">
                     {unread > 9 ? '9+' : unread}
                   </span>
                 )}
               </Link>
 
-              {/* Profile avatar */}
-              <div style={{ position: 'relative' }}>
+              {/* Avatar / profile dropdown */}
+              <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen(o => !o)}
-                  style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid var(--rule)', background: 'color-mix(in oklab, var(--primary) 12%, var(--paper))', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'var(--ff-sans)', fontWeight: 600, fontSize: 12, color: 'var(--primary)' }}
+                  aria-label="Account menu"
+                  className="w-10 h-10 rounded-full bg-hai-mint text-hai-plum font-bold text-xs font-body flex items-center justify-center border border-hai-teal/40 hover:border-hai-plum transition-colors"
                 >
                   {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                 </button>
                 {profileOpen && (
-                  <div style={{ position: 'absolute', right: 0, top: 42, width: 220, background: 'var(--paper)', border: '1px solid var(--rule)', boxShadow: '0 8px 24px -8px color-mix(in oklab, var(--ink) 20%, transparent)', zIndex: 60 }}>
-                    <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--rule)' }}>
-                      <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--ink)' }}>{user.name}</div>
-                      <div style={{ fontSize: 12, color: 'var(--ink-muted)', fontFamily: 'var(--ff-mono)', marginTop: 2 }}>{user.email}</div>
+                  <div className="absolute right-0 top-12 w-64 bg-white rounded-2xl border border-neutral-200 shadow-[0_20px_50px_-20px_rgba(54,33,62,0.25)] overflow-hidden z-[60]">
+                    <div className="px-4 py-4 bg-hai-offwhite border-b border-neutral-200">
+                      <div className="font-bold text-sm text-hai-plum truncate">{user.name}</div>
+                      <div className="text-[11px] font-mono text-neutral-500 mt-0.5 truncate">{user.email}</div>
+                      <div className="mt-2 inline-flex items-center gap-1.5 bg-white border border-hai-teal/40 px-2 py-0.5 rounded-full text-[10px] font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
+                        <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
+                        {user.role}
+                      </div>
                     </div>
-                    <div style={{ padding: 4 }}>
-                      <DropItem icon={<User size={14} />} label="Profile" onClick={() => { navigate(ROUTES.PROFILE); setProfileOpen(false) }} />
-                      {user.role === 'admin' && <DropItem icon={<Settings size={14} />} label="Admin Panel" onClick={() => { navigate(ROUTES.ADMIN); setProfileOpen(false) }} />}
-                      <DropItem icon={<LogOut size={14} />} label="Sign out" onClick={handleLogout} danger />
+                    <div className="p-2">
+                      <DropItem icon={<LayoutDashboard size={15} />} label="Dashboard" onClick={() => { navigate(ROUTES.DASHBOARD); setProfileOpen(false) }} />
+                      <DropItem icon={<User size={15} />}            label="Profile"   onClick={() => { navigate(ROUTES.PROFILE);   setProfileOpen(false) }} />
+                      {user.role === 'admin' && (
+                        <DropItem icon={<Settings size={15} />} label="Admin Panel" onClick={() => { navigate(ROUTES.ADMIN); setProfileOpen(false) }} />
+                      )}
+                      <div className="h-px bg-neutral-100 my-1" />
+                      <DropItem icon={<LogOut size={15} />} label="Sign out" onClick={handleLogout} danger />
                     </div>
                   </div>
                 )}
@@ -111,26 +152,54 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link to={ROUTES.LOGIN} style={{ padding: '7px 14px', fontSize: 14, color: 'var(--ink)', border: '1px solid var(--rule)', textDecoration: 'none', transition: 'border-color .2s' }}>Sign in</Link>
-              <Link to={ROUTES.REGISTER} style={{ padding: '7px 14px', fontSize: 14, background: 'var(--ink)', color: 'var(--paper)', border: '1px solid var(--ink)', textDecoration: 'none', fontWeight: 500 }}>Request access</Link>
+              <Link
+                to={ROUTES.LOGIN}
+                className="hidden sm:inline-flex items-center px-4 py-2 rounded-full text-sm font-bold text-neutral-800 border border-neutral-300 hover:bg-neutral-100 transition-colors"
+              >
+                Sign in
+              </Link>
+              <Link
+                to={ROUTES.REGISTER}
+                className="inline-flex items-center bg-hai-plum text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-black transition-colors"
+              >
+                Request Access
+              </Link>
             </>
           )}
 
           {/* Mobile hamburger */}
-          <button onClick={() => setMenuOpen(o => !o)} style={{ display: 'none', padding: 6, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)' }} className="mobile-menu-btn">
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {user && (
+            <button
+              onClick={() => setMenuOpen(o => !o)}
+              aria-label="Toggle menu"
+              className="md:hidden w-10 h-10 rounded-full border border-neutral-200 bg-white text-neutral-700 flex items-center justify-center"
+            >
+              {menuOpen ? <X size={17} /> : <Menu size={17} />}
+            </button>
+          )}
         </div>
       </div>
 
       {/* Mobile drawer */}
       {menuOpen && user && (
-        <div style={{ position: 'absolute', top: 64, left: 0, right: 0, background: 'var(--paper)', borderBottom: '1px solid var(--rule)', padding: '12px 0' }}>
-          {navLinks.map(({ to, label }) => (
-            <Link key={to} to={to} onClick={() => setMenuOpen(false)} style={{ display: 'block', padding: '10px 24px', fontSize: 15, color: 'var(--ink)', textDecoration: 'none' }}>
-              {label}
-            </Link>
-          ))}
+        <div className="md:hidden absolute top-16 inset-x-0 bg-white border-b border-neutral-200 shadow-lg py-2 font-body">
+          {navLinks.map(({ to, label }) => {
+            const active = isActive(to)
+            return (
+              <Link
+                key={to}
+                to={to}
+                onClick={() => setMenuOpen(false)}
+                className={`block px-6 py-3 text-[15px] font-semibold border-l-4 ${
+                  active
+                    ? 'border-hai-plum bg-hai-mint/40 text-hai-plum'
+                    : 'border-transparent text-neutral-700 hover:bg-neutral-50'
+                }`}
+              >
+                {label}
+              </Link>
+            )
+          })}
         </div>
       )}
     </header>
@@ -139,16 +208,16 @@ export default function Navbar() {
 
 function DropItem({ icon, label, onClick, danger }: { icon: React.ReactNode; label: string; onClick: () => void; danger?: boolean }) {
   return (
-    <button onClick={onClick} style={{
-      display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '8px 12px',
-      background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, fontFamily: 'var(--ff-sans)',
-      color: danger ? '#ef4444' : 'var(--ink)', textAlign: 'left',
-      borderRadius: 4, transition: 'background .15s',
-    }}
-      onMouseEnter={e => (e.currentTarget.style.background = 'var(--neutral-100, #f1f5f9)')}
-      onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-semibold font-body text-left transition-colors ${
+        danger
+          ? 'text-red-600 hover:bg-red-50'
+          : 'text-neutral-800 hover:bg-hai-mint/40 hover:text-hai-plum'
+      }`}
     >
-      {icon}{label}
+      <span className={danger ? 'text-red-500' : 'text-neutral-500'}>{icon}</span>
+      {label}
     </button>
   )
 }

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import type { Post } from '../../types/post.types'
+import type { MatchReason, MatchTone } from '../../utils/matchPosts'
 import PostStatusBadge from './PostStatusBadge'
 import { postDetail } from '../../constants/routes'
 
@@ -11,96 +12,120 @@ const COLLAB_LABELS: Record<string, string> = {
   advisor: 'Advisor', co_founder: 'Co-Founder',
   research_partner: 'Research Partner', contract: 'Contract',
 }
+const ROLE_ICON: Record<string, string> = {
+  engineer: 'memory',
+  healthcare_professional: 'stethoscope',
+}
 
-interface Props { post: Post }
+const MATCH_TONE_STYLE: Record<MatchTone, string> = {
+  city:      'bg-hai-lime text-hai-plum',
+  country:   'bg-hai-mint text-hai-plum',
+  role:      'bg-hai-plum text-hai-mint',
+  expertise: 'bg-hai-cream text-hai-plum border border-hai-plum/15',
+  domain:    'bg-hai-offwhite text-hai-plum border border-hai-teal/40',
+}
 
-export default function PostCard({ post }: Props) {
+interface Props {
+  post: Post
+  /** Optional match reasons chips rendered above the header row */
+  matchReasons?: MatchReason[]
+  /** Boost visual weight (used in "Best matches for you" featured row) */
+  featured?: boolean
+}
+
+export default function PostCard({ post, matchReasons, featured = false }: Props) {
   const navigate = useNavigate()
 
   const daysLeft = Math.ceil((new Date(post.expiryDate).getTime() - Date.now()) / 86400000)
+  const authorInitials = post.authorName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
 
   return (
     <article
       onClick={() => navigate(postDetail(post.id))}
-      style={{
-        background: 'var(--paper)', border: '1px solid var(--rule)',
-        padding: '24px 28px', cursor: 'pointer',
-        transition: 'border-color .18s, box-shadow .18s',
-        display: 'flex', flexDirection: 'column', gap: 14,
-        position: 'relative',
-      }}
-      onMouseEnter={e => {
-        (e.currentTarget as HTMLElement).style.borderColor = 'var(--primary)'
-        ;(e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px oklch(0 0 0 / .06)'
-      }}
-      onMouseLeave={e => {
-        (e.currentTarget as HTMLElement).style.borderColor = 'var(--rule)'
-        ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
-      }}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(postDetail(post.id)) } }}
+      tabIndex={0}
+      role="link"
+      aria-label={`Open post: ${post.title}`}
+      className={`group bg-white rounded-[1.5rem] p-6 cursor-pointer flex flex-col gap-4 transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal focus-visible:ring-offset-2 font-body ${
+        featured
+          ? 'border-2 border-hai-plum shadow-[0_20px_60px_-25px_rgba(54,33,62,0.35)] hover:shadow-[0_30px_80px_-25px_rgba(54,33,62,0.45)]'
+          : 'border border-neutral-200 hover:border-hai-plum hover:shadow-[0_20px_50px_-20px_rgba(54,33,62,0.2)]'
+      }`}
     >
-      {/* Top row: domain tag + status */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, flexWrap: 'wrap' }}>
-        <span style={{
-          fontFamily: 'var(--ff-mono)', fontSize: 10, letterSpacing: '.14em',
-          textTransform: 'uppercase', color: 'var(--accent)', fontWeight: 600,
-        }}>
+      {/* Match reason chips */}
+      {matchReasons && matchReasons.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 -mb-1">
+          {matchReasons.map(r => (
+            <span
+              key={`${r.tone}-${r.label}`}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono tracking-[0.1em] uppercase font-bold ${MATCH_TONE_STYLE[r.tone]}`}
+            >
+              <span className="material-symbols-outlined text-[11px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+                {r.icon}
+              </span>
+              {r.label}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Top: domain pill + status */}
+      <div className="flex items-center justify-between gap-3">
+        <span className="inline-flex items-center gap-1.5 bg-hai-mint/70 text-hai-plum px-2.5 py-1 rounded-full text-[10px] font-mono tracking-[0.14em] uppercase font-bold">
+          <span className="w-1 h-1 rounded-full bg-hai-teal" />
           {post.domain}
         </span>
         <PostStatusBadge status={post.status} size="sm" />
       </div>
 
       {/* Title */}
-      <h3 style={{
-        fontFamily: 'var(--ff-display)', fontWeight: 400,
-        fontSize: 'clamp(16px,1.4vw,19px)', letterSpacing: '-0.02em',
-        color: 'var(--ink)', margin: 0, lineHeight: 1.35,
-      }}>
+      <h3 className="font-headline font-bold text-[19px] leading-[1.2] tracking-[-0.02em] text-hai-plum line-clamp-2 group-hover:text-hai-plum transition-colors">
         {post.title}
       </h3>
 
-      {/* Description excerpt */}
-      <p style={{
-        fontFamily: 'var(--ff-sans)', fontSize: 13.5, color: 'var(--ink-muted)',
-        margin: 0, lineHeight: 1.55,
-        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-        overflow: 'hidden',
-      }}>
+      {/* Description */}
+      <p className="text-[13.5px] text-neutral-600 leading-[1.55] line-clamp-2 flex-1">
         {post.description}
       </p>
 
-      {/* Tags row */}
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-        {[STAGE_LABELS[post.projectStage], COLLAB_LABELS[post.collaborationType]].map(tag => (
-          <span key={tag} style={{
-            fontFamily: 'var(--ff-mono)', fontSize: 10, letterSpacing: '.1em',
-            textTransform: 'uppercase', color: 'var(--ink-muted)',
-            border: '1px solid var(--rule)', padding: '2px 7px',
-          }}>{tag}</span>
-        ))}
+      {/* Tags */}
+      <div className="flex gap-2 flex-wrap">
+        <span className="inline-flex items-center gap-1 text-[10px] font-mono tracking-[0.12em] uppercase text-neutral-500 border border-neutral-200 px-2 py-0.5 rounded-full font-bold">
+          {STAGE_LABELS[post.projectStage]}
+        </span>
+        <span className="inline-flex items-center gap-1 text-[10px] font-mono tracking-[0.12em] uppercase text-neutral-500 border border-neutral-200 px-2 py-0.5 rounded-full font-bold">
+          {COLLAB_LABELS[post.collaborationType]}
+        </span>
       </div>
 
-      {/* Bottom meta */}
-      <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        borderTop: '1px solid var(--rule-soft)', paddingTop: 12, flexWrap: 'wrap', gap: 6,
-      }}>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <span style={{ fontFamily: 'var(--ff-mono)', fontSize: 10.5, color: 'var(--ink-muted)', letterSpacing: '.06em' }}>
-            {post.city}, {post.country}
-          </span>
-          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--rule)', display: 'inline-block' }} />
-          <span style={{ fontFamily: 'var(--ff-mono)', fontSize: 10.5, color: 'var(--ink-muted)', letterSpacing: '.06em' }}>
-            {post.authorName}
-          </span>
+      {/* Bottom: author + meta */}
+      <div className="flex items-center justify-between gap-3 pt-4 border-t border-neutral-100">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="w-7 h-7 rounded-full bg-hai-mint border border-hai-teal/40 flex items-center justify-center text-[10px] font-mono font-bold text-hai-plum shrink-0">
+            {authorInitials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[12px] font-bold text-hai-plum truncate leading-tight">
+              {post.authorName}
+            </div>
+            <div className="flex items-center gap-1 text-[10px] font-mono tracking-[0.08em] uppercase text-neutral-500 mt-0.5">
+              <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+                {ROLE_ICON[post.authorRole] ?? 'person'}
+              </span>
+              <span className="truncate">{post.city}</span>
+            </div>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+
+        <div className="flex flex-col items-end gap-0.5 shrink-0">
           {post.interestCount > 0 && (
-            <span style={{ fontFamily: 'var(--ff-mono)', fontSize: 10.5, color: 'var(--ink-muted)' }}>
+            <span className="inline-flex items-center gap-1 text-[10px] font-mono tracking-[0.08em] uppercase text-hai-plum font-bold">
+              <span className="material-symbols-outlined text-[11px]" style={{ fontVariationSettings: '"FILL" 1' }}>bolt</span>
               {post.interestCount} interested
             </span>
           )}
           {daysLeft > 0 && post.status === 'active' && (
-            <span style={{ fontFamily: 'var(--ff-mono)', fontSize: 10.5, color: daysLeft < 14 ? '#d97706' : 'var(--ink-muted)' }}>
+            <span className={`text-[10px] font-mono tracking-[0.08em] uppercase font-bold ${daysLeft < 14 ? 'text-amber-600' : 'text-neutral-500'}`}>
               {daysLeft}d left
             </span>
           )}

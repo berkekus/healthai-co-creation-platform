@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* NOTE: Typography is loaded from Google Fonts in index.html
+   → Plus Jakarta Sans (headlines / logo / buttons · Tailwind `font-headline`, `font-feixen`)
+   → Source Sans 3     (body copy · Tailwind `font-body`)
+   The legacy CSS vars below (`--ff-display` / `--ff-sans` / `--ff-mono`) are
+   kept only for backward compat with any lingering inline styles and map to
+   the new families; no file in /src references them at render time anymore. */
+
 /* ───────── DESIGN TOKENS ───────── */
 :root {
   /* Palette A — Oxblood + Bone */
@@ -17,9 +24,13 @@
   --accent-2:  oklch(0.72 0.14 75);
   --glow:      oklch(0.85 0.10 75 / 0.20);
 
-  --ff-display: "Newsreader", "GT Sectra", "Times New Roman", serif;
-  --ff-sans:    "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  --ff-mono:    "IBM Plex Mono", ui-monospace, monospace;
+  --ff-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --ff-sans:    "Source Sans 3",     ui-sans-serif, system-ui, sans-serif;
+  /* `--ff-mono` historically pointed at the system monospace stack. We remap it
+     to Plus Jakarta Sans so legacy inline styles that still reference this var
+     (and any stale `font-mono` selectors) stay on-brand. Tailwind's `font-mono`
+     utility is overridden in tailwind.config.js to the same family. */
+  --ff-mono:    "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 
   --gutter: clamp(16px, 2.6vw, 40px);
   --maxw: 1440px;
@@ -301,6 +312,27 @@ a { color: inherit; text-decoration: none; }
 }
 .step-in-right { animation: stepSlideInRight 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .step-in-left  { animation: stepSlideInLeft  0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+/* Skeleton shimmer — consumed by src/components/ui/Skeleton.tsx (Faz 9). */
+@keyframes skeletonShimmer {
+  0%   { background-position: -450px 0; }
+  100% { background-position:  450px 0; }
+}
+.skeleton-shimmer {
+  background-color: #EEF0F3;
+  background-image: linear-gradient(
+    90deg,
+    rgba(238, 240, 243, 0) 0%,
+    rgba(184, 243, 255, 0.55) 50%,
+    rgba(238, 240, 243, 0) 100%
+  );
+  background-size: 450px 100%;
+  background-repeat: no-repeat;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer { animation: none; background-image: none; }
+}
 
 @media (max-width: 1100px) { .scroll-ind { display: none !important; } }
 @media (max-width: 880px) {
