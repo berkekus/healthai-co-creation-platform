@@ -1,0 +1,67 @@
+import { Request, Response, NextFunction } from 'express'
+import { AuthRequest } from '../middleware/authMiddleware'
+import * as authService from '../services/authService'
+
+export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { name, email, password, role, institution, city, country } = req.body
+
+    if (!name || !email || !password || !role || !institution || !city || !country) {
+      res.status(400).json({ success: false, message: 'All fields are required' })
+      return
+    }
+    if (password.length < 8) {
+      res.status(400).json({ success: false, message: 'Password must be at least 8 characters' })
+      return
+    }
+
+    const result = await authService.registerUser({ name, email, password, role, institution, city, country })
+    res.status(201).json({ success: true, data: result })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { email, password } = req.body
+    if (!email || !password) {
+      res.status(400).json({ success: false, message: 'Email and password are required' })
+      return
+    }
+    const result = await authService.loginUser(email, password)
+    res.json({ success: true, data: result })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function getMe(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const user = await authService.getUserById(req.userId as string)
+    res.json({ success: true, data: user })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function updateProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { name, institution, city, country, bio, expertiseTags } = req.body
+    const user = await authService.updateUserProfile(req.userId as string, {
+      name, institution, city, country, bio, expertiseTags,
+    })
+    res.json({ success: true, data: user })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const user = await authService.getUserById(req.params.id)
+    res.json({ success: true, data: user })
+  } catch (err) {
+    next(err)
+  }
+}
