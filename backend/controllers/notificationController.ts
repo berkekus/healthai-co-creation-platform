@@ -2,6 +2,20 @@ import { Response, NextFunction } from 'express'
 import { AuthRequest } from '../middleware/authMiddleware'
 import * as notificationService from '../services/notificationService'
 
+export async function createNotification(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { userId, type, title, body, linkTo } = req.body
+    if (!userId || !type || !title || !body) {
+      res.status(400).json({ success: false, message: 'userId, type, title and body are required' })
+      return
+    }
+    const notification = await notificationService.pushNotification({ userId, type, title, body, linkTo })
+    res.status(201).json({ success: true, data: notification })
+  } catch (err) {
+    next(err)
+  }
+}
+
 export async function getNotifications(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
     const notifications = await notificationService.getNotificationsByUser(req.userId as string)

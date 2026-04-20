@@ -14,7 +14,19 @@ import { errorHandler, notFound } from '../middleware/errorHandler'
 const app = express()
 const PORT = process.env.PORT || 5000
 
-app.use(cors())
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:4173',
+  process.env.CLIENT_ORIGIN,
+].filter(Boolean) as string[]
+
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true)
+    cb(new Error(`CORS: origin ${origin} not allowed`))
+  },
+  credentials: true,
+}))
 app.use(express.json())
 
 app.get('/health', (_req, res) => {

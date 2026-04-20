@@ -106,3 +106,22 @@ export async function getUserById(userId: string) {
   }
   return sanitize(user)
 }
+
+export async function getAllUsers() {
+  const users = await User.find({})
+  return users.map(sanitize)
+}
+
+export async function setSuspended(userId: string, isSuspended: boolean) {
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { $set: { isSuspended } },
+    { new: true }
+  )
+  if (!user) {
+    const err: Error & { statusCode?: number } = new Error('User not found')
+    err.statusCode = 404
+    throw err
+  }
+  return sanitize(user)
+}

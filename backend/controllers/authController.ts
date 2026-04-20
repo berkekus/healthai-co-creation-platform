@@ -65,3 +65,22 @@ export async function getUserById(req: Request, res: Response, next: NextFunctio
     next(err)
   }
 }
+
+export async function getAllUsers(_req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const users = await authService.getAllUsers()
+    res.json({ success: true, data: users })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function setSuspended(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { isSuspended } = req.body
+    const user = await authService.setSuspended(req.params.id, Boolean(isSuspended))
+    res.json({ success: true, data: user })
+  } catch (err) {
+    next(err)
+  }
+}
