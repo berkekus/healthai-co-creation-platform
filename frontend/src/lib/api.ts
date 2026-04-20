@@ -14,6 +14,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token')
+      // avoid circular import — navigate via window instead of router
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login'
+      }
+    }
     const message: string =
       error.response?.data?.message ?? error.message ?? 'Something went wrong'
     return Promise.reject(new Error(message))

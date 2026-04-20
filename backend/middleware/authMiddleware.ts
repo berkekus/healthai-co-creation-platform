@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
+import User from '../models/User'
 
 export interface AuthRequest extends Request {
   userId?: string
@@ -11,7 +12,7 @@ interface JwtPayload {
   role: string
 }
 
-export const protect = (req: AuthRequest, res: Response, next: NextFunction): void => {
+export const protect = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   const header = req.headers.authorization
 
   if (!header || !header.startsWith('Bearer ')) {
@@ -23,6 +24,17 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction): vo
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload
+
+    const user = await User.findById(decoded.id).select('isSuspended role')
+    if (!user) {
+      res.status(401).json({ success: false, message: 'User not found' })
+      return
+    }
+    if (user.isSuspended) {
+      res.status(403).json({ success: false, message: 'Account suspended' })
+      return
+    }
+
     req.userId = decoded.id
     req.userRole = decoded.role
     next()

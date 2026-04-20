@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { AuthRequest } from '../middleware/authMiddleware'
 import * as authService from '../services/authService'
+import { createLog } from '../services/logService'
 
 export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -16,6 +17,14 @@ export async function register(req: Request, res: Response, next: NextFunction):
     }
 
     const result = await authService.registerUser({ name, email, password, role, institution, city, country })
+    createLog({
+      userId: result.user.id,
+      userEmail: result.user.email,
+      role: result.user.role,
+      action: 'register',
+      result: 'success',
+      ipAddress: req.ip,
+    }).catch(() => {})
     res.status(201).json({ success: true, data: result })
   } catch (err) {
     next(err)
@@ -30,6 +39,14 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
       return
     }
     const result = await authService.loginUser(email, password)
+    createLog({
+      userId: result.user.id,
+      userEmail: result.user.email,
+      role: result.user.role,
+      action: 'login',
+      result: 'success',
+      ipAddress: req.ip,
+    }).catch(() => {})
     res.json({ success: true, data: result })
   } catch (err) {
     next(err)

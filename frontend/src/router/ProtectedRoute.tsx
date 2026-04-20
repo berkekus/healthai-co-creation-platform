@@ -9,8 +9,10 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { isAuthenticated, user } = useAuthStore()
+  const { isAuthenticated, isHydrating, user } = useAuthStore()
   const location = useLocation()
+
+  if (isHydrating) return null
 
   if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />

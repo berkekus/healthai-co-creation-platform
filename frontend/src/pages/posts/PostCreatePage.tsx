@@ -20,12 +20,12 @@ export default function PostCreatePage() {
     defaultValues: { confidentiality: 'public_pitch', projectStage: 'idea' },
   })
 
-  const onSubmit = (data: PostCreateFormData) => {
+  const onSubmit = async (data: PostCreateFormData) => {
     if (!user) return
     const role = user.role === 'admin' ? 'engineer' : user.role
-    const post = create(data, user.id, user.name, role as 'engineer' | 'healthcare_professional')
+    const post = await create(data, user.id, user.name, role as 'engineer' | 'healthcare_professional')
     if (submitAction === 'publish') {
-      usePostStore.getState().publish(post.id)
+      await usePostStore.getState().publish(post.id)
     }
     navigate(postDetail(post.id))
   }

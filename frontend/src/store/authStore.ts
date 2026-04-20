@@ -6,6 +6,7 @@ interface AuthState {
   user: User | null
   isAuthenticated: boolean
   isLoading: boolean
+  isHydrating: boolean
   error: string | null
   login: (credentials: LoginCredentials) => Promise<void>
   logout: () => void
@@ -19,16 +20,21 @@ export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: false,
+  isHydrating: true,
   error: null,
 
   hydrate: async () => {
     const token = localStorage.getItem('token')
-    if (!token) return
+    if (!token) {
+      set({ isHydrating: false })
+      return
+    }
     try {
       const { data } = await api.get<{ success: boolean; data: User }>('/auth/me')
-      set({ user: data.data, isAuthenticated: true })
+      set({ user: data.data, isAuthenticated: true, isHydrating: false })
     } catch {
       localStorage.removeItem('token')
+      set({ isHydrating: false })
     }
   },
 
