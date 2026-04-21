@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { motion, useMotionTemplate, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
 import { ROUTES } from '../constants/routes'
 import { useAuthStore } from '../store/authStore'
 
@@ -17,6 +18,35 @@ import { useAuthStore } from '../store/authStore'
 // of the hero — and everything through the "Ready to co-create?" CTA —
 // sits on a calm off-white surface.
 // ─────────────────────────────────────────────────────────────────────
+
+/**
+ * Detect whether the current device supports true hover input.
+ * Returns `true` on desktops / trackpads (where `(hover: hover)` matches)
+ * and `false` on touch devices. Used to decide whether the pathway-card
+ * reveal box should rely on `whileHover` (desktop) or stay visible
+ * permanently (mobile — otherwise the CTA inside would be unreachable).
+ */
+function useCanHover(): boolean {
+  /*
+    Lazy initializer — we read the media query synchronously on first
+    render so the very first paint already matches the device. Without
+    this, touch devices would render ONE frame of `canHover = true`
+    (the default) and flash the reveal-box from hidden → visible as
+    the useEffect below corrects it. Now: no flash, no layout shift.
+  */
+  const [canHover, setCanHover] = useState<boolean>(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return true
+    return window.matchMedia('(hover: hover) and (pointer: fine)').matches
+  })
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine)')
+    const update = () => setCanHover(mq.matches)
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
+  return canHover
+}
 
 // ── Icon helper ─────────────────────────────────────────────────────
 function Icon({ name, className = '', filled = false }: { name: string; className?: string; filled?: boolean }) {
@@ -36,8 +66,8 @@ function Logo({ inverted = false }: { inverted?: boolean }) {
     <div className="flex items-center gap-2.5">
       <div className={`p-1.5 rounded-lg ${inverted ? 'bg-white' : 'bg-black'}`}>
         <svg width="22" height="22" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="16.5" y="5"    width="7"  height="30" rx="1.5" fill={inverted ? 'black' : 'white'} />
-          <rect x="5"    y="16.5" width="30" height="7"  rx="1.5" fill={inverted ? 'black' : 'white'} />
+          <rect x="16.5" y="5" width="7" height="30" rx="1.5" fill={inverted ? 'black' : 'white'} />
+          <rect x="5" y="16.5" width="30" height="7" rx="1.5" fill={inverted ? 'black' : 'white'} />
         </svg>
       </div>
       <span className={`text-[22px] font-extrabold tracking-tight font-body ${inverted ? 'text-white' : 'text-black'}`}>
@@ -76,13 +106,13 @@ function TopNav() {
       <div className="hidden lg:flex items-center bg-white/25 backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
         <div className="flex items-center bg-white rounded-full h-full">
           <div className="flex items-center px-1">
-            <a href="#platform"  className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">Platform</a>
+            <a href="#platform" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">Platform</a>
             <NavDivider />
             <a href="#directory" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">Directory</a>
             <NavDivider />
-            <a href="#how"       className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">How it works</a>
+            <a href="#how" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">How it works</a>
             <NavDivider />
-            <a href="#trust"     className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">Trust</a>
+            <a href="#trust" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">Trust</a>
           </div>
           <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
             {/* Request Access — plum bg + white font. Same premium hover
@@ -135,37 +165,60 @@ function TopNav() {
   )
 }
 
-// ── Hero open-card: stylized mock post (clinician / engineer side) ──
-function HeroPostMock({ side }: { side: 'clinician' | 'engineer' }) {
+// ── Hero portrait card: real human for each pathway side ────────────
+//
+// Replaces the earlier stylized post mock — users now see an actual
+// healthcare professional (clinician card) and an actual engineer
+// (engineer card). Visual language is preserved:
+//   · Two tile stack (back paper + front photo) with counter-rotation
+//   · Floating soft shadow consistent with the other pathway visuals
+//   · Small branded strip at the bottom (role · city) in the card's
+//     own accent palette so the label belongs to its side
+//
+// Images are served from /public/images and reference a portrait-crop
+// photograph whose background gradient matches the parent card's
+// gradient (teal→mint for clinician, beige→lime for engineer), so the
+// edges of the tile blend into the card surface when the two rotate.
+function HeroPortraitCard({ side }: { side: 'clinician' | 'engineer' }) {
   const isClinician = side === 'clinician'
+  const src = isClinician ? '/images/clinician-portrait.png' : '/images/engineer-portrait.png'
+  const alt = isClinician
+    ? 'Portrait of a healthcare professional in a clinical coat with a stethoscope'
+    : 'Portrait of an engineer wearing minimal glasses and a dark sweater'
+  const labelBg   = isClinician ? 'bg-hai-plum'  : 'bg-hai-plum'
+  const labelText = isClinician ? 'text-hai-mint' : 'text-hai-lime'
   return (
     <div
       aria-hidden="true"
-      className="absolute right-0 bottom-16 w-[85%] h-[240px] flex items-end justify-end pointer-events-none"
-      style={{ transform: isClinician ? 'rotate(-8deg) translateX(10px)' : 'rotate(5deg) translateX(20px)' }}
+      className="absolute right-0 bottom-16 w-[78%] h-[260px] flex items-end justify-end pointer-events-none"
+      style={{ transform: isClinician ? 'rotate(-6deg) translateX(10px)' : 'rotate(4deg) translateX(20px)' }}
     >
       <div className="relative w-full h-full">
-        <div className="absolute inset-0 bg-white rounded-[1.6rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.25)] border border-black/5"
-             style={{ transform: 'rotate(-4deg) translate(-16px, -8px)' }} />
-        <div className="absolute inset-0 bg-neutral-50 rounded-[1.6rem] shadow-[0_25px_60px_-20px_rgba(0,0,0,0.3)] border border-black/10"
-             style={{ transform: 'rotate(2deg) translate(8px, 4px)' }}>
-          <div className="p-5 flex flex-col h-full">
-            <div className="flex items-center justify-between text-[9px] font-mono tracking-[0.15em] uppercase text-neutral-500 mb-3">
-              <span>Post · #HAI-{isClinician ? '0427' : '0319'}</span>
-              <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> ACTIVE</span>
-            </div>
-            <div className={`text-[9px] font-mono tracking-[0.14em] uppercase mb-2 font-bold ${isClinician ? 'text-rose-700' : 'text-indigo-700'}`}>
+        {/* back paper tile — subtle depth, counter-rotated */}
+        <div
+          className="absolute inset-0 bg-white rounded-[1.6rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.25)] border border-black/5"
+          style={{ transform: 'rotate(-4deg) translate(-16px, -8px)' }}
+        />
+        {/* front photo tile */}
+        <div
+          className="absolute inset-0 rounded-[1.6rem] overflow-hidden shadow-[0_25px_60px_-20px_rgba(0,0,0,0.3)] border border-black/10 bg-white"
+          style={{ transform: 'rotate(2deg) translate(8px, 4px)' }}
+        >
+          <img
+            src={src}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectPosition: isClinician ? '65% 30%' : '50% 25%' }}
+          />
+          {/* branded role strip — sits on a soft gradient scrim so it
+              remains legible regardless of the underlying photo tone */}
+          <div className="absolute inset-x-0 bottom-0 pt-8 pb-3 px-4 bg-gradient-to-t from-black/55 via-black/25 to-transparent">
+            <span className={`inline-flex items-center gap-1.5 ${labelBg} ${labelText} text-[9px] font-mono tracking-[0.16em] uppercase font-bold px-2.5 py-1 rounded-full`}>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               {isClinician ? 'Healthcare Professional · Berlin' : 'Engineer · Delft'}
-            </div>
-            <h4 className="font-headline font-medium text-[17px] leading-[1.15] tracking-tight text-black mb-3 line-clamp-3">
-              {isClinician
-                ? <>Low-latency <span className="text-rose-700 font-bold">ECG anomaly</span> detection for ICU bedside monitors.</>
-                : <>Embedded ML toolkit for <span className="text-indigo-700 font-bold">real-time biosignal</span> classification.</>}
-            </h4>
-            <div className="mt-auto flex items-center justify-between pt-3 border-t border-neutral-200 text-[9px] font-mono tracking-[0.12em] uppercase">
-              <span className="text-neutral-500">03 interests</span>
-              <span className="bg-hai-plum text-hai-mint px-2.5 py-1 rounded-full">Express Interest →</span>
-            </div>
+            </span>
           </div>
         </div>
       </div>
@@ -292,10 +345,10 @@ const BuildVisual = () => (
 )
 
 const STEPS: Step[] = [
-  { num: '01', name: 'Post',  tagline: 'Publish the need. Structure it.',        desc: 'Describe your domain, the expertise you need, the project stage, and the confidentiality level. No file uploads. No patient data. Ever.',              icon: 'edit_note',     accent: '#B8F3FF', Visual: PostVisual  },
-  { num: '02', name: 'Match', tagline: '20 domains · 12 specialties.',            desc: 'Browse the directory. Filter by medical domain, engineering specialty, city, or project stage. Every profile is tied to an institutional .edu account.', icon: 'tune',          accent: '#D2FF74', Visual: MatchVisual },
-  { num: '03', name: 'Meet',  tagline: 'NDA inline. Three slots. Done.',          desc: 'Express interest. Accept a one-page NDA inline. Propose three timeslots. The post owner confirms — the meeting is scheduled and logged immutably.',   icon: 'handshake',     accent: '#E3DCD2', Visual: MeetVisual  },
-  { num: '04', name: 'Build', tagline: "The platform steps aside.",               desc: "Real collaboration happens off-platform, where it belongs. Mark the post as Partner Found. Your handshake — and its full history — stays on record.",  icon: 'rocket_launch', accent: '#8AC6D0', Visual: BuildVisual },
+  { num: '01', name: 'Post', tagline: 'Publish the need. Structure it.', desc: 'Describe your domain, the expertise you need, the project stage, and the confidentiality level. No file uploads. No patient data. Ever.', icon: 'edit_note', accent: '#B8F3FF', Visual: PostVisual },
+  { num: '02', name: 'Match', tagline: '20 domains · 12 specialties.', desc: 'Browse the directory. Filter by medical domain, engineering specialty, city, or project stage. Every profile is tied to an institutional .edu account.', icon: 'tune', accent: '#D2FF74', Visual: MatchVisual },
+  { num: '03', name: 'Meet', tagline: 'NDA inline. Three slots. Done.', desc: 'Express interest. Accept a one-page NDA inline. Propose three timeslots. The post owner confirms — the meeting is scheduled and logged immutably.', icon: 'handshake', accent: '#E3DCD2', Visual: MeetVisual },
+  { num: '04', name: 'Build', tagline: "The platform steps aside.", desc: "Real collaboration happens off-platform, where it belongs. Mark the post as Partner Found. Your handshake — and its full history — stays on record.", icon: 'rocket_launch', accent: '#8AC6D0', Visual: BuildVisual },
 ]
 
 // ── Main ────────────────────────────────────────────────────────────
@@ -315,10 +368,128 @@ export default function LandingPage() {
 
   const heroStats: [string, string][] = [
     ['.edu', 'institutional email only'],
-    ['20',   'medical domains'],
-    ['12',   'engineering specialties'],
-    ['0',    'file uploads or patient data'],
+    ['20', 'medical domains'],
+    ['12', 'engineering specialties'],
+    ['0', 'file uploads or patient data'],
   ]
+
+  /* ──────────────────────────────────────────────────────────────
+     STICKY PARALLAX OVERLAP — scroll-driven blur + drift + fade
+     ──────────────────────────────────────────────────────────────
+     · Hero sticks at top (z-0). As the user scrolls, the foreground
+       slab (z-10, opaque bg) climbs up and covers the hero.
+     · Effect cadence (inspired by the Payard reference):
+         [0.02 → 0.26]  blur(0px)    → blur(14px)   ← primary tell
+         [0.04 → 0.28]  y:0          → y:-60 px     ← "pulled behind"
+         [0.16 → 0.34]  opacity:1    → opacity:0    ← delayed fade
+       Blur starts *immediately* on first scroll so the user's eye
+       reads the text "going out of focus" long before it fades. The
+       y-drift reinforces the sense the copy is sliding behind the
+       rising card, and opacity only begins to drop once the text is
+       already significantly blurred — recreating the soft,
+       depth-of-field feel of the reference instead of a harsh fade.
+     · GPU contract: motion.div animates `transform`, `opacity` and
+       `filter` — all compositor-thread properties, zero layout
+       reflow. `useMotionTemplate` builds the `blur(<px>px)` string
+       from a MotionValue so React never re-renders on scroll.
+       Tailwind `will-change-transform` hints layer promotion.
+  ────────────────────────────────────────────────────────────── */
+  const parallaxRef = useRef<HTMLDivElement>(null)
+  const prefersReducedMotion = useReducedMotion()
+  const { scrollYProgress } = useScroll({
+    target: parallaxRef,
+    offset: ['start start', 'end start'],
+  })
+  const heroOpacity = useTransform(scrollYProgress, [0.16, 0.34], [1, 0])
+  const heroY       = useTransform(scrollYProgress, [0.04, 0.28], [0, -60])
+  const heroBlurPx  = useTransform(scrollYProgress, [0.02, 0.26], [0, 14])
+  const heroFilter  = useMotionTemplate`blur(${heroBlurPx}px)`
+
+  /* ──────────────────────────────────────────────────────────────
+     FOREGROUND SLAB · parallax lift
+     ──────────────────────────────────────────────────────────────
+     Without this transform, the slab moves up ONLY at scroll speed
+     (1:1 with document). Visually that reads as "passive" — the
+     card doesn't feel like it's *climbing* over the hero, it just
+     slides into view.
+
+     Adding a negative `y` that ramps from 0 → -180 px across the
+     same scroll window as the hero blur means the slab rises
+     FASTER than the document scroll during the overlap phase. Per
+     unit of scroll the card gains extra altitude, recreating the
+     Payard-style "card is actively climbing over the headline"
+     sensation the user is asking for.
+
+     After 0.26 progress the transform holds at -180 (no further
+     climb) so the rest of the page still scrolls 1:1 — no rubber-
+     banding, no visible shift below the hero zone.
+  ────────────────────────────────────────────────────────────── */
+  const slabY = useTransform(scrollYProgress, [0, 0.26], [0, -180])
+
+  /* ──────────────────────────────────────────────────────────────
+     CARD MICRO-INTERACTIONS — two-layer hover effect
+     ──────────────────────────────────────────────────────────────
+     1) Outer pathway card (clinician / engineer):
+          rest  → scale 1,    zIndex 1
+          hover → scale 1.03, zIndex 50   (spring — overlaps sibling)
+
+     2) Inner reveal box (description + CTA pill, frosted glass):
+          rest  → opacity 0, y 20px       (tucked below, invisible)
+          hover → opacity 1, y 0          (floats into place, spring)
+
+     Children inherit the parent's `hover`/`rest` state via Framer
+     Motion's variant propagation, so a single pointer-enter on the
+     outer card drives BOTH animations in lockstep.
+
+     Touch / mobile: `useCanHover()` detects `(hover: hover)` media
+     query. If hover is unavailable, we force both cards into the
+     "hover" state permanently so the reveal box is always visible
+     (otherwise the CTA would be unreachable on touch devices).
+
+     Reduced motion: when user prefers reduced motion, scale snaps
+     1→1 (no bump) and the reveal box still appears but without the
+     spring — a subtle opacity crossfade only.
+  ────────────────────────────────────────────────────────────── */
+  const canHover = useCanHover()
+
+  /*
+    Per-card hover state. We drive BOTH the outer card (scale/zIndex)
+    and the inner reveal box from the same boolean so the two
+    animations are perfectly in lockstep. Using explicit state here
+    is intentional — Framer Motion's automatic variant propagation
+    via `whileHover` only covers the direct motion component; once
+    the inner reveal motion.div wanted its OWN transition + initial
+    state, propagation proved brittle (children kept missing the
+    parent's hover variant). A shared hover flag is bullet-proof.
+
+    On touch devices (`!canHover`) the outer card stays at "rest"
+    (no scale bump) while the inner reveal box is forced to "hover"
+    permanently so the CTA remains reachable.
+  */
+  const [clinicianHovered, setClinicianHovered] = useState(false)
+  const [engineerHovered,  setEngineerHovered]  = useState(false)
+
+  const clinicianOuterState  = canHover ? (clinicianHovered ? 'hover' : 'rest') : 'rest'
+  const clinicianRevealState = canHover ? (clinicianHovered ? 'hover' : 'rest') : 'hover'
+  const engineerOuterState   = canHover ? (engineerHovered  ? 'hover' : 'rest') : 'rest'
+  const engineerRevealState  = canHover ? (engineerHovered  ? 'hover' : 'rest') : 'hover'
+
+  const cardSpring = prefersReducedMotion
+    ? { duration: 0.2 }
+    : { type: 'spring' as const, stiffness: 260, damping: 22, mass: 0.9 }
+  const revealSpring = prefersReducedMotion
+    ? { duration: 0.2 }
+    : { type: 'spring' as const, stiffness: 220, damping: 24, mass: 0.8 }
+
+  const cardOverlapVariants: Variants = {
+    rest:  { scale: 1,                                   zIndex: 1,  transition: cardSpring },
+    hover: { scale: prefersReducedMotion ? 1 : 1.03,     zIndex: 50, transition: cardSpring },
+  }
+
+  const cardRevealVariants: Variants = {
+    rest:  { opacity: 0, y: prefersReducedMotion ? 0 : 20, transition: revealSpring },
+    hover: { opacity: 1, y: 0,                             transition: revealSpring },
+  }
 
   return (
     <div className="min-h-screen flex flex-col font-body bg-hai-teal overflow-x-hidden antialiased">
@@ -326,83 +497,257 @@ export default function LandingPage() {
 
       <main className="flex-grow pb-0 relative bg-hai-offwhite">
         {/*
-          HERO ZONE — gradient that keeps the top half teal and fades to
-          off-white by the midpoint of the "Join the directory" panel, so
-          everything from card-midpoint through the "Ready to co-create?"
-          CTA row reads on a calm off-white surface.
-        */}
-        <div
-          className="relative pt-32"
-          style={{ background: 'linear-gradient(180deg, #8AC6D0 0%, #8AC6D0 44%, #F3F4F6 72%, #F3F4F6 100%)' }}
-        >
-          {/* ── HERO ─────────────────────────────────────────── */}
-          <section
-            id="directory"
-            className="max-w-7xl mx-auto px-6 md:px-8 pb-20 md:pb-24 relative"
-            style={{ backgroundImage: 'radial-gradient(circle at center, rgba(0,0,0,0.05) 1px, transparent 1px)', backgroundSize: '24px 24px' }}
-          >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-hai-mint/30 rounded-full blur-[120px] -z-10 pointer-events-none" />
+          ──────────────────────────────────────────────────────────────
+          STICKY PARALLAX OVERLAP ZONE
+          ──────────────────────────────────────────────────────────────
+          Two physical layers, one visual composition:
 
-            <div className="text-center mb-14 md:mb-16 max-w-5xl mx-auto pt-2">
+            Layer 1 (z-0, background) — `sticky top-0 h-screen` hero.
+              Pins to the viewport. Badge + headline + subtitle fade
+              (opacity 1 → 0) and drift up (y 0 → -60 px) as the
+              foreground climbs over it.
+
+            Layer 2 (z-10, foreground) — solid off-white slab carrying
+              the "Join the Directory" panel, stats ribbon, giant
+              "Platform" wordmark, 4-card platform grid and CTA row.
+              Pulled up with `-mt-[20vh] md:-mt-[28vh]` so the Join
+              panel is already *peeking* at page-load. As the user
+              scrolls, this slab climbs up and fully occludes the
+              sticky hero (its `bg-hai-offwhite` is opaque = zero
+              bleed-through).
+
+          ──────────────────────────────────────────────────────────────
+        */}
+        <div ref={parallaxRef} className="relative">
+
+          {/* ── HERO · sticky background layer (z-0) ───────────
+              `min-h-[720px]` gives the hero a longer sticky budget on
+              tall viewports so the foreground slab has plenty of room
+              to climb completely over it before the parent container
+              runs out and un-sticks the hero. */}
+          {/*
+            items-start + large top padding (instead of items-center) —
+            pins the hero copy near the upper third of the viewport so
+            that as the foreground slab rises it *never clips* the
+            headline. The full "Healthcare co-creation, without the
+            silos." headline stays readable through the entire blur
+            lifecycle; the card climbs over empty teal space below it
+            before starting to encroach on the copy.
+          */}
+          <section
+            aria-labelledby="hero-headline"
+            className="sticky top-0 z-0 h-screen min-h-[720px] w-full overflow-hidden flex items-start justify-center pt-32 md:pt-36 pb-12 bg-hai-teal"
+          >
+            {/* dot atmosphere */}
+            <div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none"
+              style={{ backgroundImage: 'radial-gradient(circle at center, rgba(0,0,0,0.05) 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+            />
+            {/* mint glow — softens the teal */}
+            <div
+              aria-hidden
+              className="absolute top-[18%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-hai-mint/30 rounded-full blur-[120px] pointer-events-none"
+            />
+
+            {/*
+              Scroll-driven blur + drift + delayed fade. `will-change`
+              hints the compositor so Framer Motion's `y`, `opacity`
+              AND `filter` stay on the GPU path with zero layout
+              thrash. The `filter` string is built with
+              `useMotionTemplate` so the blur radius updates as a
+              MotionValue without re-rendering React on every frame.
+            */}
+            <motion.div
+              style={{
+                opacity: prefersReducedMotion ? 1 : heroOpacity,
+                y:       prefersReducedMotion ? 0 : heroY,
+                filter:  prefersReducedMotion ? 'none' : heroFilter,
+              }}
+              className="relative text-center max-w-5xl mx-auto px-6 md:px-8 will-change-[transform,filter,opacity]"
+            >
               <div className="inline-flex items-center gap-2 bg-white/30 backdrop-blur-md border border-white/50 rounded-full px-4 py-1.5 mb-8 text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-hai-plum animate-pulse" />
                 SENG 384 · Spring 2026 · v0.1
               </div>
-              <h1 className="font-headline font-bold text-white leading-[0.98] tracking-[-0.03em] text-[48px] sm:text-[72px] md:text-[92px] lg:text-[104px]">
+              <h1
+                id="hero-headline"
+                className="font-headline font-bold text-white leading-[0.98] tracking-[-0.03em] text-[48px] sm:text-[72px] md:text-[92px] lg:text-[104px]"
+              >
                 Healthcare co-creation,<br />
                 <span className="opacity-30">without the silos.</span>
               </h1>
               <p className="mt-8 max-w-2xl mx-auto text-[17px] md:text-[18px] leading-relaxed text-hai-plum/85 font-medium">
                 A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional <span className="font-bold text-hai-plum">.edu</span> verification and an immutable audit trail.
               </p>
-            </div>
+            </motion.div>
 
-            {/* Join the Directory panel (spans the teal → off-white boundary) */}
-            <div className="bg-white rounded-[2rem] p-4 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.35)] mb-14">
+          </section>
+
+          {/* ── FOREGROUND · teal→off-white gradient slab (z-10) ──
+              Climbs up over the sticky hero. Negative margin pulls the
+              slab UP into the hero zone so the "Join the Directory"
+              panel is peeking at page-load.
+
+              Its background is a vertical gradient that starts in the
+              SAME teal as the sticky hero (so slab ↔ hero merge
+              seamlessly during the overlap climb) and fades to
+              off-white right before the "Platform" wordmark. The
+              effect recreates the pre-parallax atmosphere: teal
+              atmosphere extends across the Join Directory cards and
+              calmly resolves to off-white from the Platform section
+              onwards.
+
+              The gradient is OPAQUE — still fully occludes the hero
+              when scrolled. The plum-tinted shadow was removed
+              because with a teal top edge there is no longer a
+              colour contrast for the halo to read against (both
+              surfaces are teal at the seam).
+          */}
+          {/*
+            Negative margin defines how deeply the slab "peeks" into
+            the hero at rest. Previous values (-20vh / -28vh) climbed
+            so deep that the headline's second line + subtitle landed
+            in the slab's feather zone and became illegible before any
+            scroll. New values (-10vh / -14vh) keep a clear visual
+            HINT of the pathway panel below the fold — enough to say
+            "there's something to scroll to" — while guaranteeing that
+            the FULL hero copy, down to the last word of the subtitle,
+            is uncovered at scrollY = 0 across every reasonable
+            viewport height (≥ 640 px).
+          */}
+          <motion.div
+            className="relative z-10 -mt-[10vh] md:-mt-[14vh] will-change-transform"
+            style={{
+              /*
+                Top 3% ramps from transparent → solid teal so the slab's
+                leading edge BLENDS into the sticky hero's teal instead
+                of landing as a hard horizontal line. Both layers share
+                #8AC6D0, so even a 3% alpha ramp (≈ 100 px on a 3500 px
+                slab) is enough to dissolve the seam completely while
+                preserving the calm teal-to-off-white journey below.
+              */
+              background: 'linear-gradient(180deg, rgba(138,198,208,0) 0%, #8AC6D0 3%, #8AC6D0 14%, #F3F4F6 57%, #F3F4F6 100%)',
+              y: prefersReducedMotion ? 0 : slabY,
+            }}
+          >
+
+            <section
+              id="directory"
+              className="max-w-7xl mx-auto px-6 md:px-8 pt-6 md:pt-10 pb-20 md:pb-24 relative"
+              style={{ backgroundImage: 'radial-gradient(circle at center, rgba(0,0,0,0.05) 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+            >
+
+            {/* Join the Directory panel — the first thing that crests the hero.
+                 The wrapper has been split into (a) a blurred teal halo
+                 sitting *behind* the panel and (b) the crisp white panel
+                 itself. The halo softly dissolves the panel's edges into
+                 the teal atmosphere above and around it, killing the hard
+                 rectangle-on-teal seam the user was seeing. The halo is
+                 purely decorative (aria-hidden) and clipped to pointer-
+                 events-none so it never intercepts clicks. */}
+            <div className="relative mb-14">
+              <div
+                aria-hidden
+                className="absolute -inset-x-8 -top-10 -bottom-6 rounded-[2.4rem] pointer-events-none"
+                style={{
+                  background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.55) 0%, rgba(184,243,255,0.35) 35%, rgba(138,198,208,0) 75%)',
+                  filter: 'blur(24px)',
+                }}
+              />
+              <div className="relative bg-white rounded-[2rem] p-4 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.35),0_-20px_50px_-20px_rgba(184,243,255,0.55)]">
               <div className="flex items-center justify-between px-3 mb-4">
                 <p className="text-[11px] font-mono tracking-[0.18em] uppercase text-neutral-500 font-bold">Join the Directory</p>
                 <p className="text-[11px] font-mono tracking-[0.18em] uppercase text-neutral-400">02 pathways</p>
               </div>
-              <div className="grid md:grid-cols-2 gap-4">
-                {/* For clinicians */}
-                <div className="rounded-[2rem] p-8 text-neutral-900 relative overflow-hidden min-h-[440px] flex flex-col"
-                     style={{ background: 'linear-gradient(155deg, #B8F3FF 0%, #8AC6D0 100%)' }}>
+              {/*
+                `relative` on the grid so the z-50 cards stack above the
+                sibling at hover without escaping the white wrapper. The
+                grid has gap-4 (16 px) which is slightly smaller than the
+                scaled card's extra footprint (~20 px), so the cards do
+                visually *overlap* at hover — exactly the intended
+                "stacking above the neighbour" effect, enforced by z-50.
+              */}
+              <div className="relative grid md:grid-cols-2 gap-4">
+
+                {/* ───── For clinicians — pathway card #1 ─────
+                    Both the outer scale/zIndex motion.div AND the inner
+                    frosted reveal motion.div read from the SAME state
+                    (`clinicianHovered`). onHoverStart/End flip it on
+                    pointer enter/leave. Explicit `animate` on both
+                    motion components avoids brittle variant propagation
+                    — every hover fires BOTH animations in lockstep. */}
+                <motion.div
+                  className="rounded-[2rem] p-8 text-neutral-900 relative overflow-hidden min-h-[440px] flex flex-col will-change-transform"
+                  style={{ background: 'linear-gradient(155deg, #B8F3FF 0%, #8AC6D0 100%)' }}
+                  variants={cardOverlapVariants}
+                  initial="rest"
+                  animate={clinicianOuterState}
+                  onHoverStart={() => canHover && setClinicianHovered(true)}
+                  onHoverEnd={() => canHover && setClinicianHovered(false)}
+                >
                   <div className="relative z-10">
                     <p className="text-[10px] font-mono tracking-[0.2em] uppercase text-hai-plum/70 mb-2 font-bold">01 · Clinician</p>
                     <h2 className="text-2xl font-headline font-bold">For healthcare professionals.</h2>
                   </div>
 
-                  <HeroPostMock side="clinician" />
+                  <HeroPortraitCard side="clinician" />
 
-                  <div className="relative z-10 bg-white/30 backdrop-blur-xl border border-white/40 p-6 rounded-2xl mt-auto">
+                  <motion.div
+                    className="relative z-10 bg-white/30 backdrop-blur-xl border border-white/40 p-6 rounded-2xl mt-auto will-change-transform"
+                    variants={cardRevealVariants}
+                    initial={canHover ? 'rest' : 'hover'}
+                    animate={clinicianRevealState}
+                    style={{ pointerEvents: clinicianRevealState === 'hover' ? 'auto' : 'none' }}
+                  >
                     <p className="font-body text-[17px] text-neutral-900 mb-6 leading-snug font-medium">
                       Publish the clinical need. Describe the domain, the project stage, and what you want built. Meet NDA-protected engineers — <span className="font-bold">no patient data, no file uploads, ever</span>.
                     </p>
-                    <Link to={ROUTES.REGISTER} className="inline-block bg-black text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-hai-plum transition-all">
-                      Create Clinician Profile →
+                    <Link
+                      to={ROUTES.REGISTER}
+                      className="inline-block bg-black text-white px-7 py-3.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-hai-plum hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(54,33,62,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
+                    >
+                      Create Your Account →
                     </Link>
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
 
-                {/* For engineers */}
-                <div className="rounded-[2rem] p-8 text-neutral-900 relative overflow-hidden min-h-[440px] flex flex-col"
-                     style={{ background: 'linear-gradient(155deg, #E3DCD2 0%, #D2FF74 100%)' }}>
+                {/* ───── For engineers — pathway card #2 ───── */}
+                <motion.div
+                  className="rounded-[2rem] p-8 text-neutral-900 relative overflow-hidden min-h-[440px] flex flex-col will-change-transform"
+                  style={{ background: 'linear-gradient(155deg, #E3DCD2 0%, #D2FF74 100%)' }}
+                  variants={cardOverlapVariants}
+                  initial="rest"
+                  animate={engineerOuterState}
+                  onHoverStart={() => canHover && setEngineerHovered(true)}
+                  onHoverEnd={() => canHover && setEngineerHovered(false)}
+                >
                   <div className="relative z-10">
                     <p className="text-[10px] font-mono tracking-[0.2em] uppercase text-hai-plum/70 mb-2 font-bold">02 · Engineer</p>
                     <h2 className="text-2xl font-headline font-bold">For engineers &amp; researchers.</h2>
                   </div>
 
-                  <HeroPostMock side="engineer" />
+                  <HeroPortraitCard side="engineer" />
 
-                  <div className="relative z-10 bg-white/30 backdrop-blur-xl border border-white/40 p-6 rounded-2xl mt-auto">
+                  <motion.div
+                    className="relative z-10 bg-white/30 backdrop-blur-xl border border-white/40 p-6 rounded-2xl mt-auto will-change-transform"
+                    variants={cardRevealVariants}
+                    initial={canHover ? 'rest' : 'hover'}
+                    animate={engineerRevealState}
+                    style={{ pointerEvents: engineerRevealState === 'hover' ? 'auto' : 'none' }}
+                  >
                     <p className="font-body text-[17px] text-neutral-900 mb-6 leading-snug font-medium">
                       Publish your capability. Receive curated clinician requests across 20 medical domains. Every meeting logged in a <span className="font-bold">24-month tamper-resistant</span> trail.
                     </p>
-                    <Link to={ROUTES.REGISTER} className="inline-block bg-black text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-hai-plum transition-all">
-                      Create Engineer Profile →
+                    <Link
+                      to={ROUTES.REGISTER}
+                      className="inline-block bg-black text-white px-7 py-3.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-hai-plum hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(54,33,62,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
+                    >
+                      Create Your Account →
                     </Link>
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
+              </div>
               </div>
             </div>
 
@@ -418,7 +763,7 @@ export default function LandingPage() {
             {/* Giant "Platform" wordmark — on off-white, uses ghost tone */}
             <div className="text-center">
               <h2 className="text-[5.5rem] sm:text-[8rem] md:text-[10rem] font-headline font-bold leading-none tracking-[-0.04em]"
-                  style={{ color: '#36213E', opacity: 0.08 }}>
+                style={{ color: '#36213E', opacity: 0.08 }}>
                 Platform
               </h2>
             </div>
@@ -515,7 +860,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* ── CTA row — last piece of the off-white hero zone ─ */}
+          {/* ── CTA row — last piece of the foreground slab ──── */}
           <section className="max-w-7xl mx-auto px-6 md:px-8 pb-20">
             <div className="bg-white rounded-full p-5 md:p-6 shadow-sm border border-neutral-100 flex items-center justify-between gap-4 flex-wrap">
               <h2 className="text-xl md:text-2xl font-headline font-bold text-neutral-900 ml-2 md:ml-4">Ready to co-create?</h2>
@@ -524,8 +869,11 @@ export default function LandingPage() {
               </Link>
             </div>
           </section>
+
+          </motion.div>
+          {/* ── end foreground slab (z-10, opaque bg-hai-offwhite) ─ */}
         </div>
-        {/* ── end hero zone gradient container ────────────────── */}
+        {/* ── end parallax container (ref={parallaxRef}) ────────── */}
 
         {/* ── HOW IT WORKS · interactive step-by-step guide ───── */}
         <section id="how" className="w-full bg-hai-offwhite py-24 md:py-28 border-t border-neutral-200">
@@ -639,7 +987,7 @@ export default function LandingPage() {
                     aria-label={`Go to step ${i + 1}`}
                     className="transition-all"
                     style={{
-                      width:  i === step ? 32 : 10,
+                      width: i === step ? 32 : 10,
                       height: 10,
                       background: i === step ? '#36213E' : i < step ? '#8AC6D0' : '#D4D4D4',
                       borderRadius: 9999,
@@ -747,9 +1095,9 @@ export default function LandingPage() {
           </div>
           <div className="max-w-4xl mx-auto px-6 md:px-8">
             {[
-              { icon: 'payments',   title: 'Cross-Institutional Grants', desc: 'Co-apply to European funding calls with shared draft templates, compliance checklists, and a joint submission timeline.' },
-              { icon: 'monitoring', title: 'Outcome Tracking',           desc: 'Track collaboration milestones after the first meeting, with opt-in timelines and post-publication logging.' },
-              { icon: 'groups',     title: 'Multi-Site Clinical Trials', desc: 'Coordinate recruitment and protocol reviews across multiple institutions within the directory.' },
+              { icon: 'payments', title: 'Cross-Institutional Grants', desc: 'Co-apply to European funding calls with shared draft templates, compliance checklists, and a joint submission timeline.' },
+              { icon: 'monitoring', title: 'Outcome Tracking', desc: 'Track collaboration milestones after the first meeting, with opt-in timelines and post-publication logging.' },
+              { icon: 'groups', title: 'Multi-Site Clinical Trials', desc: 'Coordinate recruitment and protocol reviews across multiple institutions within the directory.' },
             ].map((f) => (
               <div key={f.title} className="flex flex-col md:flex-row items-start md:items-center py-7 border-b border-neutral-300 gap-6 md:gap-12">
                 <div className="flex items-center gap-5 w-full md:w-1/2">
@@ -781,10 +1129,10 @@ export default function LandingPage() {
           <div>
             <h4 className="font-bold mb-4 text-lg font-headline">Platform</h4>
             <ul className="space-y-2 text-sm font-medium">
-              <li><a href="#platform"  className="hover:text-white transition-colors">Platform</a></li>
+              <li><a href="#platform" className="hover:text-white transition-colors">Platform</a></li>
               <li><a href="#directory" className="hover:text-white transition-colors">Directory</a></li>
-              <li><a href="#how"       className="hover:text-white transition-colors">How it works</a></li>
-              <li><a href="#trust"     className="hover:text-white transition-colors">Trust &amp; GDPR</a></li>
+              <li><a href="#how" className="hover:text-white transition-colors">How it works</a></li>
+              <li><a href="#trust" className="hover:text-white transition-colors">Trust &amp; GDPR</a></li>
               <li><Link to={ROUTES.LOGIN} className="hover:text-white transition-colors">Sign in</Link></li>
             </ul>
           </div>
