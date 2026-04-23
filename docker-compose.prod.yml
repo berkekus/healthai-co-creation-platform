@@ -1,0 +1,45 @@
+services:
+  # ── MongoDB ────────────────────────────────────────────────────────────────
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend (derlenmiş Node.js) ────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      target: prod
+    restart: unless-stopped
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/healthai
+      NODE_ENV: production
+      PORT: 5000
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  # ── Frontend (nginx statik + API proxy) ────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      target: prod
+      args:
+        VITE_API_URL: /api      # nginx /api → backend:5000/api proxy'si
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
