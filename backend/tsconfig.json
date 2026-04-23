@@ -12,8 +12,17 @@
     "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "types": ["node"]
   },
-  "include": ["src/**/*", "config/**/*", "models/**/*"],
+  "include": [
+    "src/**/*",
+    "config/**/*",
+    "models/**/*",
+    "controllers/**/*",
+    "middleware/**/*",
+    "routes/**/*",
+    "services/**/*"
+  ],
   "exclude": ["node_modules", "dist"]
 }

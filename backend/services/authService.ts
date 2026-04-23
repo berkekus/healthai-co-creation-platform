@@ -6,15 +6,15 @@ const SALT_ROUNDS = 10
 
 function signToken(user: IUser): string {
   return jwt.sign(
-    { id: user._id.toString(), role: user.role },
+    { id: user.id as string, role: user.role },
     process.env.JWT_SECRET as string,
-    { expiresIn: '7d' }
+    { expiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as jwt.SignOptions['expiresIn'] }
   )
 }
 
 function sanitize(user: IUser) {
   return {
-    id: user._id.toString(),
+    id: user.id as string,
     name: user.name,
     email: user.email,
     role: user.role,

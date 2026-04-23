@@ -39,7 +39,13 @@ const NotificationSchema = new Schema<INotification>(
     isRead: { type: Boolean, default: false },
     linkTo: { type: String },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: (_doc, ret) => { delete ret.__v; return ret },
+    },
+  }
 )
 
 NotificationSchema.index({ userId: 1, isRead: 1 })

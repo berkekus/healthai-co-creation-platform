@@ -66,7 +66,13 @@ const PostSchema = new Schema<IPost>(
     interestCount: { type: Number, default: 0, min: 0 },
     meetingCount: { type: Number, default: 0, min: 0 },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: (_doc, ret) => { delete ret.__v; return ret },
+    },
+  }
 )
 
 PostSchema.index({ authorId: 1 })

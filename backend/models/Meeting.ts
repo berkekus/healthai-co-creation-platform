@@ -54,7 +54,13 @@ const MeetingSchema = new Schema<IMeeting>(
     proposedSlots: { type: [TimeSlotSchema], required: true },
     confirmedSlot: { type: TimeSlotSchema },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: (_doc, ret) => { delete ret.__v; return ret },
+    },
+  }
 )
 
 MeetingSchema.index({ postId: 1 })

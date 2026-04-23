@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express'
 import { AuthRequest } from '../middleware/authMiddleware'
 import * as postService from '../services/postService'
+import User from '../models/User'
 
 export async function createPost(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -13,11 +14,24 @@ export async function createPost(req: AuthRequest, res: Response, next: NextFunc
       return
     }
 
+    const authorRole = req.userRole as string
+    if (authorRole === 'admin') {
+      res.status(403).json({ success: false, message: 'Admins cannot create posts' })
+      return
+    }
+
+    const author = await User.findById(req.userId).select('name')
+    if (!author) {
+      res.status(404).json({ success: false, message: 'User not found' })
+      return
+    }
+
     const post = await postService.createPost({
-      ...req.body,
+      title, domain, expertiseRequired, description, projectStage,
+      collaborationType, confidentiality, city, country, expiryDate,
       authorId: req.userId as string,
-      authorName: req.body.authorName,
-      authorRole: req.userRole as 'engineer' | 'healthcare_professional',
+      authorName: author.name,
+      authorRole: authorRole as 'engineer' | 'healthcare_professional',
     })
     res.status(201).json({ success: true, data: post })
   } catch (err) {

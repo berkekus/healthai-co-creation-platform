@@ -12,8 +12,5 @@ export default function App() {
     fetchPosts()
   }, [hydrate, fetchPosts])
 
-import AppRouter from './router/AppRouter'
-
-export default function App() {
   return <AppRouter />
 }
