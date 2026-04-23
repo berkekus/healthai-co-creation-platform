@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express'
 import { AuthRequest } from '../middleware/authMiddleware'
 import * as meetingService from '../services/meetingService'
+import User from '../models/User'
 
 export async function requestMeeting(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -11,11 +12,17 @@ export async function requestMeeting(req: AuthRequest, res: Response, next: Next
       return
     }
 
+    const requester = await User.findById(req.userId).select('name')
+    if (!requester) {
+      res.status(404).json({ success: false, message: 'User not found' })
+      return
+    }
+
     const meeting = await meetingService.requestMeeting({
       postId,
       postTitle,
       requesterId: req.userId as string,
-      requesterName: req.body.requesterName,
+      requesterName: requester.name,
       ownerId,
       ownerName,
       message,
@@ -39,15 +46,11 @@ export async function getMeeting(req: AuthRequest, res: Response, next: NextFunc
 
 export async function listMeetings(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { userId, postId } = req.query
+    const { postId } = req.query
 
-    let meetings
-    if (postId) {
-      meetings = await meetingService.getMeetingsByPost(postId as string)
-    } else {
-      const targetUserId = (userId as string) ?? req.userId
-      meetings = await meetingService.getMeetingsByUser(targetUserId as string)
-    }
+    const meetings = postId
+      ? await meetingService.getMeetingsByPost(postId as string)
+      : await meetingService.getMeetingsByUser(req.userId as string)
 
     res.json({ success: true, data: meetings })
   } catch (err) {
