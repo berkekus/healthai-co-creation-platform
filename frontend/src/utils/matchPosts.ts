@@ -1,6 +1,6 @@
 import type { Post } from '../types/post.types'
 import type { User } from '../types/auth.types'
-import { getSimpleMatchScore, type AIMatchSuggestion } from '../lib/gemini'
+import type { AIMatchSuggestion } from '../lib/gemini'
 
 export type MatchTone = 'city' | 'country' | 'role' | 'expertise' | 'domain'
 
