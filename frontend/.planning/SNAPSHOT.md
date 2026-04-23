@@ -1,5 +1,5 @@
 # HEALTH AI — Proje Snapshot
-_Güncelleme: 2026-04-20 | **Navbar micro-interactions** — premium hover sistem: quiet black/5 wash (center nav) + lift+shadow bloom (CTA butonları) + NavDivider helper_
+_Güncelleme: 2026-04-20 | **Landing hero → Sticky Parallax Overlap + Card Micro-Interactions** — scroll-driven fade/drift (z-0) + opaque climbing foreground (z-10) + pathway cards spring-scale on hover with frosted reveal box_
 
 ---
 
@@ -12,6 +12,101 @@ Mühendisler ile sağlık profesyonellerini yapılandırılmış, GDPR uyumlu bi
 
 ## Stack
 React 18 + TypeScript 5 (strict) + Vite 6 + TailwindCSS 3 + React Router v6 + Zustand 5 + React Hook Form + Zod v4
+
+---
+
+## Son Değişiklikler
+
+### 🪂 Landing Hero · Sticky Parallax Overlap + Card Micro-Interactions — 20·04·2026
+
+Landing sayfasının açılış deneyimi Awwwards seviyesinde bir "sticky parallax overlap"  + kart içi mikro-etkileşim paketine yükseltildi.
+
+**Kurulum**
+- `framer-motion@12.38.0` (önceden kuruluydu).
+- `src/pages/LandingPage.tsx` → `useRef`, `useEffect`, `useScroll`, `useTransform`, `useReducedMotion`, `motion`, `Variants` import edildi.
+- `useCanHover()` — modül içi helper hook; `(hover: hover) and (pointer: fine)` media query'sini izleyerek gerçek hover'a sahip cihazları ayırt eder.
+
+**Mimari — iki katman, tek kompozisyon**
+1. **Layer 1 · Hero (z-0, sticky)**
+   - `<section className="sticky top-0 z-0 h-screen min-h-[720px] w-full ... bg-hai-teal">` — viewport'a çivilenen teal arka plan.
+   - İçerik (`motion.div`) scroll-driven fade + drift uygular:
+     ```tsx
+     const heroOpacity = useTransform(scrollYProgress, [0.08, 0.25], [1, 0])
+     const heroY       = useTransform(scrollYProgress, [0.08, 0.25], [0, -60])
+     ```
+     → erime ve -60 px y-sürüklemesi, kartlar başlığa **değdiğinde** (≈%8 progress) başlar ve kartlar başlığın tamamen üzerine oturduğunda (≈%25) tamamlanır. Kullanıcı metni kartların **arkasına çekilir** gibi hisseder.
+   - Scroll hint (alt pulse) da aynı `heroOpacity` ile erir.
+   - `min-h-[720px]` = sticky "budget" — tall viewport'larda foreground tamamen tırmanabilsin diye.
+
+2. **Layer 2 · Foreground (z-10, opak slab)**
+   - `<div className="relative z-10 bg-hai-offwhite -mt-[20vh] md:-mt-[28vh] shadow-[0_-24px_60px_-30px_rgba(54,33,62,0.35)]">` — sayfa yüklendiğinde Join Directory paneli zaten teal içine **gözükecek** şekilde yukarı çekildi.
+   - İçerir: Join Directory paneli (2 pathway kartı) → Stats ribbon → dev "Platform" wordmark → 4-kart platform grid → "Ready to co-create?" CTA.
+   - `bg-hai-offwhite` **solid** = hero'dan sızma yok; slab tırmanırken tam örtme sağlar.
+   - `pt-6 md:pt-10` (eski `pt-20 md:pt-24` → düşürüldü) = directory section'ın üst boşluğu tıraşlandı, böylece kartlar gerçekten başlığa yaklaşır.
+
+**GPU kontratı**
+- `motion.div` yalnızca `transform` + `opacity` animasyonlar → compositor-thread özellikleri, sıfır layout reflow.
+- `will-change-transform` Tailwind class'ı ile hero metni, reveal box, kartlar GPU katmanına promote edilir.
+- Tüm animasyonlar yüksek frekansta (60 fps+) akar.
+
+**Kart Mikro-Etkileşimleri (whileHover variant sistemi)**
+
+Her iki pathway kartı (For healthcare professionals / For engineers & researchers) Framer Motion `variants` ile iki katmanlı hover animasyonu sürer:
+
+1. **Dış kart — taşma efekti**
+   ```tsx
+   const cardOverlapVariants: Variants = {
+     rest:  { scale: 1,    zIndex: 1,  transition: cardSpring },
+     hover: { scale: 1.03, zIndex: 50, transition: cardSpring },
+   }
+   // spring: stiffness 260, damping 22, mass 0.9 — yumuşak yay
+   ```
+   - `scale: 1.03` ≈ +3% boyut → grid'in `gap-4` (16 px) boşluğundan biraz taşar, bu yüzden `zIndex: 50` ile komşu kart üzerine **çıkar** (sibling overlap efekti).
+   - Framer Motion `zIndex`'i non-animated olarak işler → anında snap, blink yok.
+   - `will-change-transform` ile GPU'da izole.
+
+2. **İç reveal box — frosted glass description + CTA**
+   ```tsx
+   const cardRevealVariants: Variants = {
+     rest:  { opacity: 0, y: 20, transition: revealSpring },
+     hover: { opacity: 1, y: 0,  transition: revealSpring },
+   }
+   // spring: stiffness 220, damping 24, mass 0.8 — biraz daha yumuşak
+   ```
+   - Varsayılan: görünmez + 20 px aşağıda. Hover'da: görünür + pozisyonuna oturur.
+   - Frosted glass: `bg-white/30 backdrop-blur-xl border border-white/40`.
+   - CTA metni "Create Your Account →" olarak güncellendi (kartın amacıyla uyumlu).
+   - Parent `variants` state'i (rest/hover) çocuğa **otomatik propagate** olur → tek `whileHover` pointer event, iki animasyonu lockstep sürer.
+
+**Touch / mobile fallback**
+- `useCanHover()` false dönerse (`(hover: hover)` eşleşmiyor):
+  - Dış kart `whileHover` prop'u `undefined` → scale sabit 1.
+  - Reveal box: `variants` verilmez, `animate={{ opacity: 1, y: 0 }}` ile kalıcı olarak görünür → CTA her zaman erişilebilir.
+
+**Reduced motion onuru**
+- `useReducedMotion()` true iken:
+  - Hero opacity/y → 1 ve 0 olarak sabitlenir (fade yok).
+  - Card scale → 1'de kalır, reveal box y-drift iptal (0), spring yerine 0.2 sn duration.
+- Animasyonun **işlevi** korunur (reveal box yine görünür/gizli), sadece koreografi yumuşar.
+
+**Erişilebilirlik**
+- Sticky hero: `aria-labelledby="hero-headline"` + `<h1 id="hero-headline">` bağlantısı.
+- Dekoratif katmanlar (dot grid, mint glow, scroll hint) `aria-hidden` ile gizli.
+- Sayfanın doğal document flow'u değişmediği için klavye odak sırası korunur.
+- Touch cihazlarda CTA her koşulda `pointer-events-auto` (reveal box kalıcı görünür).
+
+**Dosya değişiklikleri**
+- `src/pages/LandingPage.tsx` — yeni helper (`useCanHover`), `LandingPage` içinde parallax/variant kurulumu, hero + foreground slab yeniden yazıldı; pathway kartları `<div>` → `motion.div`, inner description box'ları `motion.div` + `variants` ile sarıldı.
+- Build temiz: 2104 modül, 632 kB JS / 69 kB CSS, 7.2 sn, sıfır TS/lint hatası.
+
+**Ayar noktaları (ince ayar için)**
+| Değişken                                    | Rol                                   |
+| ------------------------------------------- | ------------------------------------- |
+| `-mt-[28vh]` (foreground)                   | ne kadar peek göstersin               |
+| `useTransform(..., [0.08, 0.25], ...)`      | fade penceresi — start/end %          |
+| `min-h-[720px]` (sticky hero)               | sticky budget — kart tırmanma süresi  |
+| `scale: 1.03` + `stiffness 260, damping 22` | kart büyüme dozu + yay karakteri      |
+| `y: 20` + `stiffness 220, damping 24`       | reveal box başlangıç ofseti + spring  |
 
 ---
 
