@@ -1,9 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { usePostStore } from '../../store/postStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import PageWrapper from '../../components/layout/PageWrapper'
-import { mockUsers } from '../../data/mockUsers'
-import { mockLogs } from '../../data/mockLogs'
+import api from '../../lib/api'
 import type { ActivityLog } from '../../types/common.types'
 import type { User } from '../../types/auth.types'
 
@@ -113,23 +112,44 @@ function StatCard({
 
 export default function AdminPage() {
   const [tab, setTab] = useState<TabId>('users')
-  const [users, setUsers] = useState<User[]>([...mockUsers])
-  const [userQuery, setUserQuery] = useState('')
-  const { posts, remove: removePost } = usePostStore()
-  const { push } = useNotificationStore()
 
+  const [users, setUsers] = useState<User[]>([])
+  const [userQuery, setUserQuery] = useState('')
+
+  const [logs, setLogs] = useState<ActivityLog[]>([])
+  const [logsLoading, setLogsLoading] = useState(false)
   const [logAction, setLogAction] = useState('')
   const [logResult, setLogResult] = useState('')
 
-  const uniqueActions = useMemo(
-    () => [...new Set(mockLogs.map(l => l.action))].sort(),
-    [],
-  )
+  const { posts, remove: removePost } = usePostStore()
+  const { push } = useNotificationStore()
 
-  const filteredLogs = useMemo(() => mockLogs.filter(l =>
+  useEffect(() => {
+    api.get<{ success: boolean; data: { id: string; _id?: string }[] }>('/auth/users')
+      .then(({ data }) => {
+        const normalised = data.data.map((u) => ({ ...u, id: u._id ?? u.id })) as User[]
+        setUsers(normalised)
+      })
+      .catch(() => {/* non-critical — keep empty */})
+  }, [])
+
+  useEffect(() => {
+    if (tab !== 'logs') return
+    setLogsLoading(true)
+    api.get<{ success: boolean; data: { logs: ActivityLog[]; total: number } }>('/logs', {
+      params: { limit: 200 },
+    })
+      .then(({ data }) => setLogs(data.data.logs.map(l => ({ ...l, id: (l as ActivityLog & { _id?: string })._id ?? l.id }))))
+      .catch(() => {/* keep empty */})
+      .finally(() => setLogsLoading(false))
+  }, [tab])
+
+  const uniqueActions = useMemo(() => [...new Set(logs.map(l => l.action))].sort(), [logs])
+
+  const filteredLogs = useMemo(() => logs.filter(l =>
     (!logAction || l.action === logAction) &&
     (!logResult || l.result === logResult),
-  ), [logAction, logResult])
+  ), [logs, logAction, logResult])
 
   const filteredUsers = useMemo(() => {
     const q = userQuery.trim().toLowerCase()
@@ -141,31 +161,33 @@ export default function AdminPage() {
     ))
   }, [users, userQuery])
 
-  const handleSuspend = (userId: string) => {
-    const idx = mockUsers.findIndex(u => u.id === userId)
-    if (idx === -1) return
-    mockUsers[idx].isSuspended = !mockUsers[idx].isSuspended
-    setUsers([...mockUsers])
-    const u = mockUsers[idx]
-    if (u.isSuspended) {
-      push({ userId: u.id, type: 'post_closed', title: 'Account suspended', body: 'Your account has been suspended by an administrator.', isRead: false })
+  const handleSuspend = async (userId: string) => {
+    const target = users.find(u => u.id === userId)
+    if (!target) return
+    const nextSuspended = !target.isSuspended
+    try {
+      await api.put(`/auth/users/${userId}/suspend`, { isSuspended: nextSuspended })
+    } catch {/* optimistic — update locally anyway */}
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, isSuspended: nextSuspended } : u))
+    if (nextSuspended) {
+      push({ userId, type: 'post_closed', title: 'Account suspended', body: 'Your account has been suspended by an administrator.', isRead: false })
     }
   }
 
-  const handleRemovePost = (postId: string, ownerId: string) => {
-    removePost(postId)
+  const handleRemovePost = async (postId: string, ownerId: string) => {
+    await removePost(postId)
     push({ userId: ownerId, type: 'post_closed', title: 'Post removed', body: 'One of your posts was removed by an administrator.', isRead: false, linkTo: '/posts' })
   }
 
   const totalUsers     = users.filter(u => u.role !== 'admin').length
   const suspendedCount = users.filter(u => u.isSuspended).length
   const activePosts    = posts.filter(p => p.status === 'active').length
-  const failedLogins   = mockLogs.filter(l => l.action === 'LOGIN_FAILED' || l.action === 'SECURITY_RATE_LIMIT_HIT').length
+  const failedLogins   = logs.filter(l => l.action === 'LOGIN_FAILED' || l.action === 'SECURITY_RATE_LIMIT_HIT').length
 
   const tabs: { id: TabId; label: string; icon: string; count: number }[] = [
-    { id: 'users', label: 'Users',         icon: 'group',  count: totalUsers },
+    { id: 'users', label: 'Users',         icon: 'group',   count: totalUsers },
     { id: 'posts', label: 'Posts',         icon: 'article', count: posts.length },
-    { id: 'logs',  label: 'Activity logs', icon: 'history', count: mockLogs.length },
+    { id: 'logs',  label: 'Activity logs', icon: 'history', count: logs.length },
   ]
 
   return (
@@ -428,7 +450,7 @@ export default function AdminPage() {
               </button>
             )}
             <span className="text-[10.5px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold">
-              {filteredLogs.length} of {mockLogs.length} entries
+              {logsLoading ? 'Loading…' : `${filteredLogs.length} of ${logs.length} entries`}
             </span>
             <button
               onClick={() => downloadCSV(filteredLogs)}
@@ -451,7 +473,7 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredLogs.map(log => {
+                {filteredLogs.map((log: ActivityLog) => {
                   const isCritical = CRITICAL_ACTIONS.has(log.action)
                   return (
                     <tr key={log.id} className={`border-b border-neutral-100 last:border-b-0 ${log.result === 'failure' ? 'bg-red-50/30' : 'hover:bg-hai-mint/15'} transition-colors`}>

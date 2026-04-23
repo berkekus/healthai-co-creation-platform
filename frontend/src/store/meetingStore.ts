@@ -1,57 +1,69 @@
 import { create } from 'zustand'
 import type { Meeting, MeetingRequestData, TimeSlot } from '../types/meeting.types'
-import { mockMeetings } from '../data/mockMeetings'
+import api from '../lib/api'
 
 interface MeetingState {
   meetings: Meeting[]
-  request: (data: MeetingRequestData, requesterId: string, requesterName: string, ownerId: string, ownerName: string, postTitle: string) => Meeting
-  accept: (id: string, slot: TimeSlot) => void
-  decline: (id: string) => void
-  cancel: (id: string) => void
+  fetchByUser: (userId: string) => Promise<void>
+  request: (data: MeetingRequestData, requesterId: string, requesterName: string, ownerId: string, ownerName: string, postTitle: string) => Promise<Meeting>
+  accept: (id: string, slot: TimeSlot) => Promise<void>
+  decline: (id: string) => Promise<void>
+  cancel: (id: string) => Promise<void>
   getByUser: (userId: string) => Meeting[]
   getByPost: (postId: string) => Meeting[]
 }
 
-export const useMeetingStore = create<MeetingState>()((set, get) => ({
-  meetings: [...mockMeetings],
+function normalise(raw: Meeting & { _id?: string }): Meeting {
+  return { ...raw, id: raw._id ?? raw.id }
+}
 
-  request: (data, requesterId, requesterName, ownerId, ownerName, postTitle) => {
-    const m: Meeting = {
-      id: `m${Date.now()}`,
+export const useMeetingStore = create<MeetingState>()((set, get) => ({
+  meetings: [],
+
+  fetchByUser: async (userId: string) => {
+    try {
+      const { data } = await api.get<{ success: boolean; data: Meeting[] }>('/meetings', {
+        params: { userId },
+      })
+      set({ meetings: data.data.map(normalise) })
+    } catch {
+      // keep existing state on error
+    }
+  },
+
+  request: async (data, _requesterId, requesterName, ownerId, ownerName, postTitle) => {
+    const { data: res } = await api.post<{ success: boolean; data: Meeting }>('/meetings', {
       postId: data.postId,
       postTitle,
-      requesterId,
       requesterName,
       ownerId,
       ownerName,
-      status: 'pending',
       message: data.message,
       ndaAccepted: data.ndaAccepted,
       proposedSlots: data.proposedSlots,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-    set(s => ({ meetings: [m, ...s.meetings] }))
-    return m
+    })
+    const meeting = normalise(res.data)
+    set(s => ({ meetings: [meeting, ...s.meetings] }))
+    return meeting
   },
 
-  accept: (id, slot) => set(s => ({
-    meetings: s.meetings.map(m => m.id === id
-      ? { ...m, status: 'confirmed', confirmedSlot: slot, updatedAt: new Date().toISOString() }
-      : m),
-  })),
+  accept: async (id, slot) => {
+    const { data: res } = await api.post<{ success: boolean; data: Meeting }>(`/meetings/${id}/accept`, { slot })
+    const updated = normalise(res.data)
+    set(s => ({ meetings: s.meetings.map(m => m.id === id ? updated : m) }))
+  },
 
-  decline: (id) => set(s => ({
-    meetings: s.meetings.map(m => m.id === id
-      ? { ...m, status: 'declined', updatedAt: new Date().toISOString() }
-      : m),
-  })),
+  decline: async (id) => {
+    const { data: res } = await api.post<{ success: boolean; data: Meeting }>(`/meetings/${id}/decline`)
+    const updated = normalise(res.data)
+    set(s => ({ meetings: s.meetings.map(m => m.id === id ? updated : m) }))
+  },
 
-  cancel: (id) => set(s => ({
-    meetings: s.meetings.map(m => m.id === id
-      ? { ...m, status: 'cancelled', updatedAt: new Date().toISOString() }
-      : m),
-  })),
+  cancel: async (id) => {
+    const { data: res } = await api.post<{ success: boolean; data: Meeting }>(`/meetings/${id}/cancel`)
+    const updated = normalise(res.data)
+    set(s => ({ meetings: s.meetings.map(m => m.id === id ? updated : m) }))
+  },
 
   getByUser: (userId) => get().meetings.filter(m => m.requesterId === userId || m.ownerId === userId),
   getByPost: (postId) => get().meetings.filter(m => m.postId === postId),

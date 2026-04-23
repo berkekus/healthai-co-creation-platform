@@ -1,31 +1,32 @@
 import { create } from 'zustand'
 import type { Post, PostFilters, PostCreateData, PostAuthorRole } from '../types/post.types'
-import { mockPosts } from '../data/mockPosts'
+import api from '../lib/api'
 
 interface PostState {
   posts: Post[]
   filters: PostFilters
   isLoading: boolean
+  fetchPosts: () => Promise<void>
   setFilters: (f: Partial<PostFilters>) => void
   clearFilters: () => void
   getFiltered: () => Post[]
   getById: (id: string) => Post | undefined
-  create: (data: PostCreateData, authorId: string, authorName: string, authorRole: PostAuthorRole) => Post
-  update: (id: string, data: Partial<Post>) => void
-  markPartnerFound: (id: string) => void
-  publish: (id: string) => void
-  remove: (id: string) => void
+  create: (data: PostCreateData, authorId: string, authorName: string, authorRole: PostAuthorRole) => Promise<Post>
+  update: (id: string, data: Partial<Post>) => Promise<void>
+  markPartnerFound: (id: string) => Promise<void>
+  publish: (id: string) => Promise<void>
+  remove: (id: string) => Promise<void>
 }
 
 function applyFilters(posts: Post[], f: PostFilters): Post[] {
   return posts.filter(p => {
-    if (f.domain     && !p.domain.toLowerCase().includes(f.domain.toLowerCase())) return false
-    if (f.expertise  && !p.expertiseRequired.toLowerCase().includes(f.expertise.toLowerCase())) return false
-    if (f.city       && p.city.toLowerCase() !== f.city.toLowerCase()) return false
-    if (f.country    && p.country.toLowerCase() !== f.country.toLowerCase()) return false
+    if (f.domain      && !p.domain.toLowerCase().includes(f.domain.toLowerCase())) return false
+    if (f.expertise   && !p.expertiseRequired.toLowerCase().includes(f.expertise.toLowerCase())) return false
+    if (f.city        && p.city.toLowerCase() !== f.city.toLowerCase()) return false
+    if (f.country     && p.country.toLowerCase() !== f.country.toLowerCase()) return false
     if (f.projectStage && p.projectStage !== f.projectStage) return false
-    if (f.status     && p.status !== f.status) return false
-    if (f.authorRole && p.authorRole !== f.authorRole) return false
+    if (f.status      && p.status !== f.status) return false
+    if (f.authorRole  && p.authorRole !== f.authorRole) return false
     if (f.search) {
       const q = f.search.toLowerCase()
       if (!p.title.toLowerCase().includes(q) && !p.description.toLowerCase().includes(q)) return false
@@ -34,44 +35,61 @@ function applyFilters(posts: Post[], f: PostFilters): Post[] {
   })
 }
 
+function normalise(raw: Post & { _id?: string }): Post {
+  return { ...raw, id: raw._id ?? raw.id }
+}
+
 export const usePostStore = create<PostState>()((set, get) => ({
-  posts: [...mockPosts],
+  posts: [],
   filters: {},
   isLoading: false,
+
+  fetchPosts: async () => {
+    set({ isLoading: true })
+    try {
+      const { data } = await api.get<{ success: boolean; data: Post[] }>('/posts')
+      set({ posts: data.data.map(normalise), isLoading: false })
+    } catch {
+      set({ isLoading: false })
+    }
+  },
 
   setFilters: (f) => set(s => ({ filters: { ...s.filters, ...f } })),
   clearFilters: () => set({ filters: {} }),
   getFiltered: () => applyFilters(get().posts, get().filters),
   getById: (id) => get().posts.find(p => p.id === id),
 
-  create: (data, authorId, authorName, authorRole) => {
-    const post: Post = {
-      id: `p${Date.now()}`,
+  create: async (data, _authorId, authorName, authorRole) => {
+    const { data: res } = await api.post<{ success: boolean; data: Post }>('/posts', {
       ...data,
-      authorId,
       authorName,
       authorRole,
-      status: 'draft',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      interestCount: 0,
-      meetingCount: 0,
-    }
+    })
+    const post = normalise(res.data)
     set(s => ({ posts: [post, ...s.posts] }))
     return post
   },
 
-  update: (id, data) => set(s => ({
-    posts: s.posts.map(p => p.id === id ? { ...p, ...data, updatedAt: new Date().toISOString() } : p),
-  })),
+  update: async (id, data) => {
+    const { data: res } = await api.put<{ success: boolean; data: Post }>(`/posts/${id}`, data)
+    const updated = normalise(res.data)
+    set(s => ({ posts: s.posts.map(p => p.id === id ? updated : p) }))
+  },
 
-  markPartnerFound: (id) => set(s => ({
-    posts: s.posts.map(p => p.id === id ? { ...p, status: 'partner_found', updatedAt: new Date().toISOString() } : p),
-  })),
+  markPartnerFound: async (id) => {
+    const { data: res } = await api.post<{ success: boolean; data: Post }>(`/posts/${id}/partner-found`)
+    const updated = normalise(res.data)
+    set(s => ({ posts: s.posts.map(p => p.id === id ? updated : p) }))
+  },
 
-  publish: (id) => set(s => ({
-    posts: s.posts.map(p => p.id === id ? { ...p, status: 'active', updatedAt: new Date().toISOString() } : p),
-  })),
+  publish: async (id) => {
+    const { data: res } = await api.post<{ success: boolean; data: Post }>(`/posts/${id}/publish`)
+    const updated = normalise(res.data)
+    set(s => ({ posts: s.posts.map(p => p.id === id ? updated : p) }))
+  },
 
-  remove: (id) => set(s => ({ posts: s.posts.filter(p => p.id !== id) })),
+  remove: async (id) => {
+    await api.delete(`/posts/${id}`)
+    set(s => ({ posts: s.posts.filter(p => p.id !== id) }))
+  },
 }))

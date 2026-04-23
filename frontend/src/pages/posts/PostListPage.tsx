@@ -6,7 +6,8 @@ import PostCard from '../../components/posts/PostCard'
 import PageWrapper from '../../components/layout/PageWrapper'
 import { ROUTES } from '../../constants/routes'
 import type { PostFilters, PostStatus, ProjectStage } from '../../types/post.types'
-import { computeMatchReasons, rankByMatch } from '../../utils/matchPosts'
+import { computeMatchReasons, computeEnhancedMatchReasons, rankByMatch } from '../../utils/matchPosts'
+import { useSmartSuggestions } from '../../lib/gemini'
 
 const MEDICAL_DOMAINS = [
   'Cardiology','Oncology','Radiology & Imaging','Neurology','Orthopedics',
@@ -75,6 +76,13 @@ export default function PostListPage() {
   const navigate = useNavigate()
   const [filtersOpen, setFiltersOpen] = useState(true)
   const [localSearch, setLocalSearch] = useState(filters.search ?? '')
+  const { suggestions, isLoading: aiLoading, load: loadAI } = useSmartSuggestions()
+
+  // AI önerileri: sadece kullanıcı değiştiğinde tetikle (posts.length değişimi tekrar çağırmaz)
+  useEffect(() => {
+    if (user && posts.length > 0) loadAI(user, posts)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id])
 
   // Debounce: wait 220ms after user stops typing before filtering the list.
   useEffect(() => {
@@ -91,22 +99,25 @@ export default function PostListPage() {
   const activeFilterCount = Object.values(filters).filter(v => v !== undefined && v !== '').length
   const totalVisible = posts.filter(p => p.status !== 'draft' || p.authorId === user?.id).length
 
-  // Per-card match reasons (computed against every rendered card once)
+  // Per-card match reasons — AI önerileri gelince otomatik güncellenir
   const matchMap = useMemo(() => {
     const m = new Map<string, ReturnType<typeof computeMatchReasons>>()
-    visible.forEach(p => m.set(p.id, computeMatchReasons(p, user)))
+    visible.forEach(p => m.set(p.id, computeEnhancedMatchReasons(p, user, suggestions.get(p.id))))
     return m
-  }, [visible, user])
+  }, [visible, user, suggestions])
 
-  // "Best matches for you" — only when the user is logged in, no filter is
-  // applied, and we have at least two posts with match signals.
+  // "Best matches for you" — AI skoru dahil sıralama
   const featuredMatches = useMemo(() => {
     if (!user || activeFilterCount > 0) return []
     const active = posts.filter(p => p.status === 'active' && p.authorId !== user.id)
     return rankByMatch(active, user)
+      .map(({ post }) => ({
+        post,
+        reasons: computeEnhancedMatchReasons(post, user, suggestions.get(post.id)),
+      }))
       .filter(m => m.reasons.length > 0)
       .slice(0, 3)
-  }, [posts, user, activeFilterCount])
+  }, [posts, user, activeFilterCount, suggestions])
 
   const handleSelect = <K extends keyof PostFilters>(key: K, value: string) => {
     setFilters({ [key]: value || undefined } as Partial<PostFilters>)
@@ -367,9 +378,19 @@ export default function PostListPage() {
                         {featuredMatches.length}
                       </span>
                     </div>
-                    <span className="hidden md:inline-flex text-[10.5px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold">
-                      Based on your city, role & expertise
-                    </span>
+                    {aiLoading ? (
+                      <span className="hidden md:inline-flex items-center gap-1.5 text-[10.5px] font-mono tracking-[0.14em] uppercase text-hai-teal font-bold animate-pulse">
+                        <span className="material-symbols-outlined text-[13px]">psychology</span>
+                        AI analysing…
+                      </span>
+                    ) : (
+                      <span className="hidden md:inline-flex items-center gap-1.5 text-[10.5px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold">
+                        {suggestions.size > 0
+                          ? <><span className="material-symbols-outlined text-[13px] text-hai-teal">psychology</span>AI + city, role & expertise</>
+                          : 'Based on your city, role & expertise'
+                        }
+                      </span>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                     {featuredMatches.map(({ post, reasons }) => (

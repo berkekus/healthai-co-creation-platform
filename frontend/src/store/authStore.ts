@@ -1,16 +1,18 @@
 import { create } from 'zustand'
 import type { User, LoginCredentials, RegisterData } from '../types/auth.types'
-import { mockUsers, MOCK_CREDENTIALS } from '../data/mockUsers'
+import api from '../lib/api'
 
 interface AuthState {
   user: User | null
   isAuthenticated: boolean
   isLoading: boolean
+  isHydrating: boolean
   error: string | null
   login: (credentials: LoginCredentials) => Promise<void>
   logout: () => void
   register: (data: RegisterData) => Promise<void>
-  updateProfile: (data: Partial<Pick<User, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'expertiseTags'>>) => void
+  updateProfile: (data: Partial<Pick<User, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'expertiseTags'>>) => Promise<void>
+  hydrate: () => Promise<void>
   clearError: () => void
 }
 
@@ -18,64 +20,62 @@ export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: false,
+  isHydrating: true,
   error: null,
+
+  hydrate: async () => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      set({ isHydrating: false })
+      return
+    }
+    try {
+      const { data } = await api.get<{ success: boolean; data: User }>('/auth/me')
+      set({ user: data.data, isAuthenticated: true, isHydrating: false })
+    } catch {
+      localStorage.removeItem('token')
+      set({ isHydrating: false })
+    }
+  },
 
   login: async ({ email, password }) => {
     set({ isLoading: true, error: null })
-    await new Promise(r => setTimeout(r, 600))
-    const expected = MOCK_CREDENTIALS[email]
-    if (!expected || expected !== password) {
-      set({ isLoading: false, error: 'Invalid email or password.' })
-      return
+    try {
+      const { data } = await api.post<{ success: boolean; data: { user: User; token: string } }>(
+        '/auth/login',
+        { email, password }
+      )
+      localStorage.setItem('token', data.data.token)
+      set({ user: data.data.user, isAuthenticated: true, isLoading: false })
+    } catch (err) {
+      set({ isLoading: false, error: (err as Error).message })
     }
-    const user = mockUsers.find(u => u.email === email) ?? null
-    if (user?.isSuspended) {
-      set({ isLoading: false, error: 'This account has been suspended.' })
-      return
-    }
-    set({ user, isAuthenticated: true, isLoading: false })
   },
 
-  logout: () => set({ user: null, isAuthenticated: false }),
+  logout: () => {
+    localStorage.removeItem('token')
+    set({ user: null, isAuthenticated: false })
+  },
 
-  register: async (data) => {
+  register: async (data: RegisterData) => {
     set({ isLoading: true, error: null })
-    await new Promise(r => setTimeout(r, 800))
-    if (!data.email.endsWith('.edu')) {
-      set({ isLoading: false, error: 'Only institutional .edu email addresses are accepted.' })
-      return
+    try {
+      await api.post('/auth/register', data)
+      set({ isLoading: false })
+    } catch (err) {
+      set({ isLoading: false, error: (err as Error).message })
     }
-    const exists = mockUsers.find(u => u.email === data.email)
-    if (exists) {
-      set({ isLoading: false, error: 'An account with this email already exists.' })
-      return
-    }
-    const newUser: User = {
-      id: `u${Date.now()}`,
-      name: data.name,
-      email: data.email,
-      role: data.role,
-      institution: data.institution,
-      city: data.city,
-      country: data.country,
-      expertiseTags: [],
-      createdAt: new Date().toISOString(),
-      isVerified: false,
-      isSuspended: false,
-      lastActive: new Date().toISOString(),
-    }
-    mockUsers.push(newUser)
-    MOCK_CREDENTIALS[data.email] = data.password
-    set({ isLoading: false })
   },
 
-  updateProfile: (data) => set(s => {
-    if (!s.user) return s
-    const updated = { ...s.user, ...data }
-    const idx = mockUsers.findIndex(u => u.id === s.user!.id)
-    if (idx !== -1) Object.assign(mockUsers[idx], data)
-    return { user: updated }
-  }),
+  updateProfile: async (data) => {
+    set({ isLoading: true, error: null })
+    try {
+      const { data: res } = await api.put<{ success: boolean; data: User }>('/auth/me/profile', data)
+      set({ user: res.data, isLoading: false })
+    } catch (err) {
+      set({ isLoading: false, error: (err as Error).message })
+    }
+  },
 
   clearError: () => set({ error: null }),
 }))

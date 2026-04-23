@@ -23,7 +23,7 @@ import UnauthorizedPage from '../pages/errors/UnauthorizedPage'
 
 export default function AppRouter() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         {/* Landing — dedicated shell (its own nav + footer live inside the page) */}
         <Route element={<LandingShell />}>
