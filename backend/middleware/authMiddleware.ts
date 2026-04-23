@@ -5,6 +5,7 @@ import User from '../models/User'
 export interface AuthRequest extends Request {
   userId?: string
   userRole?: string
+  userEmail?: string
 }
 
 interface JwtPayload {
@@ -25,7 +26,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload
 
-    const user = await User.findById(decoded.id).select('isSuspended role')
+    const user = await User.findById(decoded.id).select('isSuspended role email')
     if (!user) {
       res.status(401).json({ success: false, message: 'User not found' })
       return
@@ -37,6 +38,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
 
     req.userId = decoded.id
     req.userRole = decoded.role
+    req.userEmail = user.email
     next()
   } catch {
     res.status(401).json({ success: false, message: 'Invalid or expired token' })

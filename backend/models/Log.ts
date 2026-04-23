@@ -24,7 +24,13 @@ const LogSchema = new Schema<ILog>(
     result: { type: String, enum: ['success', 'failure'], required: true },
     ipAddress: { type: String },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: (_doc, ret) => { Reflect.deleteProperty(ret, '__v'); return ret },
+    },
+  }
 )
 
 LogSchema.index({ userId: 1 })

@@ -68,6 +68,14 @@ export async function updateProfile(req: AuthRequest, res: Response, next: NextF
     const user = await authService.updateUserProfile(req.userId as string, {
       name, institution, city, country, bio, expertiseTags,
     })
+    createLog({
+      userId: user.id,
+      userEmail: user.email,
+      role: user.role,
+      action: 'profile_update',
+      result: 'success',
+      ipAddress: req.ip,
+    }).catch(() => {})
     res.json({ success: true, data: user })
   } catch (err) {
     next(err)
@@ -96,6 +104,15 @@ export async function setSuspended(req: AuthRequest, res: Response, next: NextFu
   try {
     const { isSuspended } = req.body
     const user = await authService.setSuspended(req.params.id, Boolean(isSuspended))
+    createLog({
+      userId: req.userId as string,
+      userEmail: req.userEmail as string,
+      role: req.userRole as string,
+      action: isSuspended ? 'user_suspend' : 'user_unsuspend',
+      targetEntityId: req.params.id,
+      result: 'success',
+      ipAddress: req.ip,
+    }).catch(() => {})
     res.json({ success: true, data: user })
   } catch (err) {
     next(err)

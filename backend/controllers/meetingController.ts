@@ -1,7 +1,20 @@
 import { Response, NextFunction } from 'express'
 import { AuthRequest } from '../middleware/authMiddleware'
 import * as meetingService from '../services/meetingService'
+import { createLog } from '../services/logService'
 import User from '../models/User'
+
+function log(req: AuthRequest, action: string, targetEntityId?: string) {
+  createLog({
+    userId: req.userId as string,
+    userEmail: req.userEmail as string,
+    role: req.userRole as string,
+    action,
+    targetEntityId,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
+}
 
 export async function requestMeeting(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -29,6 +42,7 @@ export async function requestMeeting(req: AuthRequest, res: Response, next: Next
       ndaAccepted,
       proposedSlots,
     })
+    log(req, 'meeting_request', meeting.id as string)
     res.status(201).json({ success: true, data: meeting })
   } catch (err) {
     next(err)
@@ -66,6 +80,7 @@ export async function acceptMeeting(req: AuthRequest, res: Response, next: NextF
       return
     }
     const meeting = await meetingService.acceptMeeting(req.params.id, req.userId as string, slot)
+    log(req, 'meeting_accept', req.params.id)
     res.json({ success: true, data: meeting })
   } catch (err) {
     next(err)
@@ -75,6 +90,7 @@ export async function acceptMeeting(req: AuthRequest, res: Response, next: NextF
 export async function declineMeeting(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
     const meeting = await meetingService.declineMeeting(req.params.id, req.userId as string)
+    log(req, 'meeting_decline', req.params.id)
     res.json({ success: true, data: meeting })
   } catch (err) {
     next(err)
@@ -84,6 +100,7 @@ export async function declineMeeting(req: AuthRequest, res: Response, next: Next
 export async function cancelMeeting(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
     const meeting = await meetingService.cancelMeeting(req.params.id, req.userId as string)
+    log(req, 'meeting_cancel', req.params.id)
     res.json({ success: true, data: meeting })
   } catch (err) {
     next(err)
