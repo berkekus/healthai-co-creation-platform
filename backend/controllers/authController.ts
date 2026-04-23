@@ -3,6 +3,9 @@ import { AuthRequest } from '../middleware/authMiddleware'
 import * as authService from '../services/authService'
 import { createLog } from '../services/logService'
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const VALID_ROLES = ['engineer', 'healthcare_professional', 'admin'] as const
+
 export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { name, email, password, role, institution, city, country } = req.body
@@ -11,12 +14,24 @@ export async function register(req: Request, res: Response, next: NextFunction):
       res.status(400).json({ success: false, message: 'All fields are required' })
       return
     }
+    if (!EMAIL_RE.test(email)) {
+      res.status(400).json({ success: false, message: 'Invalid email format' })
+      return
+    }
+    if (!VALID_ROLES.includes(role)) {
+      res.status(400).json({ success: false, message: `Role must be one of: ${VALID_ROLES.join(', ')}` })
+      return
+    }
     if (password.length < 8) {
       res.status(400).json({ success: false, message: 'Password must be at least 8 characters' })
       return
     }
+    if (typeof name !== 'string' || name.trim().length < 2) {
+      res.status(400).json({ success: false, message: 'Name must be at least 2 characters' })
+      return
+    }
 
-    const result = await authService.registerUser({ name, email, password, role, institution, city, country })
+    const result = await authService.registerUser({ name: name.trim(), email, password, role, institution, city, country })
     createLog({
       userId: result.user.id,
       userEmail: result.user.email,
@@ -34,7 +49,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
 export async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { email, password } = req.body
-    if (!email || !password) {
+    if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
       res.status(400).json({ success: false, message: 'Email and password are required' })
       return
     }

@@ -4,14 +4,19 @@ export interface AppError extends Error {
   statusCode?: number
 }
 
+interface MongooseValidationError extends AppError {
+  errors?: Record<string, { message: string }>
+}
+
 export const errorHandler = (
-  err: AppError & { name?: string; code?: number },
+  err: MongooseValidationError & { name?: string; code?: number },
   _req: Request,
   res: Response,
   _next: NextFunction
 ): void => {
-  if (process.env.NODE_ENV !== 'production') {
-    console.error(`[ERROR] ${err.name}: ${err.message}`)
+  // Always log server errors to stderr, never expose internals to client
+  if (err.statusCode === undefined || err.statusCode >= 500) {
+    console.error(`[ERROR] ${err.name ?? 'Error'}: ${err.message}`)
   }
 
   // Mongoose CastError (invalid ObjectId)
@@ -26,14 +31,21 @@ export const errorHandler = (
     return
   }
 
-  // Mongoose validation error
-  if (err.name === 'ValidationError') {
-    res.status(400).json({ success: false, message: err.message })
+  // Mongoose ValidationError — extract first field message instead of the full chain
+  if (err.name === 'ValidationError' && err.errors) {
+    const first = Object.values(err.errors)[0]
+    res.status(400).json({ success: false, message: first?.message ?? err.message })
+    return
+  }
+
+  // JWT errors
+  if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+    res.status(401).json({ success: false, message: 'Invalid or expired token' })
     return
   }
 
   const statusCode = err.statusCode ?? 500
-  const message = statusCode === 500 ? 'Internal server error' : err.message
+  const message = statusCode >= 500 ? 'Internal server error' : err.message
   res.status(statusCode).json({ success: false, message })
 }
 
