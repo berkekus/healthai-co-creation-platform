@@ -78,11 +78,11 @@ export default function PostListPage() {
   const [localSearch, setLocalSearch] = useState(filters.search ?? '')
   const { suggestions, isLoading: aiLoading, load: loadAI } = useSmartSuggestions()
 
-  // AI önerilerini kullanıcı ve post listesi hazır olduğunda yükle
+  // AI önerileri: sadece kullanıcı değiştiğinde tetikle (posts.length değişimi tekrar çağırmaz)
   useEffect(() => {
     if (user && posts.length > 0) loadAI(user, posts)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, posts.length])
+  }, [user?.id])
 
   // Debounce: wait 220ms after user stops typing before filtering the list.
   useEffect(() => {

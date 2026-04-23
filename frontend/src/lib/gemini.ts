@@ -4,12 +4,15 @@ import type { Post } from '../types/post.types'
 import type { User } from '../types/auth.types'
 
 const GEMINI_MODEL = 'gemini-2.0-flash'
-const MAX_POSTS_TO_ANALYZE = 15
-const BATCH_SIZE = 5
-const BATCH_DELAY_MS = 1000
+const MAX_POSTS_TO_ANALYZE = 10  // daha az post → daha az istek
+const BATCH_SIZE = 2             // paralel değil, 2'li sıralı
+const BATCH_DELAY_MS = 4000      // 429 önlemek için batch arası 4s
 
 // Singleton — API key kontrolü yapılır, bir kez oluşturulur
 let _genAI: GoogleGenerativeAI | null = null
+
+// Oturum bazlı önbellek — aynı post + expertise kombinasyonu tekrar sorgulanmaz
+const _cache = new Map<string, AIMatchSuggestion | null>()
 
 function getGenAI(): GoogleGenerativeAI | null {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY
@@ -60,6 +63,10 @@ export async function analyzeProjectMatch(
   const ai = getGenAI()
   if (!ai || !userExpertise.length) return null
 
+  // Cache key: description prefix + sorted tags
+  const cacheKey = `${postDescription.slice(0, 80)}|${[...userExpertise].sort().join(',')}`
+  if (_cache.has(cacheKey)) return _cache.get(cacheKey) ?? null
+
   try {
     const model = ai.getGenerativeModel({ model: GEMINI_MODEL })
 
@@ -75,7 +82,9 @@ Respond ONLY with valid JSON, no markdown:
 If no meaningful match, return: {"reason":"","score":0,"expertise":[]}`
 
     const result = await model.generateContent(prompt)
-    return parseAIResponse(result.response.text())
+    const parsed = parseAIResponse(result.response.text())
+    _cache.set(cacheKey, parsed)
+    return parsed
   } catch {
     return null
   }
@@ -101,17 +110,16 @@ export async function getSmartSuggestions(
   for (let i = 0; i < candidates.length; i += BATCH_SIZE) {
     const batch = candidates.slice(i, i + BATCH_SIZE)
 
-    await Promise.all(
-      batch.map(async post => {
-        const result = await analyzeProjectMatch(
-          `${post.title}. ${post.description}. Required expertise: ${post.expertiseRequired}.`,
-          user.expertiseTags ?? [],
-        )
-        if (result && result.score > 30) {
-          suggestions.set(post.id, result)
-        }
-      }),
-    )
+    // Sıralı işleme — paralel değil, rate limit aşımını önler
+    for (const post of batch) {
+      const result = await analyzeProjectMatch(
+        `${post.title}. ${post.description}. Required expertise: ${post.expertiseRequired}.`,
+        user.expertiseTags ?? [],
+      )
+      if (result && result.score > 30) {
+        suggestions.set(post.id, result)
+      }
+    }
 
     if (i + BATCH_SIZE < candidates.length) {
       await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS))
