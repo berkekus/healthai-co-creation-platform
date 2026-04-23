@@ -1,5 +1,6 @@
 import type { Post } from '../types/post.types'
 import type { User } from '../types/auth.types'
+import { getSimpleMatchScore, type AIMatchSuggestion } from '../lib/gemini'
 
 export type MatchTone = 'city' | 'country' | 'role' | 'expertise' | 'domain'
 
@@ -10,6 +11,8 @@ export interface MatchReason {
   icon: string
   /** Color tone, consumer maps to hai-* classes */
   tone: MatchTone
+  /** AI-generated reason (optional) */
+  isAI?: boolean
 }
 
 /**
@@ -76,4 +79,46 @@ export function rankByMatch(
       if (b.reasons.length !== a.reasons.length) return b.reasons.length - a.reasons.length
       return new Date(b.post.createdAt).getTime() - new Date(a.post.createdAt).getTime()
     })
+}
+
+/**
+ * Enhanced match reasons with AI scoring (Gemini API)
+ * This adds AI-generated match reasons on top of the basic matching
+ */
+export function computeEnhancedMatchReasons(
+  post: Post,
+  user: User | null | undefined,
+  aiSuggestion?: AIMatchSuggestion | null,
+): MatchReason[] {
+  // Start with basic reasons
+  const reasons = computeMatchReasons(post, user)
+  
+  // Add AI reason if available and has good score
+  if (aiSuggestion && aiSuggestion.score > 30 && aiSuggestion.reason) {
+    reasons.push({
+      label: aiSuggestion.reason,
+      icon: 'psychology',
+      tone: 'expertise',
+      isAI: true,
+    })
+  }
+  
+  return reasons
+}
+
+/**
+ * Get combined match score (basic + AI)
+ */
+export function getCombinedMatchScore(
+  post: Post,
+  user: User | null | undefined,
+  aiScore?: number,
+): number {
+  // Base score from reason count
+  const baseScore = computeMatchReasons(post, user).length * 20
+  
+  // Add AI score if available
+  const aiBonus = aiScore || 0
+  
+  return Math.min(100, baseScore + aiBonus)
 }
