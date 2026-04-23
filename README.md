@@ -1,126 +1,278 @@
 # HEALTH AI — Co-Creation Platform
 
-A structured matchmaking platform that connects **engineers** and **healthcare professionals** across Europe so they can co-create medical AI projects — from idea to pilot — inside a safe, auditable, GDPR-compliant workspace.
+> A full-stack matchmaking platform that connects **engineers** and **healthcare professionals** to co-create medical AI projects — from idea to pilot — inside a safe, auditable workspace.
 
-> Frontend-only demo (mock API + Zustand stores + localStorage persistence). Backend lives behind the same API contract and can be swapped in without touching any page.
-
-- **Stack:** React 18 · TypeScript · Vite 6 · Tailwind CSS 3 · React Router 6 · Zustand · React Hook Form + Zod
-- **Fonts:** Plus Jakarta Sans (headlines · logo · buttons) + Source Sans 3 (body copy) via Google Fonts
-- **Icons:** Material Symbols Outlined + Lucide React
-- **Palette:** `hai-plum` `hai-teal` `hai-mint` `hai-lime` `hai-cream` `hai-offwhite`
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React_18-61DAFB?style=flat&logo=react&logoColor=black)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
+![Gemini](https://img.shields.io/badge/Gemini_AI-8E75B2?style=flat&logo=google&logoColor=white)
 
 ---
 
-## Quick start
+## Overview
+
+HEALTH AI bridges the gap between clinical expertise and technical engineering. Healthcare professionals post collaboration opportunities; engineers find matching projects using keyword-based and AI-powered semantic matching (Gemini 2.0 Flash). The platform handles the full lifecycle: from discovery → meeting request → NDA acceptance → confirmed meeting.
+
+---
+
+## Tech Stack
+
+### Frontend
+| | |
+|---|---|
+| Framework | React 18 + TypeScript + Vite 6 |
+| Routing | React Router 6 |
+| State | Zustand |
+| Forms | React Hook Form + Zod |
+| Styling | Tailwind CSS 3 |
+| AI | Google Gemini 2.0 Flash (`@google/generative-ai`) |
+| HTTP | Axios |
+
+### Backend
+| | |
+|---|---|
+| Runtime | Node.js 20 + TypeScript |
+| Framework | Express 4 |
+| Database | MongoDB 7 + Mongoose 8 |
+| Auth | JWT + bcryptjs |
+| Security | helmet · express-rate-limit · express-mongo-sanitize |
+
+### Infrastructure
+| | |
+|---|---|
+| Containerisation | Docker + Docker Compose |
+| Dev workflow | ts-node-dev (hot reload) |
+| Prod serving | Node.js compiled · nginx (frontend) |
+
+---
+
+## Architecture
+
+```
+Browser
+  │
+  ├── :5173  Frontend (React / Vite)
+  │             │
+  │             ├── Zustand stores (auth · post · meeting · notification)
+  │             └── Gemini AI (smart match chips, async)
+  │
+  └── :5000  Backend (Express / TypeScript)
+               │
+               ├── /api/auth          JWT auth, user management
+               ├── /api/posts         CRUD + publish + partner-found
+               ├── /api/meetings      Request → accept/decline/cancel
+               ├── /api/notifications Auto-triggered on meeting events
+               └── /api/logs          Admin audit trail (admin-only)
+                          │
+                     MongoDB :27017
+```
+
+---
+
+## Quick Start
+
+### Option A — Docker (recommended)
 
 ```bash
+# Clone & start everything (MongoDB + backend + frontend)
+git clone https://github.com/<your-username>/healthai-co-creation-platform.git
+cd healthai-co-creation-platform
+
+# Copy environment files
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+
+docker compose up -d
+
+# Frontend → http://localhost:5173
+# Backend  → http://localhost:5000
+```
+
+To stop:
+```bash
+docker compose down          # stop containers, keep data
+docker compose down -v       # stop containers + wipe database
+```
+
+### Option B — Manual (npm run dev)
+
+```bash
+# Terminal 1 — Backend
+cd backend
+cp .env.example .env         # fill in MONGO_URI and JWT_SECRET
 npm install
-npm run dev        # http://localhost:5173
-npm run build      # production bundle in /dist
-npm run preview    # preview the built bundle
-```
+npm run dev                  # http://localhost:5000
 
-No environment variables are required — the app ships with realistic seed data (5 users, 10 posts, 7 meetings, 20 activity logs).
-
----
-
-## Demo accounts
-
-All passwords are `password123` (admin is `admin123`). Sign in via `/login`.
-
-| Email                   | Role                     | City       | Highlights                                                       |
-| ----------------------- | ------------------------ | ---------- | ---------------------------------------------------------------- |
-| `e.muller@charite.edu`  | Healthcare professional  | Berlin     | 2 active posts · 1 confirmed meeting · GDPR data-export example  |
-| `m.rossi@polimi.edu`    | Engineer                 | Barcelona  | FL framework post + incoming stroke-unit collaboration request   |
-| `i.larsson@ki.edu`      | Healthcare professional  | Stockholm  | Oncology + ophthalmology posts, 3 pending meetings               |
-| `k.nakamura@tum.edu`    | Engineer                 | Berlin     | Wearable fall-detector · mental-health NLP post                  |
-| `admin@healthai.edu`    | Admin                    | Amsterdam  | Full admin panel access (users / posts / logs · CSV export)      |
-
----
-
-## Demo scenarios
-
-The seed data is tuned to walk through the six evaluation scenarios end-to-end:
-
-1. **Registration & Login** — `/register` (3-step wizard) → email verification → rate-limit cooldown after 3 failed logins.
-2. **Post Creation & Management** — `/posts/new` (4 themed section cards) → draft / activate → edit → close.
-3. **Search & Filtering** — `/posts` debounced search · "Best matches for you" featured row · "Near me" city quick-toggle · domain / stage / collab / status filters.
-4. **Meeting Request Workflow** — `ExpressInterestModal` (3-step: message → NDA → 3 proposed slots) → owner confirms / counter-proposes / declines.
-5. **Admin Panel** — `/admin` (users tab · posts tab · logs tab with filters + CSV export).
-6. **Profile & GDPR** — `/profile` edit identity · expertise tags · **Export my data** (JSON) · **Delete account** (destructive modal).
-
-Full scenario → phase mapping lives in `.planning/roadmap.md`.
-
----
-
-## Project structure
-
-```
-src/
-  components/
-    layout/           # AppLayout · LandingShell · Navbar · Footer · PageWrapper
-    posts/            # PostCard · PostStatusBadge · PostFormFields
-    meetings/         # MeetingCard · ExpressInterestModal
-    ui/               # FormField · Skeleton · CookieConsentBanner · SessionTimeoutModal
-  pages/
-    auth/             # LoginPage · RegisterPage · VerifyEmailPage
-    dashboard/        # DashboardPage
-    posts/            # PostListPage · PostCreatePage · PostEditPage · PostDetailPage
-    meetings/         # MeetingsPage
-    admin/            # AdminPage
-    profile/          # ProfilePage
-    errors/           # NotFoundPage (404) · UnauthorizedPage (403) · PrivacyPage
-    LandingPage.tsx   # public marketing page (decoupled from AppLayout)
-  store/              # Zustand slices: auth · post · meeting · notification
-  data/               # mockUsers · mockPosts · mockMeetings · mockLogs
-  utils/              # matchPosts (match reasoning + ranking) · formatters · validation
-  constants/          # routes · config (session timeouts, rate-limit) · enums
-  types/              # TS contract types (auth · post · meeting · common)
-  router/             # AppRouter with protected & role-guarded routes
-.planning/
-  roadmap.md          # 10-phase delivery plan (Faz 0 → Faz 9)
-  SNAPSHOT.md         # Per-phase implementation log (latest: Faz 9 polish)
+# Terminal 2 — Frontend
+cd frontend
+cp .env.example .env         # set VITE_API_URL and VITE_GEMINI_API_KEY
+npm install
+npm run dev                  # http://localhost:5173
 ```
 
 ---
 
-## Feature surface
+## Environment Variables
 
-- **Authentication** — email + password, `.edu` verification, session timeout (30 min) with countdown modal, rate limiting after 3 failed attempts
-- **Post management** — draft / active / meeting_scheduled / partner_found / closed / expired states · confidentiality (public pitch vs. meeting-only) · expiry countdown
-- **Smart matching** — per-card match chips (city · country · cross-role · expertise overlap) and a "Best matches for you" featured row driven by `utils/matchPosts.ts`
-- **Meetings** — 3-step interest flow with NDA + slot selection · owner workflow (accept / counter-propose / decline) · tabbed inbox (All / Incoming / Outgoing / Confirmed)
-- **Admin panel** — user suspension, post moderation, tamper-resistant activity log (24-month retention, CSV export)
-- **GDPR** — Art. 6 legal basis · Art. 15 / 17 / 20 / 21 user rights · JSON data export · account deletion · cookie consent banner · privacy policy (`/privacy`)
-- **Loading states** — shared `Skeleton` primitives (`<Skeleton/>`, `<SkeletonLine/>`, `<SkeletonPill/>`, `<PostCardSkeleton/>`, `<SkeletonGrid/>`)
-- **Error states** — designed `404` + `403` pages with "Go back" · quick-link shortcuts · role-aware CTAs
+### `backend/.env`
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/healthai
+JWT_SECRET=<256-bit-random-string>
+JWT_EXPIRES_IN=7d
+CLIENT_ORIGIN=http://localhost:5173
+NODE_ENV=development
+```
 
----
+### `frontend/.env`
+```env
+VITE_API_URL=http://localhost:5000/api
+VITE_GEMINI_API_KEY=<your-google-ai-studio-key>
+```
 
-## Architectural notes
-
-- **Zustand + localStorage** persistence means every user action (register, post create, meeting request, GDPR delete) is immediately visible on reload without a backend. The store contracts match the planned REST API one-to-one.
-- **Role guards** live in `router/AppRouter.tsx` and dispatch to `UnauthorizedPage` instead of silent redirects, so evaluators always see *why* a route is blocked.
-- **Typography system:** Tailwind tokens `font-headline` / `font-feixen` → Plus Jakarta Sans · `font-body` → Source Sans 3. Legacy CSS variables (`--ff-display`, `--ff-sans`) remap to the same families for backward compat.
-- **Responsive breakpoints:** desktop (≥1100 px) · tablet (760 – 1099 px, sidebar stacks on top) · mobile (≤760 px, single-column grid and mobile nav).
-- **Reduced motion:** the skeleton shimmer and stepper animations auto-disable under `prefers-reduced-motion`.
-
----
-
-## Accessibility
-
-- Semantic landmarks (`<header>`, `<nav>`, `<main>`, `<footer>`) in every layout shell
-- Keyboard-reachable `PostCard` (`role="link"` + `Enter` / `Space` handlers) and focus-visible rings on all interactive controls
-- ARIA on modals: `role="dialog"` (interest), `role="alertdialog"` (session timeout), `aria-labelledby` + `aria-describedby` + `aria-valuenow` where relevant
-- Color pairings (`hai-plum` on `hai-offwhite`, `hai-plum` on `hai-mint` / `hai-lime`) were picked to pass WCAG AA for body copy
+> Get a free Gemini API key at [aistudio.google.com](https://aistudio.google.com). Free tier: **1,500 requests/day · 15 requests/minute**.
+> The app works without a Gemini key — AI chips simply won't appear.
 
 ---
 
-## Planning artifacts
+## Demo Accounts
 
-- [`.planning/roadmap.md`](.planning/roadmap.md) — 10 phase delivery plan
-- [`.planning/SNAPSHOT.md`](.planning/SNAPSHOT.md) — running log of every phase's implementation decisions
+Register via `/register` or use the pre-seeded accounts below.  
+All test account passwords: `Test123!` · Admin: `Admin123!`
+
+| Role | Email | Expertise |
+|------|-------|-----------|
+| **Admin** | `admin@healthai.edu` | Full admin panel access |
+| **Engineer** | `ahmet@metu.edu.tr` | ML · Computer Vision · NLP · TensorFlow |
+| **Engineer** | `zeynep@boun.edu.tr` | Cloud · Backend · Kubernetes · IoT |
+| **Engineer** | `can@itu.edu.tr` | Biomedical · Signal Processing · Wearables |
+| **Healthcare** | `ayse@hacettepe.edu.tr` | Cardiology · ECG · Remote Monitoring |
+| **Healthcare** | `mehmet@istanbul.edu.tr` | Neurology · MRI · Alzheimer's |
+| **Healthcare** | `fatma@ege.edu.tr` | Endocrinology · Diabetes · CGM |
 
 ---
 
-© 2026 HEALTH AI — Co-Creation Platform · SENG 384 capstone · Spring 2026.
+## Feature Overview
+
+### Matching & Discovery
+- **Keyword matching** — instant chips based on city / country / cross-role / expertise tag overlap
+- **AI matching** — Gemini 2.0 Flash semantic analysis (async, cached per session)
+- **"Best matches for you"** — featured row sorted by combined basic + AI score
+- **Filters** — domain · project stage · status · posted-by role · city · country · free-text search
+
+### Auth & Profiles
+- JWT-based authentication with 7-day token expiry
+- Hydration on page refresh (token → `/auth/me`)
+- Profile with bio, institution, city, country, expertise tags
+- Role-based route guards (`engineer` · `healthcare_professional` · `admin`)
+
+### Post Lifecycle
+```
+draft → active → meeting_scheduled → partner_found
+                                   → expired
+```
+
+### Meeting Workflow
+```
+POST /meetings          → status: pending
+POST /meetings/:id/accept  → status: confirmed + confirmedSlot
+POST /meetings/:id/decline → status: declined
+POST /meetings/:id/cancel  → status: cancelled
+```
+Every state change automatically creates a notification for the other party.
+
+### Notifications
+Auto-generated on: `meeting_request` · `meeting_accepted` · `meeting_declined` · `meeting_cancelled`
+
+### Admin Panel
+- User list with suspend / unsuspend
+- Audit log with filters (userId · action · date range · result) and pagination
+- Actions logged: register · login · post_create · post_publish · post_delete · meeting_request · meeting_accept · meeting_decline · meeting_cancel · user_suspend · user_unsuspend · profile_update
+
+### Security
+- `helmet` — 12 HTTP security headers (CSP, HSTS, X-Frame-Options…)
+- `express-rate-limit` — 20 req / 15 min on all `/api/auth/*` routes
+- `express-mongo-sanitize` — strips `$`-prefixed keys from body/query
+- `typeof` guards on login body (NoSQL injection via object payload)
+- Request body size limited to 10 KB
+- Passwords never returned in any API response
+
+---
+
+## Project Structure
+
+```
+.
+├── docker-compose.yml          # dev (hot-reload volumes)
+├── docker-compose.prod.yml     # prod (compiled + nginx)
+│
+├── backend/
+│   ├── src/index.ts            # Express app entry point
+│   ├── config/db.ts            # Mongoose connection
+│   ├── middleware/             # authMiddleware · errorHandler · rateLimiter
+│   ├── models/                 # User · Post · Meeting · Notification · Log
+│   ├── controllers/            # authController · postController · meetingController …
+│   ├── services/               # authService · postService · meetingService …
+│   ├── routes/                 # authRoutes · postRoutes · meetingRoutes …
+│   └── Dockerfile
+│
+└── frontend/
+    ├── src/
+    │   ├── App.tsx             # Root — hydrate on mount, fetchPosts on auth
+    │   ├── router/             # AppRouter · ProtectedRoute
+    │   ├── pages/              # auth · dashboard · posts · meetings · admin · profile · errors
+    │   ├── components/         # layout · posts · meetings · ui
+    │   ├── store/              # authStore · postStore · meetingStore · notificationStore
+    │   ├── lib/
+    │   │   ├── api.ts          # Axios instance + interceptors
+    │   │   └── gemini.ts       # Gemini client · analyzeProjectMatch · useSmartSuggestions
+    │   ├── utils/matchPosts.ts # computeMatchReasons · computeEnhancedMatchReasons · rankByMatch
+    │   └── types/              # auth.types · post.types · meeting.types · common.types
+    ├── nginx.conf              # SPA routing + /api proxy (prod)
+    └── Dockerfile
+```
+
+---
+
+## API Reference
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth/register` | — | Register new user |
+| POST | `/api/auth/login` | — | Login, returns JWT |
+| GET | `/api/auth/me` | ✅ | Get current user (hydrate) |
+| PUT | `/api/auth/me/profile` | ✅ | Update profile |
+| GET | `/api/auth/users` | Admin | List all users |
+| PUT | `/api/auth/users/:id/suspend` | Admin | Suspend / unsuspend |
+| GET | `/api/posts` | ✅ | List posts (query filters) |
+| POST | `/api/posts` | ✅ | Create post |
+| PUT | `/api/posts/:id` | ✅ | Update post |
+| POST | `/api/posts/:id/publish` | ✅ | Publish (draft → active) |
+| POST | `/api/posts/:id/partner-found` | ✅ | Close with partner |
+| DELETE | `/api/posts/:id` | ✅ | Delete post |
+| GET | `/api/meetings` | ✅ | List own meetings |
+| POST | `/api/meetings` | ✅ | Request meeting |
+| POST | `/api/meetings/:id/accept` | ✅ | Accept + confirm slot |
+| POST | `/api/meetings/:id/decline` | ✅ | Decline |
+| POST | `/api/meetings/:id/cancel` | ✅ | Cancel |
+| GET | `/api/notifications` | ✅ | List own notifications |
+| POST | `/api/notifications/:id/read` | ✅ | Mark as read |
+| POST | `/api/notifications/mark-all-read` | ✅ | Mark all as read |
+| GET | `/api/notifications/unread-count` | ✅ | Unread count |
+| GET | `/api/logs` | Admin | Audit logs (with filters) |
+
+All responses follow: `{ success: boolean, data: T }` · errors: `{ success: false, message: string }`
+
+---
+
+## Development Notes
+
+- **Rate limiter resets** on server restart (in-memory store). Use `docker compose restart backend` during heavy testing.
+- **Gemini cache** is session-scoped (module-level `Map`). Reloading the page re-analyzes posts. This is intentional — fresh analysis after new posts are added.
+- **MongoDB in Docker** is isolated from your local MongoDB. Data persists in the `mongo_data` Docker volume until `docker compose down -v`.
+
+---
+
+© 2026 HEALTH AI — Co-Creation Platform · SENG 352 · Spring 2026
