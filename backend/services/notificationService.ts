@@ -35,3 +35,17 @@ export async function markAllRead(userId: string) {
 export async function getUnreadCount(userId: string): Promise<number> {
   return Notification.countDocuments({ userId, isRead: false })
 }
+
+export async function deleteNotification(id: string, userId: string) {
+  const notification = await Notification.findOneAndDelete({ _id: id, userId })
+  if (!notification) {
+    const err = new Error('Notification not found') as Error & { statusCode: number }
+    err.statusCode = 404
+    throw err
+  }
+  return notification
+}
+
+export async function deleteAllNotifications(userId: string) {
+  await Notification.deleteMany({ userId })
+}

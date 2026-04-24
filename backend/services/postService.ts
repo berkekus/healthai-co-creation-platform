@@ -1,5 +1,7 @@
-import Post, { IPost, PostStatus } from '../models/Post'
+import Post, { IPost } from '../models/Post'
 import { FilterQuery } from 'mongoose'
+import Meeting from '../models/Meeting'
+import { pushNotification } from './notificationService'
 
 function makeError(message: string, statusCode: number): Error & { statusCode: number } {
   const err = new Error(message) as Error & { statusCode: number }
@@ -16,6 +18,8 @@ export interface PostFilters {
   status?: string
   search?: string
   authorRole?: string
+  /** Giriş yapan kullanıcının kendi post'larını (draft dahil) görmesi için */
+  authorId?: string
 }
 
 export async function createPost(data: {
@@ -44,14 +48,30 @@ export async function getPostById(id: string) {
 }
 
 export async function listPosts(filters: PostFilters) {
+  // Item 8: lazily mark active posts past their expiry date
+  const now = new Date()
+  await Post.updateMany(
+    { status: 'active', expiryDate: { $lt: now } },
+    { $set: { status: 'expired' } }
+  )
+
   const query: FilterQuery<IPost> = {}
+
+  if (filters.authorId) {
+    // Kullanıcı kendi post'larını görüyor — draft dahil, yalnızca kendisine ait
+    query.authorId = filters.authorId
+  } else if (filters.status) {
+    query.status = filters.status
+  } else {
+    // Genel feed: yayınlanmamış draft'ları gizle
+    query.status = { $ne: 'draft' }
+  }
 
   if (filters.domain) query.domain = { $regex: filters.domain, $options: 'i' }
   if (filters.expertise) query.expertiseRequired = { $regex: filters.expertise, $options: 'i' }
   if (filters.city) query.city = { $regex: `^${filters.city}$`, $options: 'i' }
   if (filters.country) query.country = { $regex: `^${filters.country}$`, $options: 'i' }
   if (filters.projectStage) query.projectStage = filters.projectStage
-  if (filters.status) query.status = filters.status
   if (filters.authorRole) query.authorRole = filters.authorRole
   if (filters.search) {
     query.$or = [
@@ -90,7 +110,48 @@ export async function markPartnerFound(id: string, requesterId: string) {
 
   post.status = 'partner_found'
   await post.save()
+
+  // Cancel all non-terminal meetings and notify each requester
+  const activeMeetings = await Meeting.find({
+    postId: id,
+    status: { $in: ['pending', 'time_proposed', 'confirmed'] },
+  })
+  for (const meeting of activeMeetings) {
+    meeting.status = 'cancelled'
+    await meeting.save()
+    pushNotification({
+      userId: meeting.requesterId.toString(),
+      type: 'partner_found',
+      title: 'İşbirliği tamamlandı',
+      body: `"${post.title}" için zaten bir işbirliği ortağı bulundu.`,
+      linkTo: `/posts/${id}`,
+    }).catch(() => {})
+  }
+
   return post
+}
+
+export async function expressInterest(id: string, requesterId: string, requesterName: string) {
+  const post = await Post.findById(id)
+  if (!post) throw makeError('Post not found', 404)
+  if (post.status !== 'active') throw makeError('Post is not accepting interest', 400)
+  if (post.authorId.toString() === requesterId) throw makeError('Cannot express interest in your own post', 400)
+
+  const updated = await Post.findByIdAndUpdate(
+    id,
+    { $inc: { interestCount: 1 } },
+    { new: true }
+  )
+
+  pushNotification({
+    userId: post.authorId.toString(),
+    type: 'interest_received',
+    title: 'Yeni ilgi',
+    body: `${requesterName} "${post.title}" postunuza ilgi gösterdi.`,
+    linkTo: `/posts/${id}`,
+  }).catch(() => {})
+
+  return updated!
 }
 
 export async function deletePost(id: string, requesterId: string, isAdmin: boolean) {
@@ -101,9 +162,28 @@ export async function deletePost(id: string, requesterId: string, isAdmin: boole
   await post.deleteOne()
 }
 
-export async function incrementMeetingCount(postId: string, status: PostStatus) {
-  await Post.findByIdAndUpdate(postId, {
-    $inc: { meetingCount: 1 },
-    $set: { status },
+// Yalnızca sayacı artır — durum değişikliği meetingService tarafından yönetilir
+export async function incrementMeetingCount(postId: string) {
+  await Post.findByIdAndUpdate(postId, { $inc: { meetingCount: 1 } })
+}
+
+// Mevcut meeting'lere bakarak post durumunu hesaplar ve günceller
+export async function recomputePostStatus(postId: string) {
+  const post = await Post.findById(postId)
+  if (!post) return
+  // Terminal durumları değiştirme
+  if (post.status === 'partner_found' || post.status === 'expired') return
+
+  const active = await Meeting.exists({
+    postId,
+    status: 'confirmed',
   })
+
+  if (active) {
+    post.status = 'meeting_scheduled'
+  } else if (post.status === 'meeting_scheduled') {
+    // Onaylı meeting kalmadıysa active'e geri dön
+    post.status = 'active'
+  }
+  await post.save()
 }

@@ -1,5 +1,5 @@
 import Meeting, { ITimeSlot } from '../models/Meeting'
-import { incrementMeetingCount } from './postService'
+import { incrementMeetingCount, recomputePostStatus } from './postService'
 import { pushNotification } from './notificationService'
 
 function makeError(message: string, statusCode: number): Error & { statusCode: number } {
@@ -24,7 +24,7 @@ export async function requestMeeting(data: {
   if (data.proposedSlots.length < 3) throw makeError('At least 3 time slots are required', 400)
 
   const meeting = await Meeting.create({ ...data, status: 'pending' })
-  await incrementMeetingCount(data.postId, 'meeting_scheduled')
+  await incrementMeetingCount(data.postId)
 
   pushNotification({
     userId: data.ownerId,
@@ -65,6 +65,9 @@ export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot
   meeting.confirmedSlot = slot
   await meeting.save()
 
+  // Meeting onaylandığında post'u meeting_scheduled yap
+  recomputePostStatus(meeting.postId.toString()).catch(() => {})
+
   pushNotification({
     userId: meeting.requesterId.toString(),
     type: 'meeting_accepted',
@@ -83,6 +86,8 @@ export async function declineMeeting(id: string, ownerId: string) {
 
   meeting.status = 'declined'
   await meeting.save()
+
+  recomputePostStatus(meeting.postId.toString()).catch(() => {})
 
   pushNotification({
     userId: meeting.requesterId.toString(),
@@ -105,6 +110,8 @@ export async function cancelMeeting(id: string, userId: string) {
 
   meeting.status = 'cancelled'
   await meeting.save()
+
+  recomputePostStatus(meeting.postId.toString()).catch(() => {})
 
   const notifyUserId = isRequester
     ? meeting.ownerId.toString()
