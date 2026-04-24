@@ -51,3 +51,21 @@ export async function markAllRead(req: AuthRequest, res: Response, next: NextFun
     next(err)
   }
 }
+
+export async function deleteNotification(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  try {
+    await notificationService.deleteNotification(req.params.id, req.userId as string)
+    res.json({ success: true, message: 'Notification deleted' })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function deleteAllNotifications(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  try {
+    await notificationService.deleteAllNotifications(req.userId as string)
+    res.json({ success: true, message: 'All notifications deleted' })
+  } catch (err) {
+    next(err)
+  }
+}

@@ -10,6 +10,8 @@ interface NotificationState {
   markAllRead: (userId: string) => Promise<void>
   getByUser: (userId: string) => Notification[]
   push: (n: Omit<Notification, 'id' | 'createdAt'>) => Promise<void>
+  deleteNotification: (id: string) => Promise<void>
+  deleteAll: () => Promise<void>
 }
 
 function normalise(raw: Notification & { _id?: string }): Notification {
@@ -64,5 +66,15 @@ export const useNotificationStore = create<NotificationState>()((set, get) => ({
         ],
       }))
     }
+  },
+
+  deleteNotification: async (id) => {
+    await api.delete(`/notifications/${id}`)
+    set(s => ({ notifications: s.notifications.filter(n => n.id !== id) }))
+  },
+
+  deleteAll: async () => {
+    await api.delete('/notifications')
+    set({ notifications: [] })
   },
 }))

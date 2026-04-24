@@ -7,6 +7,7 @@ export type NotificationType =
   | 'meeting_cancelled'
   | 'post_closed'
   | 'partner_found'
+  | 'interest_received'
 
 export interface INotification extends Document {
   userId: Types.ObjectId
@@ -31,6 +32,7 @@ const NotificationSchema = new Schema<INotification>(
         'meeting_cancelled',
         'post_closed',
         'partner_found',
+        'interest_received',
       ],
       required: true,
     },

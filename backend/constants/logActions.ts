@@ -13,6 +13,7 @@ export const LOG = {
   POST_PUBLISH:     'post_publish',
   POST_PARTNER_FOUND: 'post_partner_found',
   POST_DELETE:      'post_delete',
+  POST_INTEREST:    'post_interest',
   // Meetings
   MEETING_REQUEST:  'meeting_request',
   MEETING_ACCEPT:   'meeting_accept',

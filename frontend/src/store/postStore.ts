@@ -16,6 +16,7 @@ interface PostState {
   markPartnerFound: (id: string) => Promise<void>
   publish: (id: string) => Promise<void>
   remove: (id: string) => Promise<void>
+  expressInterest: (id: string) => Promise<void>
 }
 
 function applyFilters(posts: Post[], f: PostFilters): Post[] {
@@ -91,5 +92,11 @@ export const usePostStore = create<PostState>()((set, get) => ({
   remove: async (id) => {
     await api.delete(`/posts/${id}`)
     set(s => ({ posts: s.posts.filter(p => p.id !== id) }))
+  },
+
+  expressInterest: async (id) => {
+    const { data: res } = await api.post<{ success: boolean; data: Post }>(`/posts/${id}/interest`)
+    const updated = normalise(res.data)
+    set(s => ({ posts: s.posts.map(p => p.id === id ? updated : p) }))
   },
 }))

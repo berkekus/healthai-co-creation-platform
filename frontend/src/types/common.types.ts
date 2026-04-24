@@ -5,6 +5,7 @@ export type NotificationType =
   | 'meeting_cancelled'
   | 'post_closed'
   | 'partner_found'
+  | 'interest_received'
 
 export interface Notification {
   id: string

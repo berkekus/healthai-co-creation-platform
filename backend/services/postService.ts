@@ -1,6 +1,7 @@
 import Post, { IPost } from '../models/Post'
 import { FilterQuery } from 'mongoose'
 import Meeting from '../models/Meeting'
+import { pushNotification } from './notificationService'
 
 function makeError(message: string, statusCode: number): Error & { statusCode: number } {
   const err = new Error(message) as Error & { statusCode: number }
@@ -47,6 +48,13 @@ export async function getPostById(id: string) {
 }
 
 export async function listPosts(filters: PostFilters) {
+  // Item 8: lazily mark active posts past their expiry date
+  const now = new Date()
+  await Post.updateMany(
+    { status: 'active', expiryDate: { $lt: now } },
+    { $set: { status: 'expired' } }
+  )
+
   const query: FilterQuery<IPost> = {}
 
   if (filters.authorId) {
@@ -102,7 +110,48 @@ export async function markPartnerFound(id: string, requesterId: string) {
 
   post.status = 'partner_found'
   await post.save()
+
+  // Cancel all non-terminal meetings and notify each requester
+  const activeMeetings = await Meeting.find({
+    postId: id,
+    status: { $in: ['pending', 'time_proposed', 'confirmed'] },
+  })
+  for (const meeting of activeMeetings) {
+    meeting.status = 'cancelled'
+    await meeting.save()
+    pushNotification({
+      userId: meeting.requesterId.toString(),
+      type: 'partner_found',
+      title: 'İşbirliği tamamlandı',
+      body: `"${post.title}" için zaten bir işbirliği ortağı bulundu.`,
+      linkTo: `/posts/${id}`,
+    }).catch(() => {})
+  }
+
   return post
+}
+
+export async function expressInterest(id: string, requesterId: string, requesterName: string) {
+  const post = await Post.findById(id)
+  if (!post) throw makeError('Post not found', 404)
+  if (post.status !== 'active') throw makeError('Post is not accepting interest', 400)
+  if (post.authorId.toString() === requesterId) throw makeError('Cannot express interest in your own post', 400)
+
+  const updated = await Post.findByIdAndUpdate(
+    id,
+    { $inc: { interestCount: 1 } },
+    { new: true }
+  )
+
+  pushNotification({
+    userId: post.authorId.toString(),
+    type: 'interest_received',
+    title: 'Yeni ilgi',
+    body: `${requesterName} "${post.title}" postunuza ilgi gösterdi.`,
+    linkTo: `/posts/${id}`,
+  }).catch(() => {})
+
+  return updated!
 }
 
 export async function deletePost(id: string, requesterId: string, isAdmin: boolean) {

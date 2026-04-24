@@ -124,3 +124,18 @@ export async function deletePost(req: AuthRequest, res: Response, next: NextFunc
     next(err)
   }
 }
+
+export async function expressInterest(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const requester = await User.findById(req.userId).select('name')
+    if (!requester) {
+      res.status(404).json({ success: false, message: 'User not found' })
+      return
+    }
+    const result = await postService.expressInterest(req.params.id, req.userId as string, requester.name)
+    log(req, LOG.POST_INTEREST, req.params.id)
+    res.json({ success: true, data: result })
+  } catch (err) {
+    next(err)
+  }
+}
