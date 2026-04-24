@@ -2,7 +2,9 @@ import { Response, NextFunction } from 'express'
 import { AuthRequest } from '../middleware/authMiddleware'
 import * as meetingService from '../services/meetingService'
 import { createLog } from '../services/logService'
+import { LOG } from '../constants/logActions'
 import User from '../models/User'
+import Post from '../models/Post'
 
 function log(req: AuthRequest, action: string, targetEntityId?: string) {
   createLog({
@@ -42,7 +44,7 @@ export async function requestMeeting(req: AuthRequest, res: Response, next: Next
       ndaAccepted,
       proposedSlots,
     })
-    log(req, 'meeting_request', meeting.id as string)
+    log(req, LOG.MEETING_REQUEST, meeting.id as string)
     res.status(201).json({ success: true, data: meeting })
   } catch (err) {
     next(err)
@@ -62,10 +64,22 @@ export async function listMeetings(req: AuthRequest, res: Response, next: NextFu
   try {
     const { postId } = req.query
 
-    const meetings = postId
-      ? await meetingService.getMeetingsByPost(postId as string)
-      : await meetingService.getMeetingsByUser(req.userId as string)
+    if (postId) {
+      const post = await Post.findById(postId as string).select('authorId')
+      if (!post) {
+        res.status(404).json({ success: false, message: 'Post not found' })
+        return
+      }
+      if (post.authorId.toString() !== req.userId && req.userRole !== 'admin') {
+        res.status(403).json({ success: false, message: 'Forbidden' })
+        return
+      }
+      const meetings = await meetingService.getMeetingsByPost(postId as string)
+      res.json({ success: true, data: meetings })
+      return
+    }
 
+    const meetings = await meetingService.getMeetingsByUser(req.userId as string)
     res.json({ success: true, data: meetings })
   } catch (err) {
     next(err)
@@ -80,7 +94,7 @@ export async function acceptMeeting(req: AuthRequest, res: Response, next: NextF
       return
     }
     const meeting = await meetingService.acceptMeeting(req.params.id, req.userId as string, slot)
-    log(req, 'meeting_accept', req.params.id)
+    log(req, LOG.MEETING_ACCEPT, req.params.id)
     res.json({ success: true, data: meeting })
   } catch (err) {
     next(err)
@@ -90,7 +104,7 @@ export async function acceptMeeting(req: AuthRequest, res: Response, next: NextF
 export async function declineMeeting(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
     const meeting = await meetingService.declineMeeting(req.params.id, req.userId as string)
-    log(req, 'meeting_decline', req.params.id)
+    log(req, LOG.MEETING_DECLINE, req.params.id)
     res.json({ success: true, data: meeting })
   } catch (err) {
     next(err)
@@ -100,7 +114,7 @@ export async function declineMeeting(req: AuthRequest, res: Response, next: Next
 export async function cancelMeeting(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
     const meeting = await meetingService.cancelMeeting(req.params.id, req.userId as string)
-    log(req, 'meeting_cancel', req.params.id)
+    log(req, LOG.MEETING_CANCEL, req.params.id)
     res.json({ success: true, data: meeting })
   } catch (err) {
     next(err)

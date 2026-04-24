@@ -21,11 +21,10 @@ const ROLE_ICON: Record<string, string> = {
 }
 
 const CRITICAL_ACTIONS = new Set([
-  'LOGIN_FAILED',
-  'SECURITY_RATE_LIMIT_HIT',
-  'USER_SUSPENDED',
-  'USER_DEACTIVATED',
-  'POST_REMOVED_BY_ADMIN',
+  'login_failed',
+  'register_failed',
+  'user_suspend',
+  'post_delete',
 ])
 
 const selectStyle: React.CSSProperties = {

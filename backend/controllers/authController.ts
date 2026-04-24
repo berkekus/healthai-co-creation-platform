@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { AuthRequest } from '../middleware/authMiddleware'
 import * as authService from '../services/authService'
 import { createLog } from '../services/logService'
+import { LOG } from '../constants/logActions'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const VALID_ROLES = ['engineer', 'healthcare_professional', 'admin'] as const
@@ -36,12 +37,19 @@ export async function register(req: Request, res: Response, next: NextFunction):
       userId: result.user.id,
       userEmail: result.user.email,
       role: result.user.role,
-      action: 'register',
+      action: LOG.REGISTER,
       result: 'success',
       ipAddress: req.ip,
     }).catch(() => {})
     res.status(201).json({ success: true, data: result })
   } catch (err) {
+    createLog({
+      userEmail: (req.body.email as string) ?? 'unknown',
+      role: (req.body.role as string) ?? 'unknown',
+      action: LOG.REGISTER_FAILED,
+      result: 'failure',
+      ipAddress: req.ip,
+    }).catch(() => {})
     next(err)
   }
 }
@@ -58,12 +66,19 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
       userId: result.user.id,
       userEmail: result.user.email,
       role: result.user.role,
-      action: 'login',
+      action: LOG.LOGIN,
       result: 'success',
       ipAddress: req.ip,
     }).catch(() => {})
     res.json({ success: true, data: result })
   } catch (err) {
+    createLog({
+      userEmail: (req.body.email as string) ?? 'unknown',
+      role: 'unknown',
+      action: LOG.LOGIN_FAILED,
+      result: 'failure',
+      ipAddress: req.ip,
+    }).catch(() => {})
     next(err)
   }
 }
@@ -87,7 +102,7 @@ export async function updateProfile(req: AuthRequest, res: Response, next: NextF
       userId: user.id,
       userEmail: user.email,
       role: user.role,
-      action: 'profile_update',
+      action: LOG.PROFILE_UPDATE,
       result: 'success',
       ipAddress: req.ip,
     }).catch(() => {})
@@ -123,7 +138,7 @@ export async function setSuspended(req: AuthRequest, res: Response, next: NextFu
       userId: req.userId as string,
       userEmail: req.userEmail as string,
       role: req.userRole as string,
-      action: isSuspended ? 'user_suspend' : 'user_unsuspend',
+      action: isSuspended ? LOG.USER_SUSPEND : LOG.USER_UNSUSPEND,
       targetEntityId: req.params.id,
       result: 'success',
       ipAddress: req.ip,

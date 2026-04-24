@@ -1,5 +1,6 @@
-import Post, { IPost, PostStatus } from '../models/Post'
+import Post, { IPost } from '../models/Post'
 import { FilterQuery } from 'mongoose'
+import Meeting from '../models/Meeting'
 
 function makeError(message: string, statusCode: number): Error & { statusCode: number } {
   const err = new Error(message) as Error & { statusCode: number }
@@ -16,6 +17,8 @@ export interface PostFilters {
   status?: string
   search?: string
   authorRole?: string
+  /** Giriş yapan kullanıcının kendi post'larını (draft dahil) görmesi için */
+  authorId?: string
 }
 
 export async function createPost(data: {
@@ -46,12 +49,21 @@ export async function getPostById(id: string) {
 export async function listPosts(filters: PostFilters) {
   const query: FilterQuery<IPost> = {}
 
+  if (filters.authorId) {
+    // Kullanıcı kendi post'larını görüyor — draft dahil, yalnızca kendisine ait
+    query.authorId = filters.authorId
+  } else if (filters.status) {
+    query.status = filters.status
+  } else {
+    // Genel feed: yayınlanmamış draft'ları gizle
+    query.status = { $ne: 'draft' }
+  }
+
   if (filters.domain) query.domain = { $regex: filters.domain, $options: 'i' }
   if (filters.expertise) query.expertiseRequired = { $regex: filters.expertise, $options: 'i' }
   if (filters.city) query.city = { $regex: `^${filters.city}$`, $options: 'i' }
   if (filters.country) query.country = { $regex: `^${filters.country}$`, $options: 'i' }
   if (filters.projectStage) query.projectStage = filters.projectStage
-  if (filters.status) query.status = filters.status
   if (filters.authorRole) query.authorRole = filters.authorRole
   if (filters.search) {
     query.$or = [
@@ -101,9 +113,28 @@ export async function deletePost(id: string, requesterId: string, isAdmin: boole
   await post.deleteOne()
 }
 
-export async function incrementMeetingCount(postId: string, status: PostStatus) {
-  await Post.findByIdAndUpdate(postId, {
-    $inc: { meetingCount: 1 },
-    $set: { status },
+// Yalnızca sayacı artır — durum değişikliği meetingService tarafından yönetilir
+export async function incrementMeetingCount(postId: string) {
+  await Post.findByIdAndUpdate(postId, { $inc: { meetingCount: 1 } })
+}
+
+// Mevcut meeting'lere bakarak post durumunu hesaplar ve günceller
+export async function recomputePostStatus(postId: string) {
+  const post = await Post.findById(postId)
+  if (!post) return
+  // Terminal durumları değiştirme
+  if (post.status === 'partner_found' || post.status === 'expired') return
+
+  const active = await Meeting.exists({
+    postId,
+    status: 'confirmed',
   })
+
+  if (active) {
+    post.status = 'meeting_scheduled'
+  } else if (post.status === 'meeting_scheduled') {
+    // Onaylı meeting kalmadıysa active'e geri dön
+    post.status = 'active'
+  }
+  await post.save()
 }

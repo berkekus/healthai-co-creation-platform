@@ -1,9 +1,9 @@
 import Log from '../models/Log'
 
 export async function createLog(data: {
-  userId: string
+  userId?: string
   userEmail: string
-  role: string
+  role?: string
   action: string
   targetEntityId?: string
   result: 'success' | 'failure'

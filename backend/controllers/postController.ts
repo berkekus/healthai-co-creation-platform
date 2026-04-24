@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express'
 import { AuthRequest } from '../middleware/authMiddleware'
 import * as postService from '../services/postService'
 import { createLog } from '../services/logService'
+import { LOG } from '../constants/logActions'
 import User from '../models/User'
 
 function log(req: AuthRequest, action: string, targetEntityId?: string) {
@@ -46,7 +47,7 @@ export async function createPost(req: AuthRequest, res: Response, next: NextFunc
       authorName: author.name,
       authorRole: authorRole as 'engineer' | 'healthcare_professional',
     })
-    log(req, 'post_create', post.id as string)
+    log(req, LOG.POST_CREATE, post.id as string)
     res.status(201).json({ success: true, data: post })
   } catch (err) {
     next(err)
@@ -64,14 +65,16 @@ export async function getPost(req: AuthRequest, res: Response, next: NextFunctio
 
 export async function listPosts(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { domain, expertise, city, country, projectStage, status, search, authorRole } = req.query
+    const { domain, expertise, city, country, projectStage, status, search, authorRole, mine } = req.query
     const posts = await postService.listPosts({
       domain: domain as string,
       expertise: expertise as string,
       city: city as string,
       country: country as string,
       projectStage: projectStage as string,
-      status: status as string,
+      // mine=true ise kendi post'larını (draft dahil) getir; aksi hâlde normal status filtresi
+      authorId: mine === 'true' ? req.userId : undefined,
+      status: mine === 'true' ? undefined : status as string,
       search: search as string,
       authorRole: authorRole as string,
     })
@@ -94,7 +97,7 @@ export async function updatePost(req: AuthRequest, res: Response, next: NextFunc
 export async function publishPost(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
     const post = await postService.publishPost(req.params.id, req.userId as string)
-    log(req, 'post_publish', req.params.id)
+    log(req, LOG.POST_PUBLISH, req.params.id)
     res.json({ success: true, data: post })
   } catch (err) {
     next(err)
@@ -104,7 +107,7 @@ export async function publishPost(req: AuthRequest, res: Response, next: NextFun
 export async function markPartnerFound(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
     const post = await postService.markPartnerFound(req.params.id, req.userId as string)
-    log(req, 'post_partner_found', req.params.id)
+    log(req, LOG.POST_PARTNER_FOUND, req.params.id)
     res.json({ success: true, data: post })
   } catch (err) {
     next(err)
@@ -115,7 +118,7 @@ export async function deletePost(req: AuthRequest, res: Response, next: NextFunc
   try {
     const isAdmin = req.userRole === 'admin'
     await postService.deletePost(req.params.id, req.userId as string, isAdmin)
-    log(req, 'post_delete', req.params.id)
+    log(req, LOG.POST_DELETE, req.params.id)
     res.json({ success: true, message: 'Post deleted' })
   } catch (err) {
     next(err)
