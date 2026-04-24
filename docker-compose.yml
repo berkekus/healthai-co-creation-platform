@@ -1,17 +1,4 @@
 services:
-  # ── MongoDB ────────────────────────────────────────────────────────────────
-  mongodb:
-    image: mongo:7
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   # ── Backend (ts-node-dev hot reload) ──────────────────────────────────────
   backend:
     build:
@@ -20,17 +7,13 @@ services:
     ports:
       - "5000:5000"
     env_file:
-      - ./backend/.env          # JWT_SECRET, JWT_EXPIRES_IN vb. buradan gelir
+      - ./backend/.env          # MONGO_URI (Atlas), JWT_SECRET, etc. come from here
     environment:
-      MONGO_URI: mongodb://mongodb:27017/healthai   # .env'deki localhost'u ezer
       NODE_ENV: development
       CLIENT_ORIGIN: http://localhost:5173
     volumes:
       - ./backend:/app          # kaynak kod hot-reload için mount edilir
       - backend_modules:/app/node_modules  # container'ın node_modules'ı korunur
-    depends_on:
-      mongodb:
-        condition: service_healthy
 
   # ── Frontend (Vite dev server) ─────────────────────────────────────────────
   frontend:
@@ -49,6 +32,5 @@ services:
       - backend
 
 volumes:
-  mongo_data:
   backend_modules:
   frontend_modules:
