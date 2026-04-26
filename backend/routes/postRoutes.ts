@@ -4,11 +4,12 @@ import {
   publishPost, markPartnerFound, deletePost, expressInterest,
 } from '../controllers/postController'
 import { protect } from '../middleware/authMiddleware'
+import { postCreateLimiter } from '../middleware/rateLimiter'
 
 const router = Router()
 
 router.get('/', protect, listPosts)
-router.post('/', protect, createPost)
+router.post('/', protect, postCreateLimiter, createPost)
 router.get('/:id', protect, getPost)
 router.put('/:id', protect, updatePost)
 router.post('/:id/publish', protect, publishPost)

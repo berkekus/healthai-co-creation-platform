@@ -181,7 +181,7 @@ export default function AdminPage() {
   const totalUsers     = users.filter(u => u.role !== 'admin').length
   const suspendedCount = users.filter(u => u.isSuspended).length
   const activePosts    = posts.filter(p => p.status === 'active').length
-  const failedLogins   = logs.filter(l => l.action === 'LOGIN_FAILED' || l.action === 'SECURITY_RATE_LIMIT_HIT').length
+  const failedLogins   = logs.filter(l => l.action === 'login_failed' || l.action === 'register_failed').length
 
   const tabs: { id: TabId; label: string; icon: string; count: number }[] = [
     { id: 'users', label: 'Users',         icon: 'group',   count: totalUsers },

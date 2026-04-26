@@ -2,119 +2,126 @@
 
 > A full-stack matchmaking platform that connects **engineers** and **healthcare professionals** to co-create medical AI projects — from idea to pilot — inside a safe, auditable workspace.
 
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
-![React](https://img.shields.io/badge/React_18-61DAFB?style=flat&logo=react&logoColor=black)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
-![Gemini](https://img.shields.io/badge/Gemini_AI-8E75B2?style=flat&logo=google&logoColor=white)
-
 ---
 
-## Overview
+## Stack
 
-HEALTH AI bridges the gap between clinical expertise and technical engineering. Healthcare professionals post collaboration opportunities; engineers find matching projects using keyword-based and AI-powered semantic matching (Gemini 2.0 Flash). The platform handles the full lifecycle: from discovery → meeting request → NDA acceptance → confirmed meeting.
+| Layer     | Technology |
+|-----------|------------|
+| Frontend  | React 18 · TypeScript · Vite 6 · Tailwind CSS 3 · React Router 6 · Zustand · React Hook Form + Zod |
+| Backend   | Node.js · Express 4 · TypeScript · Mongoose 8 |
+| Database  | MongoDB (Atlas for dev · containerised `mongo:7` for production) |
+| Auth      | JWT (Bearer token, 7-day expiry) · bcrypt (≥10 rounds) |
+| Security  | Helmet · express-mongo-sanitize · express-rate-limit |
+| Dev       | ts-node-dev (hot reload) · Docker Compose |
 
----
-
-## Tech Stack
-
-### Frontend
-| | |
-|---|---|
-| Framework | React 18 + TypeScript + Vite 6 |
-| Routing | React Router 6 |
-| State | Zustand |
-| Forms | React Hook Form + Zod |
-| Styling | Tailwind CSS 3 |
-| AI | Google Gemini 2.0 Flash (`@google/generative-ai`) |
-| HTTP | Axios |
-
-### Backend
-| | |
-|---|---|
-| Runtime | Node.js 20 + TypeScript |
-| Framework | Express 4 |
-| Database | MongoDB 7 + Mongoose 8 |
-| Auth | JWT + bcryptjs |
-| Security | helmet · express-rate-limit · express-mongo-sanitize |
-
-### Infrastructure
-| | |
-|---|---|
-| Containerisation | Docker + Docker Compose |
-| Dev workflow | ts-node-dev (hot reload) |
-| Prod serving | Node.js compiled · nginx (frontend) |
-
----
-
-## Architecture
-
-```
-Browser
-  │
-  ├── :5173  Frontend (React / Vite)
-  │             │
-  │             ├── Zustand stores (auth · post · meeting · notification)
-  │             └── Gemini AI (smart match chips, async)
-  │
-  └── :5000  Backend (Express / TypeScript)
-               │
-               ├── /api/auth          JWT auth, user management
-               ├── /api/posts         CRUD + publish + partner-found
-               ├── /api/meetings      Request → accept/decline/cancel
-               ├── /api/notifications Auto-triggered on meeting events
-               └── /api/logs          Admin audit trail (admin-only)
-                          │
-                     MongoDB :27017
-```
+**Fonts:** Plus Jakarta Sans (headlines · logo · buttons) + Source Sans 3 (body copy)  
+**Icons:** Material Symbols Outlined + Lucide React  
+**Palette:** `hai-plum` `hai-teal` `hai-mint` `hai-lime` `hai-cream` `hai-offwhite`
 
 ---
 
 ## Quick Start
 
-### Option A — Docker (recommended)
+### Option 1 — Docker Compose (recommended)
 
 ```bash
-# Clone & start everything (MongoDB + backend + frontend)
-git clone https://github.com/<your-username>/healthai-co-creation-platform.git
-cd healthai-co-creation-platform
+# Development (hot reload on both frontend and backend)
+docker compose up
+
+# Frontend: http://localhost:5173
+# Backend:  http://localhost:5000
+```
+
+> **MongoDB:** The dev compose file expects Atlas or a local MongoDB instance. Set `MONGO_URI` in `backend/.env` before starting.
+
+```bash
+# Production (nginx + compiled Node.js + containerised MongoDB)
+JWT_SECRET=<secret> docker compose -f docker-compose.prod.yml up --build
+# App served at http://localhost:80
+```
+
+### Option 2 — Local (no Docker)
+
+**Backend**
+
+```bash
+cd backend
+cp .env.example .env   # fill in MONGO_URI and JWT_SECRET
+npm install
+npm run dev            # http://localhost:5000
+```
+
+**Frontend**
+
+```bash
+cd frontend
+npm install
+npm run dev            # http://localhost:5173
+npm run build          # production bundle → /dist
+npm run preview        # preview built bundle
+```
 
 # Copy environment files
 cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
 
-docker compose up -d
+## Environment Variables
 
-# Frontend → http://localhost:5173
-# Backend  → http://localhost:5000
+### `backend/.env`
+
+```
+PORT=5000
+MONGO_URI=mongodb+srv://<user>:<pass>@<cluster>/healthai
+JWT_SECRET=<256-bit random string>
+JWT_EXPIRES_IN=7d
+CLIENT_ORIGIN=http://localhost:5173
+NODE_ENV=development
 ```
 
-To stop:
-```bash
-docker compose down          # stop containers, keep data
-docker compose down -v       # stop containers + wipe database
+### `frontend/.env` (optional override)
+
 ```
-
-### Option B — Manual (npm run dev)
-
-```bash
-# Terminal 1 — Backend
-cd backend
-cp .env.example .env         # fill in MONGO_URI and JWT_SECRET
-npm install
-npm run dev                  # http://localhost:5000
-
-# Terminal 2 — Frontend
-cd frontend
-cp .env.example .env         # set VITE_API_URL and VITE_GEMINI_API_KEY
-npm install
-npm run dev                  # http://localhost:5173
+VITE_API_URL=http://localhost:5000/api
 ```
 
 ---
 
-## Environment Variables
+## API Overview
+
+Base URL: `http://localhost:5000/api`  
+All responses follow `{ "success": true, "data": <payload> }` / `{ "success": false, "message": "..." }`.  
+Protected routes require `Authorization: Bearer <token>`.
+
+| Prefix               | Description                          |
+|----------------------|--------------------------------------|
+| `POST /auth/register` | Register a new user                 |
+| `POST /auth/login`   | Login, returns JWT                   |
+| `GET  /auth/me`      | Current user profile                 |
+| `PUT  /auth/me/profile` | Update own profile                |
+| `GET  /auth/users`   | List all users (admin only)          |
+| `PUT  /auth/users/:id/suspend` | Suspend/unsuspend user (admin) |
+| `GET  /posts`        | List posts (drafts excluded)         |
+| `POST /posts`        | Create post                          |
+| `PUT  /posts/:id`    | Edit post (author or admin)          |
+| `POST /posts/:id/publish` | Publish a draft               |
+| `POST /posts/:id/partner-found` | Mark partner found        |
+| `POST /posts/:id/interest` | Express interest             |
+| `DELETE /posts/:id`  | Delete post (author or admin)        |
+| `GET  /meetings`     | List user's meetings                 |
+| `POST /meetings`     | Send meeting request                 |
+| `POST /meetings/:id/accept`  | Accept a pending request     |
+| `POST /meetings/:id/decline` | Decline a pending request    |
+| `POST /meetings/:id/cancel`  | Cancel a meeting             |
+| `GET  /notifications` | List own notifications              |
+| `POST /notifications/:id/read` | Mark as read               |
+| `POST /notifications/mark-all-read` | Mark all as read        |
+| `GET  /logs`         | Activity log (admin only)            |
+| `GET  /health`       | Health check                         |
+
+---
+
+## Project Structure
 
 ### `backend/.env`
 ```env
@@ -125,11 +132,38 @@ JWT_EXPIRES_IN=7d
 CLIENT_ORIGIN=http://localhost:5173
 NODE_ENV=development
 ```
-
-### `frontend/.env`
-```env
-VITE_API_URL=http://localhost:5000/api
-VITE_GEMINI_API_KEY=<your-google-ai-studio-key>
+healthai-co-creation-platform/
+├── docker-compose.yml          # dev: hot reload, Atlas/local MongoDB
+├── docker-compose.prod.yml     # prod: nginx + compiled backend + mongo:7
+├── frontend/
+│   └── src/
+│       ├── components/
+│       │   ├── layout/         # AppLayout · LandingShell · Navbar · Footer
+│       │   ├── posts/          # PostCard · PostStatusBadge · PostFormFields
+│       │   ├── meetings/       # MeetingCard · ExpressInterestModal
+│       │   └── ui/             # FormField · Skeleton · CookieConsentBanner
+│       ├── pages/
+│       │   ├── auth/           # LoginPage · RegisterPage · VerifyEmailPage
+│       │   ├── dashboard/      # DashboardPage
+│       │   ├── posts/          # PostListPage · PostCreatePage · PostDetailPage
+│       │   ├── meetings/       # MeetingsPage
+│       │   ├── admin/          # AdminPage
+│       │   ├── profile/        # ProfilePage
+│       │   └── errors/         # NotFoundPage (404) · UnauthorizedPage (403)
+│       ├── store/              # Zustand slices: auth · post · meeting · notification
+│       ├── types/              # Shared TS contract types
+│       ├── utils/              # matchPosts · formatters · validators
+│       ├── constants/          # routes · config · enums
+│       └── router/             # AppRouter (protected + role-guarded routes)
+└── backend/
+    ├── src/index.ts            # Express app entry point
+    ├── config/db.ts            # Mongoose connection
+    ├── models/                 # User · Post · Meeting · Notification · Log
+    ├── controllers/            # authController · postController · meetingController …
+    ├── services/               # authService · postService · meetingService …
+    ├── routes/                 # authRoutes · postRoutes · meetingRoutes …
+    ├── middleware/             # authMiddleware · errorHandler · rateLimiter
+    └── constants/              # logActions
 ```
 
 > Get a free Gemini API key at [aistudio.google.com](https://aistudio.google.com). Free tier: **1,500 requests/day · 15 requests/minute**.
@@ -137,142 +171,53 @@ VITE_GEMINI_API_KEY=<your-google-ai-studio-key>
 
 ---
 
+## Features
+
+- **Authentication** — email + password, `.edu` verification, JWT sessions, rate limiting after 3 failed attempts, session timeout modal (frontend 30 min)
+- **Post management** — `draft → active → meeting_scheduled → partner_found → closed / expired` lifecycle · confidentiality levels · expiry countdown
+- **Smart matching** — per-card match chips (city · country · cross-role · expertise overlap) and a "Best matches for you" featured row
+- **Meetings** — 3-step interest flow (message → NDA → 3 proposed slots) · owner workflow (accept / counter-propose / decline) · tabbed inbox
+- **Notifications** — in-app notifications triggered on every meeting state change; `mark-all-read` supported
+- **Admin panel** — user suspension, post moderation, tamper-resistant activity log (CSV export)
+- **GDPR** — Art. 6/15/17/20/21 rights · JSON data export · account deletion · cookie consent · `/privacy` page
+- **Loading states** — shared `Skeleton` primitives (`<Skeleton/>`, `<SkeletonLine/>`, `<PostCardSkeleton/>`, `<SkeletonGrid/>`)
+- **Error states** — designed `404` + `403` pages with role-aware CTAs
+
+---
+
 ## Demo Accounts
 
-Register via `/register` or use the pre-seeded accounts below.  
-All test account passwords: `Test123!` · Admin: `Admin123!`
+Register any account via `/register` (3-step wizard) or use the seeded accounts once the DB is populated (see `frontend/src/data/mock*.ts` for reference data).
 
-| Role | Email | Expertise |
-|------|-------|-----------|
-| **Admin** | `admin@healthai.edu` | Full admin panel access |
-| **Engineer** | `ahmet@metu.edu.tr` | ML · Computer Vision · NLP · TensorFlow |
-| **Engineer** | `zeynep@boun.edu.tr` | Cloud · Backend · Kubernetes · IoT |
-| **Engineer** | `can@itu.edu.tr` | Biomedical · Signal Processing · Wearables |
-| **Healthcare** | `ayse@hacettepe.edu.tr` | Cardiology · ECG · Remote Monitoring |
-| **Healthcare** | `mehmet@istanbul.edu.tr` | Neurology · MRI · Alzheimer's |
-| **Healthcare** | `fatma@ege.edu.tr` | Endocrinology · Diabetes · CGM |
+> All seed passwords are `password123` (admin: `admin123`).
 
----
-
-## Feature Overview
-
-### Matching & Discovery
-- **Keyword matching** — instant chips based on city / country / cross-role / expertise tag overlap
-- **AI matching** — Gemini 2.0 Flash semantic analysis (async, cached per session)
-- **"Best matches for you"** — featured row sorted by combined basic + AI score
-- **Filters** — domain · project stage · status · posted-by role · city · country · free-text search
-
-### Auth & Profiles
-- JWT-based authentication with 7-day token expiry
-- Hydration on page refresh (token → `/auth/me`)
-- Profile with bio, institution, city, country, expertise tags
-- Role-based route guards (`engineer` · `healthcare_professional` · `admin`)
-
-### Post Lifecycle
-```
-draft → active → meeting_scheduled → partner_found
-                                   → expired
-```
-
-### Meeting Workflow
-```
-POST /meetings          → status: pending
-POST /meetings/:id/accept  → status: confirmed + confirmedSlot
-POST /meetings/:id/decline → status: declined
-POST /meetings/:id/cancel  → status: cancelled
-```
-Every state change automatically creates a notification for the other party.
-
-### Notifications
-Auto-generated on: `meeting_request` · `meeting_accepted` · `meeting_declined` · `meeting_cancelled`
-
-### Admin Panel
-- User list with suspend / unsuspend
-- Audit log with filters (userId · action · date range · result) and pagination
-- Actions logged: register · login · post_create · post_publish · post_delete · meeting_request · meeting_accept · meeting_decline · meeting_cancel · user_suspend · user_unsuspend · profile_update
-
-### Security
-- `helmet` — 12 HTTP security headers (CSP, HSTS, X-Frame-Options…)
-- `express-rate-limit` — 20 req / 15 min on all `/api/auth/*` routes
-- `express-mongo-sanitize` — strips `$`-prefixed keys from body/query
-- `typeof` guards on login body (NoSQL injection via object payload)
-- Request body size limited to 10 KB
-- Passwords never returned in any API response
+| Email                   | Role                    | City       |
+|-------------------------|-------------------------|------------|
+| `e.muller@charite.edu`  | Healthcare professional | Berlin     |
+| `m.rossi@polimi.edu`    | Engineer                | Barcelona  |
+| `i.larsson@ki.edu`      | Healthcare professional | Stockholm  |
+| `k.nakamura@tum.edu`    | Engineer                | Berlin     |
+| `admin@healthai.edu`    | Admin                   | Amsterdam  |
 
 ---
 
-## Project Structure
+## Evaluation Scenarios
 
-```
-.
-├── docker-compose.yml          # dev (hot-reload volumes)
-├── docker-compose.prod.yml     # prod (compiled + nginx)
-│
-├── backend/
-│   ├── src/index.ts            # Express app entry point
-│   ├── config/db.ts            # Mongoose connection
-│   ├── middleware/             # authMiddleware · errorHandler · rateLimiter
-│   ├── models/                 # User · Post · Meeting · Notification · Log
-│   ├── controllers/            # authController · postController · meetingController …
-│   ├── services/               # authService · postService · meetingService …
-│   ├── routes/                 # authRoutes · postRoutes · meetingRoutes …
-│   └── Dockerfile
-│
-└── frontend/
-    ├── src/
-    │   ├── App.tsx             # Root — hydrate on mount, fetchPosts on auth
-    │   ├── router/             # AppRouter · ProtectedRoute
-    │   ├── pages/              # auth · dashboard · posts · meetings · admin · profile · errors
-    │   ├── components/         # layout · posts · meetings · ui
-    │   ├── store/              # authStore · postStore · meetingStore · notificationStore
-    │   ├── lib/
-    │   │   ├── api.ts          # Axios instance + interceptors
-    │   │   └── gemini.ts       # Gemini client · analyzeProjectMatch · useSmartSuggestions
-    │   ├── utils/matchPosts.ts # computeMatchReasons · computeEnhancedMatchReasons · rankByMatch
-    │   └── types/              # auth.types · post.types · meeting.types · common.types
-    ├── nginx.conf              # SPA routing + /api proxy (prod)
-    └── Dockerfile
-```
+1. **Registration & Login** — `/register` wizard → email verification → rate-limit cooldown
+2. **Post Creation** — `/posts/new` (4 section cards) → draft → publish → edit → close
+3. **Search & Filtering** — debounced search · "Best matches" row · city toggle · domain / stage / collab / status filters
+4. **Meeting Request Workflow** — `ExpressInterestModal` (3 steps) → owner confirms / declines
+5. **Admin Panel** — `/admin` users · posts · logs tabs with filters + CSV export
+6. **Profile & GDPR** — `/profile` edit · **Export my data** (JSON) · **Delete account**
 
 ---
 
-## API Reference
+## Planning Artifacts
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/auth/register` | — | Register new user |
-| POST | `/api/auth/login` | — | Login, returns JWT |
-| GET | `/api/auth/me` | ✅ | Get current user (hydrate) |
-| PUT | `/api/auth/me/profile` | ✅ | Update profile |
-| GET | `/api/auth/users` | Admin | List all users |
-| PUT | `/api/auth/users/:id/suspend` | Admin | Suspend / unsuspend |
-| GET | `/api/posts` | ✅ | List posts (query filters) |
-| POST | `/api/posts` | ✅ | Create post |
-| PUT | `/api/posts/:id` | ✅ | Update post |
-| POST | `/api/posts/:id/publish` | ✅ | Publish (draft → active) |
-| POST | `/api/posts/:id/partner-found` | ✅ | Close with partner |
-| DELETE | `/api/posts/:id` | ✅ | Delete post |
-| GET | `/api/meetings` | ✅ | List own meetings |
-| POST | `/api/meetings` | ✅ | Request meeting |
-| POST | `/api/meetings/:id/accept` | ✅ | Accept + confirm slot |
-| POST | `/api/meetings/:id/decline` | ✅ | Decline |
-| POST | `/api/meetings/:id/cancel` | ✅ | Cancel |
-| GET | `/api/notifications` | ✅ | List own notifications |
-| POST | `/api/notifications/:id/read` | ✅ | Mark as read |
-| POST | `/api/notifications/mark-all-read` | ✅ | Mark all as read |
-| GET | `/api/notifications/unread-count` | ✅ | Unread count |
-| GET | `/api/logs` | Admin | Audit logs (with filters) |
-
-All responses follow: `{ success: boolean, data: T }` · errors: `{ success: false, message: string }`
+- [`backend/ROADMAP.md`](backend/ROADMAP.md) — Backend integration roadmap and current gap analysis
+- [`.planning/roadmap.md`](.planning/roadmap.md) — 10-phase frontend delivery plan
+- [`.planning/SNAPSHOT.md`](.planning/SNAPSHOT.md) — Per-phase implementation log
 
 ---
 
-## Development Notes
-
-- **Rate limiter resets** on server restart (in-memory store). Use `docker compose restart backend` during heavy testing.
-- **Gemini cache** is session-scoped (module-level `Map`). Reloading the page re-analyzes posts. This is intentional — fresh analysis after new posts are added.
-- **MongoDB in Docker** is isolated from your local MongoDB. Data persists in the `mongo_data` Docker volume until `docker compose down -v`.
-
----
-
-© 2026 HEALTH AI — Co-Creation Platform · SENG 352 · Spring 2026
+© 2026 HEALTH AI — Co-Creation Platform · SENG 352 capstone · Spring 2026.
