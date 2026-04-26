@@ -13,6 +13,10 @@ interface JwtPayload {
   role: string
 }
 
+// Throttle lastActive writes: at most once per 5 minutes per user
+const lastActiveThrottle = new Map<string, number>()
+const LAST_ACTIVE_THROTTLE_MS = 5 * 60 * 1000
+
 export const protect = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   const header = req.headers.authorization
 
