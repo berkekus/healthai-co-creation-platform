@@ -43,6 +43,14 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     req.userId = decoded.id
     req.userRole = decoded.role
     req.userEmail = user.email
+
+    const now = Date.now()
+    const lastUpdate = lastActiveThrottle.get(decoded.id) ?? 0
+    if (now - lastUpdate > LAST_ACTIVE_THROTTLE_MS) {
+      lastActiveThrottle.set(decoded.id, now)
+      User.findByIdAndUpdate(decoded.id, { $set: { lastActive: new Date() } }).exec().catch(() => {})
+    }
+
     next()
   } catch {
     res.status(401).json({ success: false, message: 'Invalid or expired token' })
