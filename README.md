@@ -1,6 +1,6 @@
 # HEALTH AI — Co-Creation Platform
 
-A structured matchmaking platform that connects **engineers** and **healthcare professionals** across Europe so they can co-create medical AI projects — from idea to pilot — inside a safe, auditable, GDPR-compliant workspace.
+> A full-stack matchmaking platform that connects **engineers** and **healthcare professionals** to co-create medical AI projects — from idea to pilot — inside a safe, auditable workspace.
 
 ---
 
@@ -62,7 +62,9 @@ npm run build          # production bundle → /dist
 npm run preview        # preview built bundle
 ```
 
----
+# Copy environment files
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 
 ## Environment Variables
 
@@ -121,6 +123,14 @@ Protected routes require `Authorization: Bearer <token>`.
 
 ## Project Structure
 
+### `backend/.env`
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/healthai
+JWT_SECRET=<256-bit-random-string>
+JWT_EXPIRES_IN=7d
+CLIENT_ORIGIN=http://localhost:5173
+NODE_ENV=development
 ```
 healthai-co-creation-platform/
 ├── docker-compose.yml          # dev: hot reload, Atlas/local MongoDB
@@ -155,6 +165,9 @@ healthai-co-creation-platform/
     ├── middleware/             # authMiddleware · errorHandler · rateLimiter
     └── constants/              # logActions
 ```
+
+> Get a free Gemini API key at [aistudio.google.com](https://aistudio.google.com). Free tier: **1,500 requests/day · 15 requests/minute**.
+> The app works without a Gemini key — AI chips simply won't appear.
 
 ---
 
