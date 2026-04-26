@@ -107,9 +107,36 @@ export async function getUserById(userId: string) {
   return sanitize(user)
 }
 
-export async function getAllUsers() {
-  const users = await User.find({})
-  return users.map(sanitize)
+export async function getAllUsers(opts: {
+  role?: string
+  search?: string
+  page?: number
+  limit?: number
+}) {
+  const { role, search, page = 1, limit = 20 } = opts
+  const query: Record<string, unknown> = {}
+
+  if (role) query.role = role
+  if (search) {
+    query.$or = [
+      { name:  { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } },
+    ]
+  }
+
+  const skip = (page - 1) * limit
+  const [users, total] = await Promise.all([
+    User.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    User.countDocuments(query),
+  ])
+
+  return {
+    users: users.map(sanitize),
+    total,
+    page,
+    limit,
+    pages: Math.ceil(total / limit),
+  }
 }
 
 export async function setSuspended(userId: string, isSuspended: boolean) {

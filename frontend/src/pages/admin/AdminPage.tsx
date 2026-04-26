@@ -124,9 +124,11 @@ export default function AdminPage() {
   const { push } = useNotificationStore()
 
   useEffect(() => {
-    api.get<{ success: boolean; data: { id: string; _id?: string }[] }>('/auth/users')
+    api.get<{ success: boolean; data: { users: { id: string; _id?: string }[]; total: number } }>('/auth/users', {
+      params: { limit: 200 },
+    })
       .then(({ data }) => {
-        const normalised = data.data.map((u) => ({ ...u, id: u._id ?? u.id })) as User[]
+        const normalised = data.data.users.map((u) => ({ ...u, id: u._id ?? u.id })) as User[]
         setUsers(normalised)
       })
       .catch(() => {/* non-critical — keep empty */})
