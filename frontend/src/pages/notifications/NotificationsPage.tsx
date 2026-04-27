@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
@@ -14,8 +15,13 @@ const TYPE_ICON: Record<string, string> = {
 
 export default function NotificationsPage() {
   const { user } = useAuthStore()
-  const { getByUser, markRead, markAllRead } = useNotificationStore()
+  const { getByUser, fetchByUser, markRead, markAllRead } = useNotificationStore()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (user) fetchByUser(user.id)
+  }, [user?.id])
+
   const notifications = user ? getByUser(user.id) : []
   const hasUnread = notifications.some(n => !n.isRead)
 

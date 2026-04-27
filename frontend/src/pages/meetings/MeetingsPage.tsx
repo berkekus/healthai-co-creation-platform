@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
 import MeetingCard from '../../components/meetings/MeetingCard'
@@ -22,9 +22,13 @@ function statusOrder(s: MeetingStatus): number {
 
 export default function MeetingsPage() {
   const { user } = useAuthStore()
-  const { getByUser } = useMeetingStore()
+  const { getByUser, fetchByUser } = useMeetingStore()
   const navigate = useNavigate()
   const [tab, setTab] = useState<TabId>('all')
+
+  useEffect(() => {
+    if (user) fetchByUser(user.id)
+  }, [user?.id])
 
   const all = user ? getByUser(user.id) : []
 
