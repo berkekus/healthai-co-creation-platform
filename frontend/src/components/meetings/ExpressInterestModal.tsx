@@ -90,17 +90,20 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
 
   const handleNext = () => { if (validateStep()) setStep(s => s + 1) }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateStep() || !user) return
     const filledSlots = slots.filter(s => s.date && s.time)
-    request(
-      { postId: post.id, message, ndaAccepted: true, proposedSlots: filledSlots },
-      user.id, user.name, post.authorId, post.authorName, post.title,
-    )
-    update(post.id, { status: 'meeting_scheduled' })
-    push({ userId: post.authorId, type: 'meeting_request', title: 'New meeting request', body: `${user.name} expressed interest in your post.`, isRead: false, linkTo: '/meetings' })
-    push({ userId: user.id,        type: 'meeting_request', title: 'Interest expressed',  body: `Your request for "${post.title}" has been sent.`,     isRead: false, linkTo: '/meetings' })
-    onSuccess()
+    try {
+      await request(
+        { postId: post.id, message, ndaAccepted: true, proposedSlots: filledSlots },
+        user.id, user.name, post.authorId, post.authorName, post.title,
+      )
+      update(post.id, { status: 'meeting_scheduled' })
+      push({ userId: user.id, type: 'meeting_request', title: 'Interest expressed', body: `Your request for "${post.title}" has been sent.`, isRead: false, linkTo: '/meetings' })
+      onSuccess()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send request. Please try again.')
+    }
   }
 
   const filledCount = slots.filter(s => s.date && s.time).length
