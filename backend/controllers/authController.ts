@@ -121,10 +121,15 @@ export async function getUserById(req: Request, res: Response, next: NextFunctio
   }
 }
 
-export async function getAllUsers(_req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getAllUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const users = await authService.getAllUsers()
-    res.json({ success: true, data: users })
+    const page  = Math.max(1, parseInt(req.query.page  as string) || 1)
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20))
+    const role   = typeof req.query.role   === 'string' ? req.query.role   : undefined
+    const search = typeof req.query.search === 'string' ? req.query.search : undefined
+
+    const result = await authService.getAllUsers({ role, search, page, limit })
+    res.json({ success: true, data: result })
   } catch (err) {
     next(err)
   }
