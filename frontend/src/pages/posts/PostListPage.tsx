@@ -109,6 +109,7 @@ export default function PostListPage() {
   // "Best matches for you" — AI skoru dahil sıralama
   const featuredMatches = useMemo(() => {
     if (!user || activeFilterCount > 0) return []
+    if (!user.expertiseTags?.length) return []
     const active = posts.filter(p => p.status === 'active' && p.authorId !== user.id)
     return rankByMatch(active, user)
       .map(({ post }) => ({
