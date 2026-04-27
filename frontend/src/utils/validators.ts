@@ -39,7 +39,7 @@ export const registerSchema = z.object({
     .string()
     .min(1, 'Email is required')
     .email('Enter a valid email address')
-    .refine(v => v.endsWith('.edu'), {
+    .refine(v => /\.edu(\.[a-z]{2,})?$/.test(v), {
       message: 'Only institutional .edu email addresses are accepted. Personal email providers are not permitted.',
     }),
   password:    z.string().min(8, 'Password must be at least 8 characters'),
