@@ -18,7 +18,7 @@
       "source_file": "backend\\config\\db.ts",
       "source_location": "L1",
       "id": "backend_config_db_ts",
-      "community": 5,
+      "community": 4,
       "norm_label": "db.ts"
     },
     {
@@ -27,7 +27,7 @@
       "source_file": "backend\\config\\db.ts",
       "source_location": "L3",
       "id": "config_db_connectdb",
-      "community": 5,
+      "community": 4,
       "norm_label": "connectdb()"
     },
     {
@@ -63,7 +63,7 @@
       "source_file": "backend\\controllers\\meetingController.ts",
       "source_location": "L1",
       "id": "backend_controllers_meetingcontroller_ts",
-      "community": 5,
+      "community": 4,
       "norm_label": "meetingcontroller.ts"
     },
     {
@@ -72,7 +72,7 @@
       "source_file": "backend\\controllers\\meetingController.ts",
       "source_location": "L9",
       "id": "controllers_meetingcontroller_log",
-      "community": 5,
+      "community": 4,
       "norm_label": "log()"
     },
     {
@@ -90,7 +90,7 @@
       "source_file": "backend\\controllers\\postController.ts",
       "source_location": "L1",
       "id": "backend_controllers_postcontroller_ts",
-      "community": 5,
+      "community": 4,
       "norm_label": "postcontroller.ts"
     },
     {
@@ -99,7 +99,7 @@
       "source_file": "backend\\controllers\\postController.ts",
       "source_location": "L8",
       "id": "controllers_postcontroller_log",
-      "community": 5,
+      "community": 4,
       "norm_label": "log()"
     },
     {
@@ -256,12 +256,75 @@
       "norm_label": "postroutes.ts"
     },
     {
+      "label": "smoke-test.ts",
+      "file_type": "code",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L1",
+      "id": "backend_scripts_smoke_test_ts",
+      "community": 4,
+      "norm_label": "smoke-test.ts"
+    },
+    {
+      "label": "step()",
+      "file_type": "code",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L15",
+      "id": "scripts_smoke_test_step",
+      "community": 4,
+      "norm_label": "step()"
+    },
+    {
+      "label": "ok()",
+      "file_type": "code",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L19",
+      "id": "scripts_smoke_test_ok",
+      "community": 4,
+      "norm_label": "ok()"
+    },
+    {
+      "label": "fail()",
+      "file_type": "code",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L24",
+      "id": "scripts_smoke_test_fail",
+      "community": 4,
+      "norm_label": "fail()"
+    },
+    {
+      "label": "req()",
+      "file_type": "code",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L29",
+      "id": "scripts_smoke_test_req",
+      "community": 4,
+      "norm_label": "req()"
+    },
+    {
+      "label": "unique()",
+      "file_type": "code",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L47",
+      "id": "scripts_smoke_test_unique",
+      "community": 4,
+      "norm_label": "unique()"
+    },
+    {
+      "label": "run()",
+      "file_type": "code",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L51",
+      "id": "scripts_smoke_test_run",
+      "community": 4,
+      "norm_label": "run()"
+    },
+    {
       "label": "authService.ts",
       "file_type": "code",
       "source_file": "backend\\services\\authService.ts",
       "source_location": "L1",
       "id": "backend_services_authservice_ts",
-      "community": 4,
+      "community": 5,
       "norm_label": "authservice.ts"
     },
     {
@@ -270,7 +333,7 @@
       "source_file": "backend\\services\\authService.ts",
       "source_location": "L7",
       "id": "services_authservice_signtoken",
-      "community": 4,
+      "community": 5,
       "norm_label": "signtoken()"
     },
     {
@@ -279,7 +342,7 @@
       "source_file": "backend\\services\\authService.ts",
       "source_location": "L15",
       "id": "services_authservice_sanitize",
-      "community": 4,
+      "community": 5,
       "norm_label": "sanitize()"
     },
     {
@@ -288,7 +351,7 @@
       "source_file": "backend\\services\\authService.ts",
       "source_location": "L34",
       "id": "services_authservice_registeruser",
-      "community": 4,
+      "community": 5,
       "norm_label": "registeruser()"
     },
     {
@@ -297,7 +360,7 @@
       "source_file": "backend\\services\\authService.ts",
       "source_location": "L56",
       "id": "services_authservice_loginuser",
-      "community": 4,
+      "community": 5,
       "norm_label": "loginuser()"
     },
     {
@@ -306,7 +369,7 @@
       "source_file": "backend\\services\\authService.ts",
       "source_location": "L84",
       "id": "services_authservice_updateuserprofile",
-      "community": 4,
+      "community": 5,
       "norm_label": "updateuserprofile()"
     },
     {
@@ -315,7 +378,7 @@
       "source_file": "backend\\services\\authService.ts",
       "source_location": "L101",
       "id": "services_authservice_getuserbyid",
-      "community": 4,
+      "community": 5,
       "norm_label": "getuserbyid()"
     },
     {
@@ -324,7 +387,7 @@
       "source_file": "backend\\services\\authService.ts",
       "source_location": "L111",
       "id": "services_authservice_getallusers",
-      "community": 4,
+      "community": 5,
       "norm_label": "getallusers()"
     },
     {
@@ -333,7 +396,7 @@
       "source_file": "backend\\services\\authService.ts",
       "source_location": "L143",
       "id": "services_authservice_changepassword",
-      "community": 4,
+      "community": 5,
       "norm_label": "changepassword()"
     },
     {
@@ -342,7 +405,7 @@
       "source_file": "backend\\services\\authService.ts",
       "source_location": "L168",
       "id": "services_authservice_setsuspended",
-      "community": 4,
+      "community": 5,
       "norm_label": "setsuspended()"
     },
     {
@@ -351,7 +414,7 @@
       "source_file": "backend\\services\\logService.ts",
       "source_location": "L1",
       "id": "backend_services_logservice_ts",
-      "community": 5,
+      "community": 4,
       "norm_label": "logservice.ts"
     },
     {
@@ -360,7 +423,7 @@
       "source_file": "backend\\services\\logService.ts",
       "source_location": "L3",
       "id": "services_logservice_createlog",
-      "community": 5,
+      "community": 4,
       "norm_label": "createlog()"
     },
     {
@@ -369,7 +432,7 @@
       "source_file": "backend\\services\\logService.ts",
       "source_location": "L15",
       "id": "services_logservice_getlogs",
-      "community": 5,
+      "community": 4,
       "norm_label": "getlogs()"
     },
     {
@@ -378,7 +441,7 @@
       "source_file": "backend\\services\\meetingService.ts",
       "source_location": "L1",
       "id": "backend_services_meetingservice_ts",
-      "community": 2,
+      "community": 1,
       "norm_label": "meetingservice.ts"
     },
     {
@@ -387,7 +450,7 @@
       "source_file": "backend\\services\\meetingService.ts",
       "source_location": "L6",
       "id": "services_meetingservice_makeerror",
-      "community": 2,
+      "community": 1,
       "norm_label": "makeerror()"
     },
     {
@@ -396,7 +459,7 @@
       "source_file": "backend\\services\\meetingService.ts",
       "source_location": "L12",
       "id": "services_meetingservice_requestmeeting",
-      "community": 2,
+      "community": 1,
       "norm_label": "requestmeeting()"
     },
     {
@@ -405,7 +468,7 @@
       "source_file": "backend\\services\\meetingService.ts",
       "source_location": "L54",
       "id": "services_meetingservice_getmeetingbyid",
-      "community": 2,
+      "community": 1,
       "norm_label": "getmeetingbyid()"
     },
     {
@@ -414,7 +477,7 @@
       "source_file": "backend\\services\\meetingService.ts",
       "source_location": "L60",
       "id": "services_meetingservice_getmeetingsbyuser",
-      "community": 2,
+      "community": 1,
       "norm_label": "getmeetingsbyuser()"
     },
     {
@@ -423,7 +486,7 @@
       "source_file": "backend\\services\\meetingService.ts",
       "source_location": "L66",
       "id": "services_meetingservice_getmeetingsbypost",
-      "community": 2,
+      "community": 1,
       "norm_label": "getmeetingsbypost()"
     },
     {
@@ -432,7 +495,7 @@
       "source_file": "backend\\services\\meetingService.ts",
       "source_location": "L70",
       "id": "services_meetingservice_resolveupdatefailure",
-      "community": 2,
+      "community": 1,
       "norm_label": "resolveupdatefailure()"
     },
     {
@@ -441,7 +504,7 @@
       "source_file": "backend\\services\\meetingService.ts",
       "source_location": "L82",
       "id": "services_meetingservice_acceptmeeting",
-      "community": 2,
+      "community": 1,
       "norm_label": "acceptmeeting()"
     },
     {
@@ -450,7 +513,7 @@
       "source_file": "backend\\services\\meetingService.ts",
       "source_location": "L102",
       "id": "services_meetingservice_declinemeeting",
-      "community": 2,
+      "community": 1,
       "norm_label": "declinemeeting()"
     },
     {
@@ -459,7 +522,7 @@
       "source_file": "backend\\services\\meetingService.ts",
       "source_location": "L122",
       "id": "services_meetingservice_cancelmeeting",
-      "community": 2,
+      "community": 1,
       "norm_label": "cancelmeeting()"
     },
     {
@@ -477,7 +540,7 @@
       "source_file": "backend\\services\\notificationService.ts",
       "source_location": "L3",
       "id": "services_notificationservice_pushnotification",
-      "community": 2,
+      "community": 1,
       "norm_label": "pushnotification()"
     },
     {
@@ -540,7 +603,7 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L1",
       "id": "backend_services_postservice_ts",
-      "community": 2,
+      "community": 1,
       "norm_label": "postservice.ts"
     },
     {
@@ -549,7 +612,7 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L6",
       "id": "services_postservice_makeerror",
-      "community": 2,
+      "community": 1,
       "norm_label": "makeerror()"
     },
     {
@@ -558,7 +621,7 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L25",
       "id": "services_postservice_createpost",
-      "community": 2,
+      "community": 1,
       "norm_label": "createpost()"
     },
     {
@@ -567,7 +630,7 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L44",
       "id": "services_postservice_getpostbyid",
-      "community": 2,
+      "community": 1,
       "norm_label": "getpostbyid()"
     },
     {
@@ -576,7 +639,7 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L50",
       "id": "services_postservice_listposts",
-      "community": 2,
+      "community": 1,
       "norm_label": "listposts()"
     },
     {
@@ -585,7 +648,7 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L95",
       "id": "services_postservice_updatepost",
-      "community": 2,
+      "community": 1,
       "norm_label": "updatepost()"
     },
     {
@@ -594,7 +657,7 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L107",
       "id": "services_postservice_publishpost",
-      "community": 2,
+      "community": 1,
       "norm_label": "publishpost()"
     },
     {
@@ -603,7 +666,7 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L117",
       "id": "services_postservice_markpartnerfound",
-      "community": 2,
+      "community": 1,
       "norm_label": "markpartnerfound()"
     },
     {
@@ -612,7 +675,7 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L145",
       "id": "services_postservice_expressinterest",
-      "community": 2,
+      "community": 1,
       "norm_label": "expressinterest()"
     },
     {
@@ -621,7 +684,7 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L168",
       "id": "services_postservice_deletepost",
-      "community": 2,
+      "community": 1,
       "norm_label": "deletepost()"
     },
     {
@@ -630,7 +693,7 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L177",
       "id": "services_postservice_incrementmeetingcount",
-      "community": 2,
+      "community": 1,
       "norm_label": "incrementmeetingcount()"
     },
     {
@@ -639,7 +702,7 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L182",
       "id": "services_postservice_recomputepoststatus",
-      "community": 2,
+      "community": 1,
       "norm_label": "recomputepoststatus()"
     },
     {
@@ -1467,7 +1530,7 @@
       "source_file": "frontend\\src\\pages\\auth\\RegisterPage.tsx",
       "source_location": "L1",
       "id": "frontend_src_pages_auth_registerpage_tsx",
-      "community": 4,
+      "community": 5,
       "norm_label": "registerpage.tsx"
     },
     {
@@ -1476,7 +1539,7 @@
       "source_file": "frontend\\src\\pages\\auth\\RegisterPage.tsx",
       "source_location": "L32",
       "id": "auth_registerpage_nextstep",
-      "community": 4,
+      "community": 5,
       "norm_label": "nextstep()"
     },
     {
@@ -1485,7 +1548,7 @@
       "source_file": "frontend\\src\\pages\\auth\\RegisterPage.tsx",
       "source_location": "L42",
       "id": "auth_registerpage_onsubmit",
-      "community": 4,
+      "community": 5,
       "norm_label": "onsubmit()"
     },
     {
@@ -1494,7 +1557,7 @@
       "source_file": "frontend\\src\\pages\\auth\\RegisterPage.tsx",
       "source_location": "L58",
       "id": "auth_registerpage_inputprops",
-      "community": 4,
+      "community": 5,
       "norm_label": "inputprops()"
     },
     {
@@ -1911,9 +1974,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_healthai_platform",
       "community": 3,
-      "norm_label": "health ai co-creation platform"
+      "norm_label": "health ai co-creation platform",
+      "id": "readme_healthai_platform"
     },
     {
       "label": "Frontend (React 18 / TypeScript / Vite 6)",
@@ -1924,9 +1987,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_frontend",
-      "community": 1,
-      "norm_label": "frontend (react 18 / typescript / vite 6)"
+      "community": 2,
+      "norm_label": "frontend (react 18 / typescript / vite 6)",
+      "id": "readme_frontend"
     },
     {
       "label": "Backend (Node.js / Express 4 / TypeScript / Mongoose 8)",
@@ -1937,9 +2000,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_backend",
       "community": 0,
-      "norm_label": "backend (node.js / express 4 / typescript / mongoose 8)"
+      "norm_label": "backend (node.js / express 4 / typescript / mongoose 8)",
+      "id": "readme_backend"
     },
     {
       "label": "MongoDB (Atlas / mongo:7)",
@@ -1950,9 +2013,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_mongodb",
       "community": 3,
-      "norm_label": "mongodb (atlas / mongo:7)"
+      "norm_label": "mongodb (atlas / mongo:7)",
+      "id": "readme_mongodb"
     },
     {
       "label": "JWT Authentication (Bearer token, 7-day expiry)",
@@ -1963,9 +2026,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_jwt_auth",
       "community": 3,
-      "norm_label": "jwt authentication (bearer token, 7-day expiry)"
+      "norm_label": "jwt authentication (bearer token, 7-day expiry)",
+      "id": "readme_jwt_auth"
     },
     {
       "label": "bcrypt (\u226510 rounds)",
@@ -1976,9 +2039,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_bcrypt",
       "community": 3,
-      "norm_label": "bcrypt (\u226510 rounds)"
+      "norm_label": "bcrypt (\u226510 rounds)",
+      "id": "readme_bcrypt"
     },
     {
       "label": "Helmet (HTTP security headers)",
@@ -1989,9 +2052,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_helmet",
       "community": 3,
-      "norm_label": "helmet (http security headers)"
+      "norm_label": "helmet (http security headers)",
+      "id": "readme_helmet"
     },
     {
       "label": "express-mongo-sanitize",
@@ -2002,9 +2065,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_express_mongo_sanitize",
       "community": 3,
-      "norm_label": "express-mongo-sanitize"
+      "norm_label": "express-mongo-sanitize",
+      "id": "readme_express_mongo_sanitize"
     },
     {
       "label": "express-rate-limit",
@@ -2015,9 +2078,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_rate_limit",
       "community": 3,
-      "norm_label": "express-rate-limit"
+      "norm_label": "express-rate-limit",
+      "id": "readme_rate_limit"
     },
     {
       "label": "Docker Compose (dev + prod)",
@@ -2028,9 +2091,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_docker_compose",
       "community": 3,
-      "norm_label": "docker compose (dev + prod)"
+      "norm_label": "docker compose (dev + prod)",
+      "id": "readme_docker_compose"
     },
     {
       "label": "Tailwind CSS 3",
@@ -2041,9 +2104,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_tailwind",
-      "community": 1,
-      "norm_label": "tailwind css 3"
+      "community": 2,
+      "norm_label": "tailwind css 3",
+      "id": "readme_tailwind"
     },
     {
       "label": "Zustand (state management)",
@@ -2054,9 +2117,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_zustand",
-      "community": 1,
-      "norm_label": "zustand (state management)"
+      "community": 2,
+      "norm_label": "zustand (state management)",
+      "id": "readme_zustand"
     },
     {
       "label": "React Router 6",
@@ -2067,9 +2130,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_react_router",
-      "community": 1,
-      "norm_label": "react router 6"
+      "community": 2,
+      "norm_label": "react router 6",
+      "id": "readme_react_router"
     },
     {
       "label": "React Hook Form + Zod",
@@ -2080,9 +2143,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_react_hook_form_zod",
-      "community": 1,
-      "norm_label": "react hook form + zod"
+      "community": 2,
+      "norm_label": "react hook form + zod",
+      "id": "readme_react_hook_form_zod"
     },
     {
       "label": "Plus Jakarta Sans (font)",
@@ -2093,9 +2156,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_plus_jakarta_sans",
-      "community": 1,
-      "norm_label": "plus jakarta sans (font)"
+      "community": 2,
+      "norm_label": "plus jakarta sans (font)",
+      "id": "readme_plus_jakarta_sans"
     },
     {
       "label": "Source Sans 3 (font)",
@@ -2106,9 +2169,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_source_sans_3",
-      "community": 1,
-      "norm_label": "source sans 3 (font)"
+      "community": 2,
+      "norm_label": "source sans 3 (font)",
+      "id": "readme_source_sans_3"
     },
     {
       "label": "Material Symbols Outlined (icons)",
@@ -2119,9 +2182,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_material_symbols",
-      "community": 1,
-      "norm_label": "material symbols outlined (icons)"
+      "community": 2,
+      "norm_label": "material symbols outlined (icons)",
+      "id": "readme_material_symbols"
     },
     {
       "label": "Lucide React (icons)",
@@ -2132,9 +2195,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_lucide_react",
-      "community": 1,
-      "norm_label": "lucide react (icons)"
+      "community": 2,
+      "norm_label": "lucide react (icons)",
+      "id": "readme_lucide_react"
     },
     {
       "label": "Auth API Routes (/api/auth/*)",
@@ -2145,9 +2208,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_api_auth",
       "community": 3,
-      "norm_label": "auth api routes (/api/auth/*)"
+      "norm_label": "auth api routes (/api/auth/*)",
+      "id": "readme_api_auth"
     },
     {
       "label": "Posts API Routes (/api/posts/*)",
@@ -2158,9 +2221,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_api_posts",
       "community": 3,
-      "norm_label": "posts api routes (/api/posts/*)"
+      "norm_label": "posts api routes (/api/posts/*)",
+      "id": "readme_api_posts"
     },
     {
       "label": "Meetings API Routes (/api/meetings/*)",
@@ -2171,9 +2234,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_api_meetings",
       "community": 3,
-      "norm_label": "meetings api routes (/api/meetings/*)"
+      "norm_label": "meetings api routes (/api/meetings/*)",
+      "id": "readme_api_meetings"
     },
     {
       "label": "Notifications API Routes (/api/notifications/*)",
@@ -2184,9 +2247,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_api_notifications",
       "community": 3,
-      "norm_label": "notifications api routes (/api/notifications/*)"
+      "norm_label": "notifications api routes (/api/notifications/*)",
+      "id": "readme_api_notifications"
     },
     {
       "label": "Logs API Routes (/api/logs) \u2014 admin only",
@@ -2197,9 +2260,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_api_logs",
       "community": 3,
-      "norm_label": "logs api routes (/api/logs) \u2014 admin only"
+      "norm_label": "logs api routes (/api/logs) \u2014 admin only",
+      "id": "readme_api_logs"
     },
     {
       "label": "User Model",
@@ -2210,9 +2273,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_model_user",
       "community": 0,
-      "norm_label": "user model"
+      "norm_label": "user model",
+      "id": "readme_model_user"
     },
     {
       "label": "Post Model",
@@ -2223,9 +2286,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_model_post",
       "community": 0,
-      "norm_label": "post model"
+      "norm_label": "post model",
+      "id": "readme_model_post"
     },
     {
       "label": "Meeting Model",
@@ -2236,9 +2299,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_model_meeting",
       "community": 0,
-      "norm_label": "meeting model"
+      "norm_label": "meeting model",
+      "id": "readme_model_meeting"
     },
     {
       "label": "Notification Model",
@@ -2249,9 +2312,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_model_notification",
       "community": 0,
-      "norm_label": "notification model"
+      "norm_label": "notification model",
+      "id": "readme_model_notification"
     },
     {
       "label": "Log Model",
@@ -2262,9 +2325,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_model_log",
       "community": 0,
-      "norm_label": "log model"
+      "norm_label": "log model",
+      "id": "readme_model_log"
     },
     {
       "label": "authController",
@@ -2275,9 +2338,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_auth_controller",
       "community": 0,
-      "norm_label": "authcontroller"
+      "norm_label": "authcontroller",
+      "id": "readme_auth_controller"
     },
     {
       "label": "postController",
@@ -2288,9 +2351,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_post_controller",
       "community": 0,
-      "norm_label": "postcontroller"
+      "norm_label": "postcontroller",
+      "id": "readme_post_controller"
     },
     {
       "label": "meetingController",
@@ -2301,9 +2364,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_meeting_controller",
       "community": 0,
-      "norm_label": "meetingcontroller"
+      "norm_label": "meetingcontroller",
+      "id": "readme_meeting_controller"
     },
     {
       "label": "authService",
@@ -2314,9 +2377,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_auth_service",
       "community": 0,
-      "norm_label": "authservice"
+      "norm_label": "authservice",
+      "id": "readme_auth_service"
     },
     {
       "label": "postService",
@@ -2327,9 +2390,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_post_service",
       "community": 0,
-      "norm_label": "postservice"
+      "norm_label": "postservice",
+      "id": "readme_post_service"
     },
     {
       "label": "meetingService",
@@ -2340,9 +2403,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_meeting_service",
       "community": 0,
-      "norm_label": "meetingservice"
+      "norm_label": "meetingservice",
+      "id": "readme_meeting_service"
     },
     {
       "label": "authMiddleware",
@@ -2353,9 +2416,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_auth_middleware",
       "community": 0,
-      "norm_label": "authmiddleware"
+      "norm_label": "authmiddleware",
+      "id": "readme_auth_middleware"
     },
     {
       "label": "errorHandler (middleware)",
@@ -2366,9 +2429,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_error_handler",
       "community": 0,
-      "norm_label": "errorhandler (middleware)"
+      "norm_label": "errorhandler (middleware)",
+      "id": "readme_error_handler"
     },
     {
       "label": "rateLimiter (middleware)",
@@ -2379,9 +2442,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_rate_limiter_mw",
       "community": 0,
-      "norm_label": "ratelimiter (middleware)"
+      "norm_label": "ratelimiter (middleware)",
+      "id": "readme_rate_limiter_mw"
     },
     {
       "label": "Zustand authStore slice",
@@ -2392,9 +2455,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_zustand_store_auth",
       "community": 0,
-      "norm_label": "zustand authstore slice"
+      "norm_label": "zustand authstore slice",
+      "id": "readme_zustand_store_auth"
     },
     {
       "label": "Zustand postStore slice",
@@ -2405,9 +2468,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_zustand_store_post",
       "community": 0,
-      "norm_label": "zustand poststore slice"
+      "norm_label": "zustand poststore slice",
+      "id": "readme_zustand_store_post"
     },
     {
       "label": "Zustand meetingStore slice",
@@ -2418,9 +2481,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_zustand_store_meeting",
       "community": 0,
-      "norm_label": "zustand meetingstore slice"
+      "norm_label": "zustand meetingstore slice",
+      "id": "readme_zustand_store_meeting"
     },
     {
       "label": "Zustand notificationStore slice",
@@ -2431,9 +2494,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_zustand_store_notification",
       "community": 0,
-      "norm_label": "zustand notificationstore slice"
+      "norm_label": "zustand notificationstore slice",
+      "id": "readme_zustand_store_notification"
     },
     {
       "label": "AppRouter (protected + role-guarded routes)",
@@ -2444,9 +2507,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_app_router",
-      "community": 1,
-      "norm_label": "approuter (protected + role-guarded routes)"
+      "community": 2,
+      "norm_label": "approuter (protected + role-guarded routes)",
+      "id": "readme_app_router"
     },
     {
       "label": "matchPosts utility (smart matching)",
@@ -2457,9 +2520,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_match_posts",
-      "community": 1,
-      "norm_label": "matchposts utility (smart matching)"
+      "community": 2,
+      "norm_label": "matchposts utility (smart matching)",
+      "id": "readme_match_posts"
     },
     {
       "label": "Post Lifecycle (draft\u2192active\u2192meeting_scheduled\u2192partner_found\u2192closed/expired)",
@@ -2470,9 +2533,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_post_lifecycle",
       "community": 3,
-      "norm_label": "post lifecycle (draft\u2192active\u2192meeting_scheduled\u2192partner_found\u2192closed/expired)"
+      "norm_label": "post lifecycle (draft\u2192active\u2192meeting_scheduled\u2192partner_found\u2192closed/expired)",
+      "id": "readme_post_lifecycle"
     },
     {
       "label": "GDPR Compliance (Art. 6/15/17/20/21)",
@@ -2483,9 +2546,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_gdpr",
-      "community": 1,
-      "norm_label": "gdpr compliance (art. 6/15/17/20/21)"
+      "community": 2,
+      "norm_label": "gdpr compliance (art. 6/15/17/20/21)",
+      "id": "readme_gdpr"
     },
     {
       "label": "Skeleton Loading Primitives",
@@ -2496,9 +2559,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_skeleton_ui",
       "community": 3,
-      "norm_label": "skeleton loading primitives"
+      "norm_label": "skeleton loading primitives",
+      "id": "readme_skeleton_ui"
     },
     {
       "label": "Admin Panel (user suspension, post moderation, activity log)",
@@ -2509,9 +2572,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_admin_panel",
       "community": 3,
-      "norm_label": "admin panel (user suspension, post moderation, activity log)"
+      "norm_label": "admin panel (user suspension, post moderation, activity log)",
+      "id": "readme_admin_panel"
     },
     {
       "label": "ExpressInterestModal (3-step: message\u2192NDA\u2192slots)",
@@ -2522,9 +2585,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_express_interest_modal",
       "community": 3,
-      "norm_label": "expressinterestmodal (3-step: message\u2192nda\u2192slots)"
+      "norm_label": "expressinterestmodal (3-step: message\u2192nda\u2192slots)",
+      "id": "readme_express_interest_modal"
     },
     {
       "label": ".planning/roadmap.md (10-phase frontend delivery plan)",
@@ -2535,9 +2598,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_planning_roadmap",
       "community": 3,
-      "norm_label": ".planning/roadmap.md (10-phase frontend delivery plan)"
+      "norm_label": ".planning/roadmap.md (10-phase frontend delivery plan)",
+      "id": "readme_planning_roadmap"
     },
     {
       "label": ".planning/SNAPSHOT.md (per-phase implementation log)",
@@ -2548,9 +2611,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_planning_snapshot",
       "community": 3,
-      "norm_label": ".planning/snapshot.md (per-phase implementation log)"
+      "norm_label": ".planning/snapshot.md (per-phase implementation log)",
+      "id": "readme_planning_snapshot"
     },
     {
       "label": "Backend Integration Roadmap (ROADMAP.md)",
@@ -2561,9 +2624,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_backend_integration",
       "community": 0,
-      "norm_label": "backend integration roadmap (roadmap.md)"
+      "norm_label": "backend integration roadmap (roadmap.md)",
+      "id": "roadmap_backend_integration"
     },
     {
       "label": "API Response Contract ({success, data} / {success, message})",
@@ -2574,9 +2637,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_response_contract",
       "community": 0,
-      "norm_label": "api response contract ({success, data} / {success, message})"
+      "norm_label": "api response contract ({success, data} / {success, message})",
+      "id": "roadmap_response_contract"
     },
     {
       "label": "ID Normalisation (_id \u2192 id alias)",
@@ -2587,9 +2650,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_id_normalisation",
       "community": 0,
-      "norm_label": "id normalisation (_id \u2192 id alias)"
+      "norm_label": "id normalisation (_id \u2192 id alias)",
+      "id": "roadmap_id_normalisation"
     },
     {
       "label": "CORS Configuration (localhost:5173 + 4173)",
@@ -2600,9 +2663,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_cors_config",
       "community": 0,
-      "norm_label": "cors configuration (localhost:5173 + 4173)"
+      "norm_label": "cors configuration (localhost:5173 + 4173)",
+      "id": "roadmap_cors_config"
     },
     {
       "label": "Auth Endpoint Contract (register/login/me/profile/users/suspend)",
@@ -2613,9 +2676,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_auth_endpoints",
       "community": 0,
-      "norm_label": "auth endpoint contract (register/login/me/profile/users/suspend)"
+      "norm_label": "auth endpoint contract (register/login/me/profile/users/suspend)",
+      "id": "roadmap_auth_endpoints"
     },
     {
       "label": "Posts Endpoint Contract (CRUD + publish + partner-found)",
@@ -2626,9 +2689,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_posts_endpoints",
       "community": 0,
-      "norm_label": "posts endpoint contract (crud + publish + partner-found)"
+      "norm_label": "posts endpoint contract (crud + publish + partner-found)",
+      "id": "roadmap_posts_endpoints"
     },
     {
       "label": "Meetings Endpoint Contract (list/request/accept/decline/cancel)",
@@ -2639,9 +2702,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_meetings_endpoints",
       "community": 0,
-      "norm_label": "meetings endpoint contract (list/request/accept/decline/cancel)"
+      "norm_label": "meetings endpoint contract (list/request/accept/decline/cancel)",
+      "id": "roadmap_meetings_endpoints"
     },
     {
       "label": "Notifications Endpoint Contract (list/create/read/mark-all-read)",
@@ -2652,9 +2715,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_notifications_endpoints",
       "community": 0,
-      "norm_label": "notifications endpoint contract (list/create/read/mark-all-read)"
+      "norm_label": "notifications endpoint contract (list/create/read/mark-all-read)",
+      "id": "roadmap_notifications_endpoints"
     },
     {
       "label": "Logs Endpoint Contract (admin only, audit trail)",
@@ -2665,9 +2728,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_logs_endpoints",
       "community": 0,
-      "norm_label": "logs endpoint contract (admin only, audit trail)"
+      "norm_label": "logs endpoint contract (admin only, audit trail)",
+      "id": "roadmap_logs_endpoints"
     },
     {
       "label": "asyncHandler Utility (try/catch wrapper)",
@@ -2678,9 +2741,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_async_handler",
       "community": 0,
-      "norm_label": "asynchandler utility (try/catch wrapper)"
+      "norm_label": "asynchandler utility (try/catch wrapper)",
+      "id": "roadmap_async_handler"
     },
     {
       "label": "Response Helper (ok() function)",
@@ -2691,9 +2754,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_response_helper",
       "community": 0,
-      "norm_label": "response helper (ok() function)"
+      "norm_label": "response helper (ok() function)",
+      "id": "roadmap_response_helper"
     },
     {
       "label": "Error Handler Rules (ValidationError\u2192400, CastError\u2192400, 11000\u2192409, JWT\u2192401)",
@@ -2704,9 +2767,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_error_handler_rules",
       "community": 0,
-      "norm_label": "error handler rules (validationerror\u2192400, casterror\u2192400, 11000\u2192409, jwt\u2192401)"
+      "norm_label": "error handler rules (validationerror\u2192400, casterror\u2192400, 11000\u2192409, jwt\u2192401)",
+      "id": "roadmap_error_handler_rules"
     },
     {
       "label": "Bug P0-1: incrementMeetingCount incorrect post status management",
@@ -2717,9 +2780,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_incrementmeetingcount",
       "community": 0,
-      "norm_label": "bug p0-1: incrementmeetingcount incorrect post status management"
+      "norm_label": "bug p0-1: incrementmeetingcount incorrect post status management",
+      "id": "roadmap_gap_incrementmeetingcount"
     },
     {
       "label": "Bug P0-2: Log action name case mismatch (UPPERCASE vs snake_case)",
@@ -2730,9 +2793,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_log_actions_mismatch",
       "community": 0,
-      "norm_label": "bug p0-2: log action name case mismatch (uppercase vs snake_case)"
+      "norm_label": "bug p0-2: log action name case mismatch (uppercase vs snake_case)",
+      "id": "roadmap_gap_log_actions_mismatch"
     },
     {
       "label": "Bug P0-3: Login/register failure log never written",
@@ -2743,9 +2806,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_login_failure_log",
       "community": 87,
-      "norm_label": "bug p0-3: login/register failure log never written"
+      "norm_label": "bug p0-3: login/register failure log never written",
+      "id": "roadmap_gap_login_failure_log"
     },
     {
       "label": "Bug P0-4: GET /posts exposes unpublished drafts to everyone",
@@ -2756,9 +2819,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_draft_exposure",
       "community": 0,
-      "norm_label": "bug p0-4: get /posts exposes unpublished drafts to everyone"
+      "norm_label": "bug p0-4: get /posts exposes unpublished drafts to everyone",
+      "id": "roadmap_gap_draft_exposure"
     },
     {
       "label": "Bug P0-5: Meeting list unauthorized access via postId query",
@@ -2769,9 +2832,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_meeting_access",
       "community": 0,
-      "norm_label": "bug p0-5: meeting list unauthorized access via postid query"
+      "norm_label": "bug p0-5: meeting list unauthorized access via postid query",
+      "id": "roadmap_gap_meeting_access"
     },
     {
       "label": "Gap P1-6: partner_found notification never triggered",
@@ -2782,9 +2845,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_partner_found_notif",
       "community": 0,
-      "norm_label": "gap p1-6: partner_found notification never triggered"
+      "norm_label": "gap p1-6: partner_found notification never triggered",
+      "id": "roadmap_gap_partner_found_notif"
     },
     {
       "label": "Gap P1-7: POST /posts/:id/interest endpoint missing",
@@ -2795,9 +2858,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_interest_endpoint",
       "community": 88,
-      "norm_label": "gap p1-7: post /posts/:id/interest endpoint missing"
+      "norm_label": "gap p1-7: post /posts/:id/interest endpoint missing",
+      "id": "roadmap_gap_interest_endpoint"
     },
     {
       "label": "Gap P1-8: Post expiry automation absent",
@@ -2808,9 +2871,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_expiry_automation",
       "community": 89,
-      "norm_label": "gap p1-8: post expiry automation absent"
+      "norm_label": "gap p1-8: post expiry automation absent",
+      "id": "roadmap_gap_expiry_automation"
     },
     {
       "label": "Gap P1-9: lastActive only updated on login",
@@ -2821,9 +2884,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_lastactive",
       "community": 90,
-      "norm_label": "gap p1-9: lastactive only updated on login"
+      "norm_label": "gap p1-9: lastactive only updated on login",
+      "id": "roadmap_gap_lastactive"
     },
     {
       "label": "Gap P1-10: Suspended user JWT remains valid",
@@ -2834,9 +2897,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_jwt_suspend",
       "community": 91,
-      "norm_label": "gap p1-10: suspended user jwt remains valid"
+      "norm_label": "gap p1-10: suspended user jwt remains valid",
+      "id": "roadmap_gap_jwt_suspend"
     },
     {
       "label": "Gap P1-11: Notification delete/archive endpoint missing",
@@ -2847,9 +2910,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_notification_delete",
       "community": 92,
-      "norm_label": "gap p1-11: notification delete/archive endpoint missing"
+      "norm_label": "gap p1-11: notification delete/archive endpoint missing",
+      "id": "roadmap_gap_notification_delete"
     },
     {
       "label": "Gap P1-12: /notifications/unread-count unused by frontend",
@@ -2860,9 +2923,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_unread_count",
       "community": 93,
-      "norm_label": "gap p1-12: /notifications/unread-count unused by frontend"
+      "norm_label": "gap p1-12: /notifications/unread-count unused by frontend",
+      "id": "roadmap_gap_unread_count"
     },
     {
       "label": "Gap P2-13: listPosts lacks server-side pagination",
@@ -2873,9 +2936,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_pagination",
       "community": 94,
-      "norm_label": "gap p2-13: listposts lacks server-side pagination"
+      "norm_label": "gap p2-13: listposts lacks server-side pagination",
+      "id": "roadmap_gap_pagination"
     },
     {
       "label": "Gap P2-16: Email verification flow is empty (isVerified field unused)",
@@ -2886,9 +2949,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_email_verify",
       "community": 95,
-      "norm_label": "gap p2-16: email verification flow is empty (isverified field unused)"
+      "norm_label": "gap p2-16: email verification flow is empty (isverified field unused)",
+      "id": "roadmap_gap_email_verify"
     },
     {
       "label": "Gap P2-18: avatarUrl field missing from User model",
@@ -2899,9 +2962,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_avatar",
       "community": 0,
-      "norm_label": "gap p2-18: avatarurl field missing from user model"
+      "norm_label": "gap p2-18: avatarurl field missing from user model",
+      "id": "roadmap_gap_avatar"
     },
     {
       "label": "Gap P2-19: Notifications not real-time (needs Socket.io / SSE / polling)",
@@ -2912,9 +2975,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_gap_realtime_notif",
       "community": 0,
-      "norm_label": "gap p2-19: notifications not real-time (needs socket.io / sse / polling)"
+      "norm_label": "gap p2-19: notifications not real-time (needs socket.io / sse / polling)",
+      "id": "roadmap_gap_realtime_notif"
     },
     {
       "label": "notificationService (internal trigger pattern)",
@@ -2925,9 +2988,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_notification_service",
       "community": 0,
-      "norm_label": "notificationservice (internal trigger pattern)"
+      "norm_label": "notificationservice (internal trigger pattern)",
+      "id": "roadmap_notification_service"
     },
     {
       "label": "logService (audit trail writer)",
@@ -2938,9 +3001,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_log_service",
       "community": 0,
-      "norm_label": "logservice (audit trail writer)"
+      "norm_label": "logservice (audit trail writer)",
+      "id": "roadmap_log_service"
     },
     {
       "label": "recomputePostStatus helper (proposed fix for P0-1)",
@@ -2951,9 +3014,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_recompute_post_status",
       "community": 96,
-      "norm_label": "recomputepoststatus helper (proposed fix for p0-1)"
+      "norm_label": "recomputepoststatus helper (proposed fix for p0-1)",
+      "id": "roadmap_recompute_post_status"
     },
     {
       "label": "backend/constants/logActions.ts (proposed unified action names)",
@@ -2964,48 +3027,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "roadmap_log_actions_constants",
       "community": 97,
-      "norm_label": "backend/constants/logactions.ts (proposed unified action names)"
-    },
-    {
-      "label": "Frontend Entry Point (index.html)",
-      "file_type": "code",
-      "source_file": "frontend/index.html",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "id": "index_html_entrypoint",
-      "community": 1,
-      "norm_label": "frontend entry point (index.html)"
-    },
-    {
-      "label": "frontend/src/main.tsx (React app root)",
-      "file_type": "code",
-      "source_file": "frontend/index.html",
-      "source_location": "line 25",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "id": "index_html_main_tsx",
-      "community": 1,
-      "norm_label": "frontend/src/main.tsx (react app root)"
-    },
-    {
-      "label": "Google Fonts CDN (Plus Jakarta Sans + Source Sans 3 + Material Symbols)",
-      "file_type": "code",
-      "source_file": "frontend/index.html",
-      "source_location": "lines 13-20",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "id": "index_html_google_fonts",
-      "community": 1,
-      "norm_label": "google fonts cdn (plus jakarta sans + source sans 3 + material symbols)"
+      "norm_label": "backend/constants/logactions.ts (proposed unified action names)",
+      "id": "roadmap_log_actions_constants"
     },
     {
       "label": "Frontend README",
@@ -3016,9 +3040,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frontend_readme",
-      "community": 1,
-      "norm_label": "frontend readme"
+      "community": 2,
+      "norm_label": "frontend readme",
+      "id": "frontend_readme"
     },
     {
       "label": "matchPosts (match reasoning + ranking utility)",
@@ -3029,9 +3053,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frontend_readme_matchposts",
-      "community": 1,
-      "norm_label": "matchposts (match reasoning + ranking utility)"
+      "community": 2,
+      "norm_label": "matchposts (match reasoning + ranking utility)",
+      "id": "frontend_readme_matchposts"
     },
     {
       "label": "Mock Data (mockUsers \u00b7 mockPosts \u00b7 mockMeetings \u00b7 mockLogs)",
@@ -3042,9 +3066,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frontend_readme_mock_data",
       "community": 98,
-      "norm_label": "mock data (mockusers \u00b7 mockposts \u00b7 mockmeetings \u00b7 mocklogs)"
+      "norm_label": "mock data (mockusers \u00b7 mockposts \u00b7 mockmeetings \u00b7 mocklogs)",
+      "id": "frontend_readme_mock_data"
     },
     {
       "label": "LandingPage.tsx (public marketing page)",
@@ -3055,9 +3079,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frontend_readme_landing_page",
       "community": 99,
-      "norm_label": "landingpage.tsx (public marketing page)"
+      "norm_label": "landingpage.tsx (public marketing page)",
+      "id": "frontend_readme_landing_page"
     },
     {
       "label": "SessionTimeoutModal (30-min countdown)",
@@ -3068,9 +3092,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frontend_readme_session_timeout_modal",
-      "community": 1,
-      "norm_label": "sessiontimeoutmodal (30-min countdown)"
+      "community": 2,
+      "norm_label": "sessiontimeoutmodal (30-min countdown)",
+      "id": "frontend_readme_session_timeout_modal"
     },
     {
       "label": "CookieConsentBanner",
@@ -3081,9 +3105,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_cookie_consent",
-      "community": 1,
-      "norm_label": "cookieconsentbanner"
+      "community": 2,
+      "norm_label": "cookieconsentbanner",
+      "id": "readme_cookie_consent"
     },
     {
       "label": "PrivacyPage (/privacy)",
@@ -3094,9 +3118,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frontend_readme_privacy_page",
-      "community": 1,
-      "norm_label": "privacypage (/privacy)"
+      "community": 2,
+      "norm_label": "privacypage (/privacy)",
+      "id": "frontend_readme_privacy_page"
     },
     {
       "label": ".planning/roadmap.md (10-phase delivery plan Faz 0-9)",
@@ -3107,9 +3131,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frontend_readme_planning_roadmap",
       "community": 100,
-      "norm_label": ".planning/roadmap.md (10-phase delivery plan faz 0-9)"
+      "norm_label": ".planning/roadmap.md (10-phase delivery plan faz 0-9)",
+      "id": "frontend_readme_planning_roadmap"
     },
     {
       "label": ".planning/SNAPSHOT.md (per-phase implementation log, latest Faz 9)",
@@ -3120,9 +3144,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frontend_readme_planning_snapshot",
       "community": 101,
-      "norm_label": ".planning/snapshot.md (per-phase implementation log, latest faz 9)"
+      "norm_label": ".planning/snapshot.md (per-phase implementation log, latest faz 9)",
+      "id": "frontend_readme_planning_snapshot"
     },
     {
       "label": "WCAG AA Color Compliance",
@@ -3133,9 +3157,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frontend_readme_wcag",
-      "community": 1,
-      "norm_label": "wcag aa color compliance"
+      "community": 2,
+      "norm_label": "wcag aa color compliance",
+      "id": "frontend_readme_wcag"
     },
     {
       "label": "Reduced Motion Support (prefers-reduced-motion)",
@@ -3146,9 +3170,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frontend_readme_reduced_motion",
-      "community": 1,
-      "norm_label": "reduced motion support (prefers-reduced-motion)"
+      "community": 2,
+      "norm_label": "reduced motion support (prefers-reduced-motion)",
+      "id": "frontend_readme_reduced_motion"
     },
     {
       "label": "Role Guards (AppRouter.tsx)",
@@ -3159,9 +3183,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frontend_readme_role_guards",
-      "community": 1,
-      "norm_label": "role guards (approuter.tsx)"
+      "community": 2,
+      "norm_label": "role guards (approuter.tsx)",
+      "id": "frontend_readme_role_guards"
     },
     {
       "label": "Zustand + localStorage Persistence",
@@ -3172,9 +3196,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "frontend_readme_zustand_localstorage",
-      "community": 1,
-      "norm_label": "zustand + localstorage persistence"
+      "community": 2,
+      "norm_label": "zustand + localstorage persistence",
+      "id": "frontend_readme_zustand_localstorage"
     },
     {
       "label": "Clinician (Doctor)",
@@ -3185,9 +3209,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "clinicianportrait_clinician",
       "community": 17,
-      "norm_label": "clinician (doctor)"
+      "norm_label": "clinician (doctor)",
+      "id": "clinicianportrait_clinician"
     },
     {
       "label": "White Lab Coat",
@@ -3198,9 +3222,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "clinicianportrait_whitecoat",
       "community": 17,
-      "norm_label": "white lab coat"
+      "norm_label": "white lab coat",
+      "id": "clinicianportrait_whitecoat"
     },
     {
       "label": "Stethoscope",
@@ -3211,9 +3235,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "clinicianportrait_stethoscope",
       "community": 17,
-      "norm_label": "stethoscope"
+      "norm_label": "stethoscope",
+      "id": "clinicianportrait_stethoscope"
     },
     {
       "label": "HealthAI Co-Creation Platform",
@@ -3224,9 +3248,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "clinicianportrait_healthai_platform",
       "community": 17,
-      "norm_label": "healthai co-creation platform"
+      "norm_label": "healthai co-creation platform",
+      "id": "clinicianportrait_healthai_platform"
     },
     {
       "label": "Clinician Portrait Image",
@@ -3237,9 +3261,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "clinicianportrait_portrait_image",
       "community": 17,
-      "norm_label": "clinician portrait image"
+      "norm_label": "clinician portrait image",
+      "id": "clinicianportrait_portrait_image"
     },
     {
       "label": "Engineer Portrait Subject",
@@ -3250,9 +3274,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "engineerportrait_person",
       "community": 8,
-      "norm_label": "engineer portrait subject"
+      "norm_label": "engineer portrait subject",
+      "id": "engineerportrait_person"
     },
     {
       "label": "Professional Male",
@@ -3263,9 +3287,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "engineerportrait_professional_male",
       "community": 8,
-      "norm_label": "professional male"
+      "norm_label": "professional male",
+      "id": "engineerportrait_professional_male"
     },
     {
       "label": "Eyeglasses",
@@ -3276,9 +3300,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "engineerportrait_glasses",
       "community": 8,
-      "norm_label": "eyeglasses"
+      "norm_label": "eyeglasses",
+      "id": "engineerportrait_glasses"
     },
     {
       "label": "Casual Dark Sweater",
@@ -3289,9 +3313,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "engineerportrait_casual_attire",
       "community": 8,
-      "norm_label": "casual dark sweater"
+      "norm_label": "casual dark sweater",
+      "id": "engineerportrait_casual_attire"
     },
     {
       "label": "Wristwatch",
@@ -3302,9 +3326,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "engineerportrait_watch",
       "community": 8,
-      "norm_label": "wristwatch"
+      "norm_label": "wristwatch",
+      "id": "engineerportrait_watch"
     },
     {
       "label": "Professional Headshot Photo",
@@ -3315,9 +3339,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "engineerportrait_headshot",
       "community": 8,
-      "norm_label": "professional headshot photo"
+      "norm_label": "professional headshot photo",
+      "id": "engineerportrait_headshot"
     },
     {
       "label": "Neutral Green-Beige Gradient Background",
@@ -3328,9 +3352,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "engineerportrait_neutral_background",
       "community": 8,
-      "norm_label": "neutral green-beige gradient background"
+      "norm_label": "neutral green-beige gradient background",
+      "id": "engineerportrait_neutral_background"
     },
     {
       "label": "Engineer Role",
@@ -3341,9 +3365,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "engineerportrait_engineer_role",
       "community": 8,
-      "norm_label": "engineer role"
+      "norm_label": "engineer role",
+      "id": "engineerportrait_engineer_role"
     },
     {
       "label": "HealthAI Co-Creation Platform",
@@ -3354,9 +3378,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "engineerportrait_healthai_platform",
       "community": 8,
-      "norm_label": "healthai co-creation platform"
+      "norm_label": "healthai co-creation platform",
+      "id": "engineerportrait_healthai_platform"
     }
   ],
   "links": [
@@ -3433,6 +3457,42 @@
       "target": "services_logservice_createlog"
     },
     {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_src": "scripts_smoke_test_ok",
+      "_tgt": "controllers_postcontroller_log",
+      "source": "controllers_postcontroller_log",
+      "target": "scripts_smoke_test_ok"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_src": "scripts_smoke_test_fail",
+      "_tgt": "controllers_postcontroller_log",
+      "source": "controllers_postcontroller_log",
+      "target": "scripts_smoke_test_fail"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L52",
+      "weight": 1.0,
+      "_src": "scripts_smoke_test_run",
+      "_tgt": "controllers_postcontroller_log",
+      "source": "controllers_postcontroller_log",
+      "target": "scripts_smoke_test_run"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend\\middleware\\authMiddleware.ts",
@@ -3478,6 +3538,126 @@
       "_tgt": "middleware_errorhandler_notfound",
       "source": "backend_middleware_errorhandler_ts",
       "target": "middleware_errorhandler_notfound",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_src": "backend_scripts_smoke_test_ts",
+      "_tgt": "scripts_smoke_test_step",
+      "source": "backend_scripts_smoke_test_ts",
+      "target": "scripts_smoke_test_step",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_src": "backend_scripts_smoke_test_ts",
+      "_tgt": "scripts_smoke_test_ok",
+      "source": "backend_scripts_smoke_test_ts",
+      "target": "scripts_smoke_test_ok",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_src": "backend_scripts_smoke_test_ts",
+      "_tgt": "scripts_smoke_test_fail",
+      "source": "backend_scripts_smoke_test_ts",
+      "target": "scripts_smoke_test_fail",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_src": "backend_scripts_smoke_test_ts",
+      "_tgt": "scripts_smoke_test_req",
+      "source": "backend_scripts_smoke_test_ts",
+      "target": "scripts_smoke_test_req",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_src": "backend_scripts_smoke_test_ts",
+      "_tgt": "scripts_smoke_test_unique",
+      "source": "backend_scripts_smoke_test_ts",
+      "target": "scripts_smoke_test_unique",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L51",
+      "weight": 1.0,
+      "_src": "backend_scripts_smoke_test_ts",
+      "_tgt": "scripts_smoke_test_run",
+      "source": "backend_scripts_smoke_test_ts",
+      "target": "scripts_smoke_test_run",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L55",
+      "weight": 1.0,
+      "_src": "scripts_smoke_test_run",
+      "_tgt": "scripts_smoke_test_step",
+      "source": "scripts_smoke_test_step",
+      "target": "scripts_smoke_test_run",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L58",
+      "weight": 1.0,
+      "_src": "scripts_smoke_test_run",
+      "_tgt": "scripts_smoke_test_ok",
+      "source": "scripts_smoke_test_ok",
+      "target": "scripts_smoke_test_run",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L59",
+      "weight": 1.0,
+      "_src": "scripts_smoke_test_run",
+      "_tgt": "scripts_smoke_test_fail",
+      "source": "scripts_smoke_test_fail",
+      "target": "scripts_smoke_test_run",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "backend\\scripts\\smoke-test.ts",
+      "source_location": "L67",
+      "weight": 1.0,
+      "_src": "scripts_smoke_test_run",
+      "_tgt": "scripts_smoke_test_unique",
+      "source": "scripts_smoke_test_unique",
+      "target": "scripts_smoke_test_run",
       "confidence_score": 1.0
     },
     {
@@ -3679,8 +3859,8 @@
       "source_file": "frontend\\src\\pages\\auth\\RegisterPage.tsx",
       "source_location": "L43",
       "weight": 1.0,
-      "_src": "auth_registerpage_onsubmit",
-      "_tgt": "services_authservice_registeruser",
+      "_src": "services_authservice_registeruser",
+      "_tgt": "auth_registerpage_onsubmit",
       "source": "services_authservice_registeruser",
       "target": "auth_registerpage_onsubmit"
     },
@@ -4075,8 +4255,8 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L133",
       "weight": 1.0,
-      "_src": "services_postservice_markpartnerfound",
-      "_tgt": "services_notificationservice_pushnotification",
+      "_src": "services_notificationservice_pushnotification",
+      "_tgt": "services_postservice_markpartnerfound",
       "source": "services_notificationservice_pushnotification",
       "target": "services_postservice_markpartnerfound"
     },
@@ -4087,8 +4267,8 @@
       "source_file": "backend\\services\\postService.ts",
       "source_location": "L157",
       "weight": 1.0,
-      "_src": "services_postservice_expressinterest",
-      "_tgt": "services_notificationservice_pushnotification",
+      "_src": "services_notificationservice_pushnotification",
+      "_tgt": "services_postservice_expressinterest",
       "source": "services_notificationservice_pushnotification",
       "target": "services_postservice_expressinterest"
     },
@@ -4099,8 +4279,8 @@
       "source_file": "frontend\\src\\pages\\notifications\\NotificationsPage.tsx",
       "source_location": "L29",
       "weight": 1.0,
-      "_src": "notifications_notificationspage_handleclick",
-      "_tgt": "services_notificationservice_markread",
+      "_src": "services_notificationservice_markread",
+      "_tgt": "notifications_notificationspage_handleclick",
       "source": "services_notificationservice_markread",
       "target": "notifications_notificationspage_handleclick"
     },
@@ -4783,8 +4963,8 @@
       "source_file": "frontend\\src\\pages\\posts\\PostCreatePage.tsx",
       "source_location": "L30",
       "weight": 1.0,
-      "_src": "posts_postcreatepage_onsubmit",
-      "_tgt": "constants_routes_postdetail",
+      "_src": "constants_routes_postdetail",
+      "_tgt": "posts_postcreatepage_onsubmit",
       "source": "constants_routes_postdetail",
       "target": "posts_postcreatepage_onsubmit"
     },
@@ -4795,8 +4975,8 @@
       "source_file": "frontend\\src\\pages\\posts\\PostEditPage.tsx",
       "source_location": "L63",
       "weight": 1.0,
-      "_src": "posts_posteditpage_onsubmit",
-      "_tgt": "constants_routes_postdetail",
+      "_src": "constants_routes_postdetail",
+      "_tgt": "posts_posteditpage_onsubmit",
       "source": "constants_routes_postdetail",
       "target": "posts_posteditpage_onsubmit"
     },
@@ -5791,8 +5971,8 @@
       "source_file": "backend/ROADMAP.md",
       "source_location": "Section 0",
       "weight": 1.0,
-      "_src": "roadmap_backend_integration",
-      "_tgt": "readme_frontend",
+      "_src": "readme_frontend",
+      "_tgt": "roadmap_backend_integration",
       "source": "readme_frontend",
       "target": "roadmap_backend_integration"
     },
@@ -5803,22 +5983,10 @@
       "source_file": "frontend/README.md",
       "source_location": "Stack description",
       "weight": 1.0,
-      "_src": "frontend_readme",
-      "_tgt": "readme_frontend",
+      "_src": "readme_frontend",
+      "_tgt": "frontend_readme",
       "source": "readme_frontend",
       "target": "frontend_readme"
-    },
-    {
-      "relation": "implements",
-      "confidence": "INFERRED",
-      "confidence_score": 0.9,
-      "source_file": "frontend/index.html",
-      "source_location": "HTML shell for React 18 SPA",
-      "weight": 0.9,
-      "_src": "index_html_entrypoint",
-      "_tgt": "readme_frontend",
-      "source": "readme_frontend",
-      "target": "index_html_entrypoint"
     },
     {
       "relation": "references",
@@ -5995,8 +6163,8 @@
       "source_file": "backend/ROADMAP.md",
       "source_location": "Section 0",
       "weight": 1.0,
-      "_src": "roadmap_backend_integration",
-      "_tgt": "readme_backend",
+      "_src": "readme_backend",
+      "_tgt": "roadmap_backend_integration",
       "source": "readme_backend",
       "target": "roadmap_backend_integration"
     },
@@ -6007,8 +6175,8 @@
       "source_file": "frontend/README.md",
       "source_location": "30-min session timeout",
       "weight": 0.7,
-      "_src": "frontend_readme_session_timeout_modal",
-      "_tgt": "readme_jwt_auth",
+      "_src": "readme_jwt_auth",
+      "_tgt": "frontend_readme_session_timeout_modal",
       "source": "readme_jwt_auth",
       "target": "frontend_readme_session_timeout_modal"
     },
@@ -6019,46 +6187,10 @@
       "source_file": "frontend/README.md",
       "source_location": "Architectural notes",
       "weight": 0.9,
-      "_src": "frontend_readme_zustand_localstorage",
-      "_tgt": "readme_zustand",
+      "_src": "readme_zustand",
+      "_tgt": "frontend_readme_zustand_localstorage",
       "source": "readme_zustand",
       "target": "frontend_readme_zustand_localstorage"
-    },
-    {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/index.html",
-      "source_location": "lines 15-17",
-      "weight": 1.0,
-      "_src": "index_html_google_fonts",
-      "_tgt": "readme_plus_jakarta_sans",
-      "source": "readme_plus_jakarta_sans",
-      "target": "index_html_google_fonts"
-    },
-    {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/index.html",
-      "source_location": "lines 15-17",
-      "weight": 1.0,
-      "_src": "index_html_google_fonts",
-      "_tgt": "readme_source_sans_3",
-      "source": "readme_source_sans_3",
-      "target": "index_html_google_fonts"
-    },
-    {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/index.html",
-      "source_location": "lines 18-20",
-      "weight": 1.0,
-      "_src": "index_html_google_fonts",
-      "_tgt": "readme_material_symbols",
-      "source": "readme_material_symbols",
-      "target": "index_html_google_fonts"
     },
     {
       "relation": "shares_data_with",
@@ -6067,8 +6199,8 @@
       "source_file": "backend/ROADMAP.md",
       "source_location": "Section 2.1",
       "weight": 1.0,
-      "_src": "roadmap_auth_endpoints",
-      "_tgt": "readme_model_user",
+      "_src": "readme_model_user",
+      "_tgt": "roadmap_auth_endpoints",
       "source": "readme_model_user",
       "target": "roadmap_auth_endpoints"
     },
@@ -6079,8 +6211,8 @@
       "source_file": "backend/ROADMAP.md",
       "source_location": "Gap P2 #18",
       "weight": 0.9,
-      "_src": "roadmap_gap_avatar",
-      "_tgt": "readme_model_user",
+      "_src": "readme_model_user",
+      "_tgt": "roadmap_gap_avatar",
       "source": "readme_model_user",
       "target": "roadmap_gap_avatar"
     },
@@ -6091,8 +6223,8 @@
       "source_file": "backend/ROADMAP.md",
       "source_location": "Section 3.1",
       "weight": 1.0,
-      "_src": "roadmap_posts_endpoints",
-      "_tgt": "readme_model_post",
+      "_src": "readme_model_post",
+      "_tgt": "roadmap_posts_endpoints",
       "source": "readme_model_post",
       "target": "roadmap_posts_endpoints"
     },
@@ -6103,8 +6235,8 @@
       "source_file": "backend/ROADMAP.md",
       "source_location": "Section 4.1",
       "weight": 1.0,
-      "_src": "roadmap_meetings_endpoints",
-      "_tgt": "readme_model_meeting",
+      "_src": "readme_model_meeting",
+      "_tgt": "roadmap_meetings_endpoints",
       "source": "readme_model_meeting",
       "target": "roadmap_meetings_endpoints"
     },
@@ -6115,8 +6247,8 @@
       "source_file": "backend/ROADMAP.md",
       "source_location": "Section 5.1",
       "weight": 1.0,
-      "_src": "roadmap_notifications_endpoints",
-      "_tgt": "readme_model_notification",
+      "_src": "readme_model_notification",
+      "_tgt": "roadmap_notifications_endpoints",
       "source": "readme_model_notification",
       "target": "roadmap_notifications_endpoints"
     },
@@ -6127,8 +6259,8 @@
       "source_file": "backend/ROADMAP.md",
       "source_location": "Section 2",
       "weight": 1.0,
-      "_src": "roadmap_auth_endpoints",
-      "_tgt": "readme_zustand_store_auth",
+      "_src": "readme_zustand_store_auth",
+      "_tgt": "roadmap_auth_endpoints",
       "source": "readme_zustand_store_auth",
       "target": "roadmap_auth_endpoints"
     },
@@ -6139,8 +6271,8 @@
       "source_file": "backend/ROADMAP.md",
       "source_location": "Section 3",
       "weight": 1.0,
-      "_src": "roadmap_posts_endpoints",
-      "_tgt": "readme_zustand_store_post",
+      "_src": "readme_zustand_store_post",
+      "_tgt": "roadmap_posts_endpoints",
       "source": "readme_zustand_store_post",
       "target": "roadmap_posts_endpoints"
     },
@@ -6151,8 +6283,8 @@
       "source_file": "backend/ROADMAP.md",
       "source_location": "Section 4",
       "weight": 1.0,
-      "_src": "roadmap_meetings_endpoints",
-      "_tgt": "readme_zustand_store_meeting",
+      "_src": "readme_zustand_store_meeting",
+      "_tgt": "roadmap_meetings_endpoints",
       "source": "readme_zustand_store_meeting",
       "target": "roadmap_meetings_endpoints"
     },
@@ -6163,8 +6295,8 @@
       "source_file": "backend/ROADMAP.md",
       "source_location": "Section 5",
       "weight": 1.0,
-      "_src": "roadmap_notifications_endpoints",
-      "_tgt": "readme_zustand_store_notification",
+      "_src": "readme_zustand_store_notification",
+      "_tgt": "roadmap_notifications_endpoints",
       "source": "readme_zustand_store_notification",
       "target": "roadmap_notifications_endpoints"
     },
@@ -6175,8 +6307,8 @@
       "source_file": "backend/ROADMAP.md",
       "source_location": "Gap P2 #19",
       "weight": 0.8,
-      "_src": "roadmap_gap_realtime_notif",
-      "_tgt": "readme_zustand_store_notification",
+      "_src": "readme_zustand_store_notification",
+      "_tgt": "roadmap_gap_realtime_notif",
       "source": "readme_zustand_store_notification",
       "target": "roadmap_gap_realtime_notif"
     },
@@ -6187,8 +6319,8 @@
       "source_file": "frontend/README.md",
       "source_location": "Architectural notes",
       "weight": 0.9,
-      "_src": "frontend_readme_role_guards",
-      "_tgt": "readme_app_router",
+      "_src": "readme_app_router",
+      "_tgt": "frontend_readme_role_guards",
       "source": "readme_app_router",
       "target": "frontend_readme_role_guards"
     },
@@ -6199,8 +6331,8 @@
       "source_file": "frontend/README.md",
       "source_location": "utils/matchPosts.ts",
       "weight": 0.9,
-      "_src": "frontend_readme_matchposts",
-      "_tgt": "readme_match_posts",
+      "_src": "readme_match_posts",
+      "_tgt": "frontend_readme_matchposts",
       "source": "readme_match_posts",
       "target": "frontend_readme_matchposts"
     },
@@ -6211,8 +6343,8 @@
       "source_file": "frontend/README.md",
       "source_location": "GDPR cookie consent",
       "weight": 0.8,
-      "_src": "readme_cookie_consent",
-      "_tgt": "readme_gdpr",
+      "_src": "readme_gdpr",
+      "_tgt": "readme_cookie_consent",
       "source": "readme_gdpr",
       "target": "readme_cookie_consent"
     },
@@ -6223,8 +6355,8 @@
       "source_file": "frontend/README.md",
       "source_location": "GDPR privacy page",
       "weight": 0.8,
-      "_src": "frontend_readme_privacy_page",
-      "_tgt": "readme_gdpr",
+      "_src": "readme_gdpr",
+      "_tgt": "frontend_readme_privacy_page",
       "source": "readme_gdpr",
       "target": "frontend_readme_privacy_page"
     },
@@ -6481,30 +6613,6 @@
       "target": "roadmap_log_service"
     },
     {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/index.html",
-      "source_location": "line 25",
-      "weight": 1.0,
-      "_src": "index_html_entrypoint",
-      "_tgt": "index_html_main_tsx",
-      "source": "index_html_entrypoint",
-      "target": "index_html_main_tsx"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/index.html",
-      "source_location": "lines 13-20",
-      "weight": 1.0,
-      "_src": "index_html_entrypoint",
-      "_tgt": "index_html_google_fonts",
-      "source": "index_html_entrypoint",
-      "target": "index_html_google_fonts"
-    },
-    {
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -6607,8 +6715,8 @@
       "source_file": "frontend/public/images/clinician-portrait.png",
       "source_location": null,
       "weight": 1.0,
-      "_src": "clinicianportrait_whitecoat",
-      "_tgt": "clinicianportrait_clinician",
+      "_src": "clinicianportrait_clinician",
+      "_tgt": "clinicianportrait_whitecoat",
       "source": "clinicianportrait_clinician",
       "target": "clinicianportrait_whitecoat"
     },
@@ -6619,8 +6727,8 @@
       "source_file": "frontend/public/images/clinician-portrait.png",
       "source_location": null,
       "weight": 1.0,
-      "_src": "clinicianportrait_stethoscope",
-      "_tgt": "clinicianportrait_clinician",
+      "_src": "clinicianportrait_clinician",
+      "_tgt": "clinicianportrait_stethoscope",
       "source": "clinicianportrait_clinician",
       "target": "clinicianportrait_stethoscope"
     },
@@ -6643,8 +6751,8 @@
       "source_file": "frontend/public/images/clinician-portrait.png",
       "source_location": null,
       "weight": 1.0,
-      "_src": "clinicianportrait_portrait_image",
-      "_tgt": "clinicianportrait_clinician",
+      "_src": "clinicianportrait_clinician",
+      "_tgt": "clinicianportrait_portrait_image",
       "source": "clinicianportrait_clinician",
       "target": "clinicianportrait_portrait_image"
     },
@@ -6655,8 +6763,8 @@
       "source_file": "frontend/public/images/clinician-portrait.png",
       "source_location": null,
       "weight": 1.0,
-      "_src": "clinicianportrait_portrait_image",
-      "_tgt": "clinicianportrait_healthai_platform",
+      "_src": "clinicianportrait_healthai_platform",
+      "_tgt": "clinicianportrait_portrait_image",
       "source": "clinicianportrait_healthai_platform",
       "target": "clinicianportrait_portrait_image"
     },

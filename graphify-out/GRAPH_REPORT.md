@@ -1,31 +1,31 @@
-# Graph Report - .  (2026-04-28)
+# Graph Report - healthai-co-creation-platform  (2026-04-28)
 
 ## Corpus Check
-- 97 files · ~150,968 words
+- 92 files · ~153,310 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 323 nodes · 285 edges · 31 communities detected
-- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 37 edges (avg confidence: 0.83)
+- 327 nodes · 292 edges · 31 communities detected
+- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 39 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Backend Auth & API Layer|Backend Auth & API Layer]]
-- [[_COMMUNITY_Frontend Architecture & Docs|Frontend Architecture & Docs]]
-- [[_COMMUNITY_Meeting & Post Services|Meeting & Post Services]]
-- [[_COMMUNITY_API Routes & Platform Features|API Routes & Platform Features]]
-- [[_COMMUNITY_Auth UI & Registration|Auth UI & Registration]]
-- [[_COMMUNITY_Backend Controllers & Config|Backend Controllers & Config]]
-- [[_COMMUNITY_Meeting Interest Flow|Meeting Interest Flow]]
-- [[_COMMUNITY_Notification System|Notification System]]
-- [[_COMMUNITY_Engineer Persona Assets|Engineer Persona Assets]]
-- [[_COMMUNITY_Meeting UI Components|Meeting UI Components]]
-- [[_COMMUNITY_Post Routes & Pages|Post Routes & Pages]]
-- [[_COMMUNITY_AI Match Integration|AI Match Integration]]
-- [[_COMMUNITY_Login UI|Login UI]]
-- [[_COMMUNITY_Post Matching Logic|Post Matching Logic]]
-- [[_COMMUNITY_Clinician Persona Assets|Clinician Persona Assets]]
-- [[_COMMUNITY_Test Utilities|Test Utilities]]
+- [[_COMMUNITY_Community 0|Community 0]]
+- [[_COMMUNITY_Community 1|Community 1]]
+- [[_COMMUNITY_Community 2|Community 2]]
+- [[_COMMUNITY_Community 3|Community 3]]
+- [[_COMMUNITY_Community 4|Community 4]]
+- [[_COMMUNITY_Community 5|Community 5]]
+- [[_COMMUNITY_Community 6|Community 6]]
+- [[_COMMUNITY_Community 7|Community 7]]
+- [[_COMMUNITY_Community 8|Community 8]]
+- [[_COMMUNITY_Community 9|Community 9]]
+- [[_COMMUNITY_Community 10|Community 10]]
+- [[_COMMUNITY_Community 11|Community 11]]
+- [[_COMMUNITY_Community 15|Community 15]]
+- [[_COMMUNITY_Community 16|Community 16]]
+- [[_COMMUNITY_Community 17|Community 17]]
+- [[_COMMUNITY_Community 18|Community 18]]
 - [[_COMMUNITY_Community 87|Community 87]]
 - [[_COMMUNITY_Community 88|Community 88]]
 - [[_COMMUNITY_Community 89|Community 89]]
@@ -45,22 +45,22 @@
 ## God Nodes (most connected - your core abstractions)
 1. `HEALTH AI Co-Creation Platform` - 22 edges
 2. `Backend Integration Roadmap (ROADMAP.md)` - 20 edges
-3. `Frontend (React 18 / TypeScript / Vite 6)` - 18 edges
+3. `Frontend (React 18 / TypeScript / Vite 6)` - 17 edges
 4. `Backend (Node.js / Express 4 / TypeScript / Mongoose 8)` - 16 edges
 5. `Frontend README` - 9 edges
 6. `pushNotification()` - 7 edges
 7. `makeError()` - 7 edges
 8. `Engineer Portrait Subject` - 7 edges
-9. `sanitize()` - 6 edges
-10. `resolveUpdateFailure()` - 5 edges
+9. `log()` - 6 edges
+10. `run()` - 6 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `matchPosts (match reasoning + ranking utility)` --semantically_similar_to--> `matchPosts utility (smart matching)`  [INFERRED] [semantically similar]
-  frontend/README.md → README.md
-- `SessionTimeoutModal (30-min countdown)` --conceptually_related_to--> `JWT Authentication (Bearer token, 7-day expiry)`  [INFERRED]
-  frontend/README.md → README.md
+- `matchPosts utility (smart matching)` --semantically_similar_to--> `matchPosts (match reasoning + ranking utility)`  [INFERRED] [semantically similar]
+  README.md → frontend/README.md
 - `connectDB()` --calls--> `log()`  [INFERRED]
   backend\config\db.ts → backend\controllers\postController.ts
+- `JWT Authentication (Bearer token, 7-day expiry)` --conceptually_related_to--> `SessionTimeoutModal (30-min countdown)`  [INFERRED]
+  README.md → frontend/README.md
 - `log()` --calls--> `createLog()`  [INFERRED]
   backend\controllers\meetingController.ts → backend\services\logService.ts
 - `log()` --calls--> `createLog()`  [INFERRED]
@@ -68,67 +68,67 @@
 
 ## Communities
 
-### Community 0 - "Backend Auth & API Layer"
+### Community 0 - "Community 0"
 Cohesion: 0.06
 Nodes (40): authController, authMiddleware, authService, Backend (Node.js / Express 4 / TypeScript / Mongoose 8), errorHandler (middleware), meetingController, meetingService, Log Model (+32 more)
 
-### Community 1 - "Frontend Architecture & Docs"
-Cohesion: 0.11
-Nodes (24): Frontend README, matchPosts (match reasoning + ranking utility), PrivacyPage (/privacy), Reduced Motion Support (prefers-reduced-motion), Role Guards (AppRouter.tsx), SessionTimeoutModal (30-min countdown), WCAG AA Color Compliance, Zustand + localStorage Persistence (+16 more)
-
-### Community 2 - "Meeting & Post Services"
+### Community 1 - "Community 1"
 Cohesion: 0.17
 Nodes (17): acceptMeeting(), cancelMeeting(), declineMeeting(), getMeetingById(), makeError(), requestMeeting(), resolveUpdateFailure(), pushNotification() (+9 more)
 
-### Community 3 - "API Routes & Platform Features"
+### Community 2 - "Community 2"
+Cohesion: 0.11
+Nodes (21): Frontend README, matchPosts (match reasoning + ranking utility), PrivacyPage (/privacy), Reduced Motion Support (prefers-reduced-motion), Role Guards (AppRouter.tsx), SessionTimeoutModal (30-min countdown), WCAG AA Color Compliance, Zustand + localStorage Persistence (+13 more)
+
+### Community 3 - "Community 3"
 Cohesion: 0.11
 Nodes (19): Admin Panel (user suspension, post moderation, activity log), Auth API Routes (/api/auth/*), Logs API Routes (/api/logs) — admin only, Meetings API Routes (/api/meetings/*), Notifications API Routes (/api/notifications/*), Posts API Routes (/api/posts/*), bcrypt (≥10 rounds), Docker Compose (dev + prod) (+11 more)
 
-### Community 4 - "Auth UI & Registration"
+### Community 4 - "Community 4"
+Cohesion: 0.17
+Nodes (9): connectDB(), log(), log(), fail(), ok(), run(), step(), unique() (+1 more)
+
+### Community 5 - "Community 5"
 Cohesion: 0.22
 Nodes (8): onSubmit(), getUserById(), loginUser(), registerUser(), sanitize(), setSuspended(), signToken(), updateUserProfile()
 
-### Community 5 - "Backend Controllers & Config"
-Cohesion: 0.22
-Nodes (4): connectDB(), log(), log(), createLog()
-
-### Community 6 - "Meeting Interest Flow"
+### Community 6 - "Community 6"
 Cohesion: 0.28
 Nodes (3): handleNext(), handleSubmit(), validateStep()
 
-### Community 7 - "Notification System"
+### Community 7 - "Community 7"
 Cohesion: 0.22
 Nodes (2): handleClick(), markRead()
 
-### Community 8 - "Engineer Persona Assets"
+### Community 8 - "Community 8"
 Cohesion: 0.28
 Nodes (9): Casual Dark Sweater, Engineer Role, Eyeglasses, Professional Headshot Photo, HealthAI Co-Creation Platform, Neutral Green-Beige Gradient Background, Engineer Portrait Subject, Professional Male (+1 more)
 
-### Community 9 - "Meeting UI Components"
+### Community 9 - "Community 9"
 Cohesion: 0.29
 Nodes (2): handleAccept(), accept()
 
-### Community 10 - "Post Routes & Pages"
+### Community 10 - "Community 10"
 Cohesion: 0.29
 Nodes (3): postDetail(), onSubmit(), onSubmit()
 
-### Community 11 - "AI Match Integration"
+### Community 11 - "Community 11"
 Cohesion: 0.43
 Nodes (4): analyzeProjectMatch(), getGenAI(), getSmartSuggestions(), parseAIResponse()
 
-### Community 15 - "Login UI"
+### Community 15 - "Community 15"
 Cohesion: 0.5
 Nodes (2): onSubmit(), startCooldown()
 
-### Community 16 - "Post Matching Logic"
+### Community 16 - "Community 16"
 Cohesion: 0.6
 Nodes (3): computeEnhancedMatchReasons(), computeMatchReasons(), getCombinedMatchScore()
 
-### Community 17 - "Clinician Persona Assets"
+### Community 17 - "Community 17"
 Cohesion: 0.5
 Nodes (5): Clinician (Doctor), HealthAI Co-Creation Platform, Clinician Portrait Image, Stethoscope, White Lab Coat
 
-### Community 18 - "Test Utilities"
+### Community 18 - "Community 18"
 Cohesion: 0.67
 Nodes (2): createUser(), uniqueEmail()
 
@@ -193,15 +193,15 @@ Cohesion: 1.0
 Nodes (1): .planning/SNAPSHOT.md (per-phase implementation log, latest Faz 9)
 
 ## Knowledge Gaps
-- **68 isolated node(s):** `MongoDB (Atlas / mongo:7)`, `bcrypt (≥10 rounds)`, `Helmet (HTTP security headers)`, `express-mongo-sanitize`, `express-rate-limit` (+63 more)
+- **70 isolated node(s):** `MongoDB (Atlas / mongo:7)`, `bcrypt (≥10 rounds)`, `Helmet (HTTP security headers)`, `express-mongo-sanitize`, `express-rate-limit` (+65 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **Thin community `Notification System`** (9 nodes): `notificationService.ts`, `NotificationsPage.tsx`, `handleClick()`, `deleteAllNotifications()`, `deleteNotification()`, `getNotificationsByUser()`, `getUnreadCount()`, `markAllRead()`, `markRead()`
+- **Thin community `Community 7`** (9 nodes): `notificationService.ts`, `NotificationsPage.tsx`, `handleClick()`, `deleteAllNotifications()`, `deleteNotification()`, `getNotificationsByUser()`, `getUnreadCount()`, `markAllRead()`, `markRead()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Meeting UI Components`** (7 nodes): `MeetingCard.tsx`, `CookieConsentBanner.tsx`, `formatSlot()`, `handleAccept()`, `handleCancel()`, `handleDecline()`, `accept()`
+- **Thin community `Community 9`** (7 nodes): `MeetingCard.tsx`, `CookieConsentBanner.tsx`, `formatSlot()`, `handleAccept()`, `handleCancel()`, `handleDecline()`, `accept()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Login UI`** (5 nodes): `onInputBlur()`, `onInputFocus()`, `onSubmit()`, `startCooldown()`, `LoginPage.tsx`
+- **Thin community `Community 15`** (5 nodes): `onInputBlur()`, `onInputFocus()`, `onSubmit()`, `startCooldown()`, `LoginPage.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Test Utilities`** (4 nodes): `helpers.ts`, `createPost()`, `createUser()`, `uniqueEmail()`
+- **Thin community `Community 18`** (4 nodes): `helpers.ts`, `createPost()`, `createUser()`, `uniqueEmail()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 87`** (1 nodes): `Bug P0-3: Login/register failure log never written`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
@@ -237,17 +237,17 @@ Nodes (1): .planning/SNAPSHOT.md (per-phase implementation log, latest Faz 9)
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `HEALTH AI Co-Creation Platform` connect `API Routes & Platform Features` to `Backend Auth & API Layer`, `Frontend Architecture & Docs`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
-- **Why does `Frontend (React 18 / TypeScript / Vite 6)` connect `Frontend Architecture & Docs` to `Backend Auth & API Layer`, `API Routes & Platform Features`?**
-  _High betweenness centrality (0.029) - this node is a cross-community bridge._
-- **Why does `Backend Integration Roadmap (ROADMAP.md)` connect `Backend Auth & API Layer` to `Frontend Architecture & Docs`, `API Routes & Platform Features`?**
+- **Why does `HEALTH AI Co-Creation Platform` connect `Community 3` to `Community 0`, `Community 2`?**
   _High betweenness centrality (0.028) - this node is a cross-community bridge._
+- **Why does `Backend Integration Roadmap (ROADMAP.md)` connect `Community 0` to `Community 2`, `Community 3`?**
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+- **Why does `Frontend (React 18 / TypeScript / Vite 6)` connect `Community 2` to `Community 0`, `Community 3`?**
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **What connects `MongoDB (Atlas / mongo:7)`, `bcrypt (≥10 rounds)`, `Helmet (HTTP security headers)` to the rest of the system?**
-  _68 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Backend Auth & API Layer` be split into smaller, more focused modules?**
+  _70 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.06 - nodes in this community are weakly interconnected._
-- **Should `Frontend Architecture & Docs` be split into smaller, more focused modules?**
+- **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.11 - nodes in this community are weakly interconnected._
-- **Should `API Routes & Platform Features` be split into smaller, more focused modules?**
+- **Should `Community 3` be split into smaller, more focused modules?**
   _Cohesion score 0.11 - nodes in this community are weakly interconnected._
