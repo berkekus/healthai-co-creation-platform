@@ -36,7 +36,7 @@ const UserSchema = new Schema<IUser>(
     bio: { type: String, trim: true },
     avatarUrl: { type: String, trim: true },
     expertiseTags: { type: [String], default: [] },
-    isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: true },
     isSuspended: { type: Boolean, default: false },
     lastActive: { type: Date, default: Date.now },
   },

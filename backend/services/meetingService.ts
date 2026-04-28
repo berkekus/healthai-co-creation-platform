@@ -1,7 +1,19 @@
-import Meeting, { ITimeSlot } from '../models/Meeting'
+import Meeting, { IMeeting, ITimeSlot } from '../models/Meeting'
 import Post from '../models/Post'
-import { incrementMeetingCount, recomputePostStatus } from './postService'
+import User from '../models/User'
+import { incrementMeetingCount, markPartnerFound, recomputePostStatus } from './postService'
 import { pushNotification } from './notificationService'
+
+async function withEmails(meetings: IMeeting[]) {
+  const ids = [...new Set(meetings.flatMap(m => [m.requesterId.toString(), m.ownerId.toString()]))]
+  const users = await User.find({ _id: { $in: ids } }).select('_id email').lean()
+  const map = new Map(users.map(u => [(u._id as any).toString(), u.email as string]))
+  return meetings.map(m => ({
+    ...m.toJSON(),
+    requesterEmail: (m.requesterEmail || map.get(m.requesterId.toString()) || ''),
+    ownerEmail:     (m.ownerEmail     || map.get(m.ownerId.toString())     || ''),
+  }))
+}
 
 function makeError(message: string, statusCode: number): Error & { statusCode: number } {
   const err = new Error(message) as Error & { statusCode: number }
@@ -14,8 +26,10 @@ export async function requestMeeting(data: {
   postTitle: string
   requesterId: string
   requesterName: string
+  requesterEmail: string
   ownerId: string
   ownerName: string
+  ownerEmail: string
   message: string
   ndaAccepted: boolean
   proposedSlots: ITimeSlot[]
@@ -54,17 +68,19 @@ export async function requestMeeting(data: {
 export async function getMeetingById(id: string) {
   const meeting = await Meeting.findById(id)
   if (!meeting) throw makeError('Meeting not found', 404)
-  return meeting
+  return (await withEmails([meeting]))[0]
 }
 
 export async function getMeetingsByUser(userId: string) {
-  return Meeting.find({
+  const meetings = await Meeting.find({
     $or: [{ requesterId: userId }, { ownerId: userId }],
   }).sort({ createdAt: -1 })
+  return withEmails(meetings)
 }
 
 export async function getMeetingsByPost(postId: string) {
-  return Meeting.find({ postId }).sort({ createdAt: -1 })
+  const meetings = await Meeting.find({ postId }).sort({ createdAt: -1 })
+  return withEmails(meetings)
 }
 
 async function resolveUpdateFailure(
@@ -96,7 +112,7 @@ export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot
     linkTo: `/meetings`,
   }).catch(() => {})
 
-  return meeting!
+  return (await withEmails([meeting!]))[0]
 }
 
 export async function declineMeeting(id: string, ownerId: string) {
@@ -116,7 +132,7 @@ export async function declineMeeting(id: string, ownerId: string) {
     linkTo: `/meetings`,
   }).catch(() => {})
 
-  return meeting!
+  return (await withEmails([meeting!]))[0]
 }
 
 export async function cancelMeeting(id: string, userId: string) {
@@ -142,5 +158,32 @@ export async function cancelMeeting(id: string, userId: string) {
     linkTo: `/meetings`,
   }).catch(() => {})
 
-  return meeting!
+  return (await withEmails([meeting!]))[0]
+}
+
+export async function completeMeeting(id: string, userId: string) {
+  const meeting = await Meeting.findOneAndUpdate(
+    {
+      _id: id,
+      $or: [{ requesterId: userId }, { ownerId: userId }],
+      status: 'confirmed',
+    },
+    { $set: { status: 'completed' } },
+    { new: true },
+  )
+  if (!meeting) await resolveUpdateFailure(id, userId, null, 'complete')
+
+  // Mark post as partner_found (also cascades: cancels other pending/confirmed meetings)
+  await markPartnerFound(meeting!.postId.toString(), meeting!.ownerId.toString())
+
+  const isRequester = meeting!.requesterId.toString() === userId
+  pushNotification({
+    userId: isRequester ? meeting!.ownerId.toString() : meeting!.requesterId.toString(),
+    type: 'meeting_completed',
+    title: 'Görüşme tamamlandı',
+    body: `${isRequester ? meeting!.requesterName : meeting!.ownerName} görüşmeyi tamamlandı olarak işaretledi. "${meeting!.postTitle}"`,
+    linkTo: `/meetings`,
+  }).catch(() => {})
+
+  return (await withEmails([meeting!]))[0]
 }
