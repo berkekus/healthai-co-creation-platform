@@ -22,6 +22,7 @@ function sanitize(user: IUser) {
     city: user.city,
     country: user.country,
     bio: user.bio,
+    avatarUrl: user.avatarUrl,
     expertiseTags: user.expertiseTags,
     isVerified: user.isVerified,
     isSuspended: user.isSuspended,
@@ -82,7 +83,7 @@ export async function loginUser(email: string, password: string) {
 
 export async function updateUserProfile(
   userId: string,
-  data: Partial<Pick<IUser, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'expertiseTags'>>
+  data: Partial<Pick<IUser, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>
 ) {
   const user = await User.findByIdAndUpdate(
     userId,

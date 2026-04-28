@@ -11,7 +11,7 @@ interface AuthState {
   login: (credentials: LoginCredentials) => Promise<void>
   logout: () => void
   register: (data: RegisterData) => Promise<void>
-  updateProfile: (data: Partial<Pick<User, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'expertiseTags'>>) => Promise<void>
+  updateProfile: (data: Partial<Pick<User, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>) => Promise<void>
   hydrate: () => Promise<void>
   clearError: () => void
 }

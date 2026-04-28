@@ -24,6 +24,7 @@ export const profileSchema = z.object({
   city:        z.string().min(1, 'City is required'),
   country:     z.string().min(1, 'Country is required'),
   bio:         z.string().max(400, 'Bio must be under 400 characters').optional(),
+  avatarUrl:   z.string().url('Enter a valid URL (https://…)').or(z.literal('')).optional(),
 })
 
 export type ProfileFormData = z.infer<typeof profileSchema>
