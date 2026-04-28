@@ -21,6 +21,7 @@ export const LOG = {
   MEETING_ACCEPT:   'meeting_accept',
   MEETING_DECLINE:  'meeting_decline',
   MEETING_CANCEL:   'meeting_cancel',
+  MEETING_COMPLETE: 'meeting_complete',
 } as const
 
 export type LogAction = typeof LOG[keyof typeof LOG]

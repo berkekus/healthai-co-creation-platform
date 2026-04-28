@@ -11,6 +11,7 @@ const STATUS_CONFIG: Record<MeetingStatus, Tone> = {
   pending:       { label: 'Pending review',  bg: 'bg-hai-lime',          text: 'text-hai-plum',    dot: 'bg-hai-plum',    icon: 'pending' },
   time_proposed: { label: 'Times proposed',  bg: 'bg-hai-mint',          text: 'text-hai-plum',    dot: 'bg-hai-teal',    icon: 'schedule' },
   confirmed:     { label: 'Confirmed',       bg: 'bg-hai-plum',          text: 'text-hai-mint',    dot: 'bg-hai-mint',    icon: 'check_circle' },
+  completed:     { label: 'Completed',       bg: 'bg-hai-teal',          text: 'text-hai-plum',    dot: 'bg-hai-plum',    icon: 'task_alt' },
   declined:      { label: 'Declined',        bg: 'bg-red-50',            text: 'text-red-600',     dot: 'bg-red-500',     icon: 'block' },
   cancelled:     { label: 'Cancelled',       bg: 'bg-neutral-100',       text: 'text-neutral-500', dot: 'bg-neutral-400', icon: 'cancel' },
 }
@@ -54,7 +55,7 @@ interface Props { meeting: Meeting }
 
 export default function MeetingCard({ meeting }: Props) {
   const { user } = useAuthStore()
-  const { accept, decline, cancel } = useMeetingStore()
+  const { accept, decline, cancel, complete } = useMeetingStore()
   const { push } = useNotificationStore()
   const navigate = useNavigate()
 
@@ -66,6 +67,7 @@ export default function MeetingCard({ meeting }: Props) {
   const partnerInitials = partnerName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
 
   const canAct = meeting.status === 'pending' || meeting.status === 'time_proposed'
+  const partnerEmail = isOwner ? meeting.requesterEmail : meeting.ownerEmail
 
   const handleAccept = (slot: TimeSlot) => {
     accept(meeting.id, slot)
@@ -120,17 +122,42 @@ export default function MeetingCard({ meeting }: Props) {
       </div>
 
       {/* Confirmed slot */}
-      {meeting.status === 'confirmed' && meeting.confirmedSlot && (
+      {(meeting.status === 'confirmed' || meeting.status === 'completed') && meeting.confirmedSlot && (
         <div className="px-5 md:px-6 pb-4">
           <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-hai-plum font-bold mb-2 flex items-center gap-1.5">
             <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>event_available</span>
             Confirmed slot
           </div>
           <SlotChip slot={meeting.confirmedSlot} active />
-          <p className="mt-3 text-[11.5px] font-mono tracking-[0.08em] text-neutral-500 leading-relaxed flex items-start gap-1.5">
-            <span className="material-symbols-outlined text-[14px] mt-px">info</span>
-            Meeting link (Zoom / Teams) to be shared externally. This platform does not host meetings.
-          </p>
+
+          {/* Partner contact */}
+          {partnerEmail && (
+            <div className="mt-3 flex items-center gap-2 p-3 bg-hai-mint/30 border border-hai-teal/30 rounded-2xl">
+              <span className="material-symbols-outlined text-hai-plum text-[16px] shrink-0" style={{ fontVariationSettings: '"FILL" 1' }}>mail</span>
+              <div className="min-w-0">
+                <div className="text-[9.5px] font-mono tracking-[0.14em] uppercase text-hai-plum/60 font-bold mb-0.5">Contact</div>
+                <a
+                  href={`mailto:${partnerEmail}`}
+                  className="text-[13px] font-mono font-bold text-hai-plum hover:text-hai-teal transition-colors truncate block"
+                >
+                  {partnerEmail}
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Meeting Done button */}
+      {meeting.status === 'confirmed' && (
+        <div className="px-5 md:px-6 py-3 border-t border-neutral-100 bg-hai-offwhite/50 flex items-center justify-end">
+          <button
+            onClick={() => complete(meeting.id)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-hai-teal text-hai-plum text-[11px] font-mono tracking-[0.12em] uppercase font-bold hover:bg-hai-mint transition-colors"
+          >
+            <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>task_alt</span>
+            Görüşme yapıldı
+          </button>
         </div>
       )}
 

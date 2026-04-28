@@ -4,6 +4,7 @@ export type MeetingStatus =
   | 'pending'
   | 'time_proposed'
   | 'confirmed'
+  | 'completed'
   | 'declined'
   | 'cancelled'
 
@@ -17,8 +18,10 @@ export interface IMeeting extends Document {
   postTitle: string
   requesterId: Types.ObjectId
   requesterName: string
+  requesterEmail: string
   ownerId: Types.ObjectId
   ownerName: string
+  ownerEmail: string
   status: MeetingStatus
   message: string
   ndaAccepted: boolean
@@ -42,11 +45,13 @@ const MeetingSchema = new Schema<IMeeting>(
     postTitle: { type: String, required: true, trim: true },
     requesterId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     requesterName: { type: String, required: true, trim: true },
+    requesterEmail: { type: String, required: true, trim: true },
     ownerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     ownerName: { type: String, required: true, trim: true },
+    ownerEmail: { type: String, required: true, trim: true },
     status: {
       type: String,
-      enum: ['pending', 'time_proposed', 'confirmed', 'declined', 'cancelled'],
+      enum: ['pending', 'time_proposed', 'confirmed', 'completed', 'declined', 'cancelled'],
       default: 'pending',
     },
     message: { type: String, required: true, trim: true },

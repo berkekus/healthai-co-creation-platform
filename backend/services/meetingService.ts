@@ -1,6 +1,6 @@
 import Meeting, { ITimeSlot } from '../models/Meeting'
 import Post from '../models/Post'
-import { incrementMeetingCount, recomputePostStatus } from './postService'
+import { incrementMeetingCount, markPartnerFound, recomputePostStatus } from './postService'
 import { pushNotification } from './notificationService'
 
 function makeError(message: string, statusCode: number): Error & { statusCode: number } {
@@ -14,8 +14,10 @@ export async function requestMeeting(data: {
   postTitle: string
   requesterId: string
   requesterName: string
+  requesterEmail: string
   ownerId: string
   ownerName: string
+  ownerEmail: string
   message: string
   ndaAccepted: boolean
   proposedSlots: ITimeSlot[]
@@ -139,6 +141,33 @@ export async function cancelMeeting(id: string, userId: string) {
     type: 'meeting_cancelled',
     title: 'Toplanti iptal edildi',
     body: `${isRequester ? meeting!.requesterName : meeting!.ownerName} toplanti talebini iptal etti. "${meeting!.postTitle}"`,
+    linkTo: `/meetings`,
+  }).catch(() => {})
+
+  return meeting!
+}
+
+export async function completeMeeting(id: string, userId: string) {
+  const meeting = await Meeting.findOneAndUpdate(
+    {
+      _id: id,
+      $or: [{ requesterId: userId }, { ownerId: userId }],
+      status: 'confirmed',
+    },
+    { $set: { status: 'completed' } },
+    { new: true },
+  )
+  if (!meeting) await resolveUpdateFailure(id, userId, null, 'complete')
+
+  // Mark post as partner_found (also cascades: cancels other pending/confirmed meetings)
+  await markPartnerFound(meeting!.postId.toString(), meeting!.ownerId.toString())
+
+  const isRequester = meeting!.requesterId.toString() === userId
+  pushNotification({
+    userId: isRequester ? meeting!.ownerId.toString() : meeting!.requesterId.toString(),
+    type: 'meeting_completed',
+    title: 'Görüşme tamamlandı',
+    body: `${isRequester ? meeting!.requesterName : meeting!.ownerName} görüşmeyi tamamlandı olarak işaretledi. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 

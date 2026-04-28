@@ -26,7 +26,10 @@ export const requestMeeting = asyncHandler<AuthRequest>(async (req, res) => {
     return
   }
 
-  const requester = await User.findById(req.userId).select('name')
+  const [requester, ownerUser] = await Promise.all([
+    User.findById(req.userId).select('name email'),
+    User.findById(ownerId).select('email'),
+  ])
   if (!requester) {
     res.status(404).json({ success: false, message: 'User not found' })
     return
@@ -37,8 +40,10 @@ export const requestMeeting = asyncHandler<AuthRequest>(async (req, res) => {
     postTitle,
     requesterId: req.userId as string,
     requesterName: requester.name,
+    requesterEmail: requester.email,
     ownerId,
     ownerName,
+    ownerEmail: ownerUser?.email ?? '',
     message,
     ndaAccepted,
     proposedSlots,
@@ -94,5 +99,11 @@ export const declineMeeting = asyncHandler<AuthRequest>(async (req, res) => {
 export const cancelMeeting = asyncHandler<AuthRequest>(async (req, res) => {
   const meeting = await meetingService.cancelMeeting(req.params.id, req.userId as string)
   log(req, LOG.MEETING_CANCEL, req.params.id)
+  res.json({ success: true, data: meeting })
+})
+
+export const completeMeeting = asyncHandler<AuthRequest>(async (req, res) => {
+  const meeting = await meetingService.completeMeeting(req.params.id, req.userId as string)
+  log(req, LOG.MEETING_COMPLETE, req.params.id)
   res.json({ success: true, data: meeting })
 })
