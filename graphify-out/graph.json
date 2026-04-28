@@ -3463,8 +3463,8 @@
       "source_file": "backend\\scripts\\smoke-test.ts",
       "source_location": "L20",
       "weight": 1.0,
-      "_src": "scripts_smoke_test_ok",
-      "_tgt": "controllers_postcontroller_log",
+      "_src": "controllers_postcontroller_log",
+      "_tgt": "scripts_smoke_test_ok",
       "source": "controllers_postcontroller_log",
       "target": "scripts_smoke_test_ok"
     },
@@ -3475,8 +3475,8 @@
       "source_file": "backend\\scripts\\smoke-test.ts",
       "source_location": "L25",
       "weight": 1.0,
-      "_src": "scripts_smoke_test_fail",
-      "_tgt": "controllers_postcontroller_log",
+      "_src": "controllers_postcontroller_log",
+      "_tgt": "scripts_smoke_test_fail",
       "source": "controllers_postcontroller_log",
       "target": "scripts_smoke_test_fail"
     },
@@ -3487,8 +3487,8 @@
       "source_file": "backend\\scripts\\smoke-test.ts",
       "source_location": "L52",
       "weight": 1.0,
-      "_src": "scripts_smoke_test_run",
-      "_tgt": "controllers_postcontroller_log",
+      "_src": "controllers_postcontroller_log",
+      "_tgt": "scripts_smoke_test_run",
       "source": "controllers_postcontroller_log",
       "target": "scripts_smoke_test_run"
     },
