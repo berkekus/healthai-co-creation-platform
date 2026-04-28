@@ -11,7 +11,7 @@ interface AuthState {
   login: (credentials: LoginCredentials) => Promise<void>
   logout: () => void
   register: (data: RegisterData) => Promise<void>
-  updateProfile: (data: Partial<Pick<User, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'expertiseTags'>>) => Promise<void>
+  updateProfile: (data: Partial<Pick<User, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>) => Promise<void>
   hydrate: () => Promise<void>
   clearError: () => void
 }
@@ -53,6 +53,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   },
 
   logout: () => {
+    api.post('/auth/logout').catch(() => {})
     localStorage.removeItem('token')
     set({ user: null, isAuthenticated: false })
   },
@@ -60,8 +61,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
   register: async (data: RegisterData) => {
     set({ isLoading: true, error: null })
     try {
-      await api.post('/auth/register', data)
-      set({ isLoading: false })
+      const { data: res } = await api.post<{ success: boolean; data: { user: User; token: string } }>('/auth/register', data)
+      localStorage.setItem('token', res.data.token)
+      set({ user: res.data.user, isAuthenticated: true, isLoading: false })
     } catch (err) {
       set({ isLoading: false, error: (err as Error).message })
     }

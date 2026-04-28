@@ -11,7 +11,7 @@ export async function pushNotification(data: {
 }
 
 export async function getNotificationsByUser(userId: string): Promise<INotification[]> {
-  return Notification.find({ userId }).sort({ createdAt: -1 })
+  return Notification.find({ userId }).sort({ createdAt: -1 }).limit(50)
 }
 
 export async function markRead(id: string, userId: string) {

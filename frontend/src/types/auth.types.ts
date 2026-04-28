@@ -9,6 +9,7 @@ export interface User {
   city: string
   country: string
   bio?: string
+  avatarUrl?: string
   expertiseTags: string[]
   createdAt: string
   isVerified: boolean

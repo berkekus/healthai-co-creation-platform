@@ -7,7 +7,6 @@ import ProtectedRoute from './ProtectedRoute'
 import LandingPage from '../pages/LandingPage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
-import VerifyEmailPage from '../pages/auth/VerifyEmailPage'
 import DashboardPage from '../pages/dashboard/DashboardPage'
 import PostListPage from '../pages/posts/PostListPage'
 import PostDetailPage from '../pages/posts/PostDetailPage'
@@ -34,7 +33,6 @@ export default function AppRouter() {
           {/* Public */}
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
-          <Route path={ROUTES.VERIFY_EMAIL} element={<VerifyEmailPage />} />
           <Route path={ROUTES.PRIVACY} element={<PrivacyPage />} />
           <Route path={ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
           <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />

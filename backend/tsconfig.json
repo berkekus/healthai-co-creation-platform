@@ -18,11 +18,14 @@
   "include": [
     "src/**/*",
     "config/**/*",
+    "constants/**/*",
     "models/**/*",
     "controllers/**/*",
     "middleware/**/*",
     "routes/**/*",
-    "services/**/*"
+    "services/**/*",
+    "utils/**/*",
+    "tests/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }

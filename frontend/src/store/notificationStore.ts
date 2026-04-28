@@ -12,11 +12,16 @@ interface NotificationState {
   push: (n: Omit<Notification, 'id' | 'createdAt'>) => Promise<void>
   deleteNotification: (id: string) => Promise<void>
   deleteAll: () => Promise<void>
+  startPolling: () => void
+  stopPolling: () => void
 }
 
 function normalise(raw: Notification & { _id?: string }): Notification {
   return { ...raw, id: raw._id ?? raw.id }
 }
+
+let _pollInterval: ReturnType<typeof setInterval> | null = null
+const POLL_INTERVAL_MS = 30_000
 
 export const useNotificationStore = create<NotificationState>()((set, get) => ({
   notifications: [],
@@ -76,5 +81,18 @@ export const useNotificationStore = create<NotificationState>()((set, get) => ({
   deleteAll: async () => {
     await api.delete('/notifications')
     set({ notifications: [] })
+  },
+
+  startPolling: () => {
+    if (_pollInterval !== null) return
+    get().fetchByUser('')
+    _pollInterval = setInterval(() => get().fetchByUser(''), POLL_INTERVAL_MS)
+  },
+
+  stopPolling: () => {
+    if (_pollInterval !== null) {
+      clearInterval(_pollInterval)
+      _pollInterval = null
+    }
   },
 }))

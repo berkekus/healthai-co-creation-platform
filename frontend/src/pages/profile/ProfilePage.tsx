@@ -151,6 +151,7 @@ export default function ProfilePage() {
       city:        user?.city ?? '',
       country:     user?.country ?? '',
       bio:         user?.bio ?? '',
+      avatarUrl:   user?.avatarUrl ?? '',
     },
   })
 
@@ -219,8 +220,11 @@ export default function ProfilePage() {
 
           {/* Identity row */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-5 bg-hai-offwhite rounded-[1.5rem] p-5">
-            <div className="shrink-0 w-16 h-16 rounded-full bg-hai-plum text-hai-mint flex items-center justify-center font-mono font-bold text-[20px] tracking-[0.06em]">
-              {initials}
+            <div className="shrink-0 w-16 h-16 rounded-full overflow-hidden bg-hai-plum text-hai-mint flex items-center justify-center font-mono font-bold text-[20px] tracking-[0.06em]">
+              {user.avatarUrl
+                ? <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; (e.currentTarget.nextElementSibling as HTMLElement | null)?.removeAttribute('hidden') }} />
+                : null}
+              <span hidden={!!user.avatarUrl}>{initials}</span>
             </div>
             <div className="min-w-0 flex-1">
               <div className="font-headline font-bold text-[22px] leading-tight text-hai-plum truncate">{user.name}</div>
@@ -278,6 +282,12 @@ export default function ProfilePage() {
                 style={inputStyle(errors.institution?.message)}
                 onFocus={onInputFocus(!!errors.institution)}
                 onBlur={onInputBlur(!!errors.institution)} />
+            </FormField>
+            <FormField label="Profile photo URL" hint="Optional · paste a direct image link (https://…)" error={errors.avatarUrl?.message}>
+              <input {...register('avatarUrl')} type="url" placeholder="https://example.com/photo.jpg"
+                style={inputStyle(errors.avatarUrl?.message)}
+                onFocus={onInputFocus(!!errors.avatarUrl)}
+                onBlur={onInputBlur(!!errors.avatarUrl)} />
             </FormField>
           </div>
         </SectionCard>

@@ -123,9 +123,11 @@ export default function Navbar() {
                 <button
                   onClick={() => setProfileOpen(o => !o)}
                   aria-label="Account menu"
-                  className="w-10 h-10 rounded-full bg-hai-mint text-hai-plum font-bold text-xs font-body flex items-center justify-center border border-hai-teal/40 hover:border-hai-plum transition-colors"
+                  className="w-10 h-10 rounded-full overflow-hidden bg-hai-mint text-hai-plum font-bold text-xs font-body flex items-center justify-center border border-hai-teal/40 hover:border-hai-plum transition-colors"
                 >
-                  {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                  {user.avatarUrl
+                    ? <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" onError={e => { const btn = (e.currentTarget as HTMLImageElement); btn.style.display = 'none'; btn.parentElement!.insertAdjacentText('beforeend', user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()) }} />
+                    : user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                 </button>
                 {profileOpen && (
                   <div className="absolute right-0 top-12 w-64 bg-white rounded-2xl border border-neutral-200 shadow-[0_20px_50px_-20px_rgba(54,33,62,0.25)] overflow-hidden z-[60]">
