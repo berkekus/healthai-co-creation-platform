@@ -60,8 +60,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
   register: async (data: RegisterData) => {
     set({ isLoading: true, error: null })
     try {
-      await api.post('/auth/register', data)
-      set({ isLoading: false })
+      const { data: res } = await api.post<{ success: boolean; data: { user: User; token: string } }>('/auth/register', data)
+      localStorage.setItem('token', res.data.token)
+      set({ user: res.data.user, isAuthenticated: true, isLoading: false })
     } catch (err) {
       set({ isLoading: false, error: (err as Error).message })
     }

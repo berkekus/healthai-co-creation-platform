@@ -1,6 +1,14 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
+const REQUIRED_ENV = ['JWT_SECRET', 'MONGO_URI'] as const
+for (const key of REQUIRED_ENV) {
+  if (!process.env[key]) {
+    console.error(`Fatal: missing required env var ${key}`)
+    process.exit(1)
+  }
+}
+
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'

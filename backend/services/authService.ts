@@ -47,7 +47,7 @@ export async function registerUser(data: {
   }
 
   const hashed = await bcrypt.hash(data.password, SALT_ROUNDS)
-  const user = await User.create({ ...data, password: hashed })
+  const user = await User.create({ ...data, password: hashed, isVerified: true })
   const token = signToken(user)
   return { user: sanitize(user), token }
 }

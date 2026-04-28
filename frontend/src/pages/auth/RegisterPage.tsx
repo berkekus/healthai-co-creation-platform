@@ -49,7 +49,10 @@ export default function RegisterPage() {
       city: data.city,
       country: data.country,
     })
-    navigate(ROUTES.VERIFY_EMAIL)
+    // Auto-logged in — go straight to dashboard; only stay if there was an error
+    if (!useAuthStore.getState().error) {
+      navigate(ROUTES.DASHBOARD)
+    }
   }
 
   const inputProps = (name: keyof RegisterFormData) => ({

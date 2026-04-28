@@ -1,4 +1,5 @@
 import Meeting, { ITimeSlot } from '../models/Meeting'
+import Post from '../models/Post'
 import { incrementMeetingCount, recomputePostStatus } from './postService'
 import { pushNotification } from './notificationService'
 
@@ -22,6 +23,19 @@ export async function requestMeeting(data: {
   if (!data.ndaAccepted) throw makeError('NDA must be accepted', 400)
   if (data.message.length < 20) throw makeError('Message must be at least 20 characters', 400)
   if (data.proposedSlots.length < 3) throw makeError('At least 3 time slots are required', 400)
+
+  // Verify ownerId matches the post's actual author
+  const post = await Post.findById(data.postId).select('authorId')
+  if (!post) throw makeError('Post not found', 404)
+  if (post.authorId.toString() !== data.ownerId) throw makeError('Invalid owner', 400)
+
+  // Prevent duplicate active requests from the same requester
+  const existing = await Meeting.exists({
+    postId: data.postId,
+    requesterId: data.requesterId,
+    status: { $in: ['pending', 'time_proposed'] },
+  })
+  if (existing) throw makeError('You already have a pending meeting request for this post', 409)
 
   const meeting = await Meeting.create({ ...data, status: 'pending' })
   await incrementMeetingCount(data.postId)
@@ -83,6 +97,9 @@ export async function declineMeeting(id: string, ownerId: string) {
   const meeting = await Meeting.findById(id)
   if (!meeting) throw makeError('Meeting not found', 404)
   if (meeting.ownerId.toString() !== ownerId) throw makeError('Forbidden', 403)
+  if (meeting.status !== 'pending' && meeting.status !== 'time_proposed') {
+    throw makeError(`Cannot decline a meeting with status: ${meeting.status}`, 400)
+  }
 
   meeting.status = 'declined'
   await meeting.save()
@@ -107,6 +124,9 @@ export async function cancelMeeting(id: string, userId: string) {
   const isRequester = meeting.requesterId.toString() === userId
   const isOwner = meeting.ownerId.toString() === userId
   if (!isRequester && !isOwner) throw makeError('Forbidden', 403)
+  if (meeting.status === 'declined' || meeting.status === 'cancelled') {
+    throw makeError(`Cannot cancel a meeting with status: ${meeting.status}`, 400)
+  }
 
   meeting.status = 'cancelled'
   await meeting.save()
