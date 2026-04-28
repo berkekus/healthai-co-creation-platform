@@ -67,84 +67,80 @@ export async function getMeetingsByPost(postId: string) {
   return Meeting.find({ postId }).sort({ createdAt: -1 })
 }
 
+async function resolveUpdateFailure(
+  id: string,
+  actorId: string,
+  actorField: 'ownerId' | 'requesterId' | null,
+  verb: string,
+): Promise<never> {
+  const existing = await Meeting.findById(id).select('ownerId requesterId status')
+  if (!existing) throw makeError('Meeting not found', 404)
+  if (actorField && existing[actorField].toString() !== actorId) throw makeError('Forbidden', 403)
+  throw makeError(`Cannot ${verb} a meeting with status: ${existing.status}`, 400)
+}
+
 export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot) {
-  const meeting = await Meeting.findById(id)
-  if (!meeting) throw makeError('Meeting not found', 404)
-  if (meeting.ownerId.toString() !== ownerId) throw makeError('Forbidden', 403)
-  if (meeting.status !== 'pending' && meeting.status !== 'time_proposed') {
-    throw makeError(`Cannot accept a meeting with status: ${meeting.status}`, 400)
-  }
+  const meeting = await Meeting.findOneAndUpdate(
+    { _id: id, ownerId, status: { $in: ['pending', 'time_proposed'] } },
+    { $set: { status: 'confirmed', confirmedSlot: slot } },
+    { new: true },
+  )
+  if (!meeting) await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
 
-  meeting.status = 'confirmed'
-  meeting.confirmedSlot = slot
-  await meeting.save()
-
-  // Meeting onaylandığında post'u meeting_scheduled yap
-  recomputePostStatus(meeting.postId.toString()).catch(() => {})
-
+  recomputePostStatus(meeting!.postId.toString()).catch(() => {})
   pushNotification({
-    userId: meeting.requesterId.toString(),
+    userId: meeting!.requesterId.toString(),
     type: 'meeting_accepted',
     title: 'Toplanti kabul edildi',
-    body: `${meeting.ownerName} toplanti talebinizi kabul etti. "${meeting.postTitle}"`,
+    body: `${meeting!.ownerName} toplanti talebinizi kabul etti. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
-  return meeting
+  return meeting!
 }
 
 export async function declineMeeting(id: string, ownerId: string) {
-  const meeting = await Meeting.findById(id)
-  if (!meeting) throw makeError('Meeting not found', 404)
-  if (meeting.ownerId.toString() !== ownerId) throw makeError('Forbidden', 403)
-  if (meeting.status !== 'pending' && meeting.status !== 'time_proposed') {
-    throw makeError(`Cannot decline a meeting with status: ${meeting.status}`, 400)
-  }
+  const meeting = await Meeting.findOneAndUpdate(
+    { _id: id, ownerId, status: { $in: ['pending', 'time_proposed'] } },
+    { $set: { status: 'declined' } },
+    { new: true },
+  )
+  if (!meeting) await resolveUpdateFailure(id, ownerId, 'ownerId', 'decline')
 
-  meeting.status = 'declined'
-  await meeting.save()
-
-  recomputePostStatus(meeting.postId.toString()).catch(() => {})
-
+  recomputePostStatus(meeting!.postId.toString()).catch(() => {})
   pushNotification({
-    userId: meeting.requesterId.toString(),
+    userId: meeting!.requesterId.toString(),
     type: 'meeting_declined',
     title: 'Toplanti reddedildi',
-    body: `${meeting.ownerName} toplanti talebinizi reddetti. "${meeting.postTitle}"`,
+    body: `${meeting!.ownerName} toplanti talebinizi reddetti. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
-  return meeting
+  return meeting!
 }
 
 export async function cancelMeeting(id: string, userId: string) {
-  const meeting = await Meeting.findById(id)
-  if (!meeting) throw makeError('Meeting not found', 404)
+  const meeting = await Meeting.findOneAndUpdate(
+    {
+      _id: id,
+      $or: [{ requesterId: userId }, { ownerId: userId }],
+      status: { $nin: ['declined', 'cancelled'] },
+    },
+    { $set: { status: 'cancelled' } },
+    { new: true },
+  )
+  if (!meeting) await resolveUpdateFailure(id, userId, null, 'cancel')
 
-  const isRequester = meeting.requesterId.toString() === userId
-  const isOwner = meeting.ownerId.toString() === userId
-  if (!isRequester && !isOwner) throw makeError('Forbidden', 403)
-  if (meeting.status === 'declined' || meeting.status === 'cancelled') {
-    throw makeError(`Cannot cancel a meeting with status: ${meeting.status}`, 400)
-  }
+  recomputePostStatus(meeting!.postId.toString()).catch(() => {})
 
-  meeting.status = 'cancelled'
-  await meeting.save()
-
-  recomputePostStatus(meeting.postId.toString()).catch(() => {})
-
-  const notifyUserId = isRequester
-    ? meeting.ownerId.toString()
-    : meeting.requesterId.toString()
-  const cancellerName = isRequester ? meeting.requesterName : meeting.ownerName
-
+  const isRequester = meeting!.requesterId.toString() === userId
   pushNotification({
-    userId: notifyUserId,
+    userId: isRequester ? meeting!.ownerId.toString() : meeting!.requesterId.toString(),
     type: 'meeting_cancelled',
     title: 'Toplanti iptal edildi',
-    body: `${cancellerName} toplanti talebini iptal etti. "${meeting.postTitle}"`,
+    body: `${isRequester ? meeting!.requesterName : meeting!.ownerName} toplanti talebini iptal etti. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
-  return meeting
+  return meeting!
 }

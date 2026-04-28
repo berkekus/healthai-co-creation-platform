@@ -119,6 +119,28 @@ describe('POST /api/meetings/:id/decline', () => {
   })
 })
 
+describe('Concurrent accept race condition', () => {
+  it('only one of two simultaneous accept requests succeeds', async () => {
+    const owner = await createUser({ role: 'healthcare_professional' })
+    const requester = await createUser()
+    const post = await createPost(owner.token)
+    await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
+    const meetingRes = await requestMeeting(requester.token, post.id, post.title, owner.user.id, owner.user.name)
+    const meetingId = meetingRes.body.data.id
+    const slot = { date: '2026-06-01', time: '10:00' }
+
+    // Fire two accept requests simultaneously
+    const [r1, r2] = await Promise.all([
+      api.post(`/api/meetings/${meetingId}/accept`).set('Authorization', `Bearer ${owner.token}`).send({ slot }),
+      api.post(`/api/meetings/${meetingId}/accept`).set('Authorization', `Bearer ${owner.token}`).send({ slot }),
+    ])
+
+    const statuses = [r1.status, r2.status].sort()
+    // One must succeed (200), the other must fail (400 — already confirmed)
+    expect(statuses).toEqual([200, 400])
+  })
+})
+
 describe('POST /api/meetings/:id/cancel', () => {
   it('cancels a pending meeting', async () => {
     const owner = await createUser({ role: 'healthcare_professional' })
