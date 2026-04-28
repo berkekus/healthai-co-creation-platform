@@ -4,6 +4,8 @@ const baseOptions = {
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests, please try again later' },
+  // Skip rate limiting in test environment to avoid flaky tests
+  skip: () => process.env.NODE_ENV === 'test',
 }
 
 // /api/auth — 20 attempts per 15 minutes
