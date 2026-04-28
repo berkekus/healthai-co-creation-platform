@@ -1,12 +1,12 @@
 # Graph Report - healthai-co-creation-platform  (2026-04-28)
 
 ## Corpus Check
-- 92 files · ~153,638 words
+- 92 files · ~153,714 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 328 nodes · 296 edges · 31 communities detected
-- Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 41 edges (avg confidence: 0.82)
+- 329 nodes · 304 edges · 31 communities detected
+- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 41 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -48,11 +48,11 @@
 3. `Frontend (React 18 / TypeScript / Vite 6)` - 17 edges
 4. `Backend (Node.js / Express 4 / TypeScript / Mongoose 8)` - 16 edges
 5. `Frontend README` - 9 edges
-6. `pushNotification()` - 8 edges
-7. `makeError()` - 7 edges
-8. `Engineer Portrait Subject` - 7 edges
-9. `log()` - 6 edges
-10. `run()` - 6 edges
+6. `withEmails()` - 8 edges
+7. `pushNotification()` - 8 edges
+8. `makeError()` - 7 edges
+9. `Engineer Portrait Subject` - 7 edges
+10. `log()` - 6 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `matchPosts utility (smart matching)` --semantically_similar_to--> `matchPosts (match reasoning + ranking utility)`  [INFERRED] [semantically similar]
@@ -73,8 +73,8 @@ Cohesion: 0.06
 Nodes (40): authController, authMiddleware, authService, Backend (Node.js / Express 4 / TypeScript / Mongoose 8), errorHandler (middleware), meetingController, meetingService, Log Model (+32 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.17
-Nodes (18): acceptMeeting(), cancelMeeting(), completeMeeting(), declineMeeting(), getMeetingById(), makeError(), requestMeeting(), resolveUpdateFailure() (+10 more)
+Cohesion: 0.18
+Nodes (21): acceptMeeting(), cancelMeeting(), completeMeeting(), declineMeeting(), getMeetingById(), getMeetingsByPost(), getMeetingsByUser(), makeError() (+13 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.11
@@ -93,12 +93,12 @@ Cohesion: 0.22
 Nodes (8): onSubmit(), getUserById(), loginUser(), registerUser(), sanitize(), setSuspended(), signToken(), updateUserProfile()
 
 ### Community 6 - "Community 6"
-Cohesion: 0.28
-Nodes (3): handleNext(), handleSubmit(), validateStep()
-
-### Community 7 - "Community 7"
 Cohesion: 0.22
 Nodes (2): handleClick(), markRead()
+
+### Community 7 - "Community 7"
+Cohesion: 0.28
+Nodes (3): handleNext(), handleSubmit(), validateStep()
 
 ### Community 8 - "Community 8"
 Cohesion: 0.28
@@ -195,7 +195,7 @@ Nodes (1): .planning/SNAPSHOT.md (per-phase implementation log, latest Faz 9)
 ## Knowledge Gaps
 - **70 isolated node(s):** `MongoDB (Atlas / mongo:7)`, `bcrypt (≥10 rounds)`, `Helmet (HTTP security headers)`, `express-mongo-sanitize`, `express-rate-limit` (+65 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **Thin community `Community 7`** (9 nodes): `notificationService.ts`, `NotificationsPage.tsx`, `handleClick()`, `deleteAllNotifications()`, `deleteNotification()`, `getNotificationsByUser()`, `getUnreadCount()`, `markAllRead()`, `markRead()`
+- **Thin community `Community 6`** (9 nodes): `notificationService.ts`, `NotificationsPage.tsx`, `handleClick()`, `deleteAllNotifications()`, `deleteNotification()`, `getNotificationsByUser()`, `getUnreadCount()`, `markAllRead()`, `markRead()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 9`** (7 nodes): `MeetingCard.tsx`, `CookieConsentBanner.tsx`, `formatSlot()`, `handleAccept()`, `handleCancel()`, `handleDecline()`, `accept()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
