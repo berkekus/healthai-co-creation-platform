@@ -83,12 +83,20 @@ export async function listPosts(filters: PostFilters) {
   return Post.find(query).sort({ createdAt: -1 })
 }
 
+const UPDATABLE_FIELDS = [
+  'title', 'domain', 'expertiseRequired', 'description',
+  'projectStage', 'collaborationType', 'confidentiality',
+  'city', 'country', 'expiryDate',
+] as const
+
 export async function updatePost(id: string, requesterId: string, isAdmin: boolean, data: Partial<IPost>) {
   const post = await Post.findById(id)
   if (!post) throw makeError('Post not found', 404)
   if (!isAdmin && post.authorId.toString() !== requesterId) throw makeError('Forbidden', 403)
 
-  Object.assign(post, data)
+  for (const field of UPDATABLE_FIELDS) {
+    if (field in data) (post as any)[field] = (data as any)[field]
+  }
   await post.save()
   return post
 }
