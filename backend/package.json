@@ -9,7 +9,8 @@
     "start": "node dist/src/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "smoke": "ts-node-dev --transpile-only scripts/smoke-test.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
