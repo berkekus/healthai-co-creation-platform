@@ -1,12 +1,12 @@
 # Graph Report - healthai-co-creation-platform  (2026-04-28)
 
 ## Corpus Check
-- 92 files · ~153,310 words
+- 92 files · ~153,638 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 327 nodes · 292 edges · 31 communities detected
-- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 39 edges (avg confidence: 0.82)
+- 328 nodes · 296 edges · 31 communities detected
+- Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 41 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -48,7 +48,7 @@
 3. `Frontend (React 18 / TypeScript / Vite 6)` - 17 edges
 4. `Backend (Node.js / Express 4 / TypeScript / Mongoose 8)` - 16 edges
 5. `Frontend README` - 9 edges
-6. `pushNotification()` - 7 edges
+6. `pushNotification()` - 8 edges
 7. `makeError()` - 7 edges
 8. `Engineer Portrait Subject` - 7 edges
 9. `log()` - 6 edges
@@ -74,7 +74,7 @@ Nodes (40): authController, authMiddleware, authService, Backend (Node.js / Expr
 
 ### Community 1 - "Community 1"
 Cohesion: 0.17
-Nodes (17): acceptMeeting(), cancelMeeting(), declineMeeting(), getMeetingById(), makeError(), requestMeeting(), resolveUpdateFailure(), pushNotification() (+9 more)
+Nodes (18): acceptMeeting(), cancelMeeting(), completeMeeting(), declineMeeting(), getMeetingById(), makeError(), requestMeeting(), resolveUpdateFailure() (+10 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.11
@@ -240,7 +240,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `HEALTH AI Co-Creation Platform` connect `Community 3` to `Community 0`, `Community 2`?**
   _High betweenness centrality (0.028) - this node is a cross-community bridge._
 - **Why does `Backend Integration Roadmap (ROADMAP.md)` connect `Community 0` to `Community 2`, `Community 3`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **Why does `Frontend (React 18 / TypeScript / Vite 6)` connect `Community 2` to `Community 0`, `Community 3`?**
   _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **What connects `MongoDB (Atlas / mongo:7)`, `bcrypt (≥10 rounds)`, `Helmet (HTTP security headers)` to the rest of the system?**
