@@ -204,7 +204,7 @@ export default function PostDetailPage() {
             <span className="material-symbols-outlined text-[14px]">description</span>
             Description
           </div>
-          <p className="font-body text-[15.5px] text-neutral-800 leading-[1.7] whitespace-pre-wrap">
+          <p className="font-body text-[15.5px] text-neutral-800 leading-[1.7] whitespace-pre-wrap break-words overflow-hidden">
             {post.description}
           </p>
         </div>
