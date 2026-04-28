@@ -53,6 +53,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   },
 
   logout: () => {
+    api.post('/auth/logout').catch(() => {})
     localStorage.removeItem('token')
     set({ user: null, isAuthenticated: false })
   },

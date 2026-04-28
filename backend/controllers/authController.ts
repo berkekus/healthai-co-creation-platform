@@ -3,6 +3,7 @@ import { AuthRequest } from '../middleware/authMiddleware'
 import * as authService from '../services/authService'
 import { createLog } from '../services/logService'
 import { LOG } from '../constants/logActions'
+import { asyncHandler } from '../utils/asyncHandler'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const VALID_ROLES = ['engineer', 'healthcare_professional', 'admin'] as const
@@ -134,6 +135,36 @@ export async function getAllUsers(req: Request, res: Response, next: NextFunctio
     next(err)
   }
 }
+
+export const changePassword = asyncHandler<AuthRequest>(async (req, res) => {
+  const { oldPassword, newPassword } = req.body
+  if (!oldPassword || !newPassword) {
+    res.status(400).json({ success: false, message: 'oldPassword and newPassword are required' })
+    return
+  }
+  await authService.changePassword(req.userId as string, oldPassword, newPassword)
+  createLog({
+    userId: req.userId as string,
+    userEmail: req.userEmail as string,
+    role: req.userRole as string,
+    action: LOG.PASSWORD_CHANGE,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
+  res.json({ success: true, message: 'Password updated' })
+})
+
+export const logout = asyncHandler<AuthRequest>(async (req, res) => {
+  createLog({
+    userId: req.userId as string,
+    userEmail: req.userEmail as string,
+    role: req.userRole as string,
+    action: LOG.LOGOUT,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
+  res.json({ success: true, message: 'Logged out' })
+})
 
 export async function setSuspended(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {

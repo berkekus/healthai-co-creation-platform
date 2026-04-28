@@ -139,6 +139,31 @@ export async function getAllUsers(opts: {
   }
 }
 
+export async function changePassword(userId: string, oldPassword: string, newPassword: string) {
+  if (newPassword.length < 8) {
+    const err: Error & { statusCode?: number } = new Error('Password must be at least 8 characters')
+    err.statusCode = 400
+    throw err
+  }
+
+  const user = await User.findById(userId)
+  if (!user) {
+    const err: Error & { statusCode?: number } = new Error('User not found')
+    err.statusCode = 404
+    throw err
+  }
+
+  const match = await bcrypt.compare(oldPassword, user.password)
+  if (!match) {
+    const err: Error & { statusCode?: number } = new Error('Current password is incorrect')
+    err.statusCode = 401
+    throw err
+  }
+
+  user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
+  await user.save()
+}
+
 export async function setSuspended(userId: string, isSuspended: boolean) {
   const user = await User.findByIdAndUpdate(
     userId,
