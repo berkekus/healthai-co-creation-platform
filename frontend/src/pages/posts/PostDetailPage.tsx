@@ -118,7 +118,7 @@ export default function PostDetailPage() {
           </div>
 
           {/* Title */}
-          <h1 className="font-headline font-bold text-[32px] md:text-[48px] leading-[1.02] tracking-[-0.03em] text-hai-plum mb-6">
+          <h1 className="font-headline font-bold text-[32px] md:text-[48px] leading-[1.02] tracking-[-0.03em] text-hai-plum mb-6 break-words overflow-hidden">
             {post.title}
           </h1>
 
