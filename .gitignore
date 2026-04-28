@@ -16,3 +16,8 @@ backend/node_modules/
 dist/
 frontend/dist/
 backend/dist/
+
+# graphify - commit graph outputs, skip local-only files
+graphify-out/cache/
+graphify-out/manifest.json
+graphify-out/cost.json
