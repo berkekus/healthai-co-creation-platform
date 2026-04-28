@@ -66,19 +66,25 @@ export async function getPost(req: AuthRequest, res: Response, next: NextFunctio
 export async function listPosts(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
     const { domain, expertise, city, country, projectStage, status, search, authorRole, mine } = req.query
-    const posts = await postService.listPosts({
-      domain: domain as string,
-      expertise: expertise as string,
-      city: city as string,
-      country: country as string,
-      projectStage: projectStage as string,
-      // mine=true ise kendi post'larını (draft dahil) getir; aksi hâlde normal status filtresi
-      authorId: mine === 'true' ? req.userId : undefined,
-      status: mine === 'true' ? undefined : status as string,
-      search: search as string,
-      authorRole: authorRole as string,
-    })
-    res.json({ success: true, data: posts })
+    const page  = Math.max(1, parseInt(req.query.page  as string) || 1)
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20))
+
+    const result = await postService.listPosts(
+      {
+        domain: domain as string,
+        expertise: expertise as string,
+        city: city as string,
+        country: country as string,
+        projectStage: projectStage as string,
+        authorId: mine === 'true' ? req.userId : undefined,
+        status: mine === 'true' ? undefined : status as string,
+        search: search as string,
+        authorRole: authorRole as string,
+      },
+      page,
+      limit,
+    )
+    res.json({ success: true, data: result })
   } catch (err) {
     next(err)
   }

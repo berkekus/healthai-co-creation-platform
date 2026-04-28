@@ -47,8 +47,8 @@ export async function getPostById(id: string) {
   return post
 }
 
-export async function listPosts(filters: PostFilters) {
-  // Item 8: lazily mark active posts past their expiry date
+export async function listPosts(filters: PostFilters, page = 1, limit = 20) {
+  // Lazily mark active posts past their expiry date
   const now = new Date()
   await Post.updateMany(
     { status: 'active', expiryDate: { $lt: now } },
@@ -58,12 +58,10 @@ export async function listPosts(filters: PostFilters) {
   const query: FilterQuery<IPost> = {}
 
   if (filters.authorId) {
-    // Kullanıcı kendi post'larını görüyor — draft dahil, yalnızca kendisine ait
     query.authorId = filters.authorId
   } else if (filters.status) {
     query.status = filters.status
   } else {
-    // Genel feed: yayınlanmamış draft'ları gizle
     query.status = { $ne: 'draft' }
   }
 
@@ -80,7 +78,12 @@ export async function listPosts(filters: PostFilters) {
     ]
   }
 
-  return Post.find(query).sort({ createdAt: -1 })
+  const skip = (page - 1) * limit
+  const [posts, total] = await Promise.all([
+    Post.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    Post.countDocuments(query),
+  ])
+  return { posts, total, page, limit, pages: Math.ceil(total / limit) }
 }
 
 const UPDATABLE_FIELDS = [

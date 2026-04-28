@@ -2,11 +2,19 @@ import { create } from 'zustand'
 import type { Post, PostFilters, PostCreateData, PostAuthorRole } from '../types/post.types'
 import api from '../lib/api'
 
+interface PaginationMeta {
+  total: number
+  page: number
+  limit: number
+  pages: number
+}
+
 interface PostState {
   posts: Post[]
   filters: PostFilters
+  pagination: PaginationMeta
   isLoading: boolean
-  fetchPosts: () => Promise<void>
+  fetchPosts: (opts?: { page?: number; limit?: number }) => Promise<void>
   setFilters: (f: Partial<PostFilters>) => void
   clearFilters: () => void
   getFiltered: () => Post[]
@@ -40,16 +48,41 @@ function normalise(raw: Post & { _id?: string }): Post {
   return { ...raw, id: raw._id ?? raw.id }
 }
 
+interface PostsResponse {
+  posts: Post[]
+  total: number
+  page: number
+  limit: number
+  pages: number
+}
+
 export const usePostStore = create<PostState>()((set, get) => ({
   posts: [],
   filters: {},
+  pagination: { total: 0, page: 1, limit: 20, pages: 0 },
   isLoading: false,
 
-  fetchPosts: async () => {
+  fetchPosts: async (opts = {}) => {
     set({ isLoading: true })
     try {
-      const { data } = await api.get<{ success: boolean; data: Post[] }>('/posts')
-      set({ posts: data.data.map(normalise), isLoading: false })
+      const { filters } = get()
+      const page  = opts.page  ?? 1
+      const limit = opts.limit ?? 20
+      const params = new URLSearchParams()
+      params.set('page',  String(page))
+      params.set('limit', String(limit))
+      if (filters.domain)       params.set('domain',       filters.domain)
+      if (filters.expertise)    params.set('expertise',    filters.expertise)
+      if (filters.city)         params.set('city',         filters.city)
+      if (filters.country)      params.set('country',      filters.country)
+      if (filters.projectStage) params.set('projectStage', filters.projectStage)
+      if (filters.status)       params.set('status',       filters.status)
+      if (filters.authorRole)   params.set('authorRole',   filters.authorRole)
+      if (filters.search)       params.set('search',       filters.search)
+
+      const { data } = await api.get<{ success: boolean; data: PostsResponse }>(`/posts?${params}`)
+      const { posts, ...meta } = data.data
+      set({ posts: posts.map(normalise), pagination: meta, isLoading: false })
     } catch {
       set({ isLoading: false })
     }
