@@ -59,6 +59,8 @@ export async function listPosts(filters: PostFilters, page = 1, limit = 20) {
 
   if (filters.authorId) {
     query.authorId = filters.authorId
+    // When scoped to a specific author, allow further filtering by status
+    if (filters.status) query.status = filters.status
   } else if (filters.status) {
     query.status = filters.status
   } else {

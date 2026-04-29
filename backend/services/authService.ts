@@ -122,7 +122,7 @@ export async function loginUser(email: string, password: string) {
   const match = await bcrypt.compare(password, user.password)
   if (!match) throw makeError('Invalid credentials', 401)
 
-  if (!user.isVerified) {
+  if (!user.isVerified && process.env.NODE_ENV !== 'development') {
     const err = makeError('Email not verified. Please check your inbox.', 403) as Error & { statusCode: number; code?: string }
     err.code = 'EMAIL_NOT_VERIFIED'
     throw err
