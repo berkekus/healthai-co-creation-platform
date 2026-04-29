@@ -1,6 +1,7 @@
 import { Router } from 'express'
-import { register, login, logout, getMe, updateProfile, changePassword, getUserById, getAllUsers, setSuspended } from '../controllers/authController'
+import { register, login, logout, getMe, updateProfile, changePassword, getUserById, getAllUsers, setSuspended, uploadAvatar } from '../controllers/authController'
 import { protect, adminOnly } from '../middleware/authMiddleware'
+import { avatarUpload } from '../middleware/uploadMiddleware'
 
 const router = Router()
 
@@ -9,6 +10,7 @@ router.post('/login', login)
 router.post('/logout', protect, logout)
 router.get('/me', protect, getMe)
 router.put('/me/profile', protect, updateProfile)
+router.post('/me/avatar', protect, avatarUpload.single('avatar'), uploadAvatar)
 router.put('/me/password', protect, changePassword)
 router.get('/users', protect, adminOnly, getAllUsers)
 router.get('/users/:id', protect, getUserById)

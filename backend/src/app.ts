@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
+import path from 'path'
 import mongoSanitize from 'express-mongo-sanitize'
 import authRoutes from '../routes/authRoutes'
 import postRoutes from '../routes/postRoutes'
@@ -18,7 +19,9 @@ const allowedOrigins = [
   process.env.CLIENT_ORIGIN,
 ].filter(Boolean) as string[]
 
-app.use(helmet())
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}))
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true)
@@ -28,6 +31,8 @@ app.use(cors({
 }))
 app.use(express.json({ limit: '10kb' }))
 app.use(mongoSanitize())
+
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })

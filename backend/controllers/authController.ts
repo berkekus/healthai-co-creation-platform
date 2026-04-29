@@ -4,6 +4,7 @@ import * as authService from '../services/authService'
 import { createLog } from '../services/logService'
 import { LOG } from '../constants/logActions'
 import { asyncHandler } from '../utils/asyncHandler'
+import { deleteAvatarFile } from '../middleware/uploadMiddleware'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const VALID_ROLES = ['engineer', 'healthcare_professional', 'admin'] as const
@@ -164,4 +165,31 @@ export const logout = asyncHandler<AuthRequest>(async (req, res) => {
     ipAddress: req.ip,
   }).catch(() => {})
   res.json({ success: true, message: 'Logged out' })
+})
+
+export const uploadAvatar = asyncHandler<AuthRequest>(async (req, res) => {
+  if (!req.file) {
+    res.status(400).json({ success: false, message: 'No image file provided' })
+    return
+  }
+
+  const existing = await authService.getUserById(req.userId as string)
+  // delete old uploaded avatar (skip if it's an external URL)
+  if (existing.avatarUrl && existing.avatarUrl.startsWith('/uploads/')) {
+    deleteAvatarFile(existing.avatarUrl)
+  }
+
+  const avatarUrl = `/uploads/avatars/${req.file.filename}`
+  const user = await authService.updateUserProfile(req.userId as string, { avatarUrl })
+
+  createLog({
+    userId: user.id,
+    userEmail: user.email,
+    role: user.role,
+    action: LOG.PROFILE_UPDATE,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
+
+  res.json({ success: true, data: user })
 })
