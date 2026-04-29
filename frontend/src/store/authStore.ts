@@ -8,11 +8,16 @@ interface AuthState {
   isLoading: boolean
   isHydrating: boolean
   error: string | null
+  /** Set after registration; UI uses this to redirect to /verify-email */
+  pendingVerificationEmail: string | null
   login: (credentials: LoginCredentials) => Promise<void>
   logout: () => void
-  register: (data: RegisterData) => Promise<void>
+  register: (data: RegisterData) => Promise<{ requiresVerification: boolean }>
+  verifyEmail: (token: string) => Promise<void>
+  resendVerification: (email: string) => Promise<void>
   updateProfile: (data: Partial<Pick<User, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>) => Promise<void>
   uploadAvatar: (file: File) => Promise<void>
+  deleteAccount: (password: string) => Promise<void>
   hydrate: () => Promise<void>
   clearError: () => void
 }
@@ -23,6 +28,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   isLoading: false,
   isHydrating: true,
   error: null,
+  pendingVerificationEmail: null,
 
   hydrate: async () => {
     const token = localStorage.getItem('token')
@@ -62,11 +68,48 @@ export const useAuthStore = create<AuthState>()((set) => ({
   register: async (data: RegisterData) => {
     set({ isLoading: true, error: null })
     try {
-      const { data: res } = await api.post<{ success: boolean; data: { user: User; token: string } }>('/auth/register', data)
-      localStorage.setItem('token', res.data.token)
-      set({ user: res.data.user, isAuthenticated: true, isLoading: false })
+      await api.post<{ success: boolean; data: { user: User; requiresVerification: boolean } }>('/auth/register', data)
+      set({ isLoading: false, pendingVerificationEmail: data.email })
+      return { requiresVerification: true }
     } catch (err) {
       set({ isLoading: false, error: (err as Error).message })
+      return { requiresVerification: false }
+    }
+  },
+
+  verifyEmail: async (token: string) => {
+    set({ isLoading: true, error: null })
+    try {
+      const { data: res } = await api.post<{ success: boolean; data: { user: User; token: string } }>(
+        '/auth/verify-email',
+        { token }
+      )
+      localStorage.setItem('token', res.data.token)
+      set({ user: res.data.user, isAuthenticated: true, isLoading: false, pendingVerificationEmail: null })
+    } catch (err) {
+      set({ isLoading: false, error: (err as Error).message })
+    }
+  },
+
+  resendVerification: async (email: string) => {
+    set({ isLoading: true, error: null })
+    try {
+      await api.post('/auth/resend-verification', { email })
+      set({ isLoading: false })
+    } catch (err) {
+      set({ isLoading: false, error: (err as Error).message })
+    }
+  },
+
+  deleteAccount: async (password: string) => {
+    set({ isLoading: true, error: null })
+    try {
+      await api.delete('/auth/me', { data: { password } })
+      localStorage.removeItem('token')
+      set({ user: null, isAuthenticated: false, isLoading: false })
+    } catch (err) {
+      set({ isLoading: false, error: (err as Error).message })
+      throw err
     }
   },
 
