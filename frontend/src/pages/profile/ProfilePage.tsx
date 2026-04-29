@@ -13,6 +13,13 @@ import { ROUTES } from '../../constants/routes'
 const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'
 const ERROR_SHADOW = '0 0 0 3px rgba(220,38,38,0.18)'
 
+const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
+const resolveAvatar = (url?: string | null) => {
+  if (!url) return null
+  if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`
+  return url
+}
+
 const onInputFocus = (hasError: boolean) => (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
   e.currentTarget.style.borderColor = hasError ? '#DC2626' : '#36213E'
   e.currentTarget.style.boxShadow = hasError ? ERROR_SHADOW : FOCUS_SHADOW
@@ -288,10 +295,10 @@ export default function ProfilePage() {
           {/* Identity row */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-5 bg-hai-offwhite rounded-[1.5rem] p-5">
             <div className="shrink-0 w-16 h-16 rounded-full overflow-hidden bg-hai-plum text-hai-mint flex items-center justify-center font-mono font-bold text-[20px] tracking-[0.06em]">
-              {(avatarPreview ?? user.avatarUrl)
-                ? <img src={avatarPreview ?? user.avatarUrl} alt={user.name} className="w-full h-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; (e.currentTarget.nextElementSibling as HTMLElement | null)?.removeAttribute('hidden') }} />
+              {(avatarPreview ?? resolveAvatar(user.avatarUrl))
+                ? <img src={avatarPreview ?? resolveAvatar(user.avatarUrl)!} alt={user.name} className="w-full h-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; (e.currentTarget.nextElementSibling as HTMLElement | null)?.removeAttribute('hidden') }} />
                 : null}
-              <span hidden={!!(avatarPreview ?? user.avatarUrl)}>{initials}</span>
+              <span hidden={!!(avatarPreview ?? resolveAvatar(user.avatarUrl))}>{initials}</span>
             </div>
             <div className="min-w-0 flex-1">
               <div className="font-headline font-bold text-[22px] leading-tight text-hai-plum truncate">{user.name}</div>
@@ -363,8 +370,8 @@ export default function ProfilePage() {
               <FormField label="Profile photo">
                 <div className="flex items-center gap-4">
                   <div className="relative shrink-0 w-16 h-16 rounded-full overflow-hidden bg-hai-plum text-hai-mint flex items-center justify-center font-mono font-bold text-[20px] tracking-[0.06em]">
-                    {(avatarPreview ?? user.avatarUrl) ? (
-                      <img src={avatarPreview ?? user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                    {(avatarPreview ?? resolveAvatar(user.avatarUrl)) ? (
+                      <img src={avatarPreview ?? resolveAvatar(user.avatarUrl)!} alt={user.name} className="w-full h-full object-cover" />
                     ) : (
                       <span>{initials}</span>
                     )}
