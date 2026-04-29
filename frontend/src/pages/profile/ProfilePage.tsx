@@ -83,9 +83,10 @@ function ReadField({ label, value, icon }: { label: string; value?: string; icon
   )
 }
 
-function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
-  const [typed, setTyped] = useState('')
-  const canDelete = typed === 'DELETE'
+function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: (password: string) => Promise<void> }) {
+  const [password, setPassword] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !submitting) onCancel() }
