@@ -15,7 +15,7 @@ export default function PostCreatePage() {
   const navigate = useNavigate()
   const [submitAction, setSubmitAction] = useState<'draft' | 'publish'>('draft')
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<PostCreateFormData>({
+  const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting } } = useForm<PostCreateFormData>({
     resolver: zodResolver(postCreateSchema),
     defaultValues: { confidentiality: 'public_pitch', projectStage: 'idea' },
   })
@@ -65,7 +65,7 @@ export default function PostCreatePage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <PostFormFields register={register} errors={errors} minDateStr={minDateStr} />
+        <PostFormFields register={register} control={control} setValue={setValue} errors={errors} minDateStr={minDateStr} />
 
         {/* Action row */}
         <div className="mt-10 bg-white rounded-[2rem] border border-neutral-100 p-5 md:p-6 flex flex-col sm:flex-row gap-3 sticky bottom-4 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.2)]">

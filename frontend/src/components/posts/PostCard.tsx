@@ -79,12 +79,12 @@ export default function PostCard({ post, matchReasons, featured = false }: Props
       </div>
 
       {/* Title */}
-      <h3 className="font-headline font-bold text-[19px] leading-[1.2] tracking-[-0.02em] text-hai-plum line-clamp-2 group-hover:text-hai-plum transition-colors">
+      <h3 className="font-headline font-bold text-[19px] leading-[1.2] tracking-[-0.02em] text-hai-plum line-clamp-2 break-words overflow-hidden group-hover:text-hai-plum transition-colors">
         {post.title}
       </h3>
 
       {/* Description */}
-      <p className="text-[13.5px] text-neutral-600 leading-[1.55] line-clamp-2 flex-1">
+      <p className="text-[13.5px] text-neutral-600 leading-[1.55] line-clamp-2 flex-1 break-words overflow-hidden">
         {post.description}
       </p>
 

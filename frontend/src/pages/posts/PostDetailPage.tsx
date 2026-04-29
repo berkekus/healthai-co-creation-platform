@@ -118,7 +118,7 @@ export default function PostDetailPage() {
           </div>
 
           {/* Title */}
-          <h1 className="font-headline font-bold text-[32px] md:text-[48px] leading-[1.02] tracking-[-0.03em] text-hai-plum mb-6">
+          <h1 className="font-headline font-bold text-[32px] md:text-[48px] leading-[1.02] tracking-[-0.03em] text-hai-plum mb-6 break-words overflow-hidden">
             {post.title}
           </h1>
 
@@ -204,7 +204,7 @@ export default function PostDetailPage() {
             <span className="material-symbols-outlined text-[14px]">description</span>
             Description
           </div>
-          <p className="font-body text-[15.5px] text-neutral-800 leading-[1.7] whitespace-pre-wrap">
+          <p className="font-body text-[15.5px] text-neutral-800 leading-[1.7] whitespace-pre-wrap break-words overflow-hidden">
             {post.description}
           </p>
         </div>
