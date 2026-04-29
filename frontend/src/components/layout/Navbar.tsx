@@ -5,6 +5,13 @@ import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import { ROUTES } from '../../constants/routes'
 
+const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
+const resolveAvatar = (url?: string) => {
+  if (!url) return undefined
+  if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`
+  return url
+}
+
 /**
  * Authenticated-app Navbar (Faz 1 refresh).
  * Visual language matches the landing page: hai-* palette, Plus Jakarta Sans
@@ -125,8 +132,8 @@ export default function Navbar() {
                   aria-label="Account menu"
                   className="w-10 h-10 rounded-full overflow-hidden bg-hai-mint text-hai-plum font-bold text-xs font-body flex items-center justify-center border border-hai-teal/40 hover:border-hai-plum transition-colors"
                 >
-                  {user.avatarUrl
-                    ? <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" onError={e => { const btn = (e.currentTarget as HTMLImageElement); btn.style.display = 'none'; btn.parentElement!.insertAdjacentText('beforeend', user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()) }} />
+                  {resolveAvatar(user.avatarUrl)
+                    ? <img src={resolveAvatar(user.avatarUrl)} alt={user.name} className="w-full h-full object-cover" onError={e => { const btn = (e.currentTarget as HTMLImageElement); btn.style.display = 'none'; btn.parentElement!.insertAdjacentText('beforeend', user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()) }} />
                     : user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                 </button>
                 {profileOpen && (
