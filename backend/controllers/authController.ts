@@ -220,6 +220,20 @@ export const deleteAccount = asyncHandler<AuthRequest>(async (req, res) => {
   res.json({ success: true, message: 'Account permanently deleted' })
 })
 
+export const deleteUser = asyncHandler<AuthRequest>(async (req, res) => {
+  const result = await authService.deleteUserByAdmin(req.params.id)
+  createLog({
+    userId: req.userId as string,
+    userEmail: req.userEmail as string,
+    role: req.userRole as string,
+    action: LOG.USER_DELETE,
+    targetEntityId: req.params.id,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
+  res.json({ success: true, message: `Account ${result.email} permanently deleted` })
+})
+
 export const exportMyData = asyncHandler<AuthRequest>(async (req, res) => {
   const data = await authService.exportUserData(req.userId as string)
   res.setHeader('Content-Disposition', `attachment; filename="healthai-export-${req.userId}-${new Date().toISOString().split('T')[0]}.json"`)

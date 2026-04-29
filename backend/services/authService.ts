@@ -308,6 +308,42 @@ export async function deleteAccount(userId: string, password: string) {
   return { email: userEmail, name: userName }
 }
 
+export async function deleteUserByAdmin(userId: string) {
+  const user = await User.findById(userId)
+  if (!user) throw makeError('User not found', 404)
+  if (user.role === 'admin') throw makeError('Cannot delete another admin account', 403)
+
+  const activeMeetings = await Meeting.find({
+    $or: [{ requesterId: userId }, { ownerId: userId }],
+    status: { $in: ['pending', 'time_proposed', 'confirmed'] },
+  })
+  for (const m of activeMeetings) {
+    m.status = 'cancelled'
+    await m.save()
+    const otherUserId = m.requesterId.toString() === userId
+      ? m.ownerId.toString()
+      : m.requesterId.toString()
+    pushNotification({
+      userId: otherUserId,
+      type: 'meeting_cancelled',
+      title: 'Toplantı iptal edildi',
+      body: `Karşı taraf hesabı silindiği için "${m.postTitle}" görüşmesi iptal edildi.`,
+      linkTo: '/meetings',
+    }).catch(() => {})
+  }
+
+  await Meeting.updateMany({ requesterId: userId }, { $set: { requesterName: 'Deleted user', requesterEmail: '' } })
+  await Meeting.updateMany({ ownerId: userId }, { $set: { ownerName: 'Deleted user', ownerEmail: '' } })
+  await Post.deleteMany({ authorId: userId })
+  await Notification.deleteMany({ userId })
+
+  if (user.avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(user.avatarUrl)
+
+  const { email, name } = user
+  await user.deleteOne()
+  return { email, name }
+}
+
 export async function setSuspended(userId: string, isSuspended: boolean) {
   const user = await User.findByIdAndUpdate(
     userId,
