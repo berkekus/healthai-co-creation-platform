@@ -1,7 +1,11 @@
-import { useId } from 'react'
-import type { UseFormRegister, FieldErrors } from 'react-hook-form'
+import { useId, useEffect, useRef } from 'react'
+import { Controller, useWatch } from 'react-hook-form'
+import type { UseFormRegister, FieldErrors, Control, UseFormSetValue } from 'react-hook-form'
 import type { PostCreateFormData } from '../../utils/validators'
 import FormField, { inputStyle } from '../ui/FormField'
+import SearchableSelect from '../ui/SearchableSelect'
+import { COUNTRIES, getCitiesForCountry } from '../../data/locations'
+
 
 const MEDICAL_DOMAINS = [
   'Cardiology','Oncology','Radiology & Imaging','Neurology','Orthopedics',
@@ -58,12 +62,23 @@ function SectionHeader({ number, title, subtitle }: { number: string; title: str
 
 interface Props {
   register: UseFormRegister<PostCreateFormData>
+  control: Control<PostCreateFormData>
+  setValue: UseFormSetValue<PostCreateFormData>
   errors: FieldErrors<PostCreateFormData>
   minDateStr: string
 }
 
-export default function PostFormFields({ register, errors, minDateStr }: Props) {
+export default function PostFormFields({ register, control, setValue, errors, minDateStr }: Props) {
   const radioGroupId = useId()
+  const selectedCountry = useWatch({ control, name: 'country' }) ?? ''
+  const isFirstRender = useRef(true)
+
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return }
+    setValue('city', '', { shouldValidate: false })
+  }, [selectedCountry, setValue])
+
+  const availableCities = getCitiesForCountry(selectedCountry)
 
   return (
     <div className="flex flex-col gap-10">
@@ -208,24 +223,34 @@ export default function PostFormFields({ register, errors, minDateStr }: Props) 
         <SectionHeader number="04" title="Where & when" subtitle="Location helps with in-person meetings; the expiry date closes the post automatically." />
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <FormField label="City" error={errors.city?.message} required>
-              <input
-                {...register('city')}
-                type="text"
-                placeholder="e.g. Berlin"
-                style={inputStyle(errors.city?.message)}
-                onFocus={e => focusIn(e, errors.city?.message)}
-                onBlur={e => focusOut(e, errors.city?.message)}
+            <FormField label="Country" error={errors.country?.message} required>
+              <Controller
+                name="country"
+                control={control}
+                render={({ field }) => (
+                  <SearchableSelect
+                    options={COUNTRIES}
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    placeholder="Select a country…"
+                    error={errors.country?.message}
+                  />
+                )}
               />
             </FormField>
-            <FormField label="Country" error={errors.country?.message} required>
-              <input
-                {...register('country')}
-                type="text"
-                placeholder="e.g. Germany"
-                style={inputStyle(errors.country?.message)}
-                onFocus={e => focusIn(e, errors.country?.message)}
-                onBlur={e => focusOut(e, errors.country?.message)}
+            <FormField label="City" error={errors.city?.message} required>
+              <Controller
+                name="city"
+                control={control}
+                render={({ field }) => (
+                  <SearchableSelect
+                    options={availableCities}
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    placeholder={selectedCountry ? 'Select a city…' : 'Select a country first…'}
+                    error={errors.city?.message}
+                  />
+                )}
               />
             </FormField>
           </div>

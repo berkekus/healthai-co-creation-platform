@@ -17,7 +17,7 @@ export default function PostEditPage() {
 
   const post = getById(id ?? '')
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<PostCreateFormData>({
+  const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting } } = useForm<PostCreateFormData>({
     resolver: zodResolver(postCreateSchema),
     defaultValues: post ? {
       title:             post.title,
@@ -101,7 +101,7 @@ export default function PostEditPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <PostFormFields register={register} errors={errors} minDateStr={minDateStr} />
+        <PostFormFields register={register} control={control} setValue={setValue} errors={errors} minDateStr={minDateStr} />
 
         {/* Action row */}
         <div className="mt-10 bg-white rounded-[2rem] border border-neutral-100 p-5 md:p-6 flex flex-col sm:flex-row gap-3 sticky bottom-4 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.2)]">

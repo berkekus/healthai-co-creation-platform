@@ -69,10 +69,23 @@ function SectionCard({
   )
 }
 
-function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: (password: string) => Promise<void> }) {
-  const [password, setPassword] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+function ReadField({ label, value, icon }: { label: string; value?: string; icon?: string }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-1 text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-400 font-bold">
+        {icon && <span className="material-symbols-outlined text-[12px]">{icon}</span>}
+        {label}
+      </div>
+      <div className="text-[15px] font-body font-medium text-hai-plum leading-snug">
+        {value?.trim() ? value : <span className="text-neutral-400 text-[13px] italic">Not set</span>}
+      </div>
+    </div>
+  )
+}
+
+function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+  const [typed, setTyped] = useState('')
+  const canDelete = typed === 'DELETE'
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !submitting) onCancel() }
@@ -178,6 +191,7 @@ export default function ProfilePage() {
   const { meetings } = useMeetingStore()
   const navigate = useNavigate()
 
+  const [isEditing, setIsEditing] = useState(false)
   const [saved, setSaved] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [exportSuccess, setExportSuccess] = useState(false)
@@ -211,7 +225,7 @@ export default function ProfilePage() {
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name:        user?.name ?? '',
@@ -227,7 +241,22 @@ export default function ProfilePage() {
   const onSubmit = (data: ProfileFormData) => {
     updateProfile({ ...data, expertiseTags: tags })
     setSaved(true)
+    setIsEditing(false)
     setTimeout(() => setSaved(false), 2500)
+  }
+
+  const handleCancel = () => {
+    reset({
+      name:        user.name ?? '',
+      institution: user.institution ?? '',
+      city:        user.city ?? '',
+      country:     user.country ?? '',
+      bio:         user.bio ?? '',
+    })
+    setTags(user.expertiseTags ?? [])
+    setTagInput('')
+    setAvatarError(null)
+    setIsEditing(false)
   }
 
   const addTag = () => {
@@ -270,10 +299,21 @@ export default function ProfilePage() {
       <div className="bg-white rounded-[2rem] border border-neutral-100 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.12)] p-6 md:p-10 mb-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-72 h-72 pointer-events-none opacity-60" style={{ background: 'radial-gradient(circle, #B8F3FF 0%, transparent 70%)' }} />
         <div className="relative">
-          <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-4 py-1.5 mb-5 text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
-            <span className="text-hai-plum/70">16</span>
-            <span>Profile</span>
+          <div className="flex items-center justify-between mb-5">
+            <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-4 py-1.5 text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
+              <span className="text-hai-plum/70">16</span>
+              <span>Profile</span>
+            </div>
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-hai-offwhite border border-neutral-200 text-hai-plum text-[12px] font-mono tracking-[0.1em] uppercase font-bold hover:bg-hai-mint/40 hover:border-hai-plum/30 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[15px]">edit</span>
+                Edit profile
+              </button>
+            )}
           </div>
 
           <h1 className="font-headline font-bold text-[40px] md:text-[56px] leading-[0.98] tracking-[-0.035em] text-hai-plum mb-6">
@@ -329,153 +369,210 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Edit form */}
+      {/* Edit mode banner */}
+      {isEditing && (
+        <div className="mb-5 bg-hai-offwhite border border-hai-plum/20 rounded-2xl p-3.5 flex items-center gap-2.5 text-[13px] text-hai-plum font-body font-medium">
+          <span className="material-symbols-outlined text-hai-plum text-[18px]" style={{ fontVariationSettings: '"FILL" 1' }}>edit</span>
+          You're editing your profile. Save or cancel when done.
+        </div>
+      )}
+
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
+
+        {/* Identity */}
         <SectionCard index="01" title="Identity" subtitle="Your name and affiliation — visible to other members.">
-          <div className="flex flex-col gap-4">
-            <FormField label="Full name" error={errors.name?.message} required>
-              <input {...register('name')} type="text"
-                style={inputStyle(errors.name?.message)}
-                onFocus={onInputFocus(!!errors.name)}
-                onBlur={onInputBlur(!!errors.name)} />
-            </FormField>
-            <FormField label="Institution" error={errors.institution?.message} required>
-              <input {...register('institution')} type="text"
-                style={inputStyle(errors.institution?.message)}
-                onFocus={onInputFocus(!!errors.institution)}
-                onBlur={onInputBlur(!!errors.institution)} />
-            </FormField>
-            <FormField label="Profile photo">
-              <div className="flex items-center gap-4">
-                <div className="relative shrink-0 w-16 h-16 rounded-full overflow-hidden bg-hai-plum text-hai-mint flex items-center justify-center font-mono font-bold text-[20px] tracking-[0.06em]">
-                  {(avatarPreview ?? resolveAvatar(user.avatarUrl)) ? (
-                    <img src={avatarPreview ?? resolveAvatar(user.avatarUrl)!} alt={user.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span>{initials}</span>
-                  )}
-                  {avatarUploading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-hai-plum/60">
-                      <span className="material-symbols-outlined text-white text-[20px] animate-spin">progress_activity</span>
-                    </div>
-                  )}
+          {isEditing ? (
+            <div className="flex flex-col gap-4">
+              <FormField label="Full name" error={errors.name?.message} required>
+                <input {...register('name')} type="text"
+                  style={inputStyle(errors.name?.message)}
+                  onFocus={onInputFocus(!!errors.name)}
+                  onBlur={onInputBlur(!!errors.name)} />
+              </FormField>
+              <FormField label="Institution" error={errors.institution?.message} required>
+                <input {...register('institution')} type="text"
+                  style={inputStyle(errors.institution?.message)}
+                  onFocus={onInputFocus(!!errors.institution)}
+                  onBlur={onInputBlur(!!errors.institution)} />
+              </FormField>
+              <FormField label="Profile photo">
+                <div className="flex items-center gap-4">
+                  <div className="relative shrink-0 w-16 h-16 rounded-full overflow-hidden bg-hai-plum text-hai-mint flex items-center justify-center font-mono font-bold text-[20px] tracking-[0.06em]">
+                    {(avatarPreview ?? resolveAvatar(user.avatarUrl)) ? (
+                      <img src={avatarPreview ?? resolveAvatar(user.avatarUrl)!} alt={user.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{initials}</span>
+                    )}
+                    {avatarUploading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-hai-plum/60">
+                        <span className="material-symbols-outlined text-white text-[20px] animate-spin">progress_activity</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1.5 min-w-0">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      className="hidden"
+                      onChange={handleAvatarChange}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={avatarUploading}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-hai-plum text-white text-[12px] font-mono tracking-[0.1em] uppercase font-bold hover:bg-black disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">upload</span>
+                      {avatarUploading ? 'Uploading…' : 'Upload photo'}
+                    </button>
+                    <p className="text-[11px] font-mono text-neutral-400">JPEG, PNG, WebP or GIF · max 5 MB</p>
+                    {avatarError && (
+                      <p className="text-[11px] text-red-500">{avatarError}</p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-col gap-1.5 min-w-0">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    className="hidden"
-                    onChange={handleAvatarChange}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={avatarUploading}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-hai-plum text-white text-[12px] font-mono tracking-[0.1em] uppercase font-bold hover:bg-black disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[14px]">upload</span>
-                    {avatarUploading ? 'Uploading…' : 'Upload photo'}
-                  </button>
-                  <p className="text-[11px] font-mono text-neutral-400">JPEG, PNG, WebP or GIF · max 5 MB</p>
-                  {avatarError && (
-                    <p className="text-[11px] text-red-500">{avatarError}</p>
-                  )}
-                </div>
-              </div>
-            </FormField>
-          </div>
-        </SectionCard>
-
-        <SectionCard index="02" title="Location" subtitle="Helps surface posts in your region for cross-team matching.">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField label="City" error={errors.city?.message} required>
-              <input {...register('city')} type="text"
-                style={inputStyle(errors.city?.message)}
-                onFocus={onInputFocus(!!errors.city)}
-                onBlur={onInputBlur(!!errors.city)} />
-            </FormField>
-            <FormField label="Country" error={errors.country?.message} required>
-              <input {...register('country')} type="text"
-                style={inputStyle(errors.country?.message)}
-                onFocus={onInputFocus(!!errors.country)}
-                onBlur={onInputBlur(!!errors.country)} />
-            </FormField>
-          </div>
-        </SectionCard>
-
-        <SectionCard index="03" title="About" subtitle="Briefly describe your background, interests, and what you bring to collaborations.">
-          <FormField label="Bio" hint="Optional · max 400 chars" error={errors.bio?.message}>
-            <textarea {...register('bio')} rows={5} placeholder="Briefly describe your background and interests…"
-              style={{ ...inputStyle(errors.bio?.message), resize: 'vertical', lineHeight: 1.6 }}
-              onFocus={onInputFocus(!!errors.bio)}
-              onBlur={onInputBlur(!!errors.bio)} />
-          </FormField>
-        </SectionCard>
-
-        <SectionCard index="04" title="Expertise tags" subtitle="Used by our matching engine to surface relevant collaboration posts.">
-          <div className="flex flex-col gap-3">
-            <div className="flex gap-2">
-              <input
-                value={tagInput}
-                onChange={e => setTagInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag() } }}
-                placeholder="e.g. Cardiology, Federated Learning, DICOM…"
-                style={inputStyle()}
-                onFocus={onInputFocus(false)}
-                onBlur={onInputBlur(false)}
-              />
-              <button
-                type="button"
-                onClick={addTag}
-                disabled={!tagInput.trim()}
-                className="shrink-0 px-5 rounded-xl bg-hai-plum text-white text-[12px] font-mono tracking-[0.1em] uppercase font-bold hover:bg-black disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1.5"
-              >
-                <span className="material-symbols-outlined text-[15px]">add</span>
-                Add
-              </button>
+              </FormField>
             </div>
-            {tags.length === 0 ? (
-              <div className="border-2 border-dashed border-neutral-200 rounded-2xl py-6 px-4 text-center">
-                <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-hai-mint/40 mb-2">
-                  <span className="material-symbols-outlined text-hai-plum text-[18px]" style={{ fontVariationSettings: '"FILL" 1' }}>auto_awesome</span>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <ReadField label="Full name" value={user.name} icon="person" />
+              <ReadField label="Institution" value={user.institution} icon="business" />
+            </div>
+          )}
+        </SectionCard>
+
+        {/* Location */}
+        <SectionCard index="02" title="Location" subtitle="Helps surface posts in your region for cross-team matching.">
+          {isEditing ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField label="City" error={errors.city?.message} required>
+                <input {...register('city')} type="text"
+                  style={inputStyle(errors.city?.message)}
+                  onFocus={onInputFocus(!!errors.city)}
+                  onBlur={onInputBlur(!!errors.city)} />
+              </FormField>
+              <FormField label="Country" error={errors.country?.message} required>
+                <input {...register('country')} type="text"
+                  style={inputStyle(errors.country?.message)}
+                  onFocus={onInputFocus(!!errors.country)}
+                  onBlur={onInputBlur(!!errors.country)} />
+              </FormField>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ReadField label="City" value={user.city} icon="location_city" />
+              <ReadField label="Country" value={user.country} icon="public" />
+            </div>
+          )}
+        </SectionCard>
+
+        {/* About */}
+        <SectionCard index="03" title="About" subtitle="Briefly describe your background, interests, and what you bring to collaborations.">
+          {isEditing ? (
+            <FormField label="Bio" hint="Optional · max 400 chars" error={errors.bio?.message}>
+              <textarea {...register('bio')} rows={5} placeholder="Briefly describe your background and interests…"
+                style={{ ...inputStyle(errors.bio?.message), resize: 'vertical', lineHeight: 1.6 }}
+                onFocus={onInputFocus(!!errors.bio)}
+                onBlur={onInputBlur(!!errors.bio)} />
+            </FormField>
+          ) : (
+            <ReadField label="Bio" value={user.bio} icon="info" />
+          )}
+        </SectionCard>
+
+        {/* Expertise tags */}
+        <SectionCard index="04" title="Expertise tags" subtitle="Used by our matching engine to surface relevant collaboration posts.">
+          {isEditing ? (
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-2">
+                <input
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag() } }}
+                  placeholder="e.g. Cardiology, Federated Learning, DICOM…"
+                  style={inputStyle()}
+                  onFocus={onInputFocus(false)}
+                  onBlur={onInputBlur(false)}
+                />
+                <button
+                  type="button"
+                  onClick={addTag}
+                  disabled={!tagInput.trim()}
+                  className="shrink-0 px-5 rounded-xl bg-hai-plum text-white text-[12px] font-mono tracking-[0.1em] uppercase font-bold hover:bg-black disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-[15px]">add</span>
+                  Add
+                </button>
+              </div>
+              {tags.length === 0 ? (
+                <div className="border-2 border-dashed border-neutral-200 rounded-2xl py-6 px-4 text-center">
+                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-hai-mint/40 mb-2">
+                    <span className="material-symbols-outlined text-hai-plum text-[18px]" style={{ fontVariationSettings: '"FILL" 1' }}>auto_awesome</span>
+                  </div>
+                  <p className="text-[12.5px] text-neutral-500 font-body leading-relaxed">
+                    No tags yet. Add keywords to improve post matching.
+                  </p>
                 </div>
-                <p className="text-[12.5px] text-neutral-500 font-body leading-relaxed">
-                  No tags yet. Add keywords to improve post matching.
-                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {tags.map(t => (
+                    <span key={t} className="inline-flex items-center gap-1.5 bg-hai-lime text-hai-plum rounded-full pl-3 pr-1.5 py-1 text-[12px] font-body font-bold">
+                      {t}
+                      <button
+                        type="button"
+                        onClick={() => removeTag(t)}
+                        aria-label={`Remove ${t}`}
+                        className="w-5 h-5 rounded-full bg-hai-plum/10 hover:bg-hai-plum hover:text-hai-mint text-hai-plum flex items-center justify-center transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[13px]">close</span>
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            tags.length === 0 ? (
+              <div className="border-2 border-dashed border-neutral-200 rounded-2xl py-6 px-4 text-center">
+                <p className="text-[12.5px] text-neutral-400 font-body italic">No expertise tags added yet.</p>
               </div>
             ) : (
               <div className="flex flex-wrap gap-2">
                 {tags.map(t => (
-                  <span key={t} className="inline-flex items-center gap-1.5 bg-hai-lime text-hai-plum rounded-full pl-3 pr-1.5 py-1 text-[12px] font-body font-bold">
+                  <span key={t} className="inline-flex items-center bg-hai-lime text-hai-plum rounded-full px-3 py-1 text-[12px] font-body font-bold">
                     {t}
-                    <button
-                      type="button"
-                      onClick={() => removeTag(t)}
-                      aria-label={`Remove ${t}`}
-                      className="w-5 h-5 rounded-full bg-hai-plum/10 hover:bg-hai-plum hover:text-hai-mint text-hai-plum flex items-center justify-center transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-[13px]">close</span>
-                    </button>
                   </span>
                 ))}
               </div>
-            )}
-          </div>
+            )
+          )}
         </SectionCard>
 
-        {/* Save action */}
-        <div className="sticky bottom-4 z-10 mt-2 bg-white rounded-full border border-neutral-100 shadow-[0_20px_50px_-20px_rgba(54,33,62,0.25)] p-2 flex items-center gap-2">
-          <span className="hidden sm:inline-flex items-center gap-2 pl-4 text-[10.5px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
-            Unsaved changes are kept locally
-          </span>
-          <button
-            type="submit"
-            className="ml-auto px-6 py-3 rounded-full bg-hai-plum text-white text-[13px] font-bold hover:bg-black transition-colors inline-flex items-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]"
-          >
-            Save changes <span aria-hidden="true">→</span>
-          </button>
-        </div>
+        {/* Sticky action bar — only visible when editing */}
+        {isEditing && (
+          <div className="sticky bottom-4 z-10 mt-2 bg-white rounded-full border border-neutral-100 shadow-[0_20px_50px_-20px_rgba(54,33,62,0.25)] p-2 flex items-center gap-2">
+            <span className="hidden sm:inline-flex items-center gap-2 pl-4 text-[10.5px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
+              Unsaved changes are kept locally
+            </span>
+            <div className="ml-auto flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="px-5 py-2.5 rounded-full bg-white border border-neutral-200 text-hai-plum text-[13px] font-bold hover:bg-neutral-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2.5 rounded-full bg-hai-plum text-white text-[13px] font-bold hover:bg-black transition-colors inline-flex items-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]"
+              >
+                Save changes <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </div>
+        )}
       </form>
 
       {/* GDPR section */}
