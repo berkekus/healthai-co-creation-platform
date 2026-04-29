@@ -68,25 +68,39 @@ function SectionCard({
   )
 }
 
-function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
-  const [typed, setTyped] = useState('')
-  const canDelete = typed === 'DELETE'
+function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: (password: string) => Promise<void> }) {
+  const [password, setPassword] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel() }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !submitting) onCancel() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onCancel])
+  }, [onCancel, submitting])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!password) return
+    setSubmitting(true)
+    setError(null)
+    try {
+      await onConfirm(password)
+    } catch (err) {
+      setError((err as Error).message)
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div
       className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-6 bg-hai-plum/70 backdrop-blur-sm font-body"
-      onClick={e => { if (e.target === e.currentTarget) onCancel() }}
+      onClick={e => { if (e.target === e.currentTarget && !submitting) onCancel() }}
       role="dialog"
       aria-modal="true"
     >
       <div className="bg-white w-full max-w-[480px] rounded-[2rem] shadow-[0_40px_120px_-20px_rgba(54,33,62,0.5)] overflow-hidden">
-        <div className="px-7 pt-7 pb-6">
+        <form onSubmit={handleSubmit} className="px-7 pt-7 pb-6">
           <div className="inline-flex items-center gap-2 bg-red-50 text-red-600 rounded-full px-3 py-1 mb-4 text-[10.5px] font-mono tracking-[0.16em] uppercase font-bold">
             <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>warning</span>
             Danger zone
@@ -95,51 +109,70 @@ function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm:
             Delete your account?
           </h2>
           <p className="text-[14px] text-neutral-600 leading-relaxed mb-5">
-            This action cannot be undone. All your posts and meetings will be removed.
-            In this demo, no data is actually deleted — you'll simply be signed out.
+            This action <span className="font-bold">cannot be undone</span>. Your profile, posts, and notifications will be permanently deleted. Active meetings will be cancelled and the other party notified. Audit logs are kept for 24 months per our privacy policy.
           </p>
 
-          <label className="block mb-5">
+          <label className="block mb-4">
             <span className="block text-[11px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold mb-2">
-              Type <span className="text-hai-plum">DELETE</span> to confirm
+              Confirm with your password
             </span>
             <input
-              value={typed}
-              onChange={e => setTyped(e.target.value)}
-              placeholder="DELETE"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Your current password"
               autoFocus
-              className="w-full bg-hai-offwhite border border-neutral-200 rounded-xl px-4 py-3 text-[14px] font-mono font-bold text-hai-plum outline-none focus:border-red-400 focus:bg-white focus:shadow-[0_0_0_3px_rgba(220,38,38,0.18)] transition-all"
+              autoComplete="current-password"
+              disabled={submitting}
+              className="w-full bg-hai-offwhite border border-neutral-200 rounded-xl px-4 py-3 text-[14px] font-mono text-hai-plum outline-none focus:border-red-400 focus:bg-white focus:shadow-[0_0_0_3px_rgba(220,38,38,0.18)] transition-all disabled:opacity-60"
             />
           </label>
 
+          {error && (
+            <div role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-700 font-medium">
+              {error}
+            </div>
+          )}
+
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={onCancel}
-              className="flex-1 px-5 py-3 rounded-full bg-white border border-neutral-200 text-hai-plum text-[13px] font-bold hover:bg-neutral-100 transition-colors"
+              disabled={submitting}
+              className="flex-1 px-5 py-3 rounded-full bg-white border border-neutral-200 text-hai-plum text-[13px] font-bold hover:bg-neutral-100 disabled:opacity-60 transition-colors"
             >
               Cancel
             </button>
             <button
-              onClick={onConfirm}
-              disabled={!canDelete}
+              type="submit"
+              disabled={!password || submitting}
               className={`flex-1 px-5 py-3 rounded-full text-[13px] font-bold transition-colors inline-flex items-center justify-center gap-1.5 ${
-                canDelete
+                password && !submitting
                   ? 'bg-red-600 text-white hover:bg-red-700 shadow-[0_10px_30px_-10px_rgba(220,38,38,0.5)]'
                   : 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
               }`}
             >
-              <span className="material-symbols-outlined text-[16px]">delete_forever</span>
-              Delete account
+              {submitting ? (
+                <>
+                  <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Deleting…
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-[16px]">delete_forever</span>
+                  Delete account
+                </>
+              )}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   )
 }
 
 export default function ProfilePage() {
-  const { user, updateProfile, uploadAvatar, logout } = useAuthStore()
+  const { user, updateProfile, uploadAvatar, deleteAccount } = useAuthStore()
   const { posts } = usePostStore()
   const { meetings } = useMeetingStore()
   const navigate = useNavigate()
@@ -224,8 +257,8 @@ export default function ProfilePage() {
     setTimeout(() => setExportSuccess(false), 2500)
   }
 
-  const handleDelete = () => {
-    logout()
+  const handleDelete = async (password: string) => {
+    await deleteAccount(password)
     navigate(ROUTES.HOME)
   }
 
@@ -507,7 +540,7 @@ export default function ProfilePage() {
                 Permanently remove your account and all associated data. This action cannot be undone.
               </p>
               <div className="text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-400 font-bold mb-4">
-                GDPR Art. 17 · Right to erasure · Demo only
+                GDPR Art. 17 · Right to erasure
               </div>
               <button
                 onClick={() => setShowDelete(true)}

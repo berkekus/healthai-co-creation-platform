@@ -43,7 +43,11 @@ export const register = asyncHandler(async (req, res) => {
       result: 'success',
       ipAddress: req.ip,
     }).catch(() => {})
-    res.status(201).json({ success: true, data: result })
+    res.status(201).json({
+      success: true,
+      message: 'Account created. Please check your email to verify your address.',
+      data: result,
+    })
   } catch (err) {
     createLog({
       userEmail: (req.body.email as string) ?? 'unknown',
@@ -165,6 +169,55 @@ export const logout = asyncHandler<AuthRequest>(async (req, res) => {
     ipAddress: req.ip,
   }).catch(() => {})
   res.json({ success: true, message: 'Logged out' })
+})
+
+export const verifyEmail = asyncHandler(async (req, res) => {
+  const { token } = req.body
+  if (!token || typeof token !== 'string') {
+    res.status(400).json({ success: false, message: 'Verification token is required' })
+    return
+  }
+  const result = await authService.verifyEmail(token)
+  createLog({
+    userId: result.user.id,
+    userEmail: result.user.email,
+    role: result.user.role,
+    action: LOG.EMAIL_VERIFIED,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
+  res.json({ success: true, data: result })
+})
+
+export const resendVerification = asyncHandler(async (req, res) => {
+  const { email } = req.body
+  if (!email || typeof email !== 'string') {
+    res.status(400).json({ success: false, message: 'Email is required' })
+    return
+  }
+  await authService.resendVerification(email)
+  res.json({ success: true, message: 'If the email is registered and unverified, a new link has been sent.' })
+})
+
+export const deleteAccount = asyncHandler<AuthRequest>(async (req, res) => {
+  const { password } = req.body
+  if (!password || typeof password !== 'string') {
+    res.status(400).json({ success: false, message: 'Password confirmation is required' })
+    return
+  }
+
+  const result = await authService.deleteAccount(req.userId as string, password)
+
+  createLog({
+    userId: req.userId as string,
+    userEmail: result.email,
+    role: req.userRole as string,
+    action: LOG.ACCOUNT_DELETE,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
+
+  res.json({ success: true, message: 'Account permanently deleted' })
 })
 
 export const uploadAvatar = asyncHandler<AuthRequest>(async (req, res) => {

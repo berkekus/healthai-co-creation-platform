@@ -49,9 +49,9 @@ export default function RegisterPage() {
       city: data.city,
       country: data.country,
     })
-    // Auto-logged in — go straight to dashboard; only stay if there was an error
+    // Registration succeeded — user must verify email before signing in
     if (!useAuthStore.getState().error) {
-      navigate(ROUTES.DASHBOARD)
+      navigate(ROUTES.VERIFY_EMAIL)
     }
   }
 

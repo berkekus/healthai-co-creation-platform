@@ -1,5 +1,6 @@
 import supertest from 'supertest'
 import app from '../src/app'
+import User from '../models/User'
 
 export const api = supertest(app)
 
@@ -18,7 +19,7 @@ export interface CreatedUser {
 export async function createUser(overrides: Record<string, unknown> = {}): Promise<CreatedUser> {
   const email = (overrides.email as string) ?? uniqueEmail()
   const password = (overrides.password as string) ?? 'password123'
-  const res = await api.post('/api/auth/register').send({
+  const regRes = await api.post('/api/auth/register').send({
     name: 'Test User',
     email,
     password,
@@ -28,8 +29,18 @@ export async function createUser(overrides: Record<string, unknown> = {}): Promi
     country: 'Turkey',
     ...overrides,
   })
-  if (res.status !== 201) throw new Error(`createUser failed: ${JSON.stringify(res.body)}`)
-  return { user: res.body.data.user, token: res.body.data.token, email, password }
+  if (regRes.status !== 201) throw new Error(`createUser register failed: ${JSON.stringify(regRes.body)}`)
+
+  // Bypass email verification in tests by flipping the flag directly
+  await User.findOneAndUpdate(
+    { email: email.toLowerCase() },
+    { $set: { isVerified: true }, $unset: { verifyToken: 1, verifyTokenExpires: 1 } }
+  )
+
+  const loginRes = await api.post('/api/auth/login').send({ email, password })
+  if (loginRes.status !== 200) throw new Error(`createUser login failed: ${JSON.stringify(loginRes.body)}`)
+
+  return { user: loginRes.body.data.user, token: loginRes.body.data.token, email, password }
 }
 
 export async function createPost(token: string, overrides: Record<string, unknown> = {}) {

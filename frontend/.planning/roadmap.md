@@ -25,30 +25,26 @@ Mühendisler ile sağlık profesyonellerini yapılandırılmış, GDPR uyumlu bi
 
 ---
 
-## Faz 10 — Kritik Bug & Tutarlılık Düzeltmeleri 🔴
+## Faz 10 — Kritik Bug & Tutarlılık Düzeltmeleri ✅
 
 **Hedef:** Brief vaadiyle koddaki gerçeklik arasındaki kopuklukları kapat.
 
-- [ ] **Bug:** `Notification.ts` enum'una eksik tipleri ekle: `meeting_completed`, `post_status_changed`, `account_activity` — şu an `meetingService.completeMeeting` runtime'da Mongoose validation hatası alıyor
-- [ ] **Tutarlılık:** Hesap silme — iki seçenek arasından seç:
-  - **A (Hızlı):** ProfilePage'deki "GDPR Art. 17 · Demo only" notu kalsın, ama User Guide'da "permanently deleted" cümlesini "your session is cleared" olarak yumuşat
-  - **B (Önerilen):** Gerçek `DELETE /api/auth/me` endpoint'i — postlar `authorId` korunur ama anonimleştirilir (`authorName: 'Deleted user'`), meetinglar cascade cancelled, sonra `User.deleteOne()`
-- [ ] **Tutarlılık:** Email verification — iki seçenek:
-  - **A (Hızlı):** UI'da "verification email" adımını kaldır veya "(skipped in demo)" notu ekle, brief'e açıklama
-  - **B (Önerilen):** Nodemailer + `verifyToken` field, `POST /api/auth/verify` endpoint, `User.isVerified` default `false`
+- [x] **Bug:** `Notification.ts` enum'una eksik tipleri ekle: `meeting_completed`, `post_status_changed`, `account_activity`
+- [x] **Email verification (B):** Nodemailer + `verifyToken` + `verifyTokenExpires` + `isVerified` default `false`. Endpoints: `POST /auth/verify-email`, `POST /auth/resend-verification`. Login engellendi (`!isVerified` → 403). SMTP yoksa konsola düşer (dev fallback)
+- [x] **Account deletion (B):** Gerçek `DELETE /api/auth/me` — password confirm. Cascading: aktif meetingler cancel + karşı tarafa bildirim, kalan meetingler anonimleştirilir, postlar silinir, notification'lar silinir, avatar dosyası silinir, kullanıcı silinir, audit log korunur
+- [x] **Tip hatası:** `services/meetingService.ts:182` — `meeting_completed` tipi eklenince temizlendi
 - [ ] **Temizlik:** `requirments` → `requirements` klasör adı düzeltmesi (git mv)
 - [ ] **Temizlik:** `frontend/C/Program Files` artık klasörünü sil
-- [ ] **Tip hatası:** `services/meetingService.ts:182` — `meeting_completed` tipini enum'a ekledikten sonra TS error temizlenir
 
-**Çıktı:** Brief'in vaat ettikleri ile çalışan kod birebir uyumlu
+**Çıktı:** ✅ Email verify ve account delete artık gerçek. 37/37 backend test yeşil.
 
 ---
 
-## Faz 11 — GDPR Tamlama 🟡
+## Faz 11 — GDPR Tamlama (kalan) 🟡
 
 **Hedef:** Brief 5.1'i ciddiye al — sadece UI değil, gerçek hak.
 
-- [ ] **`DELETE /api/auth/me`** endpoint (Faz 10 B opsiyonu seçilirse buraya kayar)
+- [x] `DELETE /api/auth/me` endpoint (Faz 10'da tamamlandı)
 - [ ] **`GET /api/auth/me/export`** endpoint — kullanıcının tüm verisini (profil + postlar + meetingler + ilgili loglar) JSON olarak server'dan döndür
 - [ ] ProfilePage `handleExport` → API çağrısına geçir (şu an local store'dan üretiyor, log'lar eksik)
 - [ ] Log retention job — 24 aydan eski logları silen scheduled task (`scripts/log-cleanup.ts` + cron veya `node-cron`)
