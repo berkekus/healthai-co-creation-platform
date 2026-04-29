@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
@@ -132,7 +132,7 @@ function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm:
 }
 
 export default function ProfilePage() {
-  const { user, updateProfile, logout } = useAuthStore()
+  const { user, updateProfile, uploadAvatar, logout } = useAuthStore()
   const { posts } = usePostStore()
   const { meetings } = useMeetingStore()
   const navigate = useNavigate()
@@ -142,6 +142,33 @@ export default function ProfilePage() {
   const [exportSuccess, setExportSuccess] = useState(false)
   const [tagInput, setTagInput] = useState('')
   const [tags, setTags] = useState<string[]>(user?.expertiseTags ?? [])
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const [avatarError, setAvatarError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    if (!ALLOWED.includes(file.type)) {
+      setAvatarError('Only JPEG, PNG, WebP, or GIF images are allowed')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError('Image must be under 5 MB')
+      return
+    }
+    setAvatarError(null)
+    const previewUrl = URL.createObjectURL(file)
+    setAvatarPreview(previewUrl)
+    setAvatarUploading(true)
+    await uploadAvatar(file)
+    setAvatarUploading(false)
+    URL.revokeObjectURL(previewUrl)
+    setAvatarPreview(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -151,7 +178,6 @@ export default function ProfilePage() {
       city:        user?.city ?? '',
       country:     user?.country ?? '',
       bio:         user?.bio ?? '',
-      avatarUrl:   user?.avatarUrl ?? '',
     },
   })
 
@@ -221,10 +247,10 @@ export default function ProfilePage() {
           {/* Identity row */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-5 bg-hai-offwhite rounded-[1.5rem] p-5">
             <div className="shrink-0 w-16 h-16 rounded-full overflow-hidden bg-hai-plum text-hai-mint flex items-center justify-center font-mono font-bold text-[20px] tracking-[0.06em]">
-              {user.avatarUrl
-                ? <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; (e.currentTarget.nextElementSibling as HTMLElement | null)?.removeAttribute('hidden') }} />
+              {(avatarPreview ?? user.avatarUrl)
+                ? <img src={avatarPreview ?? user.avatarUrl} alt={user.name} className="w-full h-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; (e.currentTarget.nextElementSibling as HTMLElement | null)?.removeAttribute('hidden') }} />
                 : null}
-              <span hidden={!!user.avatarUrl}>{initials}</span>
+              <span hidden={!!(avatarPreview ?? user.avatarUrl)}>{initials}</span>
             </div>
             <div className="min-w-0 flex-1">
               <div className="font-headline font-bold text-[22px] leading-tight text-hai-plum truncate">{user.name}</div>
@@ -283,11 +309,43 @@ export default function ProfilePage() {
                 onFocus={onInputFocus(!!errors.institution)}
                 onBlur={onInputBlur(!!errors.institution)} />
             </FormField>
-            <FormField label="Profile photo URL" hint="Optional · paste a direct image link (https://…)" error={errors.avatarUrl?.message}>
-              <input {...register('avatarUrl')} type="url" placeholder="https://example.com/photo.jpg"
-                style={inputStyle(errors.avatarUrl?.message)}
-                onFocus={onInputFocus(!!errors.avatarUrl)}
-                onBlur={onInputBlur(!!errors.avatarUrl)} />
+            <FormField label="Profile photo">
+              <div className="flex items-center gap-4">
+                <div className="relative shrink-0 w-16 h-16 rounded-full overflow-hidden bg-hai-plum text-hai-mint flex items-center justify-center font-mono font-bold text-[20px] tracking-[0.06em]">
+                  {(avatarPreview ?? user.avatarUrl) ? (
+                    <img src={avatarPreview ?? user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{initials}</span>
+                  )}
+                  {avatarUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-hai-plum/60">
+                      <span className="material-symbols-outlined text-white text-[20px] animate-spin">progress_activity</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1.5 min-w-0">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={avatarUploading}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-hai-plum text-white text-[12px] font-mono tracking-[0.1em] uppercase font-bold hover:bg-black disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">upload</span>
+                    {avatarUploading ? 'Uploading…' : 'Upload photo'}
+                  </button>
+                  <p className="text-[11px] font-mono text-neutral-400">JPEG, PNG, WebP or GIF · max 5 MB</p>
+                  {avatarError && (
+                    <p className="text-[11px] text-red-500">{avatarError}</p>
+                  )}
+                </div>
+              </div>
             </FormField>
           </div>
         </SectionCard>

@@ -12,6 +12,7 @@ interface AuthState {
   logout: () => void
   register: (data: RegisterData) => Promise<void>
   updateProfile: (data: Partial<Pick<User, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>) => Promise<void>
+  uploadAvatar: (file: File) => Promise<void>
   hydrate: () => Promise<void>
   clearError: () => void
 }
@@ -73,6 +74,20 @@ export const useAuthStore = create<AuthState>()((set) => ({
     set({ isLoading: true, error: null })
     try {
       const { data: res } = await api.put<{ success: boolean; data: User }>('/auth/me/profile', data)
+      set({ user: res.data, isLoading: false })
+    } catch (err) {
+      set({ isLoading: false, error: (err as Error).message })
+    }
+  },
+
+  uploadAvatar: async (file: File) => {
+    set({ isLoading: true, error: null })
+    try {
+      const form = new FormData()
+      form.append('avatar', file)
+      const { data: res } = await api.post<{ success: boolean; data: User }>('/auth/me/avatar', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
       set({ user: res.data, isLoading: false })
     } catch (err) {
       set({ isLoading: false, error: (err as Error).message })

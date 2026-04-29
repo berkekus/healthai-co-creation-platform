@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
+import { MulterError } from 'multer'
 
 export interface AppError extends Error {
   statusCode?: number
@@ -17,6 +18,14 @@ export const errorHandler = (
   // Always log server errors to stderr, never expose internals to client
   if (err.statusCode === undefined || err.statusCode >= 500) {
     console.error(`[ERROR] ${err.name ?? 'Error'}: ${err.message}`)
+  }
+
+  // Multer errors (file upload)
+  if ((err as unknown) instanceof MulterError) {
+    const me = err as unknown as MulterError
+    const msg = me.code === 'LIMIT_FILE_SIZE' ? 'Image must be under 5 MB' : me.message
+    res.status(400).json({ success: false, message: msg })
+    return
   }
 
   // Mongoose CastError (invalid ObjectId)
