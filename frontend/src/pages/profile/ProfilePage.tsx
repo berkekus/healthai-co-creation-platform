@@ -9,6 +9,7 @@ import { profileSchema, type ProfileFormData } from '../../utils/validators'
 import FormField, { inputStyle } from '../../components/ui/FormField'
 import PageWrapper from '../../components/layout/PageWrapper'
 import { ROUTES } from '../../constants/routes'
+import api from '../../lib/api'
 
 const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'
 const ERROR_SHADOW = '0 0 0 3px rgba(220,38,38,0.18)'
@@ -236,25 +237,20 @@ export default function ProfilePage() {
   }
   const removeTag = (t: string) => setTags(prev => prev.filter(x => x !== t))
 
-  const handleExport = () => {
-    const userPosts = posts.filter(p => p.authorId === user.id)
-    const userMeetings = meetings.filter(m => m.requesterId === user.id || m.ownerId === user.id)
-    const payload = {
-      exportedAt: new Date().toISOString(),
-      profile: { ...user },
-      posts: userPosts,
-      meetings: userMeetings,
-      gdprNote: 'Data exported per GDPR Article 20 (Right to Data Portability). Retained for 24 months.',
+  const handleExport = async () => {
+    try {
+      const { data: blob } = await api.get('/auth/me/export', { responseType: 'blob' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `healthai-data-${user.id}-${new Date().toISOString().split('T')[0]}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+      setExportSuccess(true)
+      setTimeout(() => setExportSuccess(false), 2500)
+    } catch {
+      // non-critical — silently fail
     }
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `healthai-data-${user.id}-${new Date().toISOString().split('T')[0]}.json`
-    a.click()
-    URL.revokeObjectURL(url)
-    setExportSuccess(true)
-    setTimeout(() => setExportSuccess(false), 2500)
   }
 
   const handleDelete = async (password: string) => {

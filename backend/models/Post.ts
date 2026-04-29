@@ -79,5 +79,6 @@ PostSchema.index({ authorId: 1 })
 PostSchema.index({ status: 1 })
 PostSchema.index({ domain: 1 })
 PostSchema.index({ country: 1, city: 1 })
+PostSchema.index({ title: 'text', description: 'text', expertiseRequired: 'text' })
 
 export default model<IPost>('Post', PostSchema)

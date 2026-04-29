@@ -72,10 +72,7 @@ export async function listPosts(filters: PostFilters, page = 1, limit = 20) {
   if (filters.projectStage) query.projectStage = filters.projectStage
   if (filters.authorRole) query.authorRole = filters.authorRole
   if (filters.search) {
-    query.$or = [
-      { title: { $regex: filters.search, $options: 'i' } },
-      { description: { $regex: filters.search, $options: 'i' } },
-    ]
+    query.$text = { $search: filters.search }
   }
 
   const skip = (page - 1) * limit

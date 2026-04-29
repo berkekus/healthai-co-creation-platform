@@ -220,6 +220,13 @@ export const deleteAccount = asyncHandler<AuthRequest>(async (req, res) => {
   res.json({ success: true, message: 'Account permanently deleted' })
 })
 
+export const exportMyData = asyncHandler<AuthRequest>(async (req, res) => {
+  const data = await authService.exportUserData(req.userId as string)
+  res.setHeader('Content-Disposition', `attachment; filename="healthai-export-${req.userId}-${new Date().toISOString().split('T')[0]}.json"`)
+  res.setHeader('Content-Type', 'application/json')
+  res.send(JSON.stringify(data, null, 2))
+})
+
 export const uploadAvatar = asyncHandler<AuthRequest>(async (req, res) => {
   if (!req.file) {
     res.status(400).json({ success: false, message: 'No image file provided' })

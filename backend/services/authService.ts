@@ -217,6 +217,33 @@ export async function changePassword(userId: string, oldPassword: string, newPas
 
   user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
   await user.save()
+
+  pushNotification({
+    userId: user.id as string,
+    type: 'account_activity',
+    title: 'Şifre değiştirildi',
+    body: 'Hesabınızın şifresi başarıyla değiştirildi. Bu işlemi siz yapmadıysanız hemen destek ekibiyle iletişime geçin.',
+  }).catch(() => {})
+}
+
+export async function exportUserData(userId: string) {
+  const [user, posts, meetings, logs] = await Promise.all([
+    User.findById(userId).lean(),
+    Post.find({ authorId: userId }).lean(),
+    Meeting.find({ $or: [{ requesterId: userId }, { ownerId: userId }] }).lean(),
+    (await import('./logService')).getLogs({ userId, limit: 200 }),
+  ])
+  if (!user) throw makeError('User not found', 404)
+
+  const { password: _pw, verifyToken: _vt, verifyTokenExpires: _vte, ...safeUser } = user as Record<string, unknown>
+  return {
+    exportedAt: new Date().toISOString(),
+    gdprNote: 'Exported per GDPR Article 20 — Right to Data Portability.',
+    profile: safeUser,
+    posts,
+    meetings,
+    auditLogs: logs.logs,
+  }
 }
 
 export async function deleteAccount(userId: string, password: string) {
