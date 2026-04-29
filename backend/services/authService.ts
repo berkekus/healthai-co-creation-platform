@@ -22,6 +22,7 @@ function sanitize(user: IUser) {
     city: user.city,
     country: user.country,
     bio: user.bio,
+    avatarUrl: user.avatarUrl,
     expertiseTags: user.expertiseTags,
     isVerified: user.isVerified,
     isSuspended: user.isSuspended,
@@ -47,7 +48,7 @@ export async function registerUser(data: {
   }
 
   const hashed = await bcrypt.hash(data.password, SALT_ROUNDS)
-  const user = await User.create({ ...data, password: hashed })
+  const user = await User.create({ ...data, password: hashed, isVerified: true })
   const token = signToken(user)
   return { user: sanitize(user), token }
 }
@@ -82,7 +83,7 @@ export async function loginUser(email: string, password: string) {
 
 export async function updateUserProfile(
   userId: string,
-  data: Partial<Pick<IUser, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'expertiseTags'>>
+  data: Partial<Pick<IUser, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>
 ) {
   const user = await User.findByIdAndUpdate(
     userId,
@@ -137,6 +138,31 @@ export async function getAllUsers(opts: {
     limit,
     pages: Math.ceil(total / limit),
   }
+}
+
+export async function changePassword(userId: string, oldPassword: string, newPassword: string) {
+  if (newPassword.length < 8) {
+    const err: Error & { statusCode?: number } = new Error('Password must be at least 8 characters')
+    err.statusCode = 400
+    throw err
+  }
+
+  const user = await User.findById(userId)
+  if (!user) {
+    const err: Error & { statusCode?: number } = new Error('User not found')
+    err.statusCode = 404
+    throw err
+  }
+
+  const match = await bcrypt.compare(oldPassword, user.password)
+  if (!match) {
+    const err: Error & { statusCode?: number } = new Error('Current password is incorrect')
+    err.statusCode = 401
+    throw err
+  }
+
+  user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
+  await user.save()
 }
 
 export async function setSuspended(userId: string, isSuspended: boolean) {

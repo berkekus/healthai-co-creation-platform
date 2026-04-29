@@ -1,4 +1,4 @@
-export type MeetingStatus = 'pending' | 'time_proposed' | 'confirmed' | 'declined' | 'cancelled'
+export type MeetingStatus = 'pending' | 'time_proposed' | 'confirmed' | 'completed' | 'declined' | 'cancelled'
 
 export interface TimeSlot {
   date: string
@@ -11,8 +11,10 @@ export interface Meeting {
   postTitle: string
   requesterId: string
   requesterName: string
+  requesterEmail?: string
   ownerId: string
   ownerName: string
+  ownerEmail?: string
   status: MeetingStatus
   message: string
   ndaAccepted: boolean

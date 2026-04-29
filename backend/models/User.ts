@@ -11,6 +11,7 @@ export interface IUser extends Document {
   city: string
   country: string
   bio?: string
+  avatarUrl?: string
   expertiseTags: string[]
   isVerified: boolean
   isSuspended: boolean
@@ -33,8 +34,9 @@ const UserSchema = new Schema<IUser>(
     city: { type: String, required: true, trim: true },
     country: { type: String, required: true, trim: true },
     bio: { type: String, trim: true },
+    avatarUrl: { type: String, trim: true },
     expertiseTags: { type: [String], default: [] },
-    isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: true },
     isSuspended: { type: Boolean, default: false },
     lastActive: { type: Date, default: Date.now },
   },

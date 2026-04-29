@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
 import MeetingCard from '../../components/meetings/MeetingCard'
@@ -17,7 +17,7 @@ interface TabSpec {
 }
 
 function statusOrder(s: MeetingStatus): number {
-  return { pending: 0, time_proposed: 1, confirmed: 2, declined: 3, cancelled: 4 }[s]
+  return { pending: 0, time_proposed: 1, confirmed: 2, completed: 3, declined: 4, cancelled: 5 }[s]
 }
 
 export default function MeetingsPage() {
@@ -40,7 +40,7 @@ export default function MeetingsPage() {
     }
     const incoming  = all.filter(m => m.ownerId === user?.id).sort(sortFn)
     const outgoing  = all.filter(m => m.requesterId === user?.id).sort(sortFn)
-    const confirmed = all.filter(m => m.status === 'confirmed').sort(sortFn)
+    const confirmed = all.filter(m => m.status === 'confirmed' || m.status === 'completed').sort(sortFn)
     return { incoming, outgoing, confirmed, all: [...all].sort(sortFn) }
   }, [all, user?.id])
 
@@ -175,3 +175,4 @@ export default function MeetingsPage() {
     </PageWrapper>
   )
 }
+

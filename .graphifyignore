@@ -1,0 +1,7 @@
+# graphify extraction exclusions
+CLAUDE.md
+.claude/
+graphify-out/
+node_modules/
+dist/
+*.env*

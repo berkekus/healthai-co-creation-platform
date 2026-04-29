@@ -5,6 +5,8 @@ export const LOG = {
   LOGIN:            'login',
   LOGIN_FAILED:     'login_failed',
   PROFILE_UPDATE:   'profile_update',
+  PASSWORD_CHANGE:  'password_change',
+  LOGOUT:           'logout',
   // Admin — user management
   USER_SUSPEND:     'user_suspend',
   USER_UNSUSPEND:   'user_unsuspend',
@@ -19,6 +21,7 @@ export const LOG = {
   MEETING_ACCEPT:   'meeting_accept',
   MEETING_DECLINE:  'meeting_decline',
   MEETING_CANCEL:   'meeting_cancel',
+  MEETING_COMPLETE: 'meeting_complete',
 } as const
 
 export type LogAction = typeof LOG[keyof typeof LOG]

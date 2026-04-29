@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
-    "start": "node dist/src/index.js"
+    "start": "node dist/src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "smoke": "ts-node-dev --transpile-only scripts/smoke-test.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -26,7 +30,12 @@
     "@types/express-mongo-sanitize": "^1.3.2",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.14.2",
+    "@types/supertest": "^7.2.0",
+    "@vitest/coverage-v8": "^4.1.5",
+    "mongodb-memory-server": "^11.0.1",
+    "supertest": "^7.2.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^4.1.5"
   }
 }
