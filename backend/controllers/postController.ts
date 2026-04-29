@@ -60,6 +60,11 @@ export const listPosts = asyncHandler<AuthRequest>(async (req, res) => {
   const page  = Math.max(1, parseInt(req.query.page  as string) || 1)
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20))
 
+  const isAdmin = req.userRole === 'admin'
+  const isMine = mine === 'true'
+  // Non-admins cannot browse other users' drafts: silently scope to own posts
+  const forceScopeToOwn = !isAdmin && (status as string) === 'draft'
+
   const result = await postService.listPosts(
     {
       domain: domain as string,
@@ -67,8 +72,8 @@ export const listPosts = asyncHandler<AuthRequest>(async (req, res) => {
       city: city as string,
       country: country as string,
       projectStage: projectStage as string,
-      authorId: mine === 'true' ? req.userId : undefined,
-      status: mine === 'true' ? undefined : status as string,
+      authorId: (isMine || forceScopeToOwn) ? req.userId : undefined,
+      status: isMine ? undefined : (status as string),
       search: search as string,
       authorRole: authorRole as string,
     },
