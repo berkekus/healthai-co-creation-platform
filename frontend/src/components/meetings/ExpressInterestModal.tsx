@@ -226,45 +226,70 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
                 </span>
               </div>
 
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-3 max-w-md mx-auto w-full">
                 {slots.map((slot, i) => (
-                  <div key={i} className="flex items-center gap-2 bg-hai-offwhite rounded-2xl p-2 pr-3">
-                    <div className="shrink-0 w-8 h-8 rounded-full bg-white flex items-center justify-center font-mono font-bold text-[11px] text-hai-plum">
-                      {i + 1}
+                  <div key={i} className="bg-hai-offwhite rounded-2xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-hai-plum/10 flex items-center justify-center font-mono font-bold text-[11px] text-hai-plum">
+                          {i + 1}
+                        </div>
+                        <span className="text-[10.5px] font-mono tracking-[0.14em] uppercase font-bold text-neutral-400">
+                          Time slot {i + 1}
+                        </span>
+                      </div>
+                      {slots.length > 3 && (
+                        <button
+                          onClick={() => removeSlot(i)}
+                          aria-label={`Remove slot ${i + 1}`}
+                          className="w-7 h-7 rounded-full bg-white hover:bg-red-50 text-neutral-400 hover:text-red-500 flex items-center justify-center transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">close</span>
+                        </button>
+                      )}
                     </div>
-                    <input
-                      type="date"
-                      value={slot.date}
-                      min={minDateStr}
-                      onChange={e => updateSlot(i, 'date', e.target.value)}
-                      className={`${inputCls} flex-1 min-w-0 !py-2 !rounded-xl`}
-                    />
-                    <input
-                      type="time"
-                      value={slot.time}
-                      onChange={e => updateSlot(i, 'time', e.target.value)}
-                      className={`${inputCls} w-[110px] shrink-0 !py-2 !rounded-xl`}
-                    />
-                    {slots.length > 3 && (
-                      <button
-                        onClick={() => removeSlot(i)}
-                        aria-label={`Remove slot ${i + 1}`}
-                        className="shrink-0 w-8 h-8 rounded-full bg-white hover:bg-red-50 text-neutral-400 hover:text-red-500 flex items-center justify-center transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">close</span>
-                      </button>
-                    )}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <div className="flex items-center gap-1 text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-400 mb-1.5">
+                          <span className="material-symbols-outlined text-[13px]">calendar_month</span>
+                          Date
+                        </div>
+                        <input
+                          type="date"
+                          value={slot.date}
+                          min={minDateStr}
+                          onChange={e => updateSlot(i, 'date', e.target.value)}
+                          onClick={e => { try { (e.target as HTMLInputElement).showPicker?.() } catch {} }}
+                          className={`${inputCls} !py-2.5 !rounded-xl cursor-pointer`}
+                        />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1 text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-400 mb-1.5">
+                          <span className="material-symbols-outlined text-[13px]">schedule</span>
+                          Time
+                        </div>
+                        <input
+                          type="time"
+                          value={slot.time}
+                          onChange={e => updateSlot(i, 'time', e.target.value)}
+                          onClick={e => { try { (e.target as HTMLInputElement).showPicker?.() } catch {} }}
+                          className={`${inputCls} !py-2.5 !rounded-xl cursor-pointer`}
+                        />
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
 
-              <button
-                onClick={addSlot}
-                className="w-full rounded-full border-2 border-dashed border-neutral-300 py-3 text-[11px] font-mono tracking-[0.14em] uppercase font-bold text-hai-plum hover:border-hai-plum hover:bg-hai-mint/20 transition-colors flex items-center justify-center gap-2"
-              >
-                <span className="material-symbols-outlined text-[16px]">add</span>
-                Add another slot
-              </button>
+              <div className="max-w-md mx-auto w-full">
+                <button
+                  onClick={addSlot}
+                  className="w-full rounded-full border-2 border-dashed border-neutral-300 py-3 text-[11px] font-mono tracking-[0.14em] uppercase font-bold text-hai-plum hover:border-hai-plum hover:bg-hai-mint/20 transition-colors flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[16px]">add</span>
+                  Add another slot
+                </button>
+              </div>
             </div>
           )}
 
