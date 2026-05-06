@@ -21,11 +21,9 @@ function normalise(raw: Meeting & { _id?: string }): Meeting {
 export const useMeetingStore = create<MeetingState>()((set, get) => ({
   meetings: [],
 
-  fetchByUser: async (userId: string) => {
+  fetchByUser: async (_userId: string) => {
     try {
-      const { data } = await api.get<{ success: boolean; data: Meeting[] }>('/meetings', {
-        params: { userId },
-      })
+      const { data } = await api.get<{ success: boolean; data: Meeting[] }>('/meetings')
       set({ meetings: data.data.map(normalise) })
     } catch {
       // keep existing state on error

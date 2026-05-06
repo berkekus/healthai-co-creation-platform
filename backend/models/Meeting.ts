@@ -2,7 +2,6 @@ import { Schema, model, Document, Types } from 'mongoose'
 
 export type MeetingStatus =
   | 'pending'
-  | 'time_proposed'
   | 'confirmed'
   | 'completed'
   | 'declined'

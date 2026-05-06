@@ -1,5 +1,5 @@
 import Post, { IPost } from '../models/Post'
-import { FilterQuery } from 'mongoose'
+import { FilterQuery, Types } from 'mongoose'
 import Meeting from '../models/Meeting'
 import { pushNotification } from './notificationService'
 import { makeError } from '../utils/AppError'
@@ -137,12 +137,15 @@ export async function expressInterest(id: string, requesterId: string, requester
   if (post.status !== 'active') throw makeError('Post is not accepting interest', 400)
   if (post.authorId.toString() === requesterId) throw makeError('Cannot express interest in your own post', 400)
 
-  const updated = await Post.findByIdAndUpdate(
-    id,
-    { $inc: { interestCount: 1 } },
+  // $addToSet prevents duplicates; only increment count when user is newly added
+  const updated = await Post.findOneAndUpdate(
+    { _id: id, interestedUserIds: { $ne: new Types.ObjectId(requesterId) } },
+    { $addToSet: { interestedUserIds: requesterId }, $inc: { interestCount: 1 } },
     { new: true }
   )
-  if (!updated) throw makeError('Post not found', 404)
+
+  // null means user already expressed interest — return unchanged post
+  if (!updated) return post
 
   pushNotification({
     userId: post.authorId.toString(),
