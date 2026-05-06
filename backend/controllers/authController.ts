@@ -112,7 +112,7 @@ export const updateProfile = asyncHandler<AuthRequest>(async (req, res) => {
 })
 
 export const getUserById = asyncHandler<Request>(async (req, res) => {
-  const user = await authService.getUserById(req.params.id)
+  const user = await authService.getPublicUserById(req.params.id)
   res.json({ success: true, data: user })
 })
 

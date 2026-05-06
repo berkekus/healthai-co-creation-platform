@@ -48,6 +48,22 @@ function sanitize(user: IUser) {
   }
 }
 
+function publicSanitize(user: IUser) {
+  return {
+    id: user.id as string,
+    name: user.name,
+    role: user.role,
+    institution: user.institution,
+    city: user.city,
+    country: user.country,
+    bio: user.bio,
+    avatarUrl: user.avatarUrl,
+    expertiseTags: user.expertiseTags,
+    lastActive: user.lastActive,
+    createdAt: user.createdAt,
+  }
+}
+
 export async function registerUser(data: {
   name: string
   email: string
@@ -151,6 +167,12 @@ export async function getUserById(userId: string) {
   const user = await User.findById(userId)
   if (!user) throw makeError('User not found', 404)
   return sanitize(user)
+}
+
+export async function getPublicUserById(userId: string) {
+  const user = await User.findById(userId)
+  if (!user) throw makeError('User not found', 404)
+  return publicSanitize(user)
 }
 
 export async function getAllUsers(opts: {

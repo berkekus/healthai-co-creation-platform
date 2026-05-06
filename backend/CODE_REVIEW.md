@@ -30,10 +30,10 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 
 **Sorunlar:**
 - [routes/notificationRoutes.ts:12](routes/notificationRoutes.ts#L12) — `POST /api/notifications` endpoint'i, kullanıcı **başka bir kullanıcıya bildirim oluşturabiliyor**. [notificationController.ts:5-13](controllers/notificationController.ts#L5-L13) `userId`'yi body'den alıyor, **rol kontrolü yok**. Saldırgan, başka bir kullanıcının paneline çöp/spam bildirim atabilir. Bu endpoint ya `adminOnly` olmalı ya tamamen kaldırılıp internal helper olarak kullanılmalı (bu zaten `pushNotification` aracılığıyla servisten çağrılıyor).
-- [routes/authRoutes.ts:24](routes/authRoutes.ts#L24) — `GET /api/auth/users/:id` herhangi bir oturum açmış kullanıcıya başka kullanıcının **tüm sanitize alanları**nı (email, isVerified, isSuspended dahil) veriyor. `email` ve hassas alanlar yalnız self / admin'e dönmeli.
+- ✅ [routes/authRoutes.ts:24](routes/authRoutes.ts#L24) — `GET /api/auth/users/:id` herhangi bir oturum açmış kullanıcıya başka kullanıcının **tüm sanitize alanları**nı (email, isVerified, isSuspended dahil) veriyor. `email` ve hassas alanlar yalnız self / admin'e dönmeli.
 - `POST /api/auth/logout` ([routes/authRoutes.ts:16](routes/authRoutes.ts#L16)) — JWT stateless olduğu için **server-side logout aslında bir şey yapmıyor**, sadece log atıyor. Token blacklisting / refresh token yok. Kullanıcı dijital olarak hâlâ geçerli token'a sahip.
 - `GET /api/auth/me/export` ([routes/authRoutes.ts:22](routes/authRoutes.ts#L22)) GDPR Article 20 niyetiyle iyi, ancak **rate limit yok**. Saldırgan tek bir oturumla tonla I/O yapabilir.
-- `requestMeeting` body'sinde `ownerId`, `ownerName`, `postTitle` istiyor ([meetingController.ts:22](controllers/meetingController.ts#L22)) — bunlar **sunucudan türetilebilir** alanlar. Client'a güvenmek yerine `postId`'den çekilmeli. `postTitle` zaten DB'de var; `ownerName/ownerId` `Post.findById` ile alınmalı.
+- ✅ `requestMeeting` body'sinde `ownerId`, `ownerName`, `postTitle` istiyor ([meetingController.ts:22](controllers/meetingController.ts#L22)) — bunlar **sunucudan türetilebilir** alanlar. Client'a güvenmek yerine `postId`'den çekilmeli. `postTitle` zaten DB'de var; `ownerName/ownerId` `Post.findById` ile alınmalı.
 
 ---
 
@@ -46,8 +46,8 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 **Sorunlar:**
 - **Validation çok ince**. [authController.ts:12-34](controllers/authController.ts#L12-L34) elle yapılmış `if` zincirleri var; `expressionRequired`, `description`, `expiryDate` gibi alanların min/max uzunluğu, `expiryDate >= now` kontrolü **yok**. Önerim: `zod` veya `joi` ile schema-based validation. Şu anki regex `EMAIL_RE` aşırı naif.
 - [postController.ts:24-28](controllers/postController.ts#L24-L28) `expiryDate` string olarak alınıyor, sonra Mongoose `Date` olarak parse ediyor. `new Date('blabla')` → `Invalid Date`; sonra `expiryDate: { type: Date, required: true }` validation'ı tetikler ama hata mesajı kullanıcıya kafa karıştırıcı. Önceden parse + 400 dönmek lazım.
-- [meetingService.ts:38](services/meetingService.ts#L38) `data.message.length < 20` — `data.message` undefined olursa TypeError. Controller `!message` kontrolü yapıyor ama `message: ''` boş string için yine de fail eder. Yine de boundary check yapılmalı.
-- [meetingService.ts:39](services/meetingService.ts#L39) `proposedSlots.length < 3` — array değilse crash. `Array.isArray()` kontrolü yok.
+- ✅ [meetingService.ts:38](services/meetingService.ts#L38) `data.message.length < 20` — `data.message` undefined olursa TypeError. Controller `!message` kontrolü yapıyor ama `message: ''` boş string için yine de fail eder. Yine de boundary check yapılmalı.
+- ✅ [meetingService.ts:39](services/meetingService.ts#L39) `proposedSlots.length < 3` — array değilse crash. `Array.isArray()` kontrolü yok.
 - [meetingController.ts:84](controllers/meetingController.ts#L84) `slot.date` ve `slot.time` string format kontrolü yok. Kullanıcı `"yarın"` gönderebilir.
 - [postController.ts:25](controllers/postController.ts#L25) `!confidentiality` — eğer client `'public_pitch'` gönderirse OK; ama enum kontrolü yapılmıyor. Mongoose enum'a düşüyor; UX için pre-validation önerilir.
 - ✅ [services/logService.ts:31-32](services/logService.ts#L31-L32) `new Date(filters.from)` invalid input'ta `Invalid Date` üretir, MongoDB query patlar. Kontrol edilmeli.
@@ -82,7 +82,7 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - `helmet`, `cors` (whitelist), `mongoSanitize` var → solid.
 - ✅ `bcrypt` SALT_ROUNDS=10 → düşük; modern öneri 12. Hesaplama maliyeti uygunsa 12'ye çıkar.
 - [authService.ts:29](services/authService.ts#L29) `JWT_EXPIRES_IN ?? '7d'` — 7 gün uzun. Refresh token mekanizması yok. Stolen token 7 gün boyunca geçerli.
-- [src/index.ts:4](src/index.ts#L4) `JWT_SECRET` minimum length kontrolü yok. Kısa secret → brute force.
+- ✅ [src/index.ts:4](src/index.ts#L4) `JWT_SECRET` minimum length kontrolü yok. Kısa secret → brute force.
 - ✅ Avatar upload [middleware/uploadMiddleware.ts:17-21](middleware/uploadMiddleware.ts#L17-L21) — filename `${userId}-${Date.now()}${ext}`. `ext` user-controlled `originalname`'den geliyor. `path.extname` güvenli ama `.php`, `.html` gibi extension'lar engellenmemiş — sadece mime kontrolü var. `ALLOWED_TYPES` MIME'a göre filtreliyor ama dosya extension white-list edilmeli (`.jpg|.jpeg|.png|.webp|.gif`).
 - `express-mongo-sanitize` v2.2.0 ile Express 4 uyumlu, ancak **Express 5'e geçince `req.query` immutable** ve bu paket çalışmaz; gelecek geçişte dikkat.
 - `.env` validation [src/index.ts:4-10](src/index.ts#L4-L10) — sadece `JWT_SECRET` ve `MONGO_URI` var. `SMTP_*`, `CLIENT_ORIGIN` opsiyonel — OK.
@@ -185,8 +185,8 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - `User.password` `select: false` değil — hash leak riski.
 - `withEmails` denormalization sorununu kısmen çözüyor; isim için yapmıyor → kullanıcı adı değişince stale.
 - `listPosts` her çağrıda `Post.updateMany` yazıyor → cron'a taşı.
-- `requestMeeting` body'de gereksiz `ownerId/ownerName/postTitle` alıyor; sunucudan türetilebilir.
-- `GET /api/auth/users/:id` herhangi bir user'a başkasının email'ini sızdırıyor.
+- ✅ `requestMeeting` body'de gereksiz `ownerId/ownerName/postTitle` alıyor; sunucudan türetilebilir.
+- ✅ `GET /api/auth/users/:id` herhangi bir user'a başkasının email'ini sızdırıyor.
 - DB transaction yok (delete/cascade work çoklu collection değiştiriyor).
 - Notification list'inde pagination yok.
 - Validation `if/else` zincirleri dağınık → zod/joi.
@@ -194,8 +194,8 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 
 ### Küçük İyileştirmeler
 - `console.log/error` → `pino`/`winston` logger.
-- `SALT_ROUNDS = 10` → 12.
-- `JWT_SECRET` min length doğrulama (>= 32 char).
+- ✅ `SALT_ROUNDS = 10` → 12.
+- ✅ `JWT_SECRET` min length doğrulama (>= 32 char).
 - `Date` field'ları için ayrı string tutma yerine native `Date` ([Meeting ITimeSlot](models/Meeting.ts#L11-L14)).
 - `Log` modelinde `timestamp` ve `createdAt` çiftlemesi → birini sil.
 - `(post as any)[field]` → tip-safe yardımcı.

@@ -7,31 +7,38 @@ import { asyncHandler } from '../utils/asyncHandler'
 import { log } from '../utils/controllerLog'
 
 export const requestMeeting = asyncHandler<AuthRequest>(async (req, res) => {
-  const { postId, postTitle, ownerId, ownerName, message, ndaAccepted, proposedSlots } = req.body
+  const { postId, message, ndaAccepted, proposedSlots } = req.body
 
-  if (!postId || !postTitle || !ownerId || !ownerName || !message || !proposedSlots) {
-    res.status(400).json({ success: false, message: 'Missing required fields' })
+  if (!postId || !message || !proposedSlots) {
+    res.status(400).json({ success: false, message: 'postId, message and proposedSlots are required' })
     return
   }
 
-  const [requester, ownerUser] = await Promise.all([
+  const [post, requester] = await Promise.all([
+    Post.findById(postId).select('title authorId'),
     User.findById(req.userId).select('name email'),
-    User.findById(ownerId).select('email'),
   ])
+
+  if (!post) {
+    res.status(404).json({ success: false, message: 'Post not found' })
+    return
+  }
   if (!requester) {
     res.status(404).json({ success: false, message: 'User not found' })
     return
   }
 
+  const owner = await User.findById(post.authorId).select('name email')
+
   const meeting = await meetingService.requestMeeting({
     postId,
-    postTitle,
+    postTitle: post.title,
     requesterId: req.userId as string,
     requesterName: requester.name,
     requesterEmail: requester.email,
-    ownerId,
-    ownerName,
-    ownerEmail: ownerUser?.email ?? '',
+    ownerId: post.authorId.toString(),
+    ownerName: owner?.name ?? '',
+    ownerEmail: owner?.email ?? '',
     message,
     ndaAccepted,
     proposedSlots,

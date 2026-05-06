@@ -1,5 +1,4 @@
 import Meeting, { IMeeting, ITimeSlot } from '../models/Meeting'
-import Post from '../models/Post'
 import User from '../models/User'
 import { incrementMeetingCount, markPartnerFound, recomputePostStatus } from './postService'
 import { pushNotification } from './notificationService'
@@ -30,13 +29,8 @@ export async function requestMeeting(data: {
   proposedSlots: ITimeSlot[]
 }) {
   if (!data.ndaAccepted) throw makeError('NDA must be accepted', 400)
-  if (data.message.length < 20) throw makeError('Message must be at least 20 characters', 400)
-  if (data.proposedSlots.length < 3) throw makeError('At least 3 time slots are required', 400)
-
-  // Verify ownerId matches the post's actual author
-  const post = await Post.findById(data.postId).select('authorId')
-  if (!post) throw makeError('Post not found', 404)
-  if (post.authorId.toString() !== data.ownerId) throw makeError('Invalid owner', 400)
+  if (typeof data.message !== 'string' || data.message.length < 20) throw makeError('Message must be at least 20 characters', 400)
+  if (!Array.isArray(data.proposedSlots) || data.proposedSlots.length < 3) throw makeError('At least 3 time slots are required', 400)
 
   // Prevent duplicate active requests from the same requester
   const existing = await Meeting.exists({
