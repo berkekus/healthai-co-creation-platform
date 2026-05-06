@@ -1,5 +1,5 @@
 import { Request } from 'express'
-import { AuthRequest } from '../middleware/authMiddleware'
+import { AuthenticatedRequest } from '../middleware/authMiddleware'
 import * as authService from '../services/authService'
 import { createLog } from '../services/logService'
 import { LOG } from '../constants/logActions'
@@ -90,14 +90,14 @@ export const login = asyncHandler(async (req, res) => {
   }
 })
 
-export const getMe = asyncHandler<AuthRequest>(async (req, res) => {
-  const user = await authService.getUserById(req.userId as string)
+export const getMe = asyncHandler<AuthenticatedRequest>(async (req, res) => {
+  const user = await authService.getUserById(req.userId)
   res.json({ success: true, data: user })
 })
 
-export const updateProfile = asyncHandler<AuthRequest>(async (req, res) => {
+export const updateProfile = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { name, institution, city, country, bio, avatarUrl, expertiseTags } = req.body
-  const user = await authService.updateUserProfile(req.userId as string, {
+  const user = await authService.updateUserProfile(req.userId, {
     name, institution, city, country, bio, avatarUrl, expertiseTags,
   })
   createLog({
@@ -112,7 +112,7 @@ export const updateProfile = asyncHandler<AuthRequest>(async (req, res) => {
 })
 
 export const getUserById = asyncHandler<Request>(async (req, res) => {
-  const user = await authService.getUserById(req.params.id)
+  const user = await authService.getPublicUserById(req.params.id)
   res.json({ success: true, data: user })
 })
 
@@ -126,13 +126,13 @@ export const getAllUsers = asyncHandler<Request>(async (req, res) => {
   res.json({ success: true, data: result })
 })
 
-export const setSuspended = asyncHandler<AuthRequest>(async (req, res) => {
+export const setSuspended = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { isSuspended } = req.body
   const user = await authService.setSuspended(req.params.id, Boolean(isSuspended))
   createLog({
-    userId: req.userId as string,
-    userEmail: req.userEmail as string,
-    role: req.userRole as string,
+    userId: req.userId,
+    userEmail: req.userEmail,
+    role: req.userRole,
     action: isSuspended ? LOG.USER_SUSPEND : LOG.USER_UNSUSPEND,
     targetEntityId: req.params.id,
     result: 'success',
@@ -141,17 +141,17 @@ export const setSuspended = asyncHandler<AuthRequest>(async (req, res) => {
   res.json({ success: true, data: user })
 })
 
-export const changePassword = asyncHandler<AuthRequest>(async (req, res) => {
+export const changePassword = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { oldPassword, newPassword } = req.body
   if (!oldPassword || !newPassword) {
     res.status(400).json({ success: false, message: 'oldPassword and newPassword are required' })
     return
   }
-  await authService.changePassword(req.userId as string, oldPassword, newPassword)
+  await authService.changePassword(req.userId, oldPassword, newPassword)
   createLog({
-    userId: req.userId as string,
-    userEmail: req.userEmail as string,
-    role: req.userRole as string,
+    userId: req.userId,
+    userEmail: req.userEmail,
+    role: req.userRole,
     action: LOG.PASSWORD_CHANGE,
     result: 'success',
     ipAddress: req.ip,
@@ -159,11 +159,11 @@ export const changePassword = asyncHandler<AuthRequest>(async (req, res) => {
   res.json({ success: true, message: 'Password updated' })
 })
 
-export const logout = asyncHandler<AuthRequest>(async (req, res) => {
+export const logout = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   createLog({
-    userId: req.userId as string,
-    userEmail: req.userEmail as string,
-    role: req.userRole as string,
+    userId: req.userId,
+    userEmail: req.userEmail,
+    role: req.userRole,
     action: LOG.LOGOUT,
     result: 'success',
     ipAddress: req.ip,
@@ -199,19 +199,54 @@ export const resendVerification = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'If the email is registered and unverified, a new link has been sent.' })
 })
 
-export const deleteAccount = asyncHandler<AuthRequest>(async (req, res) => {
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body
+  if (!email || typeof email !== 'string') {
+    res.status(400).json({ success: false, message: 'Email is required' })
+    return
+  }
+  await authService.forgotPassword(email)
+  createLog({
+    userEmail: email,
+    role: 'unknown',
+    action: LOG.FORGOT_PASSWORD,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
+  res.json({ success: true, message: 'If the email is registered and verified, a reset link has been sent.' })
+})
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token, newPassword } = req.body
+  if (!token || typeof token !== 'string' || !newPassword || typeof newPassword !== 'string') {
+    res.status(400).json({ success: false, message: 'token and newPassword are required' })
+    return
+  }
+  const user = await authService.resetPassword(token, newPassword)
+  createLog({
+    userId: user.id,
+    userEmail: user.email,
+    role: user.role,
+    action: LOG.PASSWORD_RESET,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
+  res.json({ success: true, message: 'Password has been reset successfully.' })
+})
+
+export const deleteAccount = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { password } = req.body
   if (!password || typeof password !== 'string') {
     res.status(400).json({ success: false, message: 'Password confirmation is required' })
     return
   }
 
-  const result = await authService.deleteAccount(req.userId as string, password)
+  const result = await authService.deleteAccount(req.userId, password)
 
   createLog({
-    userId: req.userId as string,
+    userId: req.userId,
     userEmail: result.email,
-    role: req.userRole as string,
+    role: req.userRole,
     action: LOG.ACCOUNT_DELETE,
     result: 'success',
     ipAddress: req.ip,
@@ -220,27 +255,40 @@ export const deleteAccount = asyncHandler<AuthRequest>(async (req, res) => {
   res.json({ success: true, message: 'Account permanently deleted' })
 })
 
-export const exportMyData = asyncHandler<AuthRequest>(async (req, res) => {
-  const data = await authService.exportUserData(req.userId as string)
+export const deleteUser = asyncHandler<AuthenticatedRequest>(async (req, res) => {
+  const result = await authService.deleteUserByAdmin(req.params.id)
+  createLog({
+    userId: req.userId,
+    userEmail: req.userEmail,
+    role: req.userRole,
+    action: LOG.USER_DELETE,
+    targetEntityId: req.params.id,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
+  res.json({ success: true, message: `Account ${result.email} permanently deleted` })
+})
+
+export const exportMyData = asyncHandler<AuthenticatedRequest>(async (req, res) => {
+  const data = await authService.exportUserData(req.userId)
   res.setHeader('Content-Disposition', `attachment; filename="healthai-export-${req.userId}-${new Date().toISOString().split('T')[0]}.json"`)
   res.setHeader('Content-Type', 'application/json')
   res.send(JSON.stringify(data, null, 2))
 })
 
-export const uploadAvatar = asyncHandler<AuthRequest>(async (req, res) => {
+export const uploadAvatar = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   if (!req.file) {
     res.status(400).json({ success: false, message: 'No image file provided' })
     return
   }
 
-  const existing = await authService.getUserById(req.userId as string)
-  // delete old uploaded avatar (skip if it's an external URL)
+  const existing = await authService.getUserById(req.userId)
   if (existing.avatarUrl && existing.avatarUrl.startsWith('/uploads/')) {
     deleteAvatarFile(existing.avatarUrl)
   }
 
   const avatarUrl = `/uploads/avatars/${req.file.filename}`
-  const user = await authService.updateUserProfile(req.userId as string, { avatarUrl })
+  const user = await authService.updateUserProfile(req.userId, { avatarUrl })
 
   createLog({
     userId: user.id,

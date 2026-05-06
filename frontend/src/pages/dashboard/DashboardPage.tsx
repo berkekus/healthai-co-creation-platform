@@ -24,7 +24,7 @@ export default function DashboardPage() {
 
   const myMeetings = user ? getByUser(user.id) : []
   const upcomingMeetings = myMeetings.filter(meeting =>
-    meeting.status === 'confirmed' || meeting.status === 'pending' || meeting.status === 'time_proposed'
+    meeting.status === 'confirmed' || meeting.status === 'pending'
   )
   const activeListings = posts.filter(post => post.status === 'active' || post.status === 'meeting_scheduled').length
 
@@ -289,9 +289,7 @@ function MeetingAvatar({
   const isRequester = meeting.requesterId === userId
   const partner = isRequester ? meeting.ownerName : meeting.requesterName
   const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
-  const statusLabel = meeting.status === 'time_proposed'
-    ? 'Time proposed'
-    : meeting.status.charAt(0).toUpperCase() + meeting.status.slice(1)
+  const statusLabel = meeting.status.charAt(0).toUpperCase() + meeting.status.slice(1)
   const dateLabel = slot
     ? new Date(`${slot.date}T${slot.time}`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : 'Slot pending'

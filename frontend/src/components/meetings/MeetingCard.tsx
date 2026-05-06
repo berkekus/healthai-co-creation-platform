@@ -1,7 +1,6 @@
 import type { Meeting, MeetingStatus, TimeSlot } from '../../types/meeting.types'
 import { useMeetingStore } from '../../store/meetingStore'
 import { useAuthStore } from '../../store/authStore'
-import { useNotificationStore } from '../../store/notificationStore'
 import { useNavigate } from 'react-router-dom'
 import { postDetail } from '../../constants/routes'
 
@@ -9,7 +8,6 @@ type Tone = { label: string; bg: string; text: string; dot: string; icon: string
 
 const STATUS_CONFIG: Record<MeetingStatus, Tone> = {
   pending:       { label: 'Pending review',  bg: 'bg-hai-lime',          text: 'text-hai-plum',    dot: 'bg-hai-plum',    icon: 'pending' },
-  time_proposed: { label: 'Times proposed',  bg: 'bg-hai-mint',          text: 'text-hai-plum',    dot: 'bg-hai-teal',    icon: 'schedule' },
   confirmed:     { label: 'Confirmed',       bg: 'bg-hai-plum',          text: 'text-hai-mint',    dot: 'bg-hai-mint',    icon: 'check_circle' },
   completed:     { label: 'Completed',       bg: 'bg-hai-teal',          text: 'text-hai-plum',    dot: 'bg-hai-plum',    icon: 'task_alt' },
   declined:      { label: 'Declined',        bg: 'bg-red-50',            text: 'text-red-600',     dot: 'bg-red-500',     icon: 'block' },
@@ -56,7 +54,6 @@ interface Props { meeting: Meeting }
 export default function MeetingCard({ meeting }: Props) {
   const { user } = useAuthStore()
   const { accept, decline, cancel, complete } = useMeetingStore()
-  const { push } = useNotificationStore()
   const navigate = useNavigate()
 
   const isOwner     = user?.id === meeting.ownerId
@@ -66,17 +63,14 @@ export default function MeetingCard({ meeting }: Props) {
   const partnerName = isOwner ? meeting.requesterName : meeting.ownerName
   const partnerInitials = partnerName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
 
-  const canAct = meeting.status === 'pending' || meeting.status === 'time_proposed'
+  const canAct = meeting.status === 'pending'
   const partnerEmail = isOwner ? meeting.requesterEmail : meeting.ownerEmail
 
   const handleAccept = (slot: TimeSlot) => {
     accept(meeting.id, slot)
-    push({ userId: meeting.requesterId, type: 'meeting_accepted', title: 'Meeting confirmed', body: `${meeting.ownerName} confirmed your meeting slot.`, isRead: false, linkTo: '/meetings' })
-    push({ userId: meeting.ownerId,     type: 'meeting_accepted', title: 'Meeting confirmed', body: `You confirmed a slot with ${meeting.requesterName}.`, isRead: false, linkTo: '/meetings' })
   }
   const handleDecline = () => {
     decline(meeting.id)
-    push({ userId: meeting.requesterId, type: 'meeting_request', title: 'Meeting declined', body: `${meeting.ownerName} declined your meeting request.`, isRead: false, linkTo: '/meetings' })
   }
   const handleCancel = () => cancel(meeting.id)
 

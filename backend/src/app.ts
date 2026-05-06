@@ -2,12 +2,14 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import path from 'path'
+import mongoose from 'mongoose'
 import mongoSanitize from 'express-mongo-sanitize'
 import authRoutes from '../routes/authRoutes'
 import postRoutes from '../routes/postRoutes'
 import meetingRoutes from '../routes/meetingRoutes'
 import notificationRoutes from '../routes/notificationRoutes'
 import logRoutes from '../routes/logRoutes'
+import aiRoutes from '../routes/aiRoutes'
 import { errorHandler, notFound } from '../middleware/errorHandler'
 import { authLimiter } from '../middleware/rateLimiter'
 
@@ -35,7 +37,9 @@ app.use(mongoSanitize())
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
 app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() })
+  const dbReady = mongoose.connection.readyState === 1
+  const status = dbReady ? 'ok' : 'degraded'
+  res.status(dbReady ? 200 : 503).json({ status, db: dbReady ? 'connected' : 'disconnected', timestamp: new Date().toISOString() })
 })
 
 app.use('/api/auth', authLimiter, authRoutes)
@@ -43,6 +47,7 @@ app.use('/api/posts', postRoutes)
 app.use('/api/meetings', meetingRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/logs', logRoutes)
+app.use('/api/ai', aiRoutes)
 
 app.use(notFound)
 app.use(errorHandler)

@@ -1,137 +1,69 @@
-import { useState, useCallback } from 'react'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { useCallback, useState } from 'react'
 import type { Post } from '../types/post.types'
 import type { User } from '../types/auth.types'
-
-const GEMINI_MODEL = 'gemini-2.0-flash'
-const MAX_POSTS_TO_ANALYZE = 10  // daha az post → daha az istek
-const BATCH_SIZE = 2             // paralel değil, 2'li sıralı
-const BATCH_DELAY_MS = 4000      // 429 önlemek için batch arası 4s
-
-// Singleton — API key kontrolü yapılır, bir kez oluşturulur
-let _genAI: GoogleGenerativeAI | null = null
-
-// Oturum bazlı önbellek — aynı post + expertise kombinasyonu tekrar sorgulanmaz
-const _cache = new Map<string, AIMatchSuggestion | null>()
-
-function getGenAI(): GoogleGenerativeAI | null {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY
-  if (!apiKey) return null
-  if (!_genAI) _genAI = new GoogleGenerativeAI(apiKey)
-  return _genAI
-}
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import api from './api'
 
 export interface AIMatchSuggestion {
+  postId?: string
   reason: string
   score: number
   expertise: string[]
 }
 
-// ─── Internal helpers ─────────────────────────────────────────────────────────
+const _cache = new Map<string, Map<string, AIMatchSuggestion>>()
 
-function parseAIResponse(text: string): AIMatchSuggestion | null {
-  const jsonMatch = text.match(/\{[\s\S]*?\}/)
-  if (!jsonMatch) return null
-
-  try {
-    const parsed = JSON.parse(jsonMatch[0]) as Partial<AIMatchSuggestion>
-
-    if (typeof parsed.score !== 'number' || typeof parsed.reason !== 'string') return null
-
-    return {
-      reason: parsed.reason.slice(0, 60).trim(),
-      score: Math.max(0, Math.min(100, Math.round(parsed.score))),
-      expertise: Array.isArray(parsed.expertise) ? parsed.expertise : [],
-    }
-  } catch {
-    return null
-  }
+function cacheKey(user: User, posts: Post[]) {
+  const postKey = posts.map(post => `${post.id}:${post.updatedAt}`).join('|')
+  return `${user.id}:${(user.expertiseTags ?? []).join(',')}:${postKey}`
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
-
-/**
- * Proje açıklaması ile kullanıcı uzmanlığı arasındaki semantik eşleşmeyi analiz eder.
- * API anahtarı yoksa veya hata oluşursa null döner (graceful degradation).
- */
-export async function analyzeProjectMatch(
-  postDescription: string,
-  userExpertise: string[],
-): Promise<AIMatchSuggestion | null> {
-  const ai = getGenAI()
-  if (!ai || !userExpertise.length) return null
-
-  // Cache key: description prefix + sorted tags
-  const cacheKey = `${postDescription.slice(0, 80)}|${[...userExpertise].sort().join(',')}`
-  if (_cache.has(cacheKey)) return _cache.get(cacheKey) ?? null
-
-  try {
-    const model = ai.getGenerativeModel({ model: GEMINI_MODEL })
-
-    const prompt = `You are a medical AI collaboration expert. Analyze semantic compatibility between a health-tech project and a user's expertise.
-
-Project: ${postDescription}
-
-User expertise: ${userExpertise.join(', ')}
-
-Respond ONLY with valid JSON, no markdown:
-{"reason":"Short match explanation (max 60 chars)","score":0-100,"expertise":["matching area 1"]}
-
-If no meaningful match, return: {"reason":"","score":0,"expertise":[]}`
-
-    const result = await model.generateContent(prompt)
-    const parsed = parseAIResponse(result.response.text())
-    _cache.set(cacheKey, parsed)
-    return parsed
-  } catch {
-    return null
-  }
-}
-
-/**
- * Kullanıcı profili ve post listesine göre AI destekli öneri haritası döner.
- * Sadece aktif postları, sadece başkasına ait olanları analiz eder (max 15).
- * Rate limit aşımını önlemek için batch'ler arasında 1s bekler.
- */
 export async function getSmartSuggestions(
   user: User,
   posts: Post[],
 ): Promise<Map<string, AIMatchSuggestion>> {
-  const suggestions = new Map<string, AIMatchSuggestion>()
-
-  if (!user.expertiseTags?.length) return suggestions
+  if (!user.expertiseTags?.length && !user.bio) return new Map()
 
   const candidates = posts
-    .filter(p => p.authorId !== user.id && p.status === 'active')
-    .slice(0, MAX_POSTS_TO_ANALYZE)
+    .filter(post => post.authorId !== user.id && post.status === 'active')
+    .slice(0, 10)
 
-  for (let i = 0; i < candidates.length; i += BATCH_SIZE) {
-    const batch = candidates.slice(i, i + BATCH_SIZE)
+  if (!candidates.length) return new Map()
 
-    // Sıralı işleme — paralel değil, rate limit aşımını önler
-    for (const post of batch) {
-      const result = await analyzeProjectMatch(
-        `${post.title}. ${post.description}. Required expertise: ${post.expertiseRequired}.`,
-        user.expertiseTags ?? [],
-      )
-      if (result && result.score > 30) {
-        suggestions.set(post.id, result)
-      }
-    }
+  const key = cacheKey(user, candidates)
+  const cached = _cache.get(key)
+  if (cached) return cached
 
-    if (i + BATCH_SIZE < candidates.length) {
-      await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS))
-    }
+  const { data } = await api.post<{
+    success: boolean
+    data: { matches: Array<AIMatchSuggestion & { postId: string }> }
+  }>('/ai/matches', {
+    posts: candidates.map(post => ({
+      id: post.id,
+      title: post.title,
+      domain: post.domain,
+      expertiseRequired: post.expertiseRequired,
+      description: post.description.slice(0, 500),
+      authorId: post.authorId,
+      authorRole: post.authorRole,
+      city: post.city,
+      country: post.country,
+      status: post.status,
+    })),
+  })
+
+  const suggestions = new Map<string, AIMatchSuggestion>()
+  for (const match of data.data.matches) {
+    suggestions.set(match.postId, {
+      postId: match.postId,
+      reason: match.reason,
+      score: match.score,
+      expertise: match.expertise,
+    })
   }
-
+  _cache.set(key, suggestions)
   return suggestions
 }
 
-/**
- * API çağrısı yapmadan keyword overlap'e dayalı basit skor (fallback).
- */
 export function getSimpleMatchScore(post: Post, user: User): number {
   if (!user.expertiseTags?.length) return 0
 
@@ -143,8 +75,6 @@ export function getSimpleMatchScore(post: Post, user: User): number {
   return Math.min(100, hits.length * 25)
 }
 
-// ─── React hook ───────────────────────────────────────────────────────────────
-
 export interface UseSmartSuggestionsReturn {
   suggestions: Map<string, AIMatchSuggestion>
   isLoading: boolean
@@ -153,14 +83,6 @@ export interface UseSmartSuggestionsReturn {
   reset: () => void
 }
 
-/**
- * Gemini destekli AI önerilerini yöneten hook.
- * Zustand store'larıyla birlikte kullanılabilir — loading state hook içinde tutulur.
- *
- * @example
- * const { suggestions, isLoading, load } = useSmartSuggestions()
- * useEffect(() => { load(user, posts) }, [user.id])
- */
 export function useSmartSuggestions(): UseSmartSuggestionsReturn {
   const [suggestions, setSuggestions] = useState<Map<string, AIMatchSuggestion>>(new Map())
   const [isLoading, setIsLoading] = useState(false)
@@ -174,6 +96,7 @@ export function useSmartSuggestions(): UseSmartSuggestionsReturn {
       setSuggestions(result)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'AI suggestion failed')
+      setSuggestions(new Map())
     } finally {
       setIsLoading(false)
     }

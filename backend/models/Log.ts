@@ -1,7 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose'
 
 export interface ILog extends Document {
-  timestamp: Date
   userId?: Types.ObjectId
   userEmail: string
   role: string
@@ -15,7 +14,6 @@ export interface ILog extends Document {
 
 const LogSchema = new Schema<ILog>(
   {
-    timestamp: { type: Date, required: true, default: Date.now },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     userEmail: { type: String, required: true, lowercase: true, trim: true },
     role: { type: String, required: true },
@@ -34,7 +32,7 @@ const LogSchema = new Schema<ILog>(
 )
 
 LogSchema.index({ userId: 1 })
-LogSchema.index({ timestamp: -1 })
+LogSchema.index({ createdAt: -1 })
 LogSchema.index({ action: 1 })
 LogSchema.index({ result: 1 })
 

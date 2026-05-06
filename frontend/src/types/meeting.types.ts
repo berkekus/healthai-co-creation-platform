@@ -1,4 +1,4 @@
-export type MeetingStatus = 'pending' | 'time_proposed' | 'confirmed' | 'completed' | 'declined' | 'cancelled'
+export type MeetingStatus = 'pending' | 'confirmed' | 'completed' | 'declined' | 'cancelled'
 
 export interface TimeSlot {
   date: string

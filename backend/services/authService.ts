@@ -1,25 +1,26 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
+import mongoose from 'mongoose'
 import User, { IUser } from '../models/User'
 import Post from '../models/Post'
 import Meeting from '../models/Meeting'
 import Notification from '../models/Notification'
-import { sendVerificationEmail, sendAccountDeletedEmail } from './emailService'
+import { sendVerificationEmail, sendAccountDeletedEmail, sendPasswordResetEmail } from './emailService'
 import { pushNotification } from './notificationService'
 import { deleteAvatarFile } from '../middleware/uploadMiddleware'
+import { makeError } from '../utils/AppError'
+import logger from '../src/logger'
 
-const SALT_ROUNDS = 10
+const SALT_ROUNDS = 12
 const VERIFY_TOKEN_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
-
-function makeError(message: string, statusCode: number): Error & { statusCode: number } {
-  const err = new Error(message) as Error & { statusCode: number }
-  err.statusCode = statusCode
-  return err
-}
 
 function generateVerifyToken(): string {
   return crypto.randomBytes(32).toString('hex')
+}
+
+function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex')
 }
 
 function signToken(user: IUser): string {
@@ -49,6 +50,22 @@ function sanitize(user: IUser) {
   }
 }
 
+function publicSanitize(user: IUser) {
+  return {
+    id: user.id as string,
+    name: user.name,
+    role: user.role,
+    institution: user.institution,
+    city: user.city,
+    country: user.country,
+    bio: user.bio,
+    avatarUrl: user.avatarUrl,
+    expertiseTags: user.expertiseTags,
+    lastActive: user.lastActive,
+    createdAt: user.createdAt,
+  }
+}
+
 export async function registerUser(data: {
   name: string
   email: string
@@ -62,18 +79,18 @@ export async function registerUser(data: {
   if (existing) throw makeError('Email already registered', 409)
 
   const hashed = await bcrypt.hash(data.password, SALT_ROUNDS)
-  const verifyToken = generateVerifyToken()
+  const rawToken = generateVerifyToken()
   const user = await User.create({
     ...data,
     password: hashed,
     isVerified: false,
-    verifyToken,
+    verifyToken: hashToken(rawToken),
     verifyTokenExpires: new Date(Date.now() + VERIFY_TOKEN_TTL_MS),
   })
 
   // Send verification email asynchronously — don't block registration response
-  sendVerificationEmail(user.email, verifyToken, user.name).catch((err) => {
-    console.error('[email] failed to send verification:', err.message)
+  sendVerificationEmail(user.email, rawToken, user.name).catch((err) => {
+    logger.error({ err }, 'Failed to send verification email')
   })
 
   return { user: sanitize(user), requiresVerification: true }
@@ -81,7 +98,7 @@ export async function registerUser(data: {
 
 export async function verifyEmail(token: string) {
   const user = await User.findOne({
-    verifyToken: token,
+    verifyToken: hashToken(token),
     verifyTokenExpires: { $gt: new Date() },
   })
   if (!user) throw makeError('Invalid or expired verification token', 400)
@@ -103,18 +120,18 @@ export async function resendVerification(email: string) {
   }
   if (user.isVerified) throw makeError('Account is already verified', 400)
 
-  const verifyToken = generateVerifyToken()
-  user.verifyToken = verifyToken
+  const rawToken = generateVerifyToken()
+  user.verifyToken = hashToken(rawToken)
   user.verifyTokenExpires = new Date(Date.now() + VERIFY_TOKEN_TTL_MS)
   await user.save()
 
-  sendVerificationEmail(user.email, verifyToken, user.name).catch((err) => {
-    console.error('[email] failed to resend verification:', err.message)
+  sendVerificationEmail(user.email, rawToken, user.name).catch((err) => {
+    logger.error({ err }, 'Failed to resend verification email')
   })
 }
 
 export async function loginUser(email: string, password: string) {
-  const user = await User.findOne({ email: email.toLowerCase() })
+  const user = await User.findOne({ email: email.toLowerCase() }).select('+password')
   if (!user) throw makeError('Invalid credentials', 401)
 
   if (user.isSuspended) throw makeError('Account suspended', 403)
@@ -144,22 +161,20 @@ export async function updateUserProfile(
     { $set: data },
     { new: true, runValidators: true }
   )
-  if (!user) {
-    const err: Error & { statusCode?: number } = new Error('User not found')
-    err.statusCode = 404
-    throw err
-  }
+  if (!user) throw makeError('User not found', 404)
   return sanitize(user)
 }
 
 export async function getUserById(userId: string) {
   const user = await User.findById(userId)
-  if (!user) {
-    const err: Error & { statusCode?: number } = new Error('User not found')
-    err.statusCode = 404
-    throw err
-  }
+  if (!user) throw makeError('User not found', 404)
   return sanitize(user)
+}
+
+export async function getPublicUserById(userId: string) {
+  const user = await User.findById(userId)
+  if (!user) throw makeError('User not found', 404)
+  return publicSanitize(user)
 }
 
 export async function getAllUsers(opts: {
@@ -195,25 +210,13 @@ export async function getAllUsers(opts: {
 }
 
 export async function changePassword(userId: string, oldPassword: string, newPassword: string) {
-  if (newPassword.length < 8) {
-    const err: Error & { statusCode?: number } = new Error('Password must be at least 8 characters')
-    err.statusCode = 400
-    throw err
-  }
+  if (newPassword.length < 8) throw makeError('Password must be at least 8 characters', 400)
 
-  const user = await User.findById(userId)
-  if (!user) {
-    const err: Error & { statusCode?: number } = new Error('User not found')
-    err.statusCode = 404
-    throw err
-  }
+  const user = await User.findById(userId).select('+password')
+  if (!user) throw makeError('User not found', 404)
 
   const match = await bcrypt.compare(oldPassword, user.password)
-  if (!match) {
-    const err: Error & { statusCode?: number } = new Error('Current password is incorrect')
-    err.statusCode = 401
-    throw err
-  }
+  if (!match) throw makeError('Current password is incorrect', 401)
 
   user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
   await user.save()
@@ -246,66 +249,95 @@ export async function exportUserData(userId: string) {
   }
 }
 
+async function cascadeDeleteUser(
+  userId: string,
+  user: IUser,
+  notifyBody: string,
+  session: mongoose.ClientSession
+) {
+  const activeMeetings = await Meeting.find(
+    { $or: [{ requesterId: userId }, { ownerId: userId }], status: { $in: ['pending', 'time_proposed', 'confirmed'] } },
+    null,
+    { session }
+  )
+
+  await Promise.all(activeMeetings.map(async (m) => {
+    m.status = 'cancelled'
+    await m.save({ session })
+    const otherUserId = m.requesterId.toString() === userId ? m.ownerId.toString() : m.requesterId.toString()
+    pushNotification({
+      userId: otherUserId,
+      type: 'meeting_cancelled',
+      title: 'Toplantı iptal edildi',
+      body: notifyBody.replace('{title}', m.postTitle),
+      linkTo: '/meetings',
+    }).catch(() => {})
+  }))
+
+  await Promise.all([
+    Meeting.updateMany({ requesterId: userId }, { $set: { requesterName: 'Deleted user', requesterEmail: '' } }, { session }),
+    Meeting.updateMany({ ownerId: userId }, { $set: { ownerName: 'Deleted user', ownerEmail: '' } }, { session }),
+    Post.deleteMany({ authorId: userId }, { session }),
+    Notification.deleteMany({ userId }, { session }),
+  ])
+
+  await user.deleteOne({ session })
+}
+
 export async function deleteAccount(userId: string, password: string) {
-  const user = await User.findById(userId)
+  const user = await User.findById(userId).select('+password')
   if (!user) throw makeError('User not found', 404)
 
   const match = await bcrypt.compare(password, user.password)
   if (!match) throw makeError('Incorrect password', 401)
 
-  // Cancel all non-terminal meetings and notify counterparts
-  const activeMeetings = await Meeting.find({
-    $or: [{ requesterId: userId }, { ownerId: userId }],
-    status: { $in: ['pending', 'time_proposed', 'confirmed'] },
-  })
-  for (const m of activeMeetings) {
-    m.status = 'cancelled'
-    await m.save()
-    const otherUserId =
-      m.requesterId.toString() === userId
-        ? m.ownerId.toString()
-        : m.requesterId.toString()
-    pushNotification({
-      userId: otherUserId,
-      type: 'meeting_cancelled',
-      title: 'Toplantı iptal edildi',
-      body: `Karşı taraf hesabını sildiği için "${m.postTitle}" görüşmesi iptal edildi.`,
-      linkTo: '/meetings',
-    }).catch(() => {})
+  const { email: userEmail, name: userName, avatarUrl } = user
+
+  const session = await mongoose.startSession()
+  try {
+    await session.withTransaction(async () => {
+      await cascadeDeleteUser(
+        userId, user,
+        'Karşı taraf hesabını sildiği için "{title}" görüşmesi iptal edildi.',
+        session
+      )
+    })
+  } finally {
+    await session.endSession()
   }
 
-  // Anonymize remaining meeting records (preserve audit trail for the other party)
-  await Meeting.updateMany(
-    { requesterId: userId },
-    { $set: { requesterName: 'Deleted user', requesterEmail: '' } }
-  )
-  await Meeting.updateMany(
-    { ownerId: userId },
-    { $set: { ownerName: 'Deleted user', ownerEmail: '' } }
-  )
+  if (avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(avatarUrl)
 
-  // Delete the user's posts (Brief: "permanently deleted")
-  await Post.deleteMany({ authorId: userId })
-
-  // Delete the user's notifications
-  await Notification.deleteMany({ userId })
-
-  // Delete avatar file from disk if it was an uploaded image
-  if (user.avatarUrl?.startsWith('/uploads/')) {
-    deleteAvatarFile(user.avatarUrl)
-  }
-
-  const userEmail = user.email
-  const userName = user.name
-
-  await user.deleteOne()
-
-  // Send confirmation email — non-blocking
   sendAccountDeletedEmail(userEmail, userName).catch((err) => {
-    console.error('[email] failed to send deletion confirmation:', err.message)
+    logger.error({ err }, 'Failed to send account deletion email')
   })
 
   return { email: userEmail, name: userName }
+}
+
+export async function deleteUserByAdmin(userId: string) {
+  const user = await User.findById(userId)
+  if (!user) throw makeError('User not found', 404)
+  if (user.role === 'admin') throw makeError('Cannot delete another admin account', 403)
+
+  const { email, name, avatarUrl } = user
+
+  const session = await mongoose.startSession()
+  try {
+    await session.withTransaction(async () => {
+      await cascadeDeleteUser(
+        userId, user,
+        'Karşı taraf hesabı silindiği için "{title}" görüşmesi iptal edildi.',
+        session
+      )
+    })
+  } finally {
+    await session.endSession()
+  }
+
+  if (avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(avatarUrl)
+
+  return { email, name }
 }
 
 export async function setSuspended(userId: string, isSuspended: boolean) {
@@ -314,10 +346,47 @@ export async function setSuspended(userId: string, isSuspended: boolean) {
     { $set: { isSuspended } },
     { new: true }
   )
-  if (!user) {
-    const err: Error & { statusCode?: number } = new Error('User not found')
-    err.statusCode = 404
-    throw err
-  }
+  if (!user) throw makeError('User not found', 404)
+  return sanitize(user)
+}
+
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000 // 1 hour
+
+export async function forgotPassword(email: string) {
+  const user = await User.findOne({ email: email.toLowerCase() })
+  // Silently succeed — don't reveal whether email is registered
+  if (!user || !user.isVerified) return
+
+  const rawToken = generateVerifyToken()
+  user.resetToken = hashToken(rawToken)
+  user.resetTokenExpires = new Date(Date.now() + RESET_TOKEN_TTL_MS)
+  await user.save()
+
+  sendPasswordResetEmail(user.email, rawToken, user.name).catch((err) => {
+    logger.error({ err }, 'Failed to send password reset email')
+  })
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+  if (newPassword.length < 8) throw makeError('Password must be at least 8 characters', 400)
+
+  const user = await User.findOne({
+    resetToken: hashToken(token),
+    resetTokenExpires: { $gt: new Date() },
+  }).select('+password')
+  if (!user) throw makeError('Invalid or expired password reset token', 400)
+
+  user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
+  user.resetToken = undefined
+  user.resetTokenExpires = undefined
+  await user.save()
+
+  pushNotification({
+    userId: user.id as string,
+    type: 'account_activity',
+    title: 'Şifre sıfırlandı',
+    body: 'Hesabınızın şifresi başarıyla sıfırlandı. Bu işlemi siz yapmadıysanız hemen destek ekibiyle iletişime geçin.',
+  }).catch(() => {})
+
   return sanitize(user)
 }

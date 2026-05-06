@@ -14,11 +14,18 @@ import {
   Users,
   Wrench,
 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { usePostStore } from '../../store/postStore'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
 import { usePostStore } from '../../store/postStore'
 import ExpressInterestModal from '../../components/meetings/ExpressInterestModal'
 import { postEdit, ROUTES } from '../../constants/routes'
+import PageWrapper from '../../components/layout/PageWrapper'
+import { ROUTES, postEdit } from '../../constants/routes'
+import api from '../../lib/api'
+import type { Post } from '../../types/post.types'
 
 const STAGE_LABELS: Record<string, string> = {
   idea: 'Idea',
@@ -59,7 +66,10 @@ export default function PostDetailPage() {
     if (user) fetchByUser(user.id)
   }, [fetchByUser, user])
 
-  const post = getById(id ?? '')
+  const storePost = getById(id ?? '')
+  const [fetchedPost, setFetchedPost] = useState<Post | undefined>(undefined)
+  const [isFetching, setIsFetching] = useState(!storePost)
+  const [fetchError, setFetchError] = useState(false)
 
   const userMeetings = post ? getByPost(post.id) : []
   const isOwner = !!post && user?.id === post.authorId
@@ -86,6 +96,31 @@ export default function PostDetailPage() {
   }, [post])
 
   if (!post) {
+  useEffect(() => {
+    if (storePost || !id) return
+    setIsFetching(true)
+    api.get<{ success: boolean; data: Post & { _id?: string } }>(`/posts/${id}`)
+      .then(({ data }) => {
+        const raw = data.data
+        setFetchedPost({ ...raw, id: raw._id ?? raw.id })
+      })
+      .catch(() => setFetchError(true))
+      .finally(() => setIsFetching(false))
+  }, [id, storePost])
+
+  const post = storePost ?? fetchedPost
+
+  if (isFetching) {
+    return (
+      <PageWrapper maxWidth={720}>
+        <div className="flex items-center justify-center min-h-[40vh]">
+          <div className="w-8 h-8 border-4 border-hai-plum/20 border-t-hai-plum rounded-full animate-spin" />
+        </div>
+      </PageWrapper>
+    )
+  }
+
+  if (!post || fetchError) {
     return (
       <main className="min-h-screen bg-[#f6f7f9] px-8 py-20 text-[#2d1838]">
         <div className="mx-auto max-w-[760px] rounded-[18px] bg-white p-12 text-center shadow-[0_24px_80px_-68px_rgba(45,24,56,0.75)]">

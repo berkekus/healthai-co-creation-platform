@@ -7,11 +7,14 @@ export const LOG = {
   LOGIN_FAILED:     'login_failed',
   PROFILE_UPDATE:   'profile_update',
   PASSWORD_CHANGE:  'password_change',
+  FORGOT_PASSWORD:  'forgot_password',
+  PASSWORD_RESET:   'password_reset',
   ACCOUNT_DELETE:   'account_delete',
   LOGOUT:           'logout',
   // Admin — user management
   USER_SUSPEND:     'user_suspend',
   USER_UNSUSPEND:   'user_unsuspend',
+  USER_DELETE:      'user_delete',
   // Posts
   POST_CREATE:      'post_create',
   POST_PUBLISH:     'post_publish',

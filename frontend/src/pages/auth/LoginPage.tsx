@@ -168,6 +168,15 @@ export default function LoginPage() {
                 {' '}attempt{RATE_LIMIT_AFTER - failedAttempts !== 1 ? 's' : ''} remaining before lockout.
               </div>
             )}
+      {/* Footer links */}
+      <div className="mt-6 flex items-center justify-between text-[11px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold px-2">
+        <Link to={ROUTES.FORGOT_PASSWORD} className="text-neutral-500 hover:text-hai-plum transition-colors">
+          Forgot password?
+        </Link>
+        <Link to={ROUTES.REGISTER} className="text-hai-plum hover:text-hai-teal transition-colors">
+          Request access →
+        </Link>
+      </div>
 
             {error && cooldown === 0 && (
               <div role="alert" className="mb-5 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3">

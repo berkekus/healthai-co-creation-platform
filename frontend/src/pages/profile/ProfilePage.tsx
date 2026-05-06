@@ -83,6 +83,125 @@ function ReadField({ label, value, icon }: { label: string; value?: string; icon
   )
 }
 
+function ChangePasswordCard({ onSaved }: { onSaved: () => void }) {
+  const { changePassword } = useAuthStore()
+  const [oldPassword, setOldPassword]     = useState('')
+  const [newPassword, setNewPassword]     = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [status, setStatus]               = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [error, setError]                 = useState<string | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    if (newPassword.length < 8) { setError('New password must be at least 8 characters.'); return }
+    if (newPassword !== confirmPassword) { setError('New passwords do not match.'); return }
+    setStatus('loading')
+    try {
+      await changePassword(oldPassword, newPassword)
+      setStatus('success')
+      setOldPassword(''); setNewPassword(''); setConfirmPassword('')
+      onSaved()
+      setTimeout(() => setStatus('idle'), 2500)
+    } catch (err) {
+      setStatus('error')
+      setError(err instanceof Error ? err.message : 'Could not update password.')
+    }
+  }
+
+  const fieldCls = 'w-full bg-hai-offwhite border border-neutral-200 rounded-xl px-4 py-3 text-[14px] font-mono text-hai-plum outline-none focus:border-hai-plum focus:bg-white focus:shadow-[0_0_0_3px_rgba(138,198,208,0.32)] disabled:opacity-60 transition-all'
+
+  return (
+    <div className="bg-white rounded-[1.5rem] border border-neutral-100 p-5 flex flex-col gap-4 relative overflow-hidden">
+      <div className="absolute -top-4 -right-4 w-28 h-28 pointer-events-none opacity-60" style={{ background: 'radial-gradient(circle, #B8F3FF 0%, transparent 70%)' }} />
+      <div className="relative">
+        <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-hai-mint text-hai-plum mb-3">
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: '"FILL" 1' }}>lock_reset</span>
+        </div>
+        <div className="font-headline font-bold text-[17px] leading-tight text-hai-plum mb-1">Change password</div>
+        <p className="text-[13px] text-neutral-600 leading-relaxed mb-4">
+          Choose a strong password with at least 8 characters.
+        </p>
+
+        {status === 'success' && (
+          <div className="mb-4 bg-hai-mint border border-hai-teal/40 rounded-2xl p-3 flex items-center gap-2 text-[13px] text-hai-plum font-medium">
+            <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: '"FILL" 1' }}>check_circle</span>
+            Password updated successfully.
+          </div>
+        )}
+
+        {status === 'error' && error && (
+          <div role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-700 font-medium">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3">
+          <div>
+            <label className="block text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold mb-1.5">
+              Current password <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              value={oldPassword}
+              onChange={e => { setOldPassword(e.target.value); setError(null) }}
+              placeholder="••••••••"
+              autoComplete="current-password"
+              disabled={status === 'loading'}
+              className={fieldCls}
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold mb-1.5">
+              New password <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={e => { setNewPassword(e.target.value); setError(null) }}
+              placeholder="••••••••"
+              autoComplete="new-password"
+              disabled={status === 'loading'}
+              className={fieldCls}
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold mb-1.5">
+              Confirm new password <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={e => { setConfirmPassword(e.target.value); setError(null) }}
+              placeholder="••••••••"
+              autoComplete="new-password"
+              disabled={status === 'loading'}
+              className={fieldCls}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={status === 'loading' || !oldPassword || !newPassword || !confirmPassword}
+            className="mt-1 inline-flex items-center gap-2 bg-hai-plum text-white rounded-full px-5 py-2.5 text-[12px] font-mono tracking-[0.1em] uppercase font-bold hover:bg-black disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors self-start"
+          >
+            {status === 'loading' ? (
+              <>
+                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Updating…
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-[14px]">lock_reset</span>
+                Update password
+              </>
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: (password: string) => Promise<void> }) {
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -575,6 +694,19 @@ export default function ProfilePage() {
           </div>
         )}
       </form>
+
+      {/* Security section */}
+      <div className="mt-10">
+        <div className="flex items-center gap-2 mb-4 px-1">
+          <span className="material-symbols-outlined text-hai-plum text-[18px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+            lock
+          </span>
+          <span className="text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
+            Security
+          </span>
+        </div>
+        <ChangePasswordCard onSaved={() => { setSaved(true); setTimeout(() => setSaved(false), 2500) }} />
+      </div>
 
       {/* GDPR section */}
       <div className="mt-10">

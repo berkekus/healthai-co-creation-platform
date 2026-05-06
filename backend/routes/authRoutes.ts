@@ -1,8 +1,9 @@
 import { Router } from 'express'
 import {
   register, login, logout, getMe, updateProfile, changePassword,
-  getUserById, getAllUsers, setSuspended, uploadAvatar,
+  getUserById, getAllUsers, setSuspended, deleteUser, uploadAvatar,
   verifyEmail, resendVerification, deleteAccount, exportMyData,
+  forgotPassword, resetPassword,
 } from '../controllers/authController'
 import { protect, adminOnly } from '../middleware/authMiddleware'
 import { avatarUpload } from '../middleware/uploadMiddleware'
@@ -12,6 +13,8 @@ const router = Router()
 router.post('/register', register)
 router.post('/verify-email', verifyEmail)
 router.post('/resend-verification', resendVerification)
+router.post('/forgot-password', forgotPassword)
+router.post('/reset-password', resetPassword)
 router.post('/login', login)
 router.post('/logout', protect, logout)
 router.get('/me', protect, getMe)
@@ -23,5 +26,6 @@ router.get('/me/export', protect, exportMyData)
 router.get('/users', protect, adminOnly, getAllUsers)
 router.get('/users/:id', protect, getUserById)
 router.put('/users/:id/suspend', protect, adminOnly, setSuspended)
+router.delete('/users/:id', protect, adminOnly, deleteUser)
 
 export default router

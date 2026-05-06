@@ -1,8 +1,8 @@
 import Meeting, { IMeeting, ITimeSlot } from '../models/Meeting'
-import Post from '../models/Post'
 import User from '../models/User'
 import { incrementMeetingCount, markPartnerFound, recomputePostStatus } from './postService'
 import { pushNotification } from './notificationService'
+import { makeError } from '../utils/AppError'
 
 async function withEmails(meetings: IMeeting[]) {
   const ids = [...new Set(meetings.flatMap(m => [m.requesterId.toString(), m.ownerId.toString()]))]
@@ -13,12 +13,6 @@ async function withEmails(meetings: IMeeting[]) {
     requesterEmail: (m.requesterEmail || map.get(m.requesterId.toString()) || ''),
     ownerEmail:     (m.ownerEmail     || map.get(m.ownerId.toString())     || ''),
   }))
-}
-
-function makeError(message: string, statusCode: number): Error & { statusCode: number } {
-  const err = new Error(message) as Error & { statusCode: number }
-  err.statusCode = statusCode
-  return err
 }
 
 export async function requestMeeting(data: {
@@ -35,19 +29,14 @@ export async function requestMeeting(data: {
   proposedSlots: ITimeSlot[]
 }) {
   if (!data.ndaAccepted) throw makeError('NDA must be accepted', 400)
-  if (data.message.length < 20) throw makeError('Message must be at least 20 characters', 400)
-  if (data.proposedSlots.length < 3) throw makeError('At least 3 time slots are required', 400)
-
-  // Verify ownerId matches the post's actual author
-  const post = await Post.findById(data.postId).select('authorId')
-  if (!post) throw makeError('Post not found', 404)
-  if (post.authorId.toString() !== data.ownerId) throw makeError('Invalid owner', 400)
+  if (typeof data.message !== 'string' || data.message.length < 20) throw makeError('Message must be at least 20 characters', 400)
+  if (!Array.isArray(data.proposedSlots) || data.proposedSlots.length < 3) throw makeError('At least 3 time slots are required', 400)
 
   // Prevent duplicate active requests from the same requester
   const existing = await Meeting.exists({
     postId: data.postId,
     requesterId: data.requesterId,
-    status: { $in: ['pending', 'time_proposed'] },
+    status: 'pending',
   })
   if (existing) throw makeError('You already have a pending meeting request for this post', 409)
 
@@ -97,7 +86,7 @@ async function resolveUpdateFailure(
 
 export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot) {
   const meeting = await Meeting.findOneAndUpdate(
-    { _id: id, ownerId, status: { $in: ['pending', 'time_proposed'] } },
+    { _id: id, ownerId, status: 'pending' },
     { $set: { status: 'confirmed', confirmedSlot: slot } },
     { new: true },
   )
@@ -117,7 +106,7 @@ export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot
 
 export async function declineMeeting(id: string, ownerId: string) {
   const meeting = await Meeting.findOneAndUpdate(
-    { _id: id, ownerId, status: { $in: ['pending', 'time_proposed'] } },
+    { _id: id, ownerId, status: 'pending' },
     { $set: { status: 'declined' } },
     { new: true },
   )

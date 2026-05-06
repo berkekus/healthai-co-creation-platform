@@ -13,11 +13,14 @@ import {
   SlidersHorizontal,
 } from 'lucide-react'
 import { ROUTES, postDetail } from '../../constants/routes'
+import { useAuthStore } from '../../store/authStore'
 import { usePostStore } from '../../store/postStore'
+import { useSmartSuggestions } from '../../lib/gemini'
+import { computeMatchReasons, getCombinedMatchScore } from '../../utils/matchPosts'
 import type { CollaborationType, Post, PostAuthorRole, PostStatus, ProjectStage } from '../../types/post.types'
 
 type PostedBy = 'Anyone' | 'Engineer' | 'Clinician'
-type SortMode = 'recent' | 'oldest' | 'expiring'
+type SortMode = 'best' | 'recent' | 'oldest' | 'expiring'
 type ViewMode = 'list' | 'grid'
 
 interface DirectoryPost {
@@ -39,6 +42,8 @@ interface DirectoryPost {
   city: string
   expiryDate: string
   createdAt: string
+  matchScore: number
+  aiReason?: string
 }
 
 const mockPosts: DirectoryPost[] = [
@@ -62,6 +67,7 @@ const mockPosts: DirectoryPost[] = [
     city: 'Istanbul',
     expiryDate: new Date(Date.now() + 24 * 86400000).toISOString(),
     createdAt: '2026-05-01T10:00:00Z',
+    matchScore: 0,
   },
   {
     id: 'mock-deneme',
@@ -82,6 +88,7 @@ const mockPosts: DirectoryPost[] = [
     city: 'Ankara',
     expiryDate: new Date(Date.now() + 283 * 86400000).toISOString(),
     createdAt: '2026-04-30T10:00:00Z',
+    matchScore: 0,
   },
   {
     id: 'mock-cgm',
@@ -102,6 +109,7 @@ const mockPosts: DirectoryPost[] = [
     city: 'Istanbul',
     expiryDate: new Date(Date.now() + 120 * 86400000).toISOString(),
     createdAt: '2026-04-29T10:00:00Z',
+    matchScore: 0,
   },
 ]
 
@@ -137,22 +145,34 @@ const typeLabels: Record<CollaborationType, string> = {
 }
 
 export default function PostListPage() {
+  const { user } = useAuthStore()
   const { posts, fetchPosts, isLoading } = usePostStore()
+  const { suggestions, isLoading: isMatching, load: loadSmartSuggestions, reset: resetSmartSuggestions } = useSmartSuggestions()
   const [search, setSearch] = useState('')
   const [domain, setDomain] = useState('')
   const [stage, setStage] = useState('')
   const [status, setStatus] = useState('')
   const [postedBy, setPostedBy] = useState<PostedBy>('Anyone')
   const [location, setLocation] = useState('Ankara')
-  const [sort, setSort] = useState<SortMode>('recent')
+  const [sort, setSort] = useState<SortMode>('best')
   const [viewMode, setViewMode] = useState<ViewMode>('list')
 
   useEffect(() => {
     fetchPosts({ limit: 100, filters: {} })
   }, [fetchPosts])
 
+  useEffect(() => {
+    if (!user || posts.length === 0) {
+      resetSmartSuggestions()
+      return
+    }
+    loadSmartSuggestions(user, posts)
+  }, [loadSmartSuggestions, posts, resetSmartSuggestions, user])
+
   const directoryPosts = useMemo(() => {
-    const source = posts.length > 0 ? posts.map(toDirectoryPost) : mockPosts
+    const source = posts.length > 0
+      ? posts.map(post => toDirectoryPost(post, user, suggestions.get(post.id)))
+      : mockPosts
     const query = search.trim().toLowerCase()
 
     return source
@@ -173,11 +193,15 @@ export default function PostListPage() {
         return true
       })
       .sort((a, b) => {
+        if (sort === 'best') {
+          if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        }
         if (sort === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         if (sort === 'expiring') return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime()
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       })
-  }, [domain, location, postedBy, posts, search, sort, stage, status])
+  }, [domain, location, postedBy, posts, search, sort, stage, status, suggestions, user])
 
   const clearFilters = () => {
     setSearch('')
@@ -224,6 +248,7 @@ export default function PostListPage() {
           <PostList
             posts={directoryPosts}
             isLoading={isLoading && posts.length === 0}
+            isMatching={isMatching}
             sort={sort}
             viewMode={viewMode}
             onSort={setSort}
@@ -441,6 +466,7 @@ function SegmentedControl({ active, onChange }: { active: PostedBy; onChange: (v
 function PostList({
   posts,
   isLoading,
+  isMatching,
   sort,
   viewMode,
   onSort,
@@ -448,6 +474,7 @@ function PostList({
 }: {
   posts: DirectoryPost[]
   isLoading: boolean
+  isMatching: boolean
   sort: SortMode
   viewMode: ViewMode
   onSort: (value: SortMode) => void
@@ -457,7 +484,7 @@ function PostList({
     <section className="overflow-hidden rounded-[28px] border border-[var(--border)] bg-white shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)]">
       <div className="flex h-[68px] items-center justify-between border-b border-[var(--border)] px-7">
         <div className="text-[15px] font-black text-[var(--muted)]">
-          {isLoading ? 'Loading opportunities...' : `${posts.length} opportunities found`}
+          {isLoading ? 'Loading opportunities...' : `${posts.length} opportunities found${isMatching ? ' · matching...' : ''}`}
         </div>
 
         <div className="flex items-center gap-6">
@@ -469,6 +496,7 @@ function PostList({
                 onChange={event => onSort(event.target.value as SortMode)}
                 className="appearance-none bg-transparent pr-6 text-[var(--text)] outline-none"
               >
+                <option value="best">Best match</option>
                 <option value="recent">Most recent</option>
                 <option value="oldest">Oldest</option>
                 <option value="expiring">Expiring soon</option>
@@ -536,6 +564,7 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
           {post.tags.map(tag => (
             <Tag key={tag} label={tag} />
           ))}
+          {post.aiReason && <Tag label={post.aiReason} />}
         </div>
 
         <h2 className="truncate font-headline text-2xl font-black leading-tight text-[var(--primary)]">{post.title}</h2>
@@ -569,7 +598,7 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
 function Tag({ label }: { label: string }) {
   const cyan = ['In Turkey', 'Cardiology', 'Active', 'Clinical Pharmacy', 'Orthopedics'].includes(label)
   const green = label === 'In Ankara'
-  const primary = ['Needs Engineering', 'Partner Found'].includes(label)
+  const primary = ['Needs Engineering', 'Partner Found'].includes(label) || label.startsWith('AI:')
 
   return (
     <span
@@ -598,9 +627,19 @@ function StatusPill({ label }: { label: string }) {
   )
 }
 
-function toDirectoryPost(post: Post): DirectoryPost {
+function toDirectoryPost(
+  post: Post,
+  user: ReturnType<typeof useAuthStore.getState>['user'],
+  aiSuggestion?: { reason: string; score: number } | null,
+): DirectoryPost {
   const days = Math.ceil((new Date(post.expiryDate).getTime() - Date.now()) / 86400000)
-  const tags = [post.country ? `In ${post.country}` : '', post.domain, statusLabel(post.status)].filter(Boolean)
+  const basicReasons = computeMatchReasons(post, user)
+  const tags = [
+    ...basicReasons.slice(0, 2).map(reason => reason.label),
+    post.country ? `In ${post.country}` : '',
+    post.domain,
+    statusLabel(post.status),
+  ].filter(Boolean)
   return {
     id: post.id,
     initials: initials(post.authorName),
@@ -620,6 +659,8 @@ function toDirectoryPost(post: Post): DirectoryPost {
     city: post.city,
     expiryDate: post.expiryDate,
     createdAt: post.createdAt,
+    matchScore: user ? getCombinedMatchScore(post, user, aiSuggestion?.score) : 0,
+    aiReason: aiSuggestion?.reason ? `AI: ${aiSuggestion.reason}` : undefined,
   }
 }
 
