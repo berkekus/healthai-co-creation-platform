@@ -220,8 +220,41 @@ type Step = {
   desc: string
   icon: string
   accent: string  // subtle tint for the illustration panel
+  screen: string
+  route?: string
+  routeLabel?: string
+  checkpoints: string[]
   Visual: () => JSX.Element
 }
+
+const ProfileVisual = () => (
+  <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
+    <div className="flex items-center gap-3 pb-4 border-b border-neutral-100">
+      <div className="w-12 h-12 rounded-2xl bg-hai-plum text-white flex items-center justify-center font-headline font-bold">
+        AY
+      </div>
+      <div>
+        <div className="font-headline font-bold text-hai-plum text-[18px] leading-tight">Aylin Yilmaz</div>
+        <div className="text-[11px] font-mono tracking-[0.14em] uppercase text-neutral-500">Clinician profile</div>
+      </div>
+      <Icon name="verified" className="ml-auto text-hai-teal text-[24px]" filled />
+    </div>
+    <div className="grid grid-cols-2 gap-2 mt-4">
+      {['Cardiology', 'Istanbul, Turkiye', 'Clinical AI', 'Institution verified'].map((item) => (
+        <div key={item} className="rounded-xl bg-neutral-100 px-3 py-2 text-[11px] font-bold text-hai-plum">
+          {item}
+        </div>
+      ))}
+    </div>
+    <div className="mt-4 rounded-2xl bg-hai-mint/45 p-3 flex items-center gap-3">
+      <Icon name="tune" className="text-hai-plum text-[22px]" filled />
+      <div>
+        <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Match basis</div>
+        <div className="text-[13px] font-semibold text-neutral-700">Expertise, location, role, and collaboration goals.</div>
+      </div>
+    </div>
+  </div>
+)
 
 const PostVisual = () => (
   <div className="relative w-full max-w-[340px] aspect-[5/4] mx-auto">
@@ -250,14 +283,21 @@ const PostVisual = () => (
 
 const MatchVisual = () => {
   const chips: [string, boolean][] = [
-    ['Cardiology', true], ['Oncology', false], ['Radiology', false], ['Neurology', true],
-    ['Embedded ML', true], ['Signal Proc.', false], ['Computer Vision', false], ['ICU · Berlin', true],
+    ['AI best match', true], ['Orthopedics', false], ['Machine learning', true], ['Research partner', false],
+    ['Ankara, Turkiye', true], ['Page 1 of 3', false],
   ]
   return (
     <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold">Directory · filters</span>
-        <span className="flex items-center gap-1 text-[10px] font-mono tracking-[0.15em] uppercase text-hai-plum"><Icon name="tune" className="text-[14px]" filled /> 04 active</span>
+        <span className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold">Browse Posts</span>
+        <span className="flex items-center gap-1 text-[10px] font-mono tracking-[0.15em] uppercase text-hai-plum"><Icon name="auto_awesome" className="text-[14px]" filled /> 82% match</span>
+      </div>
+      <div className="rounded-2xl border border-neutral-100 p-3 mb-4">
+        <div className="font-headline font-bold text-hai-plum text-[16px] leading-tight">Structured MRI report assistant</div>
+        <div className="mt-2 flex items-center gap-2 text-[11px] font-semibold text-neutral-500">
+          <Icon name="location_on" className="text-[15px]" />
+          Ankara, Turkiye
+        </div>
       </div>
       <div className="flex flex-wrap gap-2">
         {chips.map(([label, active]) => (
@@ -267,8 +307,8 @@ const MatchVisual = () => {
         ))}
       </div>
       <div className="mt-5 pt-4 border-t border-neutral-100 flex items-center gap-3">
-        <Icon name="location_on" className="text-hai-plum text-[18px]" filled />
-        <span className="text-[11px] font-mono tracking-wider uppercase text-neutral-500">12 European cities · 20 domains</span>
+        <Icon name="view_list" className="text-hai-plum text-[18px]" filled />
+        <span className="text-[11px] font-mono tracking-wider uppercase text-neutral-500">Filters, sorting, and pagination stay in sync.</span>
       </div>
     </div>
   )
@@ -302,30 +342,142 @@ const MeetVisual = () => (
   </div>
 )
 
-const BuildVisual = () => (
-  <div className="relative w-full max-w-[340px] aspect-square mx-auto flex items-center justify-center">
-    <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-hai-mint via-hai-teal/60 to-hai-plum/10 shadow-[0_25px_60px_-25px_rgba(54,33,62,0.4)]" />
-    <div className="absolute inset-6 rounded-[1.6rem] bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 border border-white/60">
-      <div className="w-16 h-16 bg-hai-plum rounded-2xl flex items-center justify-center shadow-lg">
-        <Icon name="handshake" className="text-hai-mint text-[36px]" filled />
-      </div>
-      <div className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold">Partner Found</div>
-      <div className="font-headline text-[20px] font-bold text-hai-plum text-center leading-tight">The handshake,<br />on record.</div>
-      <div className="flex items-center gap-1.5 text-[10px] font-mono tracking-wider uppercase text-hai-plum/60">
-        <Icon name="verified" className="text-[14px]" filled /> Logged · immutable
-      </div>
+const MeetingsVisual = () => (
+  <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
+    <div className="flex items-center justify-between mb-4">
+      <span className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold">Meetings</span>
+      <span className="rounded-full bg-hai-mint px-3 py-1 text-[10px] font-mono tracking-[0.14em] uppercase text-hai-plum font-bold">Pending review</span>
     </div>
-    <div className="absolute -top-3 -left-3 w-12 h-12 bg-hai-lime rounded-2xl shadow-lg flex items-center justify-center -rotate-12">
-      <Icon name="rocket_launch" className="text-hai-plum text-[24px]" filled />
+    <div className="space-y-3">
+      {[
+        ['Incoming', 'MRI report assistant', 'Accept'],
+        ['Confirmed', 'CGM feasibility review', 'Complete'],
+        ['Outgoing', 'Stroke prediction labels', 'Cancel'],
+      ].map(([status, title, action]) => (
+        <div key={title} className="rounded-2xl border border-neutral-100 p-3">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-xl bg-hai-plum text-white flex items-center justify-center text-[11px] font-bold">
+              {status.slice(0, 2).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-400 font-bold">{status}</div>
+              <div className="font-headline font-bold text-hai-plum text-[14px] truncate">{title}</div>
+            </div>
+            <span className="rounded-full bg-neutral-100 px-3 py-1 text-[10px] font-bold text-hai-plum">{action}</span>
+          </div>
+        </div>
+      ))}
     </div>
   </div>
 )
 
+const NotifyVisual = () => (
+  <div className="w-full max-w-[350px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
+    <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
+      <div>
+        <div className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold">Notifications</div>
+        <div className="font-headline text-[20px] font-bold text-hai-plum">Follow the thread.</div>
+      </div>
+      <div className="relative">
+        <Icon name="notifications" className="text-hai-plum text-[28px]" filled />
+        <span className="absolute -right-1 -top-1 w-3 h-3 rounded-full bg-hai-lime border-2 border-white" />
+      </div>
+    </div>
+    {[
+      ['Meeting request accepted', '2 min ago'],
+      ['New AI match is available', 'Today'],
+      ['Profile export is ready', 'Yesterday'],
+    ].map(([title, time]) => (
+      <div key={title} className="flex items-center gap-3 py-3 border-b border-neutral-100 last:border-0">
+        <span className="w-2 h-2 rounded-full bg-hai-teal shrink-0" />
+        <div className="min-w-0 flex-1">
+          <div className="text-[13px] font-bold text-hai-plum truncate">{title}</div>
+          <div className="text-[11px] font-mono tracking-[0.12em] uppercase text-neutral-400">{time}</div>
+        </div>
+      </div>
+    ))}
+  </div>
+)
+
 const STEPS: Step[] = [
-  { num: '01', name: 'Post', tagline: 'Publish the need. Structure it.', desc: 'Describe your domain, the expertise you need, the project stage, and the confidentiality level. No file uploads. No patient data. Ever.', icon: 'edit_note', accent: '#B8F3FF', Visual: PostVisual },
-  { num: '02', name: 'Match', tagline: '20 domains · 12 specialties.', desc: 'Browse the directory. Filter by medical domain, engineering specialty, city, or project stage. Every profile is tied to an institutional .edu account.', icon: 'tune', accent: '#D2FF74', Visual: MatchVisual },
-  { num: '03', name: 'Meet', tagline: 'NDA inline. Three slots. Done.', desc: 'Express interest. Accept a one-page NDA inline. Propose three timeslots. The post owner confirms — the meeting is scheduled and logged immutably.', icon: 'handshake', accent: '#E3DCD2', Visual: MeetVisual },
-  { num: '04', name: 'Build', tagline: "The platform steps aside.", desc: "Real collaboration happens off-platform, where it belongs. Mark the post as Partner Found. Your handshake — and its full history — stays on record.", icon: 'rocket_launch', accent: '#8AC6D0', Visual: BuildVisual },
+  {
+    num: '01',
+    name: 'Profile',
+    tagline: 'Teach the platform who you are.',
+    desc: 'Complete your role, institution, city, country, expertise, and collaboration interests. These fields power the profile match score users see on Browse Posts.',
+    icon: 'badge',
+    accent: '#B8F3FF',
+    screen: 'Profile',
+    route: ROUTES.PROFILE,
+    routeLabel: 'Open profile',
+    checkpoints: ['Verify institutional email', 'Add city and country', 'Choose expertise and interests'],
+    Visual: ProfileVisual,
+  },
+  {
+    num: '02',
+    name: 'Browse',
+    tagline: 'AI-ranked posts first, filters second.',
+    desc: 'Browse Posts sorts opportunities by profile fit, shows a visible match badge, keeps filters tied to backend data, and paginates long result sets.',
+    icon: 'travel_explore',
+    accent: '#D2FF74',
+    screen: 'Browse Posts',
+    route: ROUTES.POSTS,
+    routeLabel: 'Browse opportunities',
+    checkpoints: ['Review AI best match scores', 'Use domain, stage, status, and location filters', 'Move between result pages without endless scrolling'],
+    Visual: MatchVisual,
+  },
+  {
+    num: '03',
+    name: 'Post',
+    tagline: 'Publish a clean collaboration request.',
+    desc: 'Use the post form to describe the clinical problem, needed expertise, project stage, collaborator type, and location. Posts stay structured enough to match and search well.',
+    icon: 'edit_note',
+    accent: '#B8F3FF',
+    screen: 'Post Opportunity',
+    route: ROUTES.POST_CREATE,
+    routeLabel: 'Create post',
+    checkpoints: ['Write a specific title and summary', 'Select domain, stage, and collaborator type', 'Keep patient data and files out of the post'],
+    Visual: PostVisual,
+  },
+  {
+    num: '04',
+    name: 'Request',
+    tagline: 'Send interest with NDA and time slots.',
+    desc: 'Open a post detail page, express interest, accept the one-page NDA, add your message, and propose three meeting times for the owner to review.',
+    icon: 'handshake',
+    accent: '#E3DCD2',
+    screen: 'Post Detail',
+    route: ROUTES.POSTS,
+    routeLabel: 'Find a post',
+    checkpoints: ['Read the full post details', 'Accept the collaboration terms', 'Propose three realistic time slots'],
+    Visual: MeetVisual,
+  },
+  {
+    num: '05',
+    name: 'Meetings',
+    tagline: 'Turn requests into scheduled work.',
+    desc: 'The Meetings screen separates incoming, outgoing, confirmed, and cancelled requests. Owners can accept or decline; participants can cancel or mark collaboration progress.',
+    icon: 'event_available',
+    accent: '#8AC6D0',
+    screen: 'Meetings',
+    route: ROUTES.MEETINGS,
+    routeLabel: 'Manage meetings',
+    checkpoints: ['Filter by request status', 'Accept, decline, cancel, or complete meetings', 'Use the calendar and overview panels to stay oriented'],
+    Visual: MeetingsVisual,
+  },
+  {
+    num: '06',
+    name: 'Follow-up',
+    tagline: 'Keep every handshake traceable.',
+    desc: 'Notifications surface meeting updates and match activity. Profile controls keep privacy actions close by, including account data export and deletion workflows.',
+    icon: 'notifications',
+    accent: '#E3DCD2',
+    screen: 'Notifications',
+    route: ROUTES.NOTIFICATIONS,
+    routeLabel: 'View notifications',
+    checkpoints: ['Check unread collaboration updates', 'Return to meetings from notification context', 'Use profile privacy controls when needed'],
+    Visual: NotifyVisual,
+  },
 ]
 
 // ── Main ────────────────────────────────────────────────────────────
@@ -845,11 +997,11 @@ export default function LandingPage() {
               <div>
                 <p className="text-[11px] font-mono tracking-[0.2em] uppercase text-hai-plum/70 font-bold mb-3">03 · How it works</p>
                 <h2 className="text-[3rem] md:text-[5.5rem] font-headline font-bold text-hai-plum tracking-[-0.03em] leading-[0.95]">
-                  Four deliberate<br />steps.
+                  A working<br />user guide.
                 </h2>
               </div>
               <p className="text-base md:text-lg text-neutral-600 max-w-sm leading-relaxed">
-                From publishing a collaboration post to logging the handshake — the protocol is the same for every user, every time.
+                Each step maps to a real screen in HealthAI, from profile setup and AI-ranked browsing to meeting decisions and notifications.
               </p>
             </div>
 
@@ -888,6 +1040,29 @@ export default function LandingPage() {
                         <p className="text-[15px] md:text-base text-neutral-600 leading-relaxed max-w-md">
                           {active.desc}
                         </p>
+                        <div className="mt-6 flex flex-wrap items-center gap-2">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-hai-mint/60 px-3 py-1.5 text-[11px] font-mono tracking-[0.14em] uppercase text-hai-plum font-bold">
+                            <Icon name="desktop_windows" className="text-[15px]" filled />
+                            {active.screen}
+                          </span>
+                          {active.route && (
+                            <Link
+                              to={active.route}
+                              className="inline-flex items-center gap-1.5 rounded-full bg-hai-plum px-3 py-1.5 text-[11px] font-mono tracking-[0.14em] uppercase text-white font-bold hover:bg-black transition-colors"
+                            >
+                              {active.routeLabel}
+                              <Icon name="arrow_forward" className="text-[15px]" />
+                            </Link>
+                          )}
+                        </div>
+                        <div className="mt-5 grid gap-2 max-w-md">
+                          {active.checkpoints.map((checkpoint) => (
+                            <div key={checkpoint} className="flex items-start gap-2.5 text-[13px] font-semibold text-neutral-600">
+                              <Icon name="check_circle" className="mt-0.5 text-hai-teal text-[17px] shrink-0" filled />
+                              <span>{checkpoint}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
 
                       {/* Step breadcrumbs */}
