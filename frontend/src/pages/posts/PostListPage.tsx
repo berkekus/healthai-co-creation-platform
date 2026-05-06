@@ -3,6 +3,8 @@ import type { CSSProperties, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Grid2X2,
   Sparkles,
   List,
@@ -23,6 +25,7 @@ import type { CollaborationType, Post, PostAuthorRole, PostStatus, ProjectStage 
 type PostedBy = 'Anyone' | 'Engineer' | 'Clinician'
 type SortMode = 'best' | 'recent' | 'oldest' | 'expiring'
 type ViewMode = 'list' | 'grid'
+const POSTS_PER_PAGE = 5
 
 interface DirectoryPost {
   id: string
@@ -52,12 +55,12 @@ const mockPosts: DirectoryPost[] = [
   {
     id: 'mock-heart-failure',
     initials: 'EK',
-    tags: ['In Turkey', 'Cardiology', 'Active'],
+    tags: ['Cardiology', 'Active'],
     title: 'Home-based heart failure monitoring from wearable vitals',
     description:
       'Looking for an engineering partner to prototype a simple risk signal for recently discharged heart failure patients using vitals and symptom diaries.',
     author: 'Dr. Elif Kaya',
-    location: 'Istanbul',
+    location: 'Istanbul, Türkiye',
     daysLeft: '80D LEFT',
     stage: 'Concept Validation',
     type: 'Research Partner',
@@ -75,11 +78,11 @@ const mockPosts: DirectoryPost[] = [
   {
     id: 'mock-stroke-federated',
     initials: 'MA',
-    tags: ['In Turkey', 'Federated Learning', 'Neurology', 'Active'],
+    tags: ['Federated Learning', 'Neurology', 'Active'],
     title: 'Federated learning baseline for stroke outcome prediction',
     description: 'A privacy-preserving training scaffold is ready; the next step is clinical endpoint definition and failure-case review with stroke teams.',
     author: 'Mert Aydin',
-    location: 'Ankara',
+    location: 'Ankara, Türkiye',
     daysLeft: '120D LEFT',
     stage: 'Prototype',
     type: 'Research Partner',
@@ -102,7 +105,7 @@ const mockPosts: DirectoryPost[] = [
     description:
       'Seeking a rehab ward partner to test where lightweight gait-instability alerts fit without adding alarm fatigue.',
     author: 'Jonas Keller',
-    location: 'Munich',
+    location: 'Munich, Germany',
     daysLeft: '70D LEFT',
     stage: 'Pilot',
     type: 'Co-Founder',
@@ -162,6 +165,7 @@ export default function PostListPage() {
   const [location, setLocation] = useState('Ankara')
   const [sort, setSort] = useState<SortMode>('best')
   const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     fetchPosts({ limit: 100, filters: {} })
@@ -216,7 +220,19 @@ export default function PostListPage() {
     setStatus('')
     setPostedBy('Anyone')
     setLocation('')
+    setPage(1)
   }
+
+  useEffect(() => {
+    setPage(1)
+  }, [domain, location, postedBy, search, sort, stage, status, viewMode])
+
+  const totalPages = Math.max(1, Math.ceil(directoryPosts.length / POSTS_PER_PAGE))
+  const currentPage = Math.min(page, totalPages)
+  const paginatedPosts = directoryPosts.slice(
+    (currentPage - 1) * POSTS_PER_PAGE,
+    currentPage * POSTS_PER_PAGE,
+  )
 
   return (
     <main
@@ -252,7 +268,8 @@ export default function PostListPage() {
             onClear={clearFilters}
           />
           <PostList
-            posts={directoryPosts}
+            posts={paginatedPosts}
+            totalPosts={directoryPosts.length}
             isLoading={isLoading && posts.length === 0}
             isMatching={isMatching}
             aiError={Boolean(user && !isMatching && posts.length > 0 && suggestions.size === 0)}
@@ -260,6 +277,9 @@ export default function PostListPage() {
             viewMode={viewMode}
             onSort={setSort}
             onViewMode={setViewMode}
+            page={currentPage}
+            totalPages={totalPages}
+            onPage={setPage}
           />
         </section>
       </div>
@@ -472,6 +492,7 @@ function SegmentedControl({ active, onChange }: { active: PostedBy; onChange: (v
 
 function PostList({
   posts,
+  totalPosts,
   isLoading,
   isMatching,
   aiError,
@@ -479,8 +500,12 @@ function PostList({
   viewMode,
   onSort,
   onViewMode,
+  page,
+  totalPages,
+  onPage,
 }: {
   posts: DirectoryPost[]
+  totalPosts: number
   isLoading: boolean
   isMatching: boolean
   aiError: boolean
@@ -488,6 +513,9 @@ function PostList({
   viewMode: ViewMode
   onSort: (value: SortMode) => void
   onViewMode: (value: ViewMode) => void
+  page: number
+  totalPages: number
+  onPage: (page: number) => void
 }) {
   return (
     <section className="overflow-hidden rounded-[28px] border border-[var(--border)] bg-white shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)]">
@@ -495,7 +523,7 @@ function PostList({
         <div className="flex items-center justify-between gap-6">
           <div>
             <div className="text-[15px] font-black text-[var(--muted)]">
-              {isLoading ? 'Loading opportunities...' : `${posts.length} opportunities found`}
+              {isLoading ? 'Loading opportunities...' : `${totalPosts} opportunities found`}
             </div>
             <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#2d1838] px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-white shadow-[0_12px_28px_-20px_rgba(45,24,56,0.8)]">
               <Sparkles size={14} />
@@ -540,21 +568,29 @@ function PostList({
         </div>
       </div>
 
-      {posts.length === 0 ? (
+      {totalPosts === 0 ? (
         <div className="px-7 py-16 text-center text-[15px] font-semibold text-[var(--muted)]">
           No opportunities match your filters.
         </div>
       ) : (
-        <div className={viewMode === 'grid' ? 'md:grid md:grid-cols-2' : ''}>
-          {posts.map((post, index) => (
-            <PostRow
-              key={post.id}
-              post={post}
-              isLast={index === posts.length - 1}
-              compact={viewMode === 'grid'}
-            />
-          ))}
-        </div>
+        <>
+          <div className={viewMode === 'grid' ? 'md:grid md:grid-cols-2' : ''}>
+            {posts.map((post, index) => (
+              <PostRow
+                key={post.id}
+                post={post}
+                isLast={index === posts.length - 1}
+                compact={viewMode === 'grid'}
+              />
+            ))}
+          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            totalPosts={totalPosts}
+            onPage={onPage}
+          />
+        </>
       )}
     </section>
   )
@@ -593,12 +629,6 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
           </div>
         )}
 
-        <div className="mb-6 flex flex-wrap gap-2">
-          {post.tags.map(tag => (
-            <Tag key={tag} label={tag} />
-          ))}
-        </div>
-
         <h2 className="truncate font-headline text-2xl font-black leading-tight text-[var(--primary)]">{post.title}</h2>
         <p className="mt-4 max-w-[900px] break-words text-[15px] font-semibold leading-6 text-[var(--muted)]">{post.description}</p>
 
@@ -617,19 +647,25 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
         </div>
       </div>
 
-      <div className="post-row-side flex flex-col items-end justify-between">
+      <div className="post-row-side flex flex-col items-end justify-between gap-8">
         <div className="flex items-center gap-3">
           <StatusPill label={post.stage} />
           <StatusPill label={post.type} />
         </div>
+        {post.tags.length > 0 && (
+          <div className="flex max-w-[340px] flex-wrap justify-end gap-2 self-end">
+            {post.tags.map(tag => (
+              <Tag key={tag} label={tag} />
+            ))}
+          </div>
+        )}
       </div>
     </Link>
   )
 }
 
 function Tag({ label }: { label: string }) {
-  const cyan = ['In Turkey', 'Cardiology', 'Active', 'Clinical Pharmacy', 'Orthopedics'].includes(label)
-  const green = label === 'In Ankara'
+  const cyan = ['Cardiology', 'Active', 'Clinical Pharmacy', 'Orthopedics', 'Radiology', 'Neurology'].includes(label)
   const primary = ['Needs Engineering', 'Partner Found'].includes(label) || label.startsWith('AI:')
 
   return (
@@ -637,11 +673,9 @@ function Tag({ label }: { label: string }) {
       className={`inline-flex items-center gap-1.5 rounded-full px-3 text-[10px] font-black uppercase tracking-[0.12em] ${
         primary
           ? 'bg-[var(--primary)] text-white'
-          : green
-            ? 'bg-[#d8ff8f] text-[var(--tag-text)]'
-            : cyan
-              ? 'bg-[#dff8ff] text-[var(--tag-text)]'
-              : 'bg-[var(--tag-bg)] text-[var(--tag-text)]'
+          : cyan
+            ? 'bg-[#dff8ff] text-[var(--tag-text)]'
+            : 'bg-[var(--tag-bg)] text-[var(--tag-text)]'
       }`}
       style={{ height: 22 }}
     >
@@ -659,6 +693,62 @@ function StatusPill({ label }: { label: string }) {
   )
 }
 
+function Pagination({
+  page,
+  totalPages,
+  totalPosts,
+  onPage,
+}: {
+  page: number
+  totalPages: number
+  totalPosts: number
+  onPage: (page: number) => void
+}) {
+  if (totalPages <= 1) return null
+
+  const start = (page - 1) * POSTS_PER_PAGE + 1
+  const end = Math.min(totalPosts, page * POSTS_PER_PAGE)
+
+  return (
+    <div className="flex flex-col gap-4 border-t border-[var(--border)] px-7 py-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="text-[13px] font-bold text-[var(--muted)]">
+        Showing {start}-{end} of {totalPosts}
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => onPage(Math.max(1, page - 1))}
+          disabled={page === 1}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--primary)] transition hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-40"
+          aria-label="Previous page"
+        >
+          <ChevronLeft size={17} />
+        </button>
+        {Array.from({ length: totalPages }, (_, index) => index + 1).map(item => (
+          <button
+            key={item}
+            onClick={() => onPage(item)}
+            className={`flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-[13px] font-black transition ${
+              item === page
+                ? 'bg-[var(--primary)] text-white'
+                : 'border border-[var(--border)] bg-white text-[var(--primary)] hover:border-[var(--accent)]'
+            }`}
+          >
+            {item}
+          </button>
+        ))}
+        <button
+          onClick={() => onPage(Math.min(totalPages, page + 1))}
+          disabled={page === totalPages}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--primary)] transition hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-40"
+          aria-label="Next page"
+        >
+          <ChevronRight size={17} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function toDirectoryPost(
   post: Post,
   user: ReturnType<typeof useAuthStore.getState>['user'],
@@ -666,9 +756,11 @@ function toDirectoryPost(
 ): DirectoryPost {
   const days = Math.ceil((new Date(post.expiryDate).getTime() - Date.now()) / 86400000)
   const basicReasons = computeMatchReasons(post, user)
+  const filteredReasons = basicReasons
+    .filter(reason => reason.tone !== 'city' && reason.tone !== 'country')
+    .map(reason => reason.label)
   const tags = Array.from(new Set([
-    ...basicReasons.slice(0, 2).map(reason => reason.label),
-    post.country ? `In ${post.country}` : '',
+    ...filteredReasons.slice(0, 2),
     post.domain,
     statusLabel(post.status),
   ].filter(Boolean)))
@@ -679,7 +771,7 @@ function toDirectoryPost(
     title: post.title,
     description: post.description,
     author: post.authorName,
-    location: post.city,
+    location: `${post.city}, ${formatCountry(post.country)}`,
     daysLeft: days > 0 && post.status === 'active' ? `${days}D LEFT` : undefined,
     stage: stageLabels[post.projectStage],
     type: typeLabels[post.collaborationType],
@@ -710,4 +802,10 @@ function statusLabel(status: PostStatus) {
     expired: 'Expired',
   }
   return labels[status]
+}
+
+function formatCountry(country: string) {
+  const normalized = country.trim().toLowerCase()
+  if (normalized === 'turkey' || normalized === 'türkiye' || normalized === 'turkiye') return 'Türkiye'
+  return country
 }
