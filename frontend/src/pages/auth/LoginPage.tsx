@@ -171,9 +171,11 @@ export default function LoginPage() {
         </form>
       </div>
 
-      {/* Footer link */}
+      {/* Footer links */}
       <div className="mt-6 flex items-center justify-between text-[11px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold px-2">
-        <span>No account?</span>
+        <Link to={ROUTES.FORGOT_PASSWORD} className="text-neutral-500 hover:text-hai-plum transition-colors">
+          Forgot password?
+        </Link>
         <Link to={ROUTES.REGISTER} className="text-hai-plum hover:text-hai-teal transition-colors">
           Request access →
         </Link>

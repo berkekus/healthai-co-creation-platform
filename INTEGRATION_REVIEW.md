@@ -18,7 +18,7 @@ Temel auth, post ve meeting akışlarının mimarisi sağlam kurulmuş. Ancak **
 - [x] **#2** `notificationStore.push` — admin-only endpoint çağrılıyor, bildirimleri DB'ye kaydetmiyor
 - [x] **#3** `meetingController` — hiçbir meeting olayında server-side bildirim oluşturulmuyor
 - [x] **#4** `PostDetailPage` — direkt URL'de `getById` local-only, "Post not found" hatası
-- [ ] **#5** Forgot/Reset Password — backend hazır, frontend sayfaları + route'lar tamamen eksik
+- [x] **#5** Forgot/Reset Password — backend hazır, frontend sayfaları + route'lar tamamen eksik
 
 ### Önemli (Yanlış Davranış)
 
