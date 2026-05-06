@@ -2,10 +2,12 @@ export const LOG = {
   // Auth
   REGISTER:         'register',
   REGISTER_FAILED:  'register_failed',
+  EMAIL_VERIFIED:   'email_verified',
   LOGIN:            'login',
   LOGIN_FAILED:     'login_failed',
   PROFILE_UPDATE:   'profile_update',
   PASSWORD_CHANGE:  'password_change',
+  ACCOUNT_DELETE:   'account_delete',
   LOGOUT:           'logout',
   // Admin — user management
   USER_SUSPEND:     'user_suspend',

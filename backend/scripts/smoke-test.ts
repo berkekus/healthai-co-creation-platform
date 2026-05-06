@@ -82,8 +82,8 @@ async function run() {
         country: 'Turkey',
       },
     })
-    if (status === 201 && body.data?.token && body.data?.user?.isVerified === true) {
-      tokenA = body.data.token
+    // Register returns 201 with user but no token (email verification flow)
+    if (status === 201 && body.data?.user?.id) {
       userAId = body.data.user.id
       userAName = body.data.user.name
       ok()
@@ -94,14 +94,14 @@ async function run() {
     fail((e as Error).message)
   }
 
-  // ── 3. Login as user A ─────────────────────────────────────────────────────
+  // ── 3. Login as user A (dev: email verification not enforced) ─────────────
   step('POST /api/auth/login (user A)')
   try {
     const { status, body } = await req<any>('POST', '/api/auth/login', {
       body: { email: emailA, password: 'password123' },
     })
     if (status === 200 && body.data?.token) {
-      tokenA = body.data.token   // refresh with login token
+      tokenA = body.data.token
       ok()
     } else {
       fail(`status=${status} body=${JSON.stringify(body)}`)
@@ -159,14 +159,15 @@ async function run() {
   } else {
     try {
       const { status, body } = await req<any>('POST', `/api/posts/${postId}/publish`, { token: tokenA })
-      if (status === 200 && body.data?.status === 'published') ok()
+      // publishPost sets status to 'active'
+      if (status === 200 && body.data?.status === 'active') ok()
       else fail(`status=${status} body=${JSON.stringify(body)}`)
     } catch (e) {
       fail((e as Error).message)
     }
   }
 
-  // ── 7. Register user B (healthcare professional) ───────────────────────────
+  // ── 7. Register + login user B (healthcare professional) ─────────────────
   const emailB = `${unique()}@smoke.edu`
   let tokenB = ''
 
@@ -183,7 +184,18 @@ async function run() {
         country: 'Germany',
       },
     })
-    if (status === 201 && body.data?.token) {
+    if (status === 201 && body.data?.user?.id) ok()
+    else fail(`status=${status} body=${JSON.stringify(body)}`)
+  } catch (e) {
+    fail((e as Error).message)
+  }
+
+  step('POST /api/auth/login (user B)')
+  try {
+    const { status, body } = await req<any>('POST', '/api/auth/login', {
+      body: { email: emailB, password: 'password123' },
+    })
+    if (status === 200 && body.data?.token) {
       tokenB = body.data.token
       ok()
     } else {
@@ -206,11 +218,12 @@ async function run() {
           postTitle,
           ownerId: userAId,
           ownerName: userAName,
-          message: 'Smoke test meeting request — safe to ignore.',
-          ndaAccepted: false,
+          message: 'Smoke test meeting request — safe to ignore. This is a longer message to pass the 20-char minimum.',
+          ndaAccepted: true,
           proposedSlots: [
             { date: '2025-06-01', time: '10:00' },
             { date: '2025-06-02', time: '14:00' },
+            { date: '2025-06-03', time: '09:00' },
           ],
         },
       })

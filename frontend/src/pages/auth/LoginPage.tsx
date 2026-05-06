@@ -116,7 +116,16 @@ export default function LoginPage() {
         {error && cooldown === 0 && (
           <div role="alert" className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
             <span className="material-symbols-outlined text-red-600 text-xl shrink-0" style={{ fontVariationSettings: '"FILL" 1' }}>error</span>
-            <div className="text-sm text-red-700 font-medium">{error}</div>
+            <div className="text-sm text-red-700 font-medium flex-1">
+              {error}
+              {error.toLowerCase().includes('not verified') && (
+                <div className="mt-2">
+                  <Link to={ROUTES.VERIFY_EMAIL} className="inline-flex items-center gap-1 text-hai-plum font-bold hover:underline">
+                    Resend verification email <span aria-hidden="true">→</span>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

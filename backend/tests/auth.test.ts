@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { api, createUser, uniqueEmail } from './helpers'
+import User from '../models/User'
 
 describe('POST /api/auth/register', () => {
-  it('returns 201 with user + token; isVerified is true', async () => {
+  it('returns 201 with user; requiresVerification true; no token issued', async () => {
     const email = uniqueEmail()
     const res = await api.post('/api/auth/register').send({
       name: 'Alice',
@@ -15,8 +16,9 @@ describe('POST /api/auth/register', () => {
     })
     expect(res.status).toBe(201)
     expect(res.body.success).toBe(true)
-    expect(res.body.data.token).toBeTruthy()
-    expect(res.body.data.user.isVerified).toBe(true)
+    expect(res.body.data.token).toBeUndefined()
+    expect(res.body.data.requiresVerification).toBe(true)
+    expect(res.body.data.user.isVerified).toBe(false)
   })
 
   it('returns 409 on duplicate email', async () => {
@@ -111,6 +113,84 @@ describe('PUT /api/auth/me/password', () => {
       .put('/api/auth/me/password')
       .set('Authorization', `Bearer ${token}`)
       .send({ oldPassword: password, newPassword: 'short' })
+    expect(res.status).toBe(400)
+  })
+})
+
+describe('POST /api/auth/login (unverified)', () => {
+  it('returns 403 when account email is not verified', async () => {
+    const email = uniqueEmail()
+    const password = 'password123'
+    await api.post('/api/auth/register').send({
+      name: 'Unverified',
+      email,
+      password,
+      role: 'engineer',
+      institution: 'Uni',
+      city: 'Istanbul',
+      country: 'Turkey',
+    })
+    // Skip verification flag flip — try to login while still unverified
+    const res = await api.post('/api/auth/login').send({ email, password })
+    expect(res.status).toBe(403)
+  })
+})
+
+describe('POST /api/auth/verify-email', () => {
+  it('verifies the user with a valid token and returns a JWT', async () => {
+    const email = uniqueEmail()
+    await api.post('/api/auth/register').send({
+      name: 'Verifier',
+      email,
+      password: 'password123',
+      role: 'engineer',
+      institution: 'Uni',
+      city: 'Istanbul',
+      country: 'Turkey',
+    })
+    const fresh = await User.findOne({ email: email.toLowerCase() })
+    expect(fresh?.verifyToken).toBeTruthy()
+
+    const res = await api.post('/api/auth/verify-email').send({ token: fresh!.verifyToken })
+    expect(res.status).toBe(200)
+    expect(res.body.data.token).toBeTruthy()
+    expect(res.body.data.user.isVerified).toBe(true)
+  })
+
+  it('returns 400 on invalid token', async () => {
+    const res = await api.post('/api/auth/verify-email').send({ token: 'definitely-not-real' })
+    expect(res.status).toBe(400)
+  })
+})
+
+describe('DELETE /api/auth/me', () => {
+  it('deletes the account when password is correct', async () => {
+    const { token, password, email } = await createUser()
+    const res = await api
+      .delete('/api/auth/me')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ password })
+    expect(res.status).toBe(200)
+
+    const gone = await User.findOne({ email: email.toLowerCase() })
+    expect(gone).toBeNull()
+  })
+
+  it('returns 401 with wrong password', async () => {
+    const { token } = await createUser()
+    const res = await api
+      .delete('/api/auth/me')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ password: 'wrongpassword' })
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 400 when password is missing', async () => {
+    const { token } = await createUser()
+    const res = await api
+      .delete('/api/auth/me')
+      .set('Authorization', `Bearer ${token}`)
+      .send({})
     expect(res.status).toBe(400)
   })
 })

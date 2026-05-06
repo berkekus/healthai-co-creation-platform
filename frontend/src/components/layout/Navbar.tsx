@@ -58,19 +58,14 @@ export default function Navbar() {
       : location.pathname === to || location.pathname.startsWith(to + '/')
 
   return (
-    <header className="sticky top-0 z-50 h-16 bg-white/85 backdrop-blur-md border-b border-neutral-200 font-body">
-      <div className="max-w-7xl mx-auto h-full px-6 md:px-8 flex items-center justify-between gap-6">
+    <header className="sticky top-0 z-50 h-[76px] bg-white/90 backdrop-blur-md border-b border-[#e8e8ee] font-body">
+      <div className="max-w-[1640px] mx-auto h-full px-6 md:px-10 2xl:px-0 flex items-center justify-between gap-8">
 
         {/* Brand */}
-        <Link to={ROUTES.HOME} className="flex items-center gap-2.5 shrink-0">
-          <div className="bg-black p-1.5 rounded-lg">
-            <svg width="18" height="18" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="16.5" y="5"    width="7"  height="30" rx="1.5" fill="white" />
-              <rect x="5"    y="16.5" width="30" height="7"  rx="1.5" fill="white" />
-            </svg>
-          </div>
-          <span className="text-[19px] font-extrabold tracking-tight text-black font-body">
-            healthai<span className="text-hai-plum">.</span>
+        <Link to={ROUTES.HOME} className="flex items-center gap-2 shrink-0">
+          <img src="/images/healthailogo.svg" alt="HealthAI logo" className="h-8 w-auto" />
+          <span className="text-[18px] font-extrabold tracking-tight font-headline text-[#111111]">
+            HealthAI
           </span>
         </Link>
 
@@ -79,16 +74,16 @@ export default function Navbar() {
             barely-there black/5 wash that fades in over 200 ms. Text color
             only shifts by a hair (neutral-600 → neutral-900) so it stays in
             harmony with the background tint instead of fighting it. */}
-        <nav className="hidden md:flex flex-1 items-center gap-1">
+        <nav className="hidden md:flex flex-1 items-center justify-center gap-3">
           {user ? navLinks.map(({ to, label }) => {
             const active = isActive(to)
             return (
               <Link
                 key={to}
                 to={to}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-200 ease-in-out ${
+                className={`px-5 py-2.5 rounded-full text-sm font-bold transition-colors duration-200 ease-in-out ${
                   active
-                    ? 'bg-hai-mint text-hai-plum'
+                    ? 'bg-hai-mint/55 text-hai-plum'
                     : 'text-neutral-600 hover:text-neutral-900 hover:bg-black/5'
                 }`}
               >
@@ -99,7 +94,7 @@ export default function Navbar() {
             <div className="flex items-center gap-1">
               <Link
                 to="/"
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out"
+                className="px-5 py-2.5 rounded-full text-sm font-bold text-neutral-600 hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out"
               >
                 Home
               </Link>
@@ -115,7 +110,7 @@ export default function Navbar() {
               <Link
                 to={ROUTES.NOTIFICATIONS}
                 aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
-                className="relative w-10 h-10 rounded-full border border-neutral-200 bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
+                className="relative w-12 h-12 rounded-full border border-[#e8e8ee] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
               >
                 <Bell size={17} />
                 {unread > 0 && (
@@ -130,7 +125,7 @@ export default function Navbar() {
                 <button
                   onClick={() => setProfileOpen(o => !o)}
                   aria-label="Account menu"
-                  className="w-10 h-10 rounded-full overflow-hidden bg-hai-mint text-hai-plum font-bold text-xs font-body flex items-center justify-center border border-hai-teal/40 hover:border-hai-plum transition-colors"
+                  className="w-12 h-12 rounded-full overflow-hidden bg-hai-mint text-hai-plum font-bold text-xs font-body flex items-center justify-center border border-hai-teal/40 hover:border-hai-plum transition-colors"
                 >
                   {resolveAvatar(user.avatarUrl)
                     ? <img src={resolveAvatar(user.avatarUrl)} alt={user.name} className="w-full h-full object-cover" onError={e => { const btn = (e.currentTarget as HTMLImageElement); btn.style.display = 'none'; btn.parentElement!.insertAdjacentText('beforeend', user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()) }} />

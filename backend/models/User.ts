@@ -14,6 +14,8 @@ export interface IUser extends Document {
   avatarUrl?: string
   expertiseTags: string[]
   isVerified: boolean
+  verifyToken?: string
+  verifyTokenExpires?: Date
   isSuspended: boolean
   lastActive: Date
   createdAt: Date
@@ -36,7 +38,9 @@ const UserSchema = new Schema<IUser>(
     bio: { type: String, trim: true },
     avatarUrl: { type: String, trim: true },
     expertiseTags: { type: [String], default: [] },
-    isVerified: { type: Boolean, default: true },
+    isVerified: { type: Boolean, default: false },
+    verifyToken: { type: String, index: true },
+    verifyTokenExpires: { type: Date },
     isSuspended: { type: Boolean, default: false },
     lastActive: { type: Date, default: Date.now },
   },

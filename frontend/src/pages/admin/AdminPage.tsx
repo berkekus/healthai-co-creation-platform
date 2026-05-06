@@ -289,7 +289,7 @@ export default function AdminPage() {
             <table className="w-full border-collapse min-w-[760px]">
               <thead>
                 <tr>
-                  {['Member', 'Role', 'Institution', 'Status', 'Last active', 'Actions'].map(h => (
+                  {['Member', 'Role', 'Institution', 'Profile', 'Status', 'Last active', 'Actions'].map(h => (
                     <th key={h} className="text-left text-[10px] font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold px-5 py-3 bg-hai-offwhite/60 border-b border-neutral-100 whitespace-nowrap">
                       {h}
                     </th>
@@ -299,6 +299,14 @@ export default function AdminPage() {
               <tbody>
                 {filteredUsers.map(u => {
                   const initials = u.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+                  const completenessFields = [
+                    !!u.bio, !!(u as User & { avatarUrl?: string }).avatarUrl,
+                    !!((u as User & { expertiseTags?: string[] }).expertiseTags?.length),
+                    !!u.city, !!u.institution,
+                  ]
+                  const completeness = Math.round((completenessFields.filter(Boolean).length / completenessFields.length) * 100)
+                  const completenessColor = completeness === 100 ? 'bg-hai-mint' : completeness >= 60 ? 'bg-hai-lime' : 'bg-red-100'
+                  const completenessText = completeness === 100 ? 'text-hai-plum' : completeness >= 60 ? 'text-hai-plum' : 'text-red-600'
                   return (
                     <tr key={u.id} className={`border-b border-neutral-100 last:border-b-0 transition-colors ${u.isSuspended ? 'bg-red-50/40' : 'hover:bg-hai-mint/20'}`}>
                       <td className="px-5 py-4 align-middle">
@@ -321,7 +329,15 @@ export default function AdminPage() {
                         </span>
                       </td>
                       <td className="px-5 py-4 align-middle">
-                        <span className="text-[12.5px] text-neutral-600 font-body truncate max-w-[220px] inline-block align-bottom">{u.institution}</span>
+                        <span className="text-[12.5px] text-neutral-600 font-body truncate max-w-[180px] inline-block align-bottom">{u.institution}</span>
+                      </td>
+                      <td className="px-5 py-4 align-middle">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                            <div className={`h-full rounded-full ${completenessColor}`} style={{ width: `${completeness}%` }} />
+                          </div>
+                          <span className={`text-[10.5px] font-mono font-bold ${completenessText}`}>{completeness}%</span>
+                        </div>
                       </td>
                       <td className="px-5 py-4 align-middle">
                         <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-mono tracking-[0.1em] uppercase font-bold whitespace-nowrap ${
