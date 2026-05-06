@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import crypto from 'crypto'
 import { api, createUser, uniqueEmail } from './helpers'
 import User from '../models/User'
 
@@ -148,10 +149,16 @@ describe('POST /api/auth/verify-email', () => {
       city: 'Istanbul',
       country: 'Turkey',
     })
-    const fresh = await User.findOne({ email: email.toLowerCase() })
-    expect(fresh?.verifyToken).toBeTruthy()
 
-    const res = await api.post('/api/auth/verify-email').send({ token: fresh!.verifyToken })
+    // DB stores SHA256(rawToken); inject a known raw token so the test can send it
+    const rawToken = crypto.randomBytes(32).toString('hex')
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex')
+    await User.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      { verifyToken: hashedToken, verifyTokenExpires: new Date(Date.now() + 86400_000) }
+    )
+
+    const res = await api.post('/api/auth/verify-email').send({ token: rawToken })
     expect(res.status).toBe(200)
     expect(res.body.data.token).toBeTruthy()
     expect(res.body.data.user.isVerified).toBe(true)
@@ -191,6 +198,50 @@ describe('DELETE /api/auth/me', () => {
       .delete('/api/auth/me')
       .set('Authorization', `Bearer ${token}`)
       .send({})
+    expect(res.status).toBe(400)
+  })
+})
+
+describe('POST /api/auth/forgot-password + reset-password', () => {
+  it('silently succeeds for unknown email', async () => {
+    const res = await api.post('/api/auth/forgot-password').send({ email: 'nobody@nowhere.com' })
+    expect(res.status).toBe(200)
+  })
+
+  it('resets password with a valid token', async () => {
+    const { email, password } = await createUser()
+
+    // Trigger forgot-password (silently sends email)
+    await api.post('/api/auth/forgot-password').send({ email })
+
+    // Inject a known raw token directly into DB (same pattern as verifyEmail test)
+    const rawToken = crypto.randomBytes(32).toString('hex')
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex')
+    await User.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      { resetToken: hashedToken, resetTokenExpires: new Date(Date.now() + 3_600_000) }
+    )
+
+    const newPassword = 'NewPassword99!'
+    const resetRes = await api.post('/api/auth/reset-password').send({ token: rawToken, newPassword })
+    expect(resetRes.status).toBe(200)
+
+    // Old password no longer works
+    const oldLoginRes = await api.post('/api/auth/login').send({ email, password })
+    expect(oldLoginRes.status).toBe(401)
+
+    // New password works
+    const newLoginRes = await api.post('/api/auth/login').send({ email, password: newPassword })
+    expect(newLoginRes.status).toBe(200)
+  })
+
+  it('returns 400 on invalid reset token', async () => {
+    const res = await api.post('/api/auth/reset-password').send({ token: 'fakefake', newPassword: 'NewPass123!' })
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 400 when new password is too short', async () => {
+    const res = await api.post('/api/auth/reset-password').send({ token: 'sometoken', newPassword: 'short' })
     expect(res.status).toBe(400)
   })
 })

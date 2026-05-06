@@ -23,6 +23,7 @@ export interface IPost extends Document {
   status: PostStatus
   interestCount: number
   meetingCount: number
+  interestedUserIds: Types.ObjectId[]
   createdAt: Date
   updatedAt: Date
 }
@@ -65,6 +66,7 @@ const PostSchema = new Schema<IPost>(
     },
     interestCount: { type: Number, default: 0, min: 0 },
     meetingCount: { type: Number, default: 0, min: 0 },
+    interestedUserIds: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
   },
   {
     timestamps: true,

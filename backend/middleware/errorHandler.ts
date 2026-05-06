@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { MulterError } from 'multer'
+import logger from '../src/logger'
 
 export interface AppError extends Error {
   statusCode?: number
@@ -17,7 +18,7 @@ export const errorHandler = (
 ): void => {
   // Always log server errors to stderr, never expose internals to client
   if (err.statusCode === undefined || err.statusCode >= 500) {
-    console.error(`[ERROR] ${err.name ?? 'Error'}: ${err.message}`)
+    logger.error({ err: { name: err.name, message: err.message, stack: err.stack } }, 'Unhandled server error')
   }
 
   // Multer errors (file upload)

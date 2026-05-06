@@ -1,13 +1,8 @@
 import Post, { IPost } from '../models/Post'
-import { FilterQuery } from 'mongoose'
+import { FilterQuery, Types } from 'mongoose'
 import Meeting from '../models/Meeting'
 import { pushNotification } from './notificationService'
-
-function makeError(message: string, statusCode: number): Error & { statusCode: number } {
-  const err = new Error(message) as Error & { statusCode: number }
-  err.statusCode = statusCode
-  return err
-}
+import { makeError } from '../utils/AppError'
 
 export interface PostFilters {
   domain?: string
@@ -48,13 +43,6 @@ export async function getPostById(id: string) {
 }
 
 export async function listPosts(filters: PostFilters, page = 1, limit = 20) {
-  // Lazily mark active posts past their expiry date
-  const now = new Date()
-  await Post.updateMany(
-    { status: 'active', expiryDate: { $lt: now } },
-    { $set: { status: 'expired' } }
-  )
-
   const query: FilterQuery<IPost> = {}
 
   if (filters.authorId) {
@@ -91,13 +79,15 @@ const UPDATABLE_FIELDS = [
   'city', 'country', 'expiryDate',
 ] as const
 
+type UpdatableField = typeof UPDATABLE_FIELDS[number]
+
 export async function updatePost(id: string, requesterId: string, isAdmin: boolean, data: Partial<IPost>) {
   const post = await Post.findById(id)
   if (!post) throw makeError('Post not found', 404)
   if (!isAdmin && post.authorId.toString() !== requesterId) throw makeError('Forbidden', 403)
 
   for (const field of UPDATABLE_FIELDS) {
-    if (field in data) (post as any)[field] = (data as any)[field]
+    if (field in data) post.set(field, data[field as UpdatableField])
   }
   await post.save()
   return post
@@ -124,9 +114,9 @@ export async function markPartnerFound(id: string, requesterId: string) {
   // Cancel all non-terminal meetings and notify each requester
   const activeMeetings = await Meeting.find({
     postId: id,
-    status: { $in: ['pending', 'time_proposed', 'confirmed'] },
+    status: { $in: ['pending', 'confirmed'] },
   })
-  for (const meeting of activeMeetings) {
+  await Promise.all(activeMeetings.map(async (meeting) => {
     meeting.status = 'cancelled'
     await meeting.save()
     pushNotification({
@@ -136,7 +126,7 @@ export async function markPartnerFound(id: string, requesterId: string) {
       body: `"${post.title}" için zaten bir işbirliği ortağı bulundu.`,
       linkTo: `/posts/${id}`,
     }).catch(() => {})
-  }
+  }))
 
   return post
 }
@@ -147,11 +137,15 @@ export async function expressInterest(id: string, requesterId: string, requester
   if (post.status !== 'active') throw makeError('Post is not accepting interest', 400)
   if (post.authorId.toString() === requesterId) throw makeError('Cannot express interest in your own post', 400)
 
-  const updated = await Post.findByIdAndUpdate(
-    id,
-    { $inc: { interestCount: 1 } },
+  // $addToSet prevents duplicates; only increment count when user is newly added
+  const updated = await Post.findOneAndUpdate(
+    { _id: id, interestedUserIds: { $ne: new Types.ObjectId(requesterId) } },
+    { $addToSet: { interestedUserIds: requesterId }, $inc: { interestCount: 1 } },
     { new: true }
   )
+
+  // null means user already expressed interest — return unchanged post
+  if (!updated) return post
 
   pushNotification({
     userId: post.authorId.toString(),
@@ -161,7 +155,7 @@ export async function expressInterest(id: string, requesterId: string, requester
     linkTo: `/posts/${id}`,
   }).catch(() => {})
 
-  return updated!
+  return updated
 }
 
 export async function deletePost(id: string, requesterId: string, isAdmin: boolean) {

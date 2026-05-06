@@ -3,8 +3,6 @@ import type { Post } from '../../types/post.types'
 import type { TimeSlot } from '../../types/meeting.types'
 import { useMeetingStore } from '../../store/meetingStore'
 import { useAuthStore } from '../../store/authStore'
-import { usePostStore } from '../../store/postStore'
-import { useNotificationStore } from '../../store/notificationStore'
 
 interface Props {
   post: Post
@@ -41,8 +39,6 @@ function StepPill({ n, active, done, label }: { n: number; active: boolean; done
 export default function ExpressInterestModal({ post, onClose, onSuccess }: Props) {
   const { user } = useAuthStore()
   const { request } = useMeetingStore()
-  const { update } = usePostStore()
-  const { push } = useNotificationStore()
 
   const [step, setStep] = useState(1)
   const [message, setMessage] = useState('')
@@ -98,8 +94,6 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
         { postId: post.id, message, ndaAccepted: true, proposedSlots: filledSlots },
         user.id, user.name, post.authorId, post.authorName, post.title,
       )
-      update(post.id, { status: 'meeting_scheduled' })
-      push({ userId: user.id, type: 'meeting_request', title: 'Interest expressed', body: `Your request for "${post.title}" has been sent.`, isRead: false, linkTo: '/meetings' })
       onSuccess()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send request. Please try again.')
