@@ -43,13 +43,6 @@ export async function getPostById(id: string) {
 }
 
 export async function listPosts(filters: PostFilters, page = 1, limit = 20) {
-  // Lazily mark active posts past their expiry date
-  const now = new Date()
-  await Post.updateMany(
-    { status: 'active', expiryDate: { $lt: now } },
-    { $set: { status: 'expired' } }
-  )
-
   const query: FilterQuery<IPost> = {}
 
   if (filters.authorId) {

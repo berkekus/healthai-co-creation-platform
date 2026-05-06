@@ -143,21 +143,13 @@ export async function updateUserProfile(
     { $set: data },
     { new: true, runValidators: true }
   )
-  if (!user) {
-    const err: Error & { statusCode?: number } = new Error('User not found')
-    err.statusCode = 404
-    throw err
-  }
+  if (!user) throw makeError('User not found', 404)
   return sanitize(user)
 }
 
 export async function getUserById(userId: string) {
   const user = await User.findById(userId)
-  if (!user) {
-    const err: Error & { statusCode?: number } = new Error('User not found')
-    err.statusCode = 404
-    throw err
-  }
+  if (!user) throw makeError('User not found', 404)
   return sanitize(user)
 }
 
@@ -194,25 +186,13 @@ export async function getAllUsers(opts: {
 }
 
 export async function changePassword(userId: string, oldPassword: string, newPassword: string) {
-  if (newPassword.length < 8) {
-    const err: Error & { statusCode?: number } = new Error('Password must be at least 8 characters')
-    err.statusCode = 400
-    throw err
-  }
+  if (newPassword.length < 8) throw makeError('Password must be at least 8 characters', 400)
 
   const user = await User.findById(userId).select('+password')
-  if (!user) {
-    const err: Error & { statusCode?: number } = new Error('User not found')
-    err.statusCode = 404
-    throw err
-  }
+  if (!user) throw makeError('User not found', 404)
 
   const match = await bcrypt.compare(oldPassword, user.password)
-  if (!match) {
-    const err: Error & { statusCode?: number } = new Error('Current password is incorrect')
-    err.statusCode = 401
-    throw err
-  }
+  if (!match) throw makeError('Current password is incorrect', 401)
 
   user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
   await user.save()
@@ -349,10 +329,6 @@ export async function setSuspended(userId: string, isSuspended: boolean) {
     { $set: { isSuspended } },
     { new: true }
   )
-  if (!user) {
-    const err: Error & { statusCode?: number } = new Error('User not found')
-    err.statusCode = 404
-    throw err
-  }
+  if (!user) throw makeError('User not found', 404)
   return sanitize(user)
 }

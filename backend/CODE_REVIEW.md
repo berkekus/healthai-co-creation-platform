@@ -219,14 +219,14 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - Account lockout (X başarısız girişten sonra 15 dakika).
 
 ### Önceliklendirilmiş Yapılacaklar Listesi
-1. **`POST /api/notifications` endpoint'ini `adminOnly` yap** veya kaldır — yetkisiz bildirim sızıntısı.
-2. **`authMiddleware.protect` içinde `req.userRole = user.role`** olarak değiştir (DB'den, JWT'den değil).
-3. **`User.verifyToken` SHA256 hash'le sakla**; verify-email endpoint'inde gelen token'ı hash'leyip karşılaştır.
-4. **`User.password` schema'sına `select: false`** ekle, gerekli yerlerde `.select('+password')` ile çağır.
+1. ✅ **`POST /api/notifications` endpoint'ini `adminOnly` yap** veya kaldır — yetkisiz bildirim sızıntısı.
+2. ✅ **`authMiddleware.protect` içinde `req.userRole = user.role`** olarak değiştir (DB'den, JWT'den değil).
+3. ✅ **`User.verifyToken` SHA256 hash'le sakla**; verify-email endpoint'inde gelen token'ı hash'leyip karşılaştır.
+4. ✅ **`User.password` schema'sına `select: false`** ekle, gerekli yerlerde `.select('+password')` ile çağır.
 5. **`forgot-password` + `reset-password` flow'unu ekle.**
 6. **Validation'ı zod/joi'ye geçir** (auth, post, meeting create endpoint'leri).
-7. **`listPosts` lazy expiry update'ini cron'a taşı** veya kaldır + dynamic filter kullan.
-8. **`makeError` ve `log()` helper'larını `utils/`'a taşı** (3 ayrı kopya birleşsin).
+7. ✅ **`listPosts` lazy expiry update'ini cron'a taşı** veya kaldır + dynamic filter kullan.
+8. ✅ **`makeError` ve `log()` helper'larını `utils/`'a taşı** (3 ayrı kopya birleşsin).
 9. **Authorization-focused integration testleri** ekle (cross-user 403, admin-only 403).
 10. **Refresh token mekanizması** veya en azından access token süresini kısalt (1-2 saat).
 11. **Mongo transaction** ile `deleteAccount` ve `markPartnerFound` cascade'lerini sarmalayın.
