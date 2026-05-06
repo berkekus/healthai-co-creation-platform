@@ -9,6 +9,7 @@ import postRoutes from '../routes/postRoutes'
 import meetingRoutes from '../routes/meetingRoutes'
 import notificationRoutes from '../routes/notificationRoutes'
 import logRoutes from '../routes/logRoutes'
+import aiRoutes from '../routes/aiRoutes'
 import { errorHandler, notFound } from '../middleware/errorHandler'
 import { authLimiter } from '../middleware/rateLimiter'
 
@@ -46,6 +47,7 @@ app.use('/api/posts', postRoutes)
 app.use('/api/meetings', meetingRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/logs', logRoutes)
+app.use('/api/ai', aiRoutes)
 
 app.use(notFound)
 app.use(errorHandler)
