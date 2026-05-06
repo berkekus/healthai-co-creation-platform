@@ -343,3 +343,50 @@ a { color: inherit; text-decoration: none; }
   .foot-cols { grid-template-columns: 1fr 1fr !important; }
   .stamp { right: 10px !important; top: 10px !important; }
 }
+
+/* Browse Posts directory layout: keep critical geometry out of arbitrary utilities. */
+.directory-header-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(560px, 0.88fr);
+}
+.directory-body-grid {
+  grid-template-columns: 350px minmax(0, 1fr);
+}
+.post-row {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) 260px;
+  column-gap: 24px;
+}
+.post-row-compact {
+  grid-template-columns: 54px minmax(0, 1fr);
+}
+.post-row-compact .post-row-side {
+  grid-column: 2;
+  align-items: flex-start !important;
+  justify-content: flex-end !important;
+  margin-top: 18px;
+}
+
+@media (max-width: 1280px) {
+  .directory-header-grid,
+  .directory-body-grid {
+    grid-template-columns: 1fr;
+  }
+  .post-row {
+    grid-template-columns: 54px minmax(0, 1fr);
+  }
+  .post-row-side {
+    grid-column: 2;
+    align-items: flex-start !important;
+    gap: 18px;
+    margin-top: 18px;
+  }
+}
+
+@media (max-width: 720px) {
+  .post-row {
+    grid-template-columns: 1fr;
+  }
+  .post-row-side {
+    grid-column: 1;
+  }
+}
