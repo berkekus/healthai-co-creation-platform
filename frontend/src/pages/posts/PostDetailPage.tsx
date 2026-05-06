@@ -1,50 +1,101 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import {
+  ArrowLeft,
+  Bookmark,
+  CalendarDays,
+  FileText,
+  Flag,
+  Link as LinkIcon,
+  Lock,
+  MapPin,
+  ShieldCheck,
+  Star,
+  Users,
+  Wrench,
+} from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { usePostStore } from '../../store/postStore'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
-import PostStatusBadge from '../../components/posts/PostStatusBadge'
+import { usePostStore } from '../../store/postStore'
 import ExpressInterestModal from '../../components/meetings/ExpressInterestModal'
+import { postEdit, ROUTES } from '../../constants/routes'
 import PageWrapper from '../../components/layout/PageWrapper'
 import { ROUTES, postEdit } from '../../constants/routes'
 import api from '../../lib/api'
 import type { Post } from '../../types/post.types'
 
 const STAGE_LABELS: Record<string, string> = {
-  idea: 'Idea', concept_validation: 'Concept Validation',
-  prototype: 'Prototype Developed', pilot: 'Pilot Testing', pre_deployment: 'Pre-Deployment',
+  idea: 'Idea',
+  concept_validation: 'Concept Validation',
+  prototype: 'Prototype',
+  pilot: 'Pilot',
+  pre_deployment: 'Pre-Deployment',
 }
 const COLLAB_LABELS: Record<string, string> = {
-  advisor: 'Advisor', co_founder: 'Co-Founder',
-  research_partner: 'Research Partner', contract: 'Contract Work',
+  advisor: 'Advisor',
+  co_founder: 'Co-Founder',
+  research_partner: 'Research Partner',
+  contract: 'Contract Work',
 }
 const CONF_LABELS: Record<string, string> = {
-  public_pitch: 'Public Pitch', meeting_only: 'Details in Meeting Only',
+  public_pitch: 'Public Pitch',
+  meeting_only: 'Details in Meeting Only',
 }
 const ROLE_LABELS: Record<string, string> = {
   engineer: 'Engineer',
   healthcare_professional: 'Healthcare Professional',
 }
-const ROLE_ICONS: Record<string, string> = {
-  engineer: 'memory',
-  healthcare_professional: 'stethoscope',
-}
-
-type MetaTile = { label: string; value: string; icon: string }
 
 export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const { getById, publish, markPartnerFound } = usePostStore()
-  const { user } = useAuthStore()
-  const { getByPost } = useMeetingStore()
   const navigate = useNavigate()
+  const { user } = useAuthStore()
+  const { posts, getById, fetchPosts, publish, markPartnerFound } = usePostStore()
+  const { getByPost, fetchByUser } = useMeetingStore()
   const [showInterest, setShowInterest] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    if (!posts.length) fetchPosts({ limit: 100, filters: {} })
+  }, [fetchPosts, posts.length])
+
+  useEffect(() => {
+    if (user) fetchByUser(user.id)
+  }, [fetchByUser, user])
 
   const storePost = getById(id ?? '')
   const [fetchedPost, setFetchedPost] = useState<Post | undefined>(undefined)
   const [isFetching, setIsFetching] = useState(!storePost)
   const [fetchError, setFetchError] = useState(false)
 
+  const userMeetings = post ? getByPost(post.id) : []
+  const isOwner = !!post && user?.id === post.authorId
+  const alreadyRequested = !!user && userMeetings.some(m => m.requesterId === user.id && m.status !== 'cancelled' && m.status !== 'declined')
+  const canExpressInterest = !!post && !isOwner && post.status === 'active' && !alreadyRequested
+  const canPublish = !!post && isOwner && post.status === 'draft'
+  const canMarkFound = !!post && isOwner && (post.status === 'active' || post.status === 'meeting_scheduled')
+  const canEdit = !!post && isOwner && (post.status === 'draft' || post.status === 'active')
+
+  const meta = useMemo(() => {
+    if (!post) return []
+    return [
+      { label: 'Location', value: `${post.city}, ${post.country}`, icon: <MapPin size={21} /> },
+      { label: 'Project Stage', value: STAGE_LABELS[post.projectStage], icon: <Flag size={21} /> },
+      { label: 'Collaboration Type', value: COLLAB_LABELS[post.collaborationType], icon: <Users size={21} /> },
+      { label: 'Confidentiality', value: CONF_LABELS[post.confidentiality], icon: <Lock size={21} /> },
+      {
+        label: 'Expires On',
+        value: new Date(post.expiryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+        icon: <CalendarDays size={21} />,
+      },
+      { label: 'Interest', value: `${post.interestCount} members`, icon: <Star size={21} /> },
+    ]
+  }, [post])
+
+  if (!post) {
   useEffect(() => {
     if (storePost || !id) return
     setIsFetching(true)
@@ -71,234 +122,211 @@ export default function PostDetailPage() {
 
   if (!post || fetchError) {
     return (
-      <PageWrapper maxWidth={720}>
-        <div className="bg-white rounded-[2rem] border border-neutral-100 p-16 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-hai-mint/40 mb-4">
-            <span className="material-symbols-outlined text-hai-plum text-[32px]">search_off</span>
-          </div>
-          <h1 className="font-headline font-bold text-2xl text-hai-plum mb-2">Post not found</h1>
-          <p className="text-[14.5px] text-neutral-600 mb-6 max-w-sm mx-auto leading-relaxed">
-            This listing may have been removed or the link is broken.
-          </p>
-          <button
-            onClick={() => navigate(ROUTES.POSTS)}
-            className="inline-flex items-center gap-2 bg-hai-plum text-white px-5 py-3 rounded-full font-bold text-sm hover:bg-black transition-colors"
-          >
-            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+      <main className="min-h-screen bg-[#f6f7f9] px-8 py-20 text-[#2d1838]">
+        <div className="mx-auto max-w-[760px] rounded-[18px] bg-white p-12 text-center shadow-[0_24px_80px_-68px_rgba(45,24,56,0.75)]">
+          <h1 className="text-3xl font-black">Post not found</h1>
+          <p className="mt-3 text-[#6f6a76]">This listing may have been removed or the link is broken.</p>
+          <button onClick={() => navigate(ROUTES.POSTS)} className="mt-8 rounded-full bg-[#2d1838] px-6 py-3 text-sm font-black text-white">
             Back to directory
           </button>
         </div>
-      </PageWrapper>
+      </main>
     )
   }
 
-  const isOwner = user?.id === post.authorId
-  const canPublish = isOwner && post.status === 'draft'
-  const canMarkFound = isOwner && (post.status === 'active' || post.status === 'meeting_scheduled')
-  const canEdit = isOwner && (post.status === 'draft' || post.status === 'active')
-
-  const userMeetings = getByPost(post.id)
-  const alreadyRequested = user
-    ? userMeetings.some(m => m.requesterId === user.id && m.status !== 'cancelled' && m.status !== 'declined')
-    : false
-  const canExpressInterest = !isOwner && post.status === 'active' && !alreadyRequested
-
-  const authorInitials = post.authorName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
-  const daysLeft = Math.ceil((new Date(post.expiryDate).getTime() - Date.now()) / 86400000)
-
-  const metaTiles: MetaTile[] = [
-    { label: 'Location',        value: `${post.city}, ${post.country}`,                icon: 'location_on' },
-    { label: 'Project stage',   value: STAGE_LABELS[post.projectStage],                icon: 'progress_activity' },
-    { label: 'Collaboration',   value: COLLAB_LABELS[post.collaborationType],          icon: 'handshake' },
-    { label: 'Confidentiality', value: CONF_LABELS[post.confidentiality],              icon: post.confidentiality === 'meeting_only' ? 'lock' : 'visibility' },
-    { label: 'Expiry',          value: new Date(post.expiryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), icon: 'event' },
-    { label: 'Interest',        value: `${post.interestCount} member${post.interestCount !== 1 ? 's' : ''}`, icon: 'bolt' },
-  ]
+  const initials = post.authorName.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
+  const daysLeft = Math.max(0, Math.ceil((new Date(post.expiryDate).getTime() - Date.now()) / 86400000))
+  const active = post.status === 'active'
 
   return (
-    <PageWrapper maxWidth={880}>
-      {/* Back link */}
-      <button
-        onClick={() => navigate(ROUTES.POSTS)}
-        className="inline-flex items-center gap-2 mb-6 text-[11px] font-mono tracking-[0.14em] uppercase font-bold text-neutral-500 hover:text-hai-plum transition-colors"
-      >
-        <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-        Directory
-      </button>
+    <main className="bg-[#f6f7f9] text-[#2d1838]">
+      <div className="mx-auto w-full max-w-[1120px] px-5 pb-10 pt-[46px] sm:px-8 xl:px-0">
+        <div className="mb-[22px] flex items-center justify-between gap-4">
+          <button
+            onClick={() => navigate(ROUTES.POSTS)}
+            className="inline-flex items-center gap-3 text-[14px] font-black text-[#26162f] transition hover:text-[#55bde0]"
+          >
+            <ArrowLeft size={17} />
+            Back to directory
+          </button>
 
-      {/* Hero card */}
-      <div className="bg-white rounded-[2rem] border border-neutral-100 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.15)] p-6 md:p-10 mb-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-72 h-72 pointer-events-none opacity-50" style={{ background: 'radial-gradient(circle, #B8F3FF 0%, transparent 70%)' }} />
-        <div className="relative">
-          {/* Top row: breadcrumb + status */}
-          <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
-            <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-4 py-1.5 text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
-              <span className="text-hai-plum/70">06</span>
-              <span>Post detail</span>
-            </div>
-            <PostStatusBadge status={post.status} size="lg" />
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigator.clipboard?.writeText(window.location.href).catch(() => {})}
+              className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#dfe2e8] bg-white px-6 text-[14px] font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+            >
+              <LinkIcon size={18} />
+              Share
+            </button>
+            <button
+              onClick={() => setSaved(value => !value)}
+              className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#dfe2e8] bg-white px-6 text-[14px] font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+            >
+              <Bookmark size={18} fill={saved ? '#2d1838' : 'none'} />
+              {saved ? 'Saved' : 'Save'}
+            </button>
           </div>
+        </div>
 
-          {/* Domain pill */}
-          <div className="inline-flex items-center gap-1.5 bg-hai-mint text-hai-plum px-3 py-1 rounded-full text-[11px] font-mono tracking-[0.14em] uppercase font-bold mb-4">
-            <span className="w-1 h-1 rounded-full bg-hai-teal" />
-            {post.domain}
-          </div>
-
-          {/* Title */}
-          <h1 className="font-headline font-bold text-[32px] md:text-[48px] leading-[1.02] tracking-[-0.03em] text-hai-plum mb-6 break-words overflow-hidden">
-            {post.title}
-          </h1>
-
-          {/* Author row */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="w-11 h-11 rounded-full bg-hai-mint border border-hai-teal/40 flex items-center justify-center font-mono font-bold text-[12px] text-hai-plum shrink-0">
-              {authorInitials}
-            </div>
+        <section className="overflow-hidden rounded-[20px] border border-[#eceef2] bg-white px-[32px] pb-[30px] pt-[30px] shadow-[0_34px_95px_-78px_rgba(45,24,56,0.8)] sm:px-[34px]">
+          <div className="grid grid-cols-1 gap-9 lg:grid-cols-[minmax(0,1fr)_154px]">
             <div>
-              <div className="font-body font-bold text-[15px] text-hai-plum">{post.authorName}</div>
-              <div className="text-[11px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold flex items-center gap-1.5 mt-0.5">
-                <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: '"FILL" 1' }}>
-                  {ROLE_ICONS[post.authorRole] ?? 'person'}
-                </span>
-                {ROLE_LABELS[post.authorRole] ?? post.authorRole}
+              <div className="flex flex-wrap gap-4">
+                <Pill tone="blue">{post.domain}</Pill>
+                <Pill tone={active ? 'green' : 'gray'}>{statusLabel(post.status)}</Pill>
+              </div>
+
+              <h1 className="mt-[30px] max-w-[760px] break-words font-headline text-[34px] font-black leading-[1.08] text-[#2d1838] sm:text-[38px]">
+                {post.title}
+              </h1>
+
+              <div className="mt-[28px] flex items-center gap-5">
+                <div className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-[#dceeff] text-[15px] font-black text-[#2d1838]">
+                  {initials}
+                </div>
+                <div>
+                  <div className="text-[18px] font-black">{post.authorName}</div>
+                  <div className="mt-2 flex items-center gap-2 text-[13px] font-semibold text-[#6f6a76]">
+                    {ROLE_LABELS[post.authorRole] ?? post.authorRole}
+                    <ShieldCheck size={14} className="text-[#50627a]" />
+                  </div>
+                </div>
               </div>
             </div>
 
-            {daysLeft > 0 && post.status === 'active' && (
-              <span className={`ml-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono tracking-[0.12em] uppercase font-bold ${
-                daysLeft < 14 ? 'bg-amber-100 text-amber-800' : 'bg-hai-offwhite text-hai-plum'
-              }`}>
-                <span className="material-symbols-outlined text-[13px]">schedule</span>
-                {daysLeft} day{daysLeft !== 1 ? 's' : ''} left
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Already requested notice */}
-      {alreadyRequested && !isOwner && (
-        <div className="mb-6 p-4 md:p-5 bg-gradient-to-br from-hai-mint/60 to-white border border-hai-teal rounded-2xl flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-hai-plum text-hai-mint flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: '"FILL" 1' }}>check_circle</span>
-          </div>
-          <div className="flex-1">
-            <div className="font-body font-bold text-[15px] text-hai-plum mb-0.5">You've already expressed interest</div>
-            <div className="text-[13px] text-neutral-700 leading-relaxed">
-              Check your{' '}
-              <button
-                onClick={() => navigate(ROUTES.MEETINGS)}
-                className="underline decoration-hai-teal decoration-2 underline-offset-2 font-bold text-hai-plum hover:text-hai-teal transition-colors"
-              >
-                meetings
-              </button>
-              {' '}for status updates and time proposals.
+            <div className="self-start rounded-[9px] border border-[#dfe3ea] bg-white px-6 py-6 text-center">
+              <CalendarDays className="mx-auto text-[#2d1838]" size={25} />
+              <div className="mt-5 text-[31px] font-black leading-none">{daysLeft}</div>
+              <div className="mt-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#6f6a76]">Days left</div>
+              <div className="mt-5 h-[6px] overflow-hidden rounded-full bg-[#e8eef4]">
+                <div className="h-full rounded-full bg-[#66c8e7]" style={{ width: `${Math.min(100, Math.max(8, 100 - daysLeft / 4))}%` }} />
+              </div>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Meta tile grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-        {metaTiles.map(({ label, value, icon }) => (
-          <div key={label} className="bg-white rounded-2xl border border-neutral-100 p-4 flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-hai-offwhite flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-hai-plum text-[18px]" style={{ fontVariationSettings: '"FILL" 1' }}>{icon}</span>
+          <div className="mt-[34px] border-t border-[#e1e4e9] pt-[27px]">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6 lg:gap-0">
+              {meta.map(item => (
+                <div key={item.label} className="lg:min-h-[58px] lg:border-r lg:border-[#e1e4e9] lg:px-[22px] lg:first:pl-0 lg:last:border-r-0">
+                  <div className="flex items-start gap-4">
+                    <span className="mt-1 shrink-0 text-[#2d1838]">{item.icon}</span>
+                    <span>
+                      <span className="block text-[11px] font-black uppercase tracking-[0.12em] text-[#6f6a76]">{item.label}</span>
+                      <span className="mt-2 block break-words text-[13px] font-black leading-5 text-[#2d1838]">{item.value}</span>
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold">{label}</div>
-              <div className="font-body font-semibold text-[13.5px] text-hai-plum mt-0.5 truncate">{value}</div>
+          </div>
+        </section>
+
+        {alreadyRequested && !isOwner && (
+          <section className="mt-[28px] flex items-center justify-between gap-6 rounded-[16px] border border-[#bfeafa] bg-[#eefaff] px-6 py-6">
+            <div className="flex items-center gap-5">
+              <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-[#2d1838] text-white">
+                <Users size={24} />
+              </div>
+              <div>
+                <div className="text-[16px] font-black">You've already expressed interest</div>
+                <div className="mt-2 text-[13px] font-semibold text-[#6f6a76]">We'll notify you about any updates or changes to this opportunity.</div>
+              </div>
             </div>
+            <button onClick={() => navigate(ROUTES.MEETINGS)} className="h-[46px] rounded-[13px] border border-[#dfe2e8] bg-white px-8 text-[14px] font-black">
+              Manage interest
+            </button>
+          </section>
+        )}
+
+        <div className="mt-[28px] grid grid-cols-1 gap-7 lg:grid-cols-[620px_1fr]">
+          <div className="space-y-6">
+            <InfoCard title="Expertise required" className="min-h-[142px]">
+              <div className="flex items-end justify-between gap-6">
+                <span className="inline-flex max-w-[340px] break-words rounded-full bg-[#e8f9fc] px-5 py-3 text-[14px] font-black">{post.expertiseRequired}</span>
+                <StairIllustration />
+              </div>
+            </InfoCard>
+
+            <InfoCard title="Project description" className="min-h-[240px]">
+              {post.confidentiality === 'public_pitch' ? (
+                <p className="whitespace-pre-wrap break-words text-[14px] font-semibold leading-7 text-[#4f4a58]">{post.description}</p>
+              ) : (
+                <p className="text-[14px] font-semibold leading-7 text-[#4f4a58]">Full details are shared in a meeting under NDA.</p>
+              )}
+            </InfoCard>
+
+            <InfoCard title="About the author" className="min-h-[198px]">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-5">
+                  <div className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-[#dfefff] text-[15px] font-black">{initials}</div>
+                  <div>
+                    <div className="text-[17px] font-black">{post.authorName}</div>
+                    <div className="mt-2 flex items-center gap-2 text-[13px] font-semibold text-[#6f6a76]">
+                      {ROLE_LABELS[post.authorRole] ?? post.authorRole}
+                      <ShieldCheck size={14} className="text-[#50627a]" />
+                    </div>
+                    <div className="mt-2 text-[13px] font-semibold text-[#6f6a76]">
+                      Member since {new Date(post.createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
+                    </div>
+                  </div>
+                </div>
+                <button className="h-[48px] rounded-[13px] border border-[#dfe2e8] bg-white px-8 text-[14px] font-black">View profile</button>
+              </div>
+            </InfoCard>
           </div>
-        ))}
+
+          <aside className="space-y-6">
+            <InfoCard title="About this opportunity" className="min-h-[408px]">
+              <div className="space-y-[18px]">
+                {[
+                  ['Domain', post.domain, <Wrench size={18} />],
+                  ['Posted', new Date(post.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), <FileText size={18} />],
+                  ['Project Stage', STAGE_LABELS[post.projectStage], <Flag size={18} />],
+                  ['Collaboration Type', COLLAB_LABELS[post.collaborationType], <Users size={18} />],
+                  ['Confidentiality', CONF_LABELS[post.confidentiality], <Lock size={18} />],
+                  ['Listing Expiry', new Date(post.expiryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), <CalendarDays size={18} />],
+                ].map(([label, value, icon]) => (
+                  <div key={String(label)} className="flex gap-4">
+                    <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-[#f0f4f8] text-[#245b8f]">
+                      {icon}
+                    </span>
+                    <span>
+                      <span className="block text-[13px] font-semibold text-[#6f6a76]">{label}</span>
+                      <span className="mt-1 block break-words text-[13px] font-black text-[#2d1838]">{value}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </InfoCard>
+
+            <InfoCard title="Interested in this opportunity?" className="min-h-[198px]">
+              {alreadyRequested ? (
+                <>
+                  <p className="text-[14px] font-semibold leading-7 text-[#6f6a76]">You've already expressed interest. We'll keep you updated.</p>
+                  <button onClick={() => navigate(ROUTES.MEETINGS)} className="mt-6 h-[46px] rounded-[12px] bg-[#2d1838] px-7 text-[14px] font-black text-white">
+                    Manage interest
+                  </button>
+                </>
+              ) : canExpressInterest ? (
+                <>
+                  <p className="text-[14px] font-semibold leading-7 text-[#6f6a76]">Send a short message, accept the NDA, and propose meeting times.</p>
+                  <button onClick={() => setShowInterest(true)} className="mt-6 h-[46px] rounded-[12px] bg-[#2d1838] px-7 text-[14px] font-black text-white">
+                    Express interest
+                  </button>
+                </>
+              ) : isOwner ? (
+                <div className="flex flex-wrap gap-3">
+                  {canPublish && <button onClick={() => publish(post.id)} className="h-12 rounded-[14px] bg-[#2d1838] px-6 text-sm font-black text-white">Publish</button>}
+                  {canMarkFound && <button onClick={() => markPartnerFound(post.id)} className="h-12 rounded-[14px] bg-[#d8ff8f] px-6 text-sm font-black text-[#2d1838]">Mark partner found</button>}
+                  {canEdit && <button onClick={() => navigate(postEdit(post.id))} className="h-12 rounded-[14px] border border-[#dfe2e8] bg-white px-6 text-sm font-black">Edit post</button>}
+                </div>
+              ) : (
+                <p className="text-[15px] font-semibold leading-7 text-[#6f6a76]">This opportunity is not currently accepting interest.</p>
+              )}
+            </InfoCard>
+          </aside>
+        </div>
       </div>
-
-      {/* Expertise required */}
-      <div className="bg-white rounded-[1.75rem] border border-neutral-100 p-6 md:p-8 mb-6">
-        <div className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-teal font-bold mb-3 flex items-center gap-2">
-          <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>auto_awesome</span>
-          Expertise required
-        </div>
-        <div className="font-body font-semibold text-[17px] text-hai-plum leading-relaxed">
-          {post.expertiseRequired}
-        </div>
-      </div>
-
-      {/* Description — or lock card */}
-      {post.confidentiality === 'public_pitch' ? (
-        <div className="bg-white rounded-[1.75rem] border border-neutral-100 p-6 md:p-8 mb-8">
-          <div className="text-[10px] font-mono tracking-[0.18em] uppercase text-neutral-500 font-bold mb-4 flex items-center gap-2">
-            <span className="material-symbols-outlined text-[14px]">description</span>
-            Description
-          </div>
-          <p className="font-body text-[15.5px] text-neutral-800 leading-[1.7] whitespace-pre-wrap break-words overflow-hidden">
-            {post.description}
-          </p>
-        </div>
-      ) : (
-        <div className="mb-8 p-8 rounded-[1.75rem] border-2 border-dashed border-hai-plum/20 bg-gradient-to-br from-hai-cream/40 to-white text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-hai-plum text-hai-mint mb-4">
-            <span className="material-symbols-outlined text-[26px]" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
-          </div>
-          <div className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold mb-2">Confidential</div>
-          <h3 className="font-headline font-bold text-xl text-hai-plum mb-2">Details shared under NDA</h3>
-          <p className="text-[14px] text-neutral-600 leading-relaxed max-w-md mx-auto">
-            Full details are shared in a meeting under a non-disclosure agreement. Express interest to proceed.
-          </p>
-        </div>
-      )}
-
-      {/* Action row — sticky */}
-      {(canPublish || canMarkFound || canEdit || canExpressInterest) && (
-        <div className="sticky bottom-4 bg-white rounded-[2rem] border border-neutral-100 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.2)] p-5 md:p-6 flex flex-wrap gap-3 items-center">
-          <div className="hidden md:flex items-center gap-2 mr-auto text-[10px] font-mono tracking-[0.18em] uppercase text-neutral-500 font-bold">
-            <span className="material-symbols-outlined text-[14px]">bolt</span>
-            Actions
-          </div>
-
-          {canPublish && (
-            <button
-              onClick={() => { publish(post.id); navigate(ROUTES.POSTS) }}
-              className="inline-flex items-center gap-2 bg-hai-plum text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-black transition-colors"
-            >
-              <span className="material-symbols-outlined text-[18px]">publish</span>
-              Publish post
-            </button>
-          )}
-
-          {canMarkFound && (
-            <button
-              onClick={() => { markPartnerFound(post.id); navigate(ROUTES.POSTS) }}
-              className="inline-flex items-center gap-2 bg-hai-lime text-hai-plum px-6 py-3 rounded-full font-bold text-sm hover:bg-hai-mint transition-colors"
-            >
-              <span className="material-symbols-outlined text-[18px]">check_circle</span>
-              Mark partner found
-            </button>
-          )}
-
-          {canEdit && (
-            <button
-              onClick={() => navigate(postEdit(post.id))}
-              className="inline-flex items-center gap-2 bg-white border border-neutral-300 text-neutral-800 px-6 py-3 rounded-full font-bold text-sm hover:bg-neutral-50 transition-colors"
-            >
-              <span className="material-symbols-outlined text-[18px]">edit</span>
-              Edit post
-            </button>
-          )}
-
-          {canExpressInterest && (
-            <button
-              onClick={() => setShowInterest(true)}
-              className="inline-flex items-center gap-2 bg-hai-plum text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-black transition-colors shadow-[0_10px_30px_-10px_rgba(54,33,62,0.5)] ml-auto"
-            >
-              Express interest
-              <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
-            </button>
-          )}
-        </div>
-      )}
 
       {showInterest && (
         <ExpressInterestModal
@@ -307,6 +335,48 @@ export default function PostDetailPage() {
           onSuccess={() => { setShowInterest(false); navigate(ROUTES.MEETINGS) }}
         />
       )}
-    </PageWrapper>
+    </main>
   )
+}
+
+function Pill({ children, tone }: { children: string; tone: 'blue' | 'green' | 'gray' }) {
+  const cls = tone === 'green' ? 'bg-[#d8f6d8] text-[#228a37]' : tone === 'blue' ? 'bg-[#e8f5ff] text-[#1f5798]' : 'bg-[#f0f1f4] text-[#6f6a76]'
+  return <span className={`rounded-full px-5 py-2 text-[12px] font-black uppercase tracking-[0.02em] ${cls}`}>{children}</span>
+}
+
+function InfoCard({ title, children, className = '' }: { title: string; children: React.ReactNode; className?: string }) {
+  return (
+    <section className={`rounded-[16px] border border-[#eceef2] bg-white px-7 py-7 shadow-[0_32px_90px_-78px_rgba(45,24,56,0.8)] ${className}`}>
+      <h2 className="border-l-[3px] border-[#66c8e7] pl-5 text-[20px] font-black leading-tight text-[#2d1838]">{title}</h2>
+      <div className="mt-7">{children}</div>
+    </section>
+  )
+}
+
+function StairIllustration() {
+  return (
+    <div className="relative hidden h-[78px] w-[150px] shrink-0 sm:block" aria-hidden="true">
+      <div className="absolute bottom-[10px] left-[18px] h-[32px] w-[74px] border-b border-l border-[#b8c5d8]" />
+      <div className="absolute bottom-[22px] left-[42px] h-[28px] w-[74px] border-b border-l border-[#b8c5d8]" />
+      <div className="absolute bottom-[34px] left-[66px] h-[24px] w-[62px] border-b border-l border-[#b8c5d8]" />
+      <div className="absolute bottom-[18px] left-[24px] h-5 w-5 rounded-full bg-[#25172f]" />
+      <div className="absolute bottom-[30px] left-[67px] h-5 w-5 rounded-full bg-[#4f74b8]" />
+      <div className="absolute bottom-[50px] left-[108px] h-5 w-5 rounded-full bg-[#7ba4e0]" />
+      <div className="absolute bottom-[14px] left-[28px] h-[26px] w-[2px] rotate-[-24deg] bg-[#25172f]" />
+      <div className="absolute bottom-[28px] left-[72px] h-[30px] w-[2px] rotate-[-18deg] bg-[#4f74b8]" />
+      <div className="absolute bottom-[48px] left-[112px] h-[31px] w-[2px] rotate-[-16deg] bg-[#7ba4e0]" />
+      <div className="absolute right-0 top-3 h-2 w-6 rounded-full bg-[#dfeeff]" />
+    </div>
+  )
+}
+
+function statusLabel(status: string) {
+  const map: Record<string, string> = {
+    draft: 'Draft',
+    active: 'Active',
+    meeting_scheduled: 'Meeting Scheduled',
+    partner_found: 'Partner Found',
+    expired: 'Expired',
+  }
+  return map[status] ?? status
 }

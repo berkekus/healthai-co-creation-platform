@@ -175,16 +175,24 @@ function HeroPortraitCard({ side, cardBg }: { side: 'clinician' | 'engineer'; ca
   return (
     <div
       aria-hidden="true"
-      className="absolute right-0 top-0 bottom-0 hidden md:block pointer-events-none overflow-hidden rounded-r-[2rem]"
-      style={{ width: '48%' }}
+      className="absolute right-0 top-0 bottom-0 hidden md:block pointer-events-none overflow-hidden rounded-r-[30px]"
+      style={{ width: isClinician ? '46%' : '47%' }}
     >
+      <div
+        className="absolute bottom-0 right-0 h-[78%] w-[88%] rounded-tl-[52%] opacity-80"
+        style={{ background: isClinician ? '#d7f5f7' : '#ece9ff' }}
+      />
       <img
         src={src}
         alt={alt}
         loading="lazy"
         decoding="async"
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{ objectPosition: isClinician ? '65% 10%' : '50% 10%' }}
+        className="absolute inset-y-0 right-0 h-full w-full object-cover"
+        style={{
+          objectPosition: isClinician ? '58% 50%' : '52% 50%',
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, #000 18%, #000 100%)',
+          maskImage: 'linear-gradient(to right, transparent 0%, #000 18%, #000 100%)',
+        }}
       />
       {/* Gradient fade to blend with card background */}
       <div
@@ -579,24 +587,21 @@ export default function LandingPage() {
 
             <section
               id="directory"
-              className="max-w-7xl mx-auto px-6 md:px-8 pt-6 md:pt-10 pb-20 md:pb-24 relative"
-              style={{ backgroundImage: 'radial-gradient(circle at center, rgba(54,33,62,0.03) 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+              className="max-w-[1540px] mx-auto px-6 md:px-10 pt-6 md:pt-10 pb-20 md:pb-24 relative"
             >
 
             {/* ── Pathway cards ─────────────────────────────── */}
             <div className="relative mb-12">
-              <div className="relative bg-white rounded-[2rem] p-4 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.2),0_-10px_40px_-10px_rgba(232,244,247,0.8)]">
-                <div className="flex items-center justify-between px-3 mb-4">
-                  <p className="text-[11px] font-mono tracking-[0.18em] uppercase text-neutral-500 font-bold">Join the Directory</p>
-                  <p className="text-[11px] font-mono tracking-[0.18em] uppercase text-neutral-400">02 pathways</p>
+              <div className="relative rounded-[40px] bg-white px-7 pb-8 pt-7 shadow-[0_34px_96px_-70px_rgba(45,24,56,0.55),0_-14px_50px_-18px_rgba(255,255,255,0.9)] md:px-9 md:pb-10 md:pt-9">
+                <div className="mb-8 flex items-center justify-between px-1">
+                  <p className="text-[12px] font-mono tracking-[0.32em] uppercase text-[#77728f] font-black">Join the Directory</p>
                 </div>
 
-                <div className="relative grid md:grid-cols-2 gap-4">
+                <div className="relative grid gap-6 md:grid-cols-2">
 
                   {/* ───── Engineer card (LEFT) ───── */}
                   <motion.div
-                    className="rounded-[1.75rem] text-neutral-900 relative overflow-hidden will-change-transform"
-                    style={{ background: '#EDE7D8' }}
+                    className="relative min-h-[430px] overflow-hidden rounded-[28px] bg-[#f8f9fb] text-neutral-900 will-change-transform"
                     variants={cardOverlapVariants}
                     initial="rest"
                     animate={engineerOuterState}
@@ -604,25 +609,27 @@ export default function LandingPage() {
                     onHoverEnd={() => canHover && setEngineerHovered(false)}
                   >
                     {/* Content — stacks naturally from top, no h-full stretch */}
-                    <div className="relative z-10 p-7 sm:p-9 flex flex-col md:w-[58%] pb-10 md:pb-14">
-                      <span className="inline-flex items-center gap-1.5 bg-hai-plum text-hai-mint text-[9px] font-mono tracking-[0.22em] uppercase font-bold px-3 py-1.5 rounded-full w-fit mb-6">
-                        I'M AN ENGINEER
+                    <div className="relative z-10 flex min-h-[430px] flex-col p-7 pb-8 sm:p-10 md:w-[56%] lg:p-11">
+                      <span className="mb-10 inline-flex items-center gap-3 text-[12px] font-mono font-black uppercase tracking-[0.24em] text-[#2d2844]">
+                        <span className="h-4 w-1 bg-[#4933a3]" />
+                        FOR ENGINEERS
                       </span>
-                      <h2 className="font-headline font-bold text-hai-plum leading-[1.05] tracking-[-0.02em] text-[1.75rem] sm:text-[2rem] md:text-[1.8rem] lg:text-[2rem] mb-4">
+                      <h2 className="font-headline text-[2.35rem] font-black leading-[1.12] tracking-[-0.035em] text-hai-plum sm:text-[2.75rem] lg:text-[3.05rem]">
                         Build with clinical insight.
                       </h2>
-                      <p className="font-body text-[14px] sm:text-[15px] text-neutral-600 leading-relaxed mb-7 max-w-[260px]">
+                      <p className="mt-7 max-w-[330px] font-body text-[17px] font-semibold leading-[1.55] text-[#514d62]">
                         Share your idea or look for the right healthcare partner to co-create solutions.
                       </p>
                       <Link
                         to={ROUTES.REGISTER}
-                        className="inline-flex items-center gap-2 bg-hai-plum text-white px-6 py-3 rounded-full font-bold text-sm w-fit shadow-[0_4px_14px_-4px_rgba(54,33,62,0.4)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(0,0,0,0.35)] active:translate-y-0 transition-all duration-[220ms] ease-out will-change-transform"
+                        className="mt-auto inline-flex w-[260px] items-center justify-between border-b-2 border-[#b9b2e0] pb-4 text-[16px] font-black text-hai-plum transition hover:border-hai-plum"
                       >
                         Create Engineer Account
+                        <span className="text-[34px] leading-none">→</span>
                       </Link>
                     </div>
                     {/* Portrait — right half, desktop only. Stretches to card height. */}
-                    <HeroPortraitCard side="engineer" cardBg="#EDE7D8" />
+                    <HeroPortraitCard side="engineer" cardBg="#f8f9fb" />
                     {/* Mobile portrait strip */}
                     <div className="md:hidden w-full h-44 relative overflow-hidden">
                       <img
@@ -632,14 +639,13 @@ export default function LandingPage() {
                         className="absolute inset-0 w-full h-full object-cover"
                         style={{ objectPosition: '50% 15%' }}
                       />
-                      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#EDE7D8] to-transparent" />
+                      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#f8f9fb] to-transparent" />
                     </div>
                   </motion.div>
 
                   {/* ───── Healthcare Professional card (RIGHT) ───── */}
                   <motion.div
-                    className="rounded-[1.75rem] text-neutral-900 relative overflow-hidden will-change-transform"
-                    style={{ background: '#B8E8EE' }}
+                    className="relative min-h-[430px] overflow-hidden rounded-[28px] bg-[#f8fbfc] text-neutral-900 will-change-transform"
                     variants={cardOverlapVariants}
                     initial="rest"
                     animate={clinicianOuterState}
@@ -647,26 +653,27 @@ export default function LandingPage() {
                     onHoverEnd={() => canHover && setClinicianHovered(false)}
                   >
                     {/* Content — stacks naturally from top */}
-                    <div className="relative z-10 p-7 sm:p-9 flex flex-col md:w-[58%] pb-10 md:pb-14">
-                      <span className="inline-flex items-center gap-1.5 bg-hai-plum text-hai-mint text-[9px] font-mono tracking-[0.22em] uppercase font-bold px-3 py-1.5 rounded-full w-fit mb-6">
-                        I'M A HEALTHCARE PROFESSIONAL
+                    <div className="relative z-10 flex min-h-[430px] flex-col p-7 pb-8 sm:p-10 md:w-[56%] lg:p-11">
+                      <span className="mb-10 inline-flex items-center gap-3 text-[12px] font-mono font-black uppercase tracking-[0.24em] text-[#2d2844]">
+                        <span className="h-4 w-1 bg-[#72d6dd]" />
+                        FOR HEALTHCARE PROFESSIONALS
                       </span>
-                      <h2 className="font-headline font-bold text-hai-plum leading-[1.05] tracking-[-0.02em] text-[1.75rem] sm:text-[2rem] md:text-[1.8rem] lg:text-[2rem] mb-4">
+                      <h2 className="font-headline text-[2.35rem] font-black leading-[1.12] tracking-[-0.035em] text-hai-plum sm:text-[2.75rem] lg:text-[3.05rem]">
                         Shape technology that matters.
                       </h2>
-                      <p className="font-body text-[14px] sm:text-[15px] text-neutral-600 leading-relaxed mb-7 max-w-[260px]">
+                      <p className="mt-7 max-w-[340px] font-body text-[17px] font-semibold leading-[1.55] text-[#514d62]">
                         Collaborate with engineers on real clinical needs and innovations.
                       </p>
                       <Link
                         to={ROUTES.REGISTER}
-                        className="inline-flex items-center gap-2 bg-hai-plum text-hai-mint px-6 py-3 rounded-full font-bold text-sm w-fit shadow-[0_4px_14px_-4px_rgba(54,33,62,0.4)] hover:bg-black hover:text-white hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(0,0,0,0.35)] active:translate-y-0 transition-all duration-[220ms] ease-out will-change-transform"
+                        className="mt-auto inline-flex w-[300px] items-center justify-between border-b-2 border-[#9fdde4] pb-5 text-[18px] font-black text-hai-plum transition after:text-[34px] after:leading-none after:content-['→'] hover:border-hai-plum [&>span]:hidden"
                       >
                         Create HCP Account
                         <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-hai-mint/30 text-[10px] font-bold">♦</span>
                       </Link>
                     </div>
                     {/* Portrait — right half, desktop only. Stretches to card height. */}
-                    <HeroPortraitCard side="clinician" cardBg="#B8E8EE" />
+                    <HeroPortraitCard side="clinician" cardBg="#f8fbfc" />
                     {/* Mobile portrait strip */}
                     <div className="md:hidden w-full h-44 relative overflow-hidden">
                       <img
@@ -676,16 +683,31 @@ export default function LandingPage() {
                         className="absolute inset-0 w-full h-full object-cover"
                         style={{ objectPosition: '65% 15%' }}
                       />
-                      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#B8E8EE] to-transparent" />
+                      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#f8fbfc] to-transparent" />
                     </div>
                   </motion.div>
 
+                </div>
+
+                <div className="mt-9 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 pt-2">
+                  {([
+                    ['language',        'EU hosted & GDPR-native'],
+                    ['verified_user',   'Immutable audit trail'],
+                    ['lock',            'Zero patient data'],
+                    ['account_balance', 'Built for European institutions'],
+                  ] as [string, string][]).map(([icon, label], index) => (
+                    <span key={label} className="flex items-center gap-4 text-[12px] font-mono font-black uppercase tracking-[0.18em] text-[#77728f]">
+                      {index > 0 && <span className="hidden h-5 w-px bg-[#d9d7e4] lg:block" />}
+                      <Icon name={icon} className="text-[20px] text-[#77728f]" filled />
+                      {label}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
 
             {/* Trust badges ribbon */}
-            <div className="flex flex-wrap items-center justify-center gap-x-8 md:gap-x-10 gap-y-3 mb-14">
+            <div className="hidden flex-wrap items-center justify-center gap-x-8 md:gap-x-10 gap-y-3 mb-14">
               {([
                 ['language',        '.EU hosted & GDPR-native'],
                 ['history',         'Immutable audit trail'],
