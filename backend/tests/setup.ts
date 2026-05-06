@@ -1,13 +1,13 @@
-import { MongoMemoryServer } from 'mongodb-memory-server'
+import { MongoMemoryReplSet } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
 import { beforeAll, afterAll, afterEach } from 'vitest'
 
-let mongod: MongoMemoryServer
+let mongod: MongoMemoryReplSet
 
 beforeAll(async () => {
   process.env.NODE_ENV = 'test'
   process.env.JWT_SECRET = 'test-secret-32-chars-for-jwt-signing!!'
-  mongod = await MongoMemoryServer.create()
+  mongod = await MongoMemoryReplSet.create({ replSet: { count: 1 } })
   await mongoose.connect(mongod.getUri())
 }, 60000)
 

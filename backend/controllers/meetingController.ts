@@ -5,12 +5,27 @@ import User from '../models/User'
 import Post from '../models/Post'
 import { asyncHandler } from '../utils/asyncHandler'
 import { log } from '../utils/controllerLog'
+import { ITimeSlot } from '../models/Meeting'
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+const TIME_RE = /^\d{2}:\d{2}$/
+
+function isValidSlot(slot: unknown): slot is ITimeSlot {
+  if (!slot || typeof slot !== 'object') return false
+  const s = slot as Record<string, unknown>
+  return typeof s.date === 'string' && DATE_RE.test(s.date) &&
+         typeof s.time === 'string' && TIME_RE.test(s.time)
+}
 
 export const requestMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { postId, message, ndaAccepted, proposedSlots } = req.body
 
-  if (!postId || !message || !proposedSlots) {
+  if (!postId || !message || !Array.isArray(proposedSlots)) {
     res.status(400).json({ success: false, message: 'postId, message and proposedSlots are required' })
+    return
+  }
+  if (!proposedSlots.every(isValidSlot)) {
+    res.status(400).json({ success: false, message: 'Each slot must have date (YYYY-MM-DD) and time (HH:MM)' })
     return
   }
 
@@ -76,8 +91,8 @@ export const listMeetings = asyncHandler<AuthenticatedRequest>(async (req, res) 
 
 export const acceptMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { slot } = req.body
-  if (!slot?.date || !slot?.time) {
-    res.status(400).json({ success: false, message: 'A confirmed slot with date and time is required' })
+  if (!isValidSlot(slot)) {
+    res.status(400).json({ success: false, message: 'A confirmed slot with date (YYYY-MM-DD) and time (HH:MM) is required' })
     return
   }
   const meeting = await meetingService.acceptMeeting(req.params.id, req.userId, slot)

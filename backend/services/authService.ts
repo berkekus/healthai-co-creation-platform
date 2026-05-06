@@ -1,11 +1,12 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
+import mongoose from 'mongoose'
 import User, { IUser } from '../models/User'
 import Post from '../models/Post'
 import Meeting from '../models/Meeting'
 import Notification from '../models/Notification'
-import { sendVerificationEmail, sendAccountDeletedEmail } from './emailService'
+import { sendVerificationEmail, sendAccountDeletedEmail, sendPasswordResetEmail } from './emailService'
 import { pushNotification } from './notificationService'
 import { deleteAvatarFile } from '../middleware/uploadMiddleware'
 import { makeError } from '../utils/AppError'
@@ -247,6 +248,41 @@ export async function exportUserData(userId: string) {
   }
 }
 
+async function cascadeDeleteUser(
+  userId: string,
+  user: IUser,
+  notifyBody: string,
+  session: mongoose.ClientSession
+) {
+  const activeMeetings = await Meeting.find(
+    { $or: [{ requesterId: userId }, { ownerId: userId }], status: { $in: ['pending', 'time_proposed', 'confirmed'] } },
+    null,
+    { session }
+  )
+
+  await Promise.all(activeMeetings.map(async (m) => {
+    m.status = 'cancelled'
+    await m.save({ session })
+    const otherUserId = m.requesterId.toString() === userId ? m.ownerId.toString() : m.requesterId.toString()
+    pushNotification({
+      userId: otherUserId,
+      type: 'meeting_cancelled',
+      title: 'Toplantı iptal edildi',
+      body: notifyBody.replace('{title}', m.postTitle),
+      linkTo: '/meetings',
+    }).catch(() => {})
+  }))
+
+  await Promise.all([
+    Meeting.updateMany({ requesterId: userId }, { $set: { requesterName: 'Deleted user', requesterEmail: '' } }, { session }),
+    Meeting.updateMany({ ownerId: userId }, { $set: { ownerName: 'Deleted user', ownerEmail: '' } }, { session }),
+    Post.deleteMany({ authorId: userId }, { session }),
+    Notification.deleteMany({ userId }, { session }),
+  ])
+
+  await user.deleteOne({ session })
+}
+
 export async function deleteAccount(userId: string, password: string) {
   const user = await User.findById(userId).select('+password')
   if (!user) throw makeError('User not found', 404)
@@ -254,45 +290,23 @@ export async function deleteAccount(userId: string, password: string) {
   const match = await bcrypt.compare(password, user.password)
   if (!match) throw makeError('Incorrect password', 401)
 
-  // Cancel all non-terminal meetings and notify counterparts
-  const activeMeetings = await Meeting.find({
-    $or: [{ requesterId: userId }, { ownerId: userId }],
-    status: { $in: ['pending', 'time_proposed', 'confirmed'] },
-  })
-  await Promise.all(activeMeetings.map(async (m) => {
-    m.status = 'cancelled'
-    await m.save()
-    const otherUserId =
-      m.requesterId.toString() === userId
-        ? m.ownerId.toString()
-        : m.requesterId.toString()
-    pushNotification({
-      userId: otherUserId,
-      type: 'meeting_cancelled',
-      title: 'Toplantı iptal edildi',
-      body: `Karşı taraf hesabını sildiği için "${m.postTitle}" görüşmesi iptal edildi.`,
-      linkTo: '/meetings',
-    }).catch(() => {})
-  }))
+  const { email: userEmail, name: userName, avatarUrl } = user
 
-  await Promise.all([
-    Meeting.updateMany({ requesterId: userId }, { $set: { requesterName: 'Deleted user', requesterEmail: '' } }),
-    Meeting.updateMany({ ownerId: userId }, { $set: { ownerName: 'Deleted user', ownerEmail: '' } }),
-    Post.deleteMany({ authorId: userId }),
-    Notification.deleteMany({ userId }),
-  ])
-
-  // Delete avatar file from disk if it was an uploaded image
-  if (user.avatarUrl?.startsWith('/uploads/')) {
-    deleteAvatarFile(user.avatarUrl)
+  const session = await mongoose.startSession()
+  try {
+    await session.withTransaction(async () => {
+      await cascadeDeleteUser(
+        userId, user,
+        'Karşı taraf hesabını sildiği için "{title}" görüşmesi iptal edildi.',
+        session
+      )
+    })
+  } finally {
+    await session.endSession()
   }
 
-  const userEmail = user.email
-  const userName = user.name
+  if (avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(avatarUrl)
 
-  await user.deleteOne()
-
-  // Send confirmation email — non-blocking
   sendAccountDeletedEmail(userEmail, userName).catch((err) => {
     console.error('[email] failed to send deletion confirmation:', err.message)
   })
@@ -305,36 +319,23 @@ export async function deleteUserByAdmin(userId: string) {
   if (!user) throw makeError('User not found', 404)
   if (user.role === 'admin') throw makeError('Cannot delete another admin account', 403)
 
-  const activeMeetings = await Meeting.find({
-    $or: [{ requesterId: userId }, { ownerId: userId }],
-    status: { $in: ['pending', 'time_proposed', 'confirmed'] },
-  })
-  await Promise.all(activeMeetings.map(async (m) => {
-    m.status = 'cancelled'
-    await m.save()
-    const otherUserId = m.requesterId.toString() === userId
-      ? m.ownerId.toString()
-      : m.requesterId.toString()
-    pushNotification({
-      userId: otherUserId,
-      type: 'meeting_cancelled',
-      title: 'Toplantı iptal edildi',
-      body: `Karşı taraf hesabı silindiği için "${m.postTitle}" görüşmesi iptal edildi.`,
-      linkTo: '/meetings',
-    }).catch(() => {})
-  }))
+  const { email, name, avatarUrl } = user
 
-  await Promise.all([
-    Meeting.updateMany({ requesterId: userId }, { $set: { requesterName: 'Deleted user', requesterEmail: '' } }),
-    Meeting.updateMany({ ownerId: userId }, { $set: { ownerName: 'Deleted user', ownerEmail: '' } }),
-    Post.deleteMany({ authorId: userId }),
-    Notification.deleteMany({ userId }),
-  ])
+  const session = await mongoose.startSession()
+  try {
+    await session.withTransaction(async () => {
+      await cascadeDeleteUser(
+        userId, user,
+        'Karşı taraf hesabı silindiği için "{title}" görüşmesi iptal edildi.',
+        session
+      )
+    })
+  } finally {
+    await session.endSession()
+  }
 
-  if (user.avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(user.avatarUrl)
+  if (avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(avatarUrl)
 
-  const { email, name } = user
-  await user.deleteOne()
   return { email, name }
 }
 
@@ -345,5 +346,46 @@ export async function setSuspended(userId: string, isSuspended: boolean) {
     { new: true }
   )
   if (!user) throw makeError('User not found', 404)
+  return sanitize(user)
+}
+
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000 // 1 hour
+
+export async function forgotPassword(email: string) {
+  const user = await User.findOne({ email: email.toLowerCase() })
+  // Silently succeed — don't reveal whether email is registered
+  if (!user || !user.isVerified) return
+
+  const rawToken = generateVerifyToken()
+  user.resetToken = hashToken(rawToken)
+  user.resetTokenExpires = new Date(Date.now() + RESET_TOKEN_TTL_MS)
+  await user.save()
+
+  sendPasswordResetEmail(user.email, rawToken, user.name).catch((err) => {
+    console.error('[email] failed to send password reset:', err.message)
+  })
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+  if (newPassword.length < 8) throw makeError('Password must be at least 8 characters', 400)
+
+  const user = await User.findOne({
+    resetToken: hashToken(token),
+    resetTokenExpires: { $gt: new Date() },
+  }).select('+password')
+  if (!user) throw makeError('Invalid or expired password reset token', 400)
+
+  user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
+  user.resetToken = undefined
+  user.resetTokenExpires = undefined
+  await user.save()
+
+  pushNotification({
+    userId: user.id as string,
+    type: 'account_activity',
+    title: 'Şifre sıfırlandı',
+    body: 'Hesabınızın şifresi başarıyla sıfırlandı. Bu işlemi siz yapmadıysanız hemen destek ekibiyle iletişime geçin.',
+  }).catch(() => {})
+
   return sanitize(user)
 }

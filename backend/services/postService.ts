@@ -142,6 +142,7 @@ export async function expressInterest(id: string, requesterId: string, requester
     { $inc: { interestCount: 1 } },
     { new: true }
   )
+  if (!updated) throw makeError('Post not found', 404)
 
   pushNotification({
     userId: post.authorId.toString(),
@@ -151,7 +152,7 @@ export async function expressInterest(id: string, requesterId: string, requester
     linkTo: `/posts/${id}`,
   }).catch(() => {})
 
-  return updated!
+  return updated
 }
 
 export async function deletePost(id: string, requesterId: string, isAdmin: boolean) {

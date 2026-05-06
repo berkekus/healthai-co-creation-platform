@@ -199,6 +199,41 @@ export const resendVerification = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'If the email is registered and unverified, a new link has been sent.' })
 })
 
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body
+  if (!email || typeof email !== 'string') {
+    res.status(400).json({ success: false, message: 'Email is required' })
+    return
+  }
+  await authService.forgotPassword(email)
+  createLog({
+    userEmail: email,
+    role: 'unknown',
+    action: LOG.FORGOT_PASSWORD,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
+  res.json({ success: true, message: 'If the email is registered and verified, a reset link has been sent.' })
+})
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token, newPassword } = req.body
+  if (!token || typeof token !== 'string' || !newPassword || typeof newPassword !== 'string') {
+    res.status(400).json({ success: false, message: 'token and newPassword are required' })
+    return
+  }
+  const user = await authService.resetPassword(token, newPassword)
+  createLog({
+    userId: user.id,
+    userEmail: user.email,
+    role: user.role,
+    action: LOG.PASSWORD_RESET,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
+  res.json({ success: true, message: 'Password has been reset successfully.' })
+})
+
 export const deleteAccount = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { password } = req.body
   if (!password || typeof password !== 'string') {

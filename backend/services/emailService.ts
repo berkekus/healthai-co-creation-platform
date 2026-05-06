@@ -54,6 +54,26 @@ export async function sendVerificationEmail(to: string, token: string, name: str
   await send(to, 'Verify your HEALTH AI account', html)
 }
 
+export async function sendPasswordResetEmail(to: string, token: string, name: string): Promise<void> {
+  const resetUrl = `${APP_URL}/reset-password?token=${encodeURIComponent(token)}`
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;">
+      <h1 style="color: #36213E;">Reset your password, ${name}</h1>
+      <p>We received a request to reset the password for your HEALTH AI account. Click the button below to set a new password. This link will expire in <strong>1 hour</strong>.</p>
+      <p style="margin: 32px 0;">
+        <a href="${resetUrl}" style="background: #36213E; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
+          Reset my password
+        </a>
+      </p>
+      <p style="color: #666; font-size: 13px;">If the button does not work, copy this link into your browser:</p>
+      <p style="word-break: break-all; color: #36213E; font-size: 13px;"><a href="${resetUrl}">${resetUrl}</a></p>
+      <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0;">
+      <p style="color: #999; font-size: 12px;">If you did not request a password reset, you can safely ignore this email. Your password will not change.</p>
+    </div>
+  `
+  await send(to, 'Reset your HEALTH AI password', html)
+}
+
 export async function sendAccountDeletedEmail(to: string, name: string): Promise<void> {
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;">

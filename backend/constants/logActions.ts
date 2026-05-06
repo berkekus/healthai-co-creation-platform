@@ -7,6 +7,8 @@ export const LOG = {
   LOGIN_FAILED:     'login_failed',
   PROFILE_UPDATE:   'profile_update',
   PASSWORD_CHANGE:  'password_change',
+  FORGOT_PASSWORD:  'forgot_password',
+  PASSWORD_RESET:   'password_reset',
   ACCOUNT_DELETE:   'account_delete',
   LOGOUT:           'logout',
   // Admin — user management

@@ -48,7 +48,7 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - [postController.ts:24-28](controllers/postController.ts#L24-L28) `expiryDate` string olarak alınıyor, sonra Mongoose `Date` olarak parse ediyor. `new Date('blabla')` → `Invalid Date`; sonra `expiryDate: { type: Date, required: true }` validation'ı tetikler ama hata mesajı kullanıcıya kafa karıştırıcı. Önceden parse + 400 dönmek lazım.
 - ✅ [meetingService.ts:38](services/meetingService.ts#L38) `data.message.length < 20` — `data.message` undefined olursa TypeError. Controller `!message` kontrolü yapıyor ama `message: ''` boş string için yine de fail eder. Yine de boundary check yapılmalı.
 - ✅ [meetingService.ts:39](services/meetingService.ts#L39) `proposedSlots.length < 3` — array değilse crash. `Array.isArray()` kontrolü yok.
-- [meetingController.ts:84](controllers/meetingController.ts#L84) `slot.date` ve `slot.time` string format kontrolü yok. Kullanıcı `"yarın"` gönderebilir.
+- ✅ [meetingController.ts:84](controllers/meetingController.ts#L84) `slot.date` ve `slot.time` string format kontrolü yok. Kullanıcı `"yarın"` gönderebilir.
 - [postController.ts:25](controllers/postController.ts#L25) `!confidentiality` — eğer client `'public_pitch'` gönderirse OK; ama enum kontrolü yapılmıyor. Mongoose enum'a düşüyor; UX için pre-validation önerilir.
 - ✅ [services/logService.ts:31-32](services/logService.ts#L31-L32) `new Date(filters.from)` invalid input'ta `Invalid Date` üretir, MongoDB query patlar. Kontrol edilmeli.
 - Error format **çoğunlukla** tutarlı: `{ success, message }`. Ama bazen `{ success, data }`, bazen `{ success, message }` dönülüyor; standart bir `{ success, data?, message?, error? }` envelope'u dokümante edilmeli.
@@ -125,7 +125,7 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 
 ## 8. Eksik Olabilecek Özellikler
 
-- 🟥 **Şifre sıfırlama (forgot password)**: `resendVerification` var ama `forgot-password` flow yok. Hesabını doğrulamış kullanıcı şifresini unutursa kayıp.
+- ✅ **Şifre sıfırlama (forgot password)**: `resendVerification` var ama `forgot-password` flow yok. Hesabını doğrulamış kullanıcı şifresini unutursa kayıp.
 - 🟥 **Refresh token / token rotation**: Stateless JWT 7 gün — XSS'te token çalınırsa felaket.
 - ✅ **Pagination** notification'larda yok ([notificationService.ts:14](services/notificationService.ts#L14)).
 - 🟧 **Sorting**: post listing'de `createdAt: -1` sabit. `?sort=interestCount` gibi opsiyon yok.
@@ -134,10 +134,10 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - ✅ **Health check**'in ([src/app.ts:37](src/app.ts#L37)) MongoDB connection state kontrolü yok. `mongoose.connection.readyState === 1` döndürmeli.
 - 🟧 **Rate limit by user (not IP)**: `express-rate-limit` default IP-based; auth sonrası `keyGenerator: req => req.userId` ile per-user limit daha doğru.
 - 🟧 **DTO katmanı**: Şu an Mongoose document'leri direkt JSON olarak dönüyor. Sanitize var ama bu manuel; class-transformer/zod-output-schemas tipinde formal DTO yok.
-- 🟩 **Forgot password mail template**, account suspended mail template eksik.
+- ✅ **Forgot password mail template**, account suspended mail template eksik.
 - 🟩 **Test coverage**: `vitest run --coverage` script'i var ama threshold yok.
 - 🟩 **Soft delete**: Şu an `Post.deleteMany`, `User.deleteOne` hard delete. GDPR için OK ama post'lar için soft delete + cascade flag düşünülebilir.
-- 🟩 **Database transactions**: [authService.ts:286-301](services/authService.ts#L286-L301) hesap silinirken çoklu collection write var. Ortada hata olursa kısmi tutarsızlık. Mongoose `session` ve transaction sarmalı.
+- ✅ **Database transactions**: [authService.ts:286-301](services/authService.ts#L286-L301) hesap silinirken çoklu collection write var. Ortada hata olursa kısmi tutarsızlık. Mongoose `session` ve transaction sarmalı.
 - 🟩 **Seed script**: `scripts/reset-admin-password.ts` var ama dev seed yok.
 - 🟩 **Index sync**: deployment'ta `Model.syncIndexes()` çağrılmalı.
 
@@ -187,7 +187,7 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - `listPosts` her çağrıda `Post.updateMany` yazıyor → cron'a taşı.
 - ✅ `requestMeeting` body'de gereksiz `ownerId/ownerName/postTitle` alıyor; sunucudan türetilebilir.
 - ✅ `GET /api/auth/users/:id` herhangi bir user'a başkasının email'ini sızdırıyor.
-- DB transaction yok (delete/cascade work çoklu collection değiştiriyor).
+- ✅ DB transaction yok (delete/cascade work çoklu collection değiştiriyor).
 - Notification list'inde pagination yok.
 - Validation `if/else` zincirleri dağınık → zod/joi.
 - `makeError` ve `log()` yardımcıları 3-4 dosyada kopyalanmış.
@@ -223,14 +223,14 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 2. ✅ **`authMiddleware.protect` içinde `req.userRole = user.role`** olarak değiştir (DB'den, JWT'den değil).
 3. ✅ **`User.verifyToken` SHA256 hash'le sakla**; verify-email endpoint'inde gelen token'ı hash'leyip karşılaştır.
 4. ✅ **`User.password` schema'sına `select: false`** ekle, gerekli yerlerde `.select('+password')` ile çağır.
-5. **`forgot-password` + `reset-password` flow'unu ekle.**
+5. ✅ **`forgot-password` + `reset-password` flow'unu ekle.**
 6. **Validation'ı zod/joi'ye geçir** (auth, post, meeting create endpoint'leri).
 7. ✅ **`listPosts` lazy expiry update'ini cron'a taşı** veya kaldır + dynamic filter kullan.
 8. ✅ **`makeError` ve `log()` helper'larını `utils/`'a taşı** (3 ayrı kopya birleşsin).
 9. ✅ **Authorization-focused integration testleri** ekle (cross-user 403, admin-only 403).
 10. **Refresh token mekanizması** veya en azından access token süresini kısalt (1-2 saat).
-11. **Mongo transaction** ile `deleteAccount` ve `markPartnerFound` cascade'lerini sarmalayın.
+11. ✅ **Mongo transaction** ile `deleteAccount` ve `markPartnerFound` cascade'lerini sarmalayın.
 12. ✅ **Notification list pagination** ekle.
 13. **Swagger/OpenAPI** dokümanı oluştur (`API.md` manuel sürümünü değiştir).
-14. **`Date` tipi tutarlılığı** (`ITimeSlot` ve `expiryDate` parse validation).
+14. ✅ **`Date` tipi tutarlılığı** (`ITimeSlot` ve `expiryDate` parse validation).
 15. **`pino` veya `winston`** ile structured logging'e geç.

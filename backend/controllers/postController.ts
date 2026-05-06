@@ -14,6 +14,11 @@ export const createPost = asyncHandler<AuthenticatedRequest>(async (req, res) =>
     res.status(400).json({ success: false, message: 'All post fields are required' })
     return
   }
+  const parsedExpiry = new Date(expiryDate)
+  if (isNaN(parsedExpiry.getTime()) || parsedExpiry <= new Date()) {
+    res.status(400).json({ success: false, message: 'expiryDate must be a valid future date' })
+    return
+  }
 
   if (req.userRole === 'admin') {
     res.status(403).json({ success: false, message: 'Admins cannot create posts' })

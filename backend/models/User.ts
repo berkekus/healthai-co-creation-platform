@@ -16,6 +16,8 @@ export interface IUser extends Document {
   isVerified: boolean
   verifyToken?: string
   verifyTokenExpires?: Date
+  resetToken?: string
+  resetTokenExpires?: Date
   isSuspended: boolean
   lastActive: Date
   createdAt: Date
@@ -41,6 +43,8 @@ const UserSchema = new Schema<IUser>(
     isVerified: { type: Boolean, default: false },
     verifyToken: { type: String, index: true },
     verifyTokenExpires: { type: Date },
+    resetToken: { type: String, index: true },
+    resetTokenExpires: { type: Date },
     isSuspended: { type: Boolean, default: false },
     lastActive: { type: Date, default: Date.now },
   },
