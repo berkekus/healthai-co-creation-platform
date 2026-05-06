@@ -22,8 +22,8 @@ Temel auth, post ve meeting akışlarının mimarisi sağlam kurulmuş. Ancak **
 
 ### Önemli (Yanlış Davranış)
 
-- [ ] **#6** `ExpressInterestModal` — meeting isteğinde post statüsünü `meeting_scheduled` yapıyor (bypass)
-- [ ] **#7** `changePassword` — `PUT /auth/me/password` endpoint'i var, frontend UI yok
+- [x] **#6** `ExpressInterestModal` — meeting isteğinde post statüsünü `meeting_scheduled` yapıyor (bypass)
+- [x] **#7** `changePassword` — `PUT /auth/me/password` endpoint'i var, frontend UI yok
 - [x] **#8** `Post.meetingCount` — `requestMeeting`'de güncellenmemiyor, her zaman 0 kalıyor
 
 ### Küçük / İyileştirme

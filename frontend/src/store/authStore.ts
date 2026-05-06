@@ -17,6 +17,7 @@ interface AuthState {
   resendVerification: (email: string) => Promise<void>
   updateProfile: (data: Partial<Pick<User, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>) => Promise<void>
   uploadAvatar: (file: File) => Promise<void>
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>
   deleteAccount: (password: string) => Promise<void>
   hydrate: () => Promise<void>
   clearError: () => void
@@ -99,6 +100,10 @@ export const useAuthStore = create<AuthState>()((set) => ({
     } catch (err) {
       set({ isLoading: false, error: (err as Error).message })
     }
+  },
+
+  changePassword: async (oldPassword: string, newPassword: string) => {
+    await api.put('/auth/me/password', { oldPassword, newPassword })
   },
 
   deleteAccount: async (password: string) => {
