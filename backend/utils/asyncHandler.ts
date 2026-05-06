@@ -1,5 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
-import { AuthRequest } from '../middleware/authMiddleware'
+import { Request, Response, NextFunction, RequestHandler } from 'express'
 
 type AsyncFn<T extends Request = Request> = (
   req: T,
@@ -7,7 +6,7 @@ type AsyncFn<T extends Request = Request> = (
   next: NextFunction
 ) => Promise<void>
 
-export function asyncHandler<T extends Request = Request>(fn: AsyncFn<T>) {
-  return (req: T, res: Response, next: NextFunction) =>
-    Promise.resolve(fn(req, res, next)).catch(next)
+export function asyncHandler<T extends Request = Request>(fn: AsyncFn<T>): RequestHandler {
+  return (req: Request, res: Response, next: NextFunction) =>
+    Promise.resolve(fn(req as T, res, next)).catch(next)
 }

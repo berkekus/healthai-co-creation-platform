@@ -79,13 +79,15 @@ const UPDATABLE_FIELDS = [
   'city', 'country', 'expiryDate',
 ] as const
 
+type UpdatableField = typeof UPDATABLE_FIELDS[number]
+
 export async function updatePost(id: string, requesterId: string, isAdmin: boolean, data: Partial<IPost>) {
   const post = await Post.findById(id)
   if (!post) throw makeError('Post not found', 404)
   if (!isAdmin && post.authorId.toString() !== requesterId) throw makeError('Forbidden', 403)
 
   for (const field of UPDATABLE_FIELDS) {
-    if (field in data) (post as any)[field] = (data as any)[field]
+    if (field in data) post.set(field, data[field as UpdatableField])
   }
   await post.save()
   return post

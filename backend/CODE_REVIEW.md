@@ -113,12 +113,12 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - Comment'ler genelde "why" açıklıyor (örn [authMiddleware.ts:16](middleware/authMiddleware.ts#L16) `// Throttle lastActive writes...`).
 
 **Sorunlar:**
-- [postService.ts:99-101](services/postService.ts#L99-L101) `(post as any)[field] = (data as any)[field]` — `any` kaçışı.
+- ✅ [postService.ts:99-101](services/postService.ts#L99-L101) `(post as any)[field] = (data as any)[field]` — `any` kaçışı.
 - [postService.ts:164](services/postService.ts#L164) `return updated!` — non-null assertion. `findByIdAndUpdate` null dönerse runtime crash. `if (!updated) throw makeError(...)` ile guard et.
 - [meetingService.ts:104, 124, 148, 174](services/meetingService.ts#L104) — `await resolveUpdateFailure(...)` her zaman throw eder ama sonraki satırda `meeting!` non-null assertion var. Tip sistemi `resolveUpdateFailure: Promise<never>` döndüğü için doğru ama okunabilirlik açısından zayıf.
 - [authService.ts:147-151, 156-161, 199-201, 204-208, 211-216, 353-357](services/authService.ts) — `const err: Error & { statusCode?: number } = new Error(...)` boilerplate **6 kez** tekrarlanmış. Bunun için zaten `makeError()` aynı dosyada var ama tutarsız kullanılmış.
 - `console.error` / `console.log` ([authService.ts:76, 112, 305](services/authService.ts#L76); [emailService.ts:28-31](services/emailService.ts#L28-L31)) doğrudan kullanılıyor. Production-grade için `pino` veya `winston` logger lazım.
-- `req.userId as string`, `req.userRole as string` cast'leri sık. Tip-safe alternatif: `protect` middleware'de `req.userId` zorunlu olduktan sonra `AuthenticatedRequest` (userId required) tipi kullan.
+- ✅ `req.userId as string`, `req.userRole as string` cast'leri sık. Tip-safe alternatif: `protect` middleware'de `req.userId` zorunlu olduktan sonra `AuthenticatedRequest` (userId required) tipi kullan.
 - Magic number: `SALT_ROUNDS = 10`, `LAST_ACTIVE_THROTTLE_MS = 5min`, `VERIFY_TOKEN_TTL_MS = 24h` — config dosyasına çekilebilir.
 
 ---

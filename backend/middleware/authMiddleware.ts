@@ -8,6 +8,13 @@ export interface AuthRequest extends Request {
   userEmail?: string
 }
 
+/** Narrowed version — safe to use in handlers that are always behind `protect` */
+export interface AuthenticatedRequest extends Request {
+  userId: string
+  userRole: string
+  userEmail: string
+}
+
 interface JwtPayload {
   id: string
   role: string

@@ -1,11 +1,11 @@
-import { AuthRequest } from '../middleware/authMiddleware'
+import { AuthenticatedRequest } from '../middleware/authMiddleware'
 import * as postService from '../services/postService'
 import { LOG } from '../constants/logActions'
 import User from '../models/User'
 import { asyncHandler } from '../utils/asyncHandler'
 import { log } from '../utils/controllerLog'
 
-export const createPost = asyncHandler<AuthRequest>(async (req, res) => {
+export const createPost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { title, domain, expertiseRequired, description, projectStage,
           collaborationType, confidentiality, city, country, expiryDate } = req.body
 
@@ -15,8 +15,7 @@ export const createPost = asyncHandler<AuthRequest>(async (req, res) => {
     return
   }
 
-  const authorRole = req.userRole as string
-  if (authorRole === 'admin') {
+  if (req.userRole === 'admin') {
     res.status(403).json({ success: false, message: 'Admins cannot create posts' })
     return
   }
@@ -30,27 +29,26 @@ export const createPost = asyncHandler<AuthRequest>(async (req, res) => {
   const post = await postService.createPost({
     title, domain, expertiseRequired, description, projectStage,
     collaborationType, confidentiality, city, country, expiryDate,
-    authorId: req.userId as string,
+    authorId: req.userId,
     authorName: author.name,
-    authorRole: authorRole as 'engineer' | 'healthcare_professional',
+    authorRole: req.userRole as 'engineer' | 'healthcare_professional',
   })
   log(req, LOG.POST_CREATE, post.id as string)
   res.status(201).json({ success: true, data: post })
 })
 
-export const getPost = asyncHandler<AuthRequest>(async (req, res) => {
+export const getPost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const post = await postService.getPostById(req.params.id)
   res.json({ success: true, data: post })
 })
 
-export const listPosts = asyncHandler<AuthRequest>(async (req, res) => {
+export const listPosts = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { domain, expertise, city, country, projectStage, status, search, authorRole, mine } = req.query
   const page  = Math.max(1, parseInt(req.query.page  as string) || 1)
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20))
 
   const isAdmin = req.userRole === 'admin'
   const isMine = mine === 'true'
-  // Non-admins cannot browse other users' drafts: silently scope to own posts
   const forceScopeToOwn = !isAdmin && (status as string) === 'draft'
 
   const result = await postService.listPosts(
@@ -71,38 +69,38 @@ export const listPosts = asyncHandler<AuthRequest>(async (req, res) => {
   res.json({ success: true, data: result })
 })
 
-export const updatePost = asyncHandler<AuthRequest>(async (req, res) => {
+export const updatePost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const isAdmin = req.userRole === 'admin'
-  const post = await postService.updatePost(req.params.id, req.userId as string, isAdmin, req.body)
+  const post = await postService.updatePost(req.params.id, req.userId, isAdmin, req.body)
   res.json({ success: true, data: post })
 })
 
-export const publishPost = asyncHandler<AuthRequest>(async (req, res) => {
-  const post = await postService.publishPost(req.params.id, req.userId as string)
+export const publishPost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
+  const post = await postService.publishPost(req.params.id, req.userId)
   log(req, LOG.POST_PUBLISH, req.params.id)
   res.json({ success: true, data: post })
 })
 
-export const markPartnerFound = asyncHandler<AuthRequest>(async (req, res) => {
-  const post = await postService.markPartnerFound(req.params.id, req.userId as string)
+export const markPartnerFound = asyncHandler<AuthenticatedRequest>(async (req, res) => {
+  const post = await postService.markPartnerFound(req.params.id, req.userId)
   log(req, LOG.POST_PARTNER_FOUND, req.params.id)
   res.json({ success: true, data: post })
 })
 
-export const deletePost = asyncHandler<AuthRequest>(async (req, res) => {
+export const deletePost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const isAdmin = req.userRole === 'admin'
-  await postService.deletePost(req.params.id, req.userId as string, isAdmin)
+  await postService.deletePost(req.params.id, req.userId, isAdmin)
   log(req, LOG.POST_DELETE, req.params.id)
   res.json({ success: true, message: 'Post deleted' })
 })
 
-export const expressInterest = asyncHandler<AuthRequest>(async (req, res) => {
+export const expressInterest = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const requester = await User.findById(req.userId).select('name')
   if (!requester) {
     res.status(404).json({ success: false, message: 'User not found' })
     return
   }
-  const result = await postService.expressInterest(req.params.id, req.userId as string, requester.name)
+  const result = await postService.expressInterest(req.params.id, req.userId, requester.name)
   log(req, LOG.POST_INTEREST, req.params.id)
   res.json({ success: true, data: result })
 })

@@ -1,11 +1,11 @@
-import { AuthRequest } from '../middleware/authMiddleware'
+import { AuthenticatedRequest } from '../middleware/authMiddleware'
 import { createLog } from '../services/logService'
 
-export function log(req: AuthRequest, action: string, targetEntityId?: string) {
+export function log(req: AuthenticatedRequest, action: string, targetEntityId?: string) {
   createLog({
-    userId: req.userId as string,
-    userEmail: req.userEmail as string,
-    role: req.userRole as string,
+    userId: req.userId,
+    userEmail: req.userEmail,
+    role: req.userRole,
     action,
     targetEntityId,
     result: 'success',
