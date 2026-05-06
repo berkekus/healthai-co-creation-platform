@@ -5,37 +5,39 @@ import type { ReactNode } from 'react'
 import { ROUTES } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
+import { usePostStore } from '../../store/postStore'
 import type { Meeting } from '../../types/meeting.types'
-
-const posts = [
-  ['AI-powered Continuous Glucose Monitoring', 'Clinical Pharmacy'],
-  ['COUNTRYCITYDROPDOWNDENEME', 'Public Health & Epidemiology'],
-  ['testt', 'Clinical Pharmacy'],
-]
+import type { Post } from '../../types/post.types'
 
 export default function DashboardPage() {
   const { user } = useAuthStore()
   const { getByUser, fetchByUser } = useMeetingStore()
+  const { posts, fetchPosts } = usePostStore()
 
   useEffect(() => {
     if (user) fetchByUser(user.id)
   }, [fetchByUser, user])
 
+  useEffect(() => {
+    if (user) fetchPosts({ limit: 100, mine: true, filters: {} })
+  }, [fetchPosts, user])
+
   const myMeetings = user ? getByUser(user.id) : []
   const upcomingMeetings = myMeetings.filter(meeting =>
     meeting.status === 'confirmed' || meeting.status === 'pending' || meeting.status === 'time_proposed'
   )
+  const activeListings = posts.filter(post => post.status === 'active' || post.status === 'meeting_scheduled').length
 
   return (
     <main className="min-h-screen bg-[#f7f8fa] text-[#2d1838]">
       <div className="mx-auto w-full max-w-[1640px] px-8 pb-24 pt-[94px]">
         <section className="grid min-h-[500px] grid-cols-[420px_minmax(0,1fr)] items-start gap-28">
           <WelcomePanel />
-          <WeeklyBlob />
+          <WeeklyBlob postCount={posts.length} meetingCount={myMeetings.length} activeListings={activeListings} />
         </section>
 
         <section className="mt-10 grid grid-cols-[minmax(0,680px)_minmax(0,700px)] gap-28">
-          <RecentPosts />
+          <RecentPosts posts={posts} />
           <UpcomingMeetings meetings={upcomingMeetings} userId={user?.id ?? ''} />
         </section>
       </div>
@@ -91,7 +93,15 @@ function WelcomePanel() {
   )
 }
 
-function WeeklyBlob() {
+function WeeklyBlob({
+  postCount,
+  meetingCount,
+  activeListings,
+}: {
+  postCount: number
+  meetingCount: number
+  activeListings: number
+}) {
   return (
     <div className="relative h-[455px]">
       <div
@@ -116,9 +126,9 @@ function WeeklyBlob() {
         </div>
 
         <div className="grid grid-cols-3 gap-16">
-          <Metric icon={<FileText size={21} />} iconBg="#8bddea" value="3" label="New posts" change="↗ 50% vs last week" />
-          <Metric icon={<Handshake size={21} />} iconBg="#d8ff8f" value="0" label="New meetings" change="— No change" />
-          <Metric icon={<Eye size={21} />} iconBg="#e7dccb" value="2" label="Active listings" change="↗ 100% vs last week" />
+          <Metric icon={<FileText size={21} />} iconBg="#8bddea" value={postCount} label="My posts" change="↗ Synced with backend" />
+          <Metric icon={<Handshake size={21} />} iconBg="#d8ff8f" value={meetingCount} label="My meetings" change={meetingCount > 0 ? '↗ Review queue' : '— No change'} />
+          <Metric icon={<Eye size={21} />} iconBg="#e7dccb" value={activeListings} label="Active listings" change={activeListings > 0 ? '↗ Open for interest' : '— No active listings'} />
         </div>
       </div>
     </div>
@@ -134,7 +144,7 @@ function Metric({
 }: {
   icon: ReactNode
   iconBg: string
-  value: string
+  value: number
   label: string
   change: string
 }) {
@@ -150,7 +160,11 @@ function Metric({
   )
 }
 
-function RecentPosts() {
+function RecentPosts({ posts }: { posts: Post[] }) {
+  const recentPosts = [...posts]
+    .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
+    .slice(0, 3)
+
   return (
     <div>
       <div className="mb-9 flex items-center justify-between">
@@ -163,24 +177,45 @@ function RecentPosts() {
 
       <div className="relative ml-2 pl-9">
         <div className="absolute left-0 top-[8px] bottom-[34px] border-l border-dashed border-[#c5cbd2]" />
-        {posts.map(([title, domain]) => (
-          <Link
-            to={ROUTES.POSTS}
-            key={title}
-            className="group relative grid min-h-[94px] grid-cols-[minmax(0,1fr)_132px] items-start gap-8 border-b border-[#dfe2e7] pt-0.5 transition hover:border-[#8bddea]"
-          >
+        {recentPosts.length > 0 ? (
+          recentPosts.map(post => (
+            <Link
+              to={`/posts/${post.id}`}
+              key={post.id}
+              className="group relative grid min-h-[94px] grid-cols-[minmax(0,1fr)_132px] items-start gap-8 border-b border-[#dfe2e7] pt-0.5 transition hover:border-[#8bddea]"
+            >
+              <span className="absolute -left-[41px] top-[4px] h-2.5 w-2.5 rounded-full bg-[#9bdce8]" />
+              <div>
+                <div className="truncate text-[16px] font-black text-[#393041] transition group-hover:text-[#2d1838]">{post.title}</div>
+                <div className="mt-2 text-[15px] font-semibold text-[#7b7682]">{post.domain}</div>
+              </div>
+              <StatusPill status={post.status} />
+            </Link>
+          ))
+        ) : (
+          <div className="relative min-h-[94px] border-b border-[#dfe2e7] pt-0.5 text-[15px] font-semibold text-[#7b7682]">
             <span className="absolute -left-[41px] top-[4px] h-2.5 w-2.5 rounded-full bg-[#9bdce8]" />
-            <div>
-              <div className="truncate text-[16px] font-black text-[#393041] transition group-hover:text-[#2d1838]">{title}</div>
-              <div className="mt-2 text-[15px] font-semibold text-[#7b7682]">{domain}</div>
-            </div>
-            <span className="mt-1 rounded-full bg-[#2d1838] px-4 py-1.5 text-center text-[11px] font-black uppercase tracking-[0.1em] text-[#dff8ff]">
-              Partner Found
-            </span>
-          </Link>
-        ))}
+            No posts yet.
+          </div>
+        )}
       </div>
     </div>
+  )
+}
+
+function StatusPill({ status }: { status: Post['status'] }) {
+  const labels: Record<Post['status'], string> = {
+    draft: 'Draft',
+    active: 'Active',
+    meeting_scheduled: 'Meeting',
+    partner_found: 'Partner Found',
+    expired: 'Expired',
+  }
+
+  return (
+    <span className="mt-1 rounded-full bg-[#2d1838] px-4 py-1.5 text-center text-[11px] font-black uppercase tracking-[0.1em] text-[#dff8ff]">
+      {labels[status]}
+    </span>
   )
 }
 

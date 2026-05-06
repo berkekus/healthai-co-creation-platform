@@ -14,7 +14,7 @@ interface PostState {
   filters: PostFilters
   pagination: PaginationMeta
   isLoading: boolean
-  fetchPosts: (opts?: { page?: number; limit?: number }) => Promise<void>
+  fetchPosts: (opts?: { page?: number; limit?: number; mine?: boolean; filters?: PostFilters }) => Promise<void>
   setFilters: (f: Partial<PostFilters>) => void
   clearFilters: () => void
   getFiltered: () => Post[]
@@ -65,12 +65,13 @@ export const usePostStore = create<PostState>()((set, get) => ({
   fetchPosts: async (opts = {}) => {
     set({ isLoading: true })
     try {
-      const { filters } = get()
+      const filters = opts.filters ?? get().filters
       const page  = opts.page  ?? 1
       const limit = opts.limit ?? 20
       const params = new URLSearchParams()
       params.set('page',  String(page))
       params.set('limit', String(limit))
+      if (opts.mine) params.set('mine', 'true')
       if (filters.domain)       params.set('domain',       filters.domain)
       if (filters.expertise)    params.set('expertise',    filters.expertise)
       if (filters.city)         params.set('city',         filters.city)
