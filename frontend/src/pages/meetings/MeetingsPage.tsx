@@ -1,115 +1,104 @@
-import { useState } from 'react'
-import type { CSSProperties } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import {
   Calendar,
+  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock,
-  MoreHorizontal,
   PieChart,
   Plus,
   X,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../constants/routes'
+import { useAuthStore } from '../../store/authStore'
+import { useMeetingStore } from '../../store/meetingStore'
+import type { Meeting, MeetingStatus, TimeSlot } from '../../types/meeting.types'
 
-type TabId = 'all' | 'incoming' | 'outgoing' | 'confirmed' | 'cancelled'
-type MeetingStatus = 'Pending review' | 'Confirmed' | 'Cancelled'
+type TabId = 'all' | 'incoming' | 'outgoing' | 'pending' | 'confirmed' | 'cancelled'
+type SortMode = 'recent' | 'oldest'
 
-interface MeetingItem {
-  initials: string
-  title: string
-  status: MeetingStatus
-  direction: 'Incoming' | 'Outgoing'
-  doctor: string
-  specialty: string
-  date: string
-  time: string
+const STATUS_LABELS: Record<MeetingStatus, string> = {
+  pending: 'Pending review',
+  confirmed: 'Confirmed',
+  completed: 'Completed',
+  declined: 'Declined',
+  cancelled: 'Cancelled',
 }
 
-const meetings: MeetingItem[] = [
-  {
-    initials: 'DM',
-    title: 'deneme',
-    status: 'Pending review',
-    direction: 'Outgoing',
-    doctor: 'Dr. Mehmet Arslan',
-    specialty: 'Orthopedics',
-    date: '1 May 2026',
-    time: '15:22',
-  },
-  {
-    initials: 'DM',
-    title: 'testst',
-    status: 'Confirmed',
-    direction: 'Incoming',
-    doctor: 'Dr. Mehmet Arslan',
-    specialty: 'Cardiology',
-    date: '30 Apr 2026',
-    time: '16:40',
-  },
-  {
-    initials: 'AY',
-    title: 'AI-powered Continuous Glucose Monitoring',
-    status: 'Confirmed',
-    direction: 'Incoming',
-    doctor: 'Dr. Fatma Celik',
-    specialty: 'Endocrinology',
-    date: '29 Apr 2026',
-    time: '11:15',
-  },
-  {
-    initials: 'DF',
-    title: 'AI-powered Continuous Glucose Monitoring',
-    status: 'Confirmed',
-    direction: 'Incoming',
-    doctor: 'Dr. Fatma Celik',
-    specialty: 'Endocrinology',
-    date: '28 Apr 2026',
-    time: '09:20',
-  },
-  {
-    initials: 'SE',
-    title: 'COUNTRYCITYDROPDOWNDENEME',
-    status: 'Confirmed',
-    direction: 'Outgoing',
-    doctor: 'Dr. Mehmet Arslan',
-    specialty: 'Public Health',
-    date: '27 Apr 2026',
-    time: '14:05',
-  },
-]
-
-const tabs: { id: TabId; label: string; count: number }[] = [
-  { id: 'all', label: 'All', count: 11 },
-  { id: 'incoming', label: 'Incoming', count: 4 },
-  { id: 'outgoing', label: 'Outgoing', count: 3 },
-  { id: 'confirmed', label: 'Confirmed', count: 4 },
-  { id: 'cancelled', label: 'Cancelled', count: 2 },
-]
-
-const days = Array.from({ length: 31 }, (_, index) => index + 1)
-const calendarOffset = Array.from({ length: 5 }, (_, index) => `blank-${index}`)
-const dottedDays = new Set([4, 8, 14, 18, 23, 27])
+const STATUS_CLASS: Record<MeetingStatus, string> = {
+  pending: 'bg-[var(--pending-bg)] text-[var(--primary)]',
+  confirmed: 'bg-[var(--success-bg)] text-[var(--primary)]',
+  completed: 'bg-[#d8ff8f] text-[var(--primary)]',
+  declined: 'bg-[#ffe8e8] text-[#a33a3a]',
+  cancelled: 'bg-[var(--cancelled-bg)] text-[var(--muted)]',
+}
 
 export default function MeetingsPage() {
+  const { user } = useAuthStore()
+  const { meetings, fetchByUser, accept, decline, cancel, complete } = useMeetingStore()
   const [activeTab, setActiveTab] = useState<TabId>('all')
-  const [sortMode, setSortMode] = useState<'recent' | 'oldest'>('recent')
+  const [sortMode, setSortMode] = useState<SortMode>('recent')
+  const [busyId, setBusyId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const visibleMeetings = meetings
-    .filter(meeting => {
-      if (activeTab === 'incoming') return meeting.direction === 'Incoming'
-      if (activeTab === 'outgoing') return meeting.direction === 'Outgoing'
-      if (activeTab === 'confirmed') return meeting.status === 'Confirmed'
-      if (activeTab === 'cancelled') return meeting.status === 'Cancelled'
-      return true
-    })
-    .sort((a, b) => {
-      const left = new Date(`${a.date} ${a.time}`).getTime()
-      const right = new Date(`${b.date} ${b.time}`).getTime()
-      return sortMode === 'recent' ? right - left : left - right
-    })
+  useEffect(() => {
+    if (user) fetchByUser()
+  }, [fetchByUser, user])
+
+  const scopedMeetings = useMemo(
+    () => user ? meetings.filter(meeting => meeting.requesterId === user.id || meeting.ownerId === user.id) : [],
+    [meetings, user],
+  )
+
+  const counts = useMemo(() => {
+    const incoming = scopedMeetings.filter(meeting => meeting.ownerId === user?.id).length
+    const outgoing = scopedMeetings.filter(meeting => meeting.requesterId === user?.id).length
+    const pending = scopedMeetings.filter(meeting => meeting.status === 'pending').length
+    const confirmed = scopedMeetings.filter(meeting => meeting.status === 'confirmed').length
+    const cancelled = scopedMeetings.filter(meeting => meeting.status === 'cancelled' || meeting.status === 'declined').length
+    return { all: scopedMeetings.length, incoming, outgoing, pending, confirmed, cancelled }
+  }, [scopedMeetings, user?.id])
+
+  const tabs: { id: TabId; label: string; count: number }[] = [
+    { id: 'all', label: 'All', count: counts.all },
+    { id: 'incoming', label: 'Incoming', count: counts.incoming },
+    { id: 'outgoing', label: 'Outgoing', count: counts.outgoing },
+    { id: 'pending', label: 'Pending', count: counts.pending },
+    { id: 'confirmed', label: 'Confirmed', count: counts.confirmed },
+    { id: 'cancelled', label: 'Closed', count: counts.cancelled },
+  ]
+
+  const visibleMeetings = useMemo(() => {
+    return scopedMeetings
+      .filter(meeting => {
+        if (activeTab === 'incoming') return meeting.ownerId === user?.id
+        if (activeTab === 'outgoing') return meeting.requesterId === user?.id
+        if (activeTab === 'pending') return meeting.status === 'pending'
+        if (activeTab === 'confirmed') return meeting.status === 'confirmed'
+        if (activeTab === 'cancelled') return meeting.status === 'cancelled' || meeting.status === 'declined'
+        return true
+      })
+      .sort((a, b) => {
+        const left = meetingTimestamp(a)
+        const right = meetingTimestamp(b)
+        return sortMode === 'recent' ? right - left : left - right
+      })
+  }, [activeTab, scopedMeetings, sortMode, user?.id])
+
+  const runAction = async (id: string, action: () => Promise<void>) => {
+    setBusyId(id)
+    setError(null)
+    try {
+      await action()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Meeting action failed.')
+    } finally {
+      setBusyId(null)
+    }
+  }
 
   return (
     <main
@@ -129,18 +118,33 @@ export default function MeetingsPage() {
       } as CSSProperties}
     >
       <section className="mx-auto w-full max-w-[1640px] px-6 pb-20 pt-[72px] md:px-10 2xl:px-0">
-        <Hero />
+        <Hero total={counts.all} />
 
         <div className="mt-11 flex flex-col gap-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <FilterTabs activeTab={activeTab} onChange={setActiveTab} />
+            <FilterTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
             <SortControl value={sortMode} onChange={setSortMode} />
           </div>
 
+          {error && (
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-[13px] font-bold text-red-700">
+              {error}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.41fr)]">
-            <MeetingList meetings={visibleMeetings} />
+            <MeetingList
+              meetings={visibleMeetings}
+              userId={user?.id ?? ''}
+              busyId={busyId}
+              onAccept={(meeting, slot) => runAction(meeting.id, () => accept(meeting.id, slot))}
+              onDecline={meeting => runAction(meeting.id, () => decline(meeting.id))}
+              onCancel={meeting => runAction(meeting.id, () => cancel(meeting.id))}
+              onComplete={meeting => runAction(meeting.id, () => complete(meeting.id))}
+              onViewAll={() => setActiveTab('all')}
+            />
             <aside>
-              <WidgetArea />
+              <WidgetArea meetings={scopedMeetings} />
             </aside>
           </div>
         </div>
@@ -149,7 +153,7 @@ export default function MeetingsPage() {
   )
 }
 
-function Hero() {
+function Hero({ total }: { total: number }) {
   const navigate = useNavigate()
 
   return (
@@ -157,7 +161,7 @@ function Hero() {
       <div>
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-[var(--primary)] shadow-[0_10px_30px_-24px_rgba(45,24,56,0.5)]">
           <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
-          11 meetings
+          {total} meetings
         </div>
 
         <h1 className="mt-5 font-headline text-[58px] font-black leading-[0.98] tracking-normal text-[var(--primary)] md:text-[78px]">
@@ -181,7 +185,15 @@ function Hero() {
   )
 }
 
-function FilterTabs({ activeTab, onChange }: { activeTab: TabId; onChange: (tab: TabId) => void }) {
+function FilterTabs({
+  tabs,
+  activeTab,
+  onChange,
+}: {
+  tabs: { id: TabId; label: string; count: number }[]
+  activeTab: TabId
+  onChange: (tab: TabId) => void
+}) {
   return (
     <div className="flex flex-wrap gap-3">
       {tabs.map(tab => {
@@ -211,14 +223,14 @@ function FilterTabs({ activeTab, onChange }: { activeTab: TabId; onChange: (tab:
   )
 }
 
-function SortControl({ value, onChange }: { value: 'recent' | 'oldest'; onChange: (value: 'recent' | 'oldest') => void }) {
+function SortControl({ value, onChange }: { value: SortMode; onChange: (value: SortMode) => void }) {
   return (
     <div className="flex items-center gap-3 text-[13px] font-bold text-[var(--muted)]">
       <span>Sort by</span>
       <label className="relative">
         <select
           value={value}
-          onChange={event => onChange(event.target.value as 'recent' | 'oldest')}
+          onChange={event => onChange(event.target.value as SortMode)}
           className="h-11 appearance-none rounded-full border border-[var(--border)] bg-white px-4 pr-9 text-[13px] font-extrabold text-[var(--text)] outline-none transition hover:border-[var(--accent)]"
         >
           <option value="recent">Most recent</option>
@@ -230,12 +242,40 @@ function SortControl({ value, onChange }: { value: 'recent' | 'oldest'; onChange
   )
 }
 
-function MeetingList({ meetings }: { meetings: MeetingItem[] }) {
+function MeetingList({
+  meetings,
+  userId,
+  busyId,
+  onAccept,
+  onDecline,
+  onCancel,
+  onComplete,
+  onViewAll,
+}: {
+  meetings: Meeting[]
+  userId: string
+  busyId: string | null
+  onAccept: (meeting: Meeting, slot: TimeSlot) => void
+  onDecline: (meeting: Meeting) => void
+  onCancel: (meeting: Meeting) => void
+  onComplete: (meeting: Meeting) => void
+  onViewAll: () => void
+}) {
   return (
     <section className="overflow-hidden rounded-[28px] border border-[var(--border)] bg-white shadow-[0_24px_70px_-54px_rgba(45,24,56,0.5)]">
       {meetings.length > 0 ? (
         meetings.map((meeting, index) => (
-          <MeetingRow key={`${meeting.title}-${meeting.date}`} meeting={meeting} isLast={index === meetings.length - 1} />
+          <MeetingRow
+            key={meeting.id}
+            meeting={meeting}
+            userId={userId}
+            busy={busyId === meeting.id}
+            isLast={index === meetings.length - 1}
+            onAccept={slot => onAccept(meeting, slot)}
+            onDecline={() => onDecline(meeting)}
+            onCancel={() => onCancel(meeting)}
+            onComplete={() => onComplete(meeting)}
+          />
         ))
       ) : (
         <div className="px-7 py-16 text-center text-[15px] font-bold text-[var(--muted)]">
@@ -244,7 +284,7 @@ function MeetingList({ meetings }: { meetings: MeetingItem[] }) {
       )}
 
       <div className="flex h-[76px] items-center justify-center border-t border-[var(--border)]">
-        <button className="text-[14px] font-extrabold text-[var(--primary)] transition hover:text-[var(--accent-strong)]">
+        <button onClick={onViewAll} className="text-[14px] font-extrabold text-[var(--primary)] transition hover:text-[var(--accent-strong)]">
           View all meetings →
         </button>
       </div>
@@ -252,56 +292,139 @@ function MeetingList({ meetings }: { meetings: MeetingItem[] }) {
   )
 }
 
-function MeetingRow({ meeting, isLast }: { meeting: MeetingItem; isLast: boolean }) {
-  const statusClass =
-    meeting.status === 'Confirmed'
-      ? 'bg-[var(--success-bg)] text-[var(--primary)]'
-      : meeting.status === 'Pending review'
-        ? 'bg-[var(--pending-bg)] text-[var(--primary)]'
-        : 'bg-[var(--cancelled-bg)] text-[var(--muted)]'
+function MeetingRow({
+  meeting,
+  userId,
+  busy,
+  isLast,
+  onAccept,
+  onDecline,
+  onCancel,
+  onComplete,
+}: {
+  meeting: Meeting
+  userId: string
+  busy: boolean
+  isLast: boolean
+  onAccept: (slot: TimeSlot) => void
+  onDecline: () => void
+  onCancel: () => void
+  onComplete: () => void
+}) {
+  const isOwner = meeting.ownerId === userId
+  const direction = isOwner ? 'Incoming' : 'Outgoing'
+  const partner = isOwner ? meeting.requesterName : meeting.ownerName
+  const partnerEmail = isOwner ? meeting.requesterEmail : meeting.ownerEmail
+  const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
+  const acceptedSlot = meeting.proposedSlots[0]
 
   return (
     <article
-      className={`grid min-h-[115px] grid-cols-[52px_minmax(0,1fr)_minmax(152px,0.22fr)_36px] items-center gap-5 px-7 transition hover:bg-[#fbfcfd] max-md:grid-cols-[46px_minmax(0,1fr)_34px] max-md:py-5 ${
+      className={`grid min-h-[128px] grid-cols-[52px_minmax(0,1fr)_minmax(160px,0.2fr)_minmax(220px,0.24fr)] items-center gap-5 px-7 transition hover:bg-[#fbfcfd] max-lg:grid-cols-[46px_minmax(0,1fr)] max-lg:py-5 ${
         isLast ? '' : 'border-b border-[var(--border)]'
       }`}
     >
       <div className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-[var(--primary)] text-[12px] font-black tracking-[0.08em] text-[var(--accent)]">
-        {meeting.initials}
+        {initials(partner)}
       </div>
 
       <div className="min-w-0">
         <div className="flex min-w-0 flex-wrap items-center gap-3">
-          <h2 className="truncate font-headline text-[17px] font-extrabold text-[var(--text)]">{meeting.title}</h2>
-          <span className={`rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.08em] ${statusClass}`}>
-            {meeting.status}
+          <h2 className="truncate font-headline text-[17px] font-extrabold text-[var(--text)]">{meeting.postTitle}</h2>
+          <span className={`rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.08em] ${STATUS_CLASS[meeting.status]}`}>
+            {STATUS_LABELS[meeting.status]}
           </span>
         </div>
         <p className="mt-2 truncate text-[14px] font-semibold text-[var(--muted)]">
-          {meeting.direction} <span className="px-1.5 text-[#bbb8c2]">•</span> {meeting.doctor}{' '}
-          <span className="px-1.5 text-[#bbb8c2]">•</span> {meeting.specialty}
+          {direction} <span className="px-1.5 text-[#bbb8c2]">•</span> {partner}
+          {partnerEmail && (
+            <>
+              <span className="px-1.5 text-[#bbb8c2]">•</span> {partnerEmail}
+            </>
+          )}
         </p>
+        {meeting.status === 'pending' && meeting.proposedSlots.length > 0 && (
+          <p className="mt-2 text-[12px] font-bold text-[var(--muted)]">
+            {meeting.proposedSlots.length} proposed slots
+          </p>
+        )}
       </div>
 
-      <div className="space-y-2 text-[14px] font-bold text-[var(--muted)] max-md:hidden">
+      <div className="space-y-2 text-[14px] font-bold text-[var(--muted)] max-lg:col-start-2">
         <div className="flex items-center gap-2">
           <Calendar size={16} className="text-[var(--primary)]" />
-          {meeting.date}
+          {slot ? formatSlotDate(slot) : formatDate(meeting.createdAt)}
         </div>
         <div className="flex items-center gap-2">
           <Clock size={16} className="text-[var(--primary)]" />
-          {meeting.time}
+          {slot?.time ?? formatTime(meeting.createdAt)}
         </div>
       </div>
 
-      <button aria-label="Meeting actions" className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-[#f0f1f4] hover:text-[var(--primary)]">
-        <MoreHorizontal size={20} />
-      </button>
+      <div className="flex flex-wrap items-center justify-end gap-2 max-lg:col-span-2 max-lg:justify-start">
+        {meeting.status === 'pending' && isOwner && acceptedSlot && (
+          <>
+            <ActionButton disabled={busy} onClick={() => onAccept(acceptedSlot)} tone="primary">
+              <Check size={14} />
+              Accept
+            </ActionButton>
+            <ActionButton disabled={busy} onClick={onDecline} tone="quiet">
+              Decline
+            </ActionButton>
+          </>
+        )}
+        {meeting.status === 'pending' && !isOwner && (
+          <ActionButton disabled={busy} onClick={onCancel} tone="quiet">
+            Cancel request
+          </ActionButton>
+        )}
+        {meeting.status === 'confirmed' && (
+          <>
+            <ActionButton disabled={busy} onClick={onComplete} tone="primary">
+              Complete
+            </ActionButton>
+            <ActionButton disabled={busy} onClick={onCancel} tone="quiet">
+              Cancel
+            </ActionButton>
+          </>
+        )}
+        {(meeting.status === 'completed' || meeting.status === 'cancelled' || meeting.status === 'declined') && (
+          <span className="text-[12px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+            No actions
+          </span>
+        )}
+      </div>
     </article>
   )
 }
 
-function WidgetArea() {
+function ActionButton({
+  children,
+  disabled,
+  onClick,
+  tone,
+}: {
+  children: ReactNode
+  disabled: boolean
+  onClick: () => void
+  tone: 'primary' | 'quiet'
+}) {
+  return (
+    <button
+      disabled={disabled}
+      onClick={onClick}
+      className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-[11px] font-black uppercase tracking-[0.1em] transition disabled:cursor-not-allowed disabled:opacity-50 ${
+        tone === 'primary'
+          ? 'bg-[var(--primary)] text-white hover:bg-[#1b1022]'
+          : 'border border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--primary)]'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
+
+function WidgetArea({ meetings }: { meetings: Meeting[] }) {
   const [calendarOpen, setCalendarOpen] = useState(true)
   const [overviewOpen, setOverviewOpen] = useState(true)
 
@@ -313,14 +436,14 @@ function WidgetArea() {
       </div>
 
       <div className="space-y-6">
-        {calendarOpen && <CalendarPanel onClose={() => setCalendarOpen(false)} />}
-        {overviewOpen && <OverviewPanel onClose={() => setOverviewOpen(false)} />}
+        {calendarOpen && <CalendarPanel meetings={meetings} onClose={() => setCalendarOpen(false)} />}
+        {overviewOpen && <OverviewPanel meetings={meetings} onClose={() => setOverviewOpen(false)} />}
       </div>
     </div>
   )
 }
 
-function IconButton({ icon, label, onClick, active }: { icon: React.ReactNode; label: string; onClick: () => void; active: boolean }) {
+function IconButton({ icon, label, onClick, active }: { icon: ReactNode; label: string; onClick: () => void; active: boolean }) {
   return (
     <button
       onClick={onClick}
@@ -335,19 +458,30 @@ function IconButton({ icon, label, onClick, active }: { icon: React.ReactNode; l
   )
 }
 
-function CalendarPanel({ onClose }: { onClose: () => void }) {
-  const [monthOffset, setMonthOffset] = useState(0)
-  const monthLabel = monthOffset === 0 ? 'May 2026' : monthOffset > 0 ? 'June 2026' : 'April 2026'
+function CalendarPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: () => void }) {
+  const [monthCursor, setMonthCursor] = useState(() => new Date())
+  const year = monthCursor.getFullYear()
+  const month = monthCursor.getMonth()
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const startOffset = new Date(year, month, 1).getDay()
+  const meetingDays = new Set(
+    meetings
+      .map(meeting => slotDate(meeting))
+      .filter(date => date && date.getFullYear() === year && date.getMonth() === month)
+      .map(date => date!.getDate()),
+  )
 
   return (
     <section className="rounded-[28px] border border-[var(--border)] bg-white p-6 shadow-[0_28px_70px_-54px_rgba(45,24,56,0.6)]">
       <div className="mb-5 flex items-center justify-between">
-        <h2 className="font-headline text-[18px] font-extrabold text-[var(--primary)]">{monthLabel}</h2>
+        <h2 className="font-headline text-[18px] font-extrabold text-[var(--primary)]">
+          {monthCursor.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
+        </h2>
         <div className="flex items-center gap-1.5">
-          <button onClick={() => setMonthOffset(offset => offset - 1)} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
+          <button onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() - 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
             <ChevronLeft size={16} />
           </button>
-          <button onClick={() => setMonthOffset(offset => offset + 1)} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
+          <button onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() + 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
             <ChevronRight size={16} />
           </button>
           <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
@@ -362,35 +496,37 @@ function CalendarPanel({ onClose }: { onClose: () => void }) {
             {day}
           </div>
         ))}
-        {calendarOffset.map(item => (
-          <div key={item} />
+        {Array.from({ length: startOffset }, (_, index) => (
+          <div key={`blank-${index}`} />
         ))}
-        {days.map(day => (
-          <div key={day} className="flex h-10 items-center justify-center">
-            <button
-              className={`relative flex h-9 w-9 items-center justify-center rounded-full text-[13px] font-extrabold transition ${
-                day === 10 ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted)] hover:bg-[#f0f1f4]'
-              }`}
-            >
-              {day}
-              {dottedDays.has(day) && (
-                <span className={`absolute bottom-1.5 h-1 w-1 rounded-full ${day === 10 ? 'bg-white' : 'bg-[var(--accent-strong)]'}`} />
-              )}
-            </button>
-          </div>
-        ))}
+        {Array.from({ length: daysInMonth }, (_, index) => index + 1).map(day => {
+          const hasMeeting = meetingDays.has(day)
+          return (
+            <div key={day} className="flex h-10 items-center justify-center">
+              <div
+                className={`relative flex h-9 w-9 items-center justify-center rounded-full text-[13px] font-extrabold ${
+                  hasMeeting ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted)]'
+                }`}
+              >
+                {day}
+                {hasMeeting && <span className="absolute bottom-1.5 h-1 w-1 rounded-full bg-white" />}
+              </div>
+            </div>
+          )
+        })}
       </div>
     </section>
   )
 }
 
-function OverviewPanel({ onClose }: { onClose: () => void }) {
+function OverviewPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: () => void }) {
   const [range, setRange] = useState('month')
+  const total = meetings.length
   const legend = [
-    { label: 'Pending review', value: 1, percent: '9%', color: '#d8ff8f' },
-    { label: 'Confirmed', value: 4, percent: '36%', color: '#8fdff0' },
-    { label: 'Incoming', value: 4, percent: '36%', color: '#2d1838' },
-    { label: 'Outgoing', value: 3, percent: '27%', color: '#55c7df' },
+    { label: 'Pending review', value: meetings.filter(m => m.status === 'pending').length, color: '#d8ff8f' },
+    { label: 'Confirmed', value: meetings.filter(m => m.status === 'confirmed').length, color: '#8fdff0' },
+    { label: 'Completed', value: meetings.filter(m => m.status === 'completed').length, color: '#55c7df' },
+    { label: 'Closed', value: meetings.filter(m => m.status === 'cancelled' || m.status === 'declined').length, color: '#2d1838' },
   ]
 
   return (
@@ -405,7 +541,7 @@ function OverviewPanel({ onClose }: { onClose: () => void }) {
               className="h-9 appearance-none rounded-full border border-[var(--border)] bg-white px-3 pr-8 text-[12px] font-extrabold text-[var(--text)] outline-none"
             >
               <option value="month">This month</option>
-              <option value="quarter">This quarter</option>
+              <option value="all">All time</option>
             </select>
             <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" />
           </label>
@@ -416,7 +552,7 @@ function OverviewPanel({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="flex flex-col items-center">
-        <DonutChart />
+        <DonutChart total={total} legend={legend} />
         <div className="mt-5 w-full space-y-3.5">
           {legend.map(item => (
             <div key={item.label} className="flex items-center justify-between gap-4 text-[14px]">
@@ -425,33 +561,82 @@ function OverviewPanel({ onClose }: { onClose: () => void }) {
                 {item.label}
               </div>
               <div className="font-black text-[var(--primary)]">
-                {item.value} <span className="text-[12px] text-[var(--muted)]">({item.percent})</span>
+                {item.value} <span className="text-[12px] text-[var(--muted)]">({percent(item.value, total)})</span>
               </div>
             </div>
           ))}
         </div>
-        <button className="mt-6 text-[14px] font-extrabold text-[var(--primary)] hover:text-[var(--accent-strong)]">
-          View analytics →
-        </button>
       </div>
     </section>
   )
 }
 
-function DonutChart() {
+function DonutChart({ total, legend }: { total: number; legend: { value: number; color: string }[] }) {
+  const circumference = 421
+  let offset = 0
+
   return (
     <div className="relative h-[178px] w-[178px]">
       <svg viewBox="0 0 180 180" className="h-full w-full -rotate-90">
         <circle cx="90" cy="90" r="67" fill="none" stroke="#f0f1f4" strokeWidth="22" />
-        <circle cx="90" cy="90" r="67" fill="none" stroke="#d8ff8f" strokeWidth="22" strokeDasharray="38 421" strokeDashoffset="0" />
-        <circle cx="90" cy="90" r="67" fill="none" stroke="#8fdff0" strokeWidth="22" strokeDasharray="151 421" strokeDashoffset="-45" />
-        <circle cx="90" cy="90" r="67" fill="none" stroke="#2d1838" strokeWidth="22" strokeDasharray="151 421" strokeDashoffset="-203" />
-        <circle cx="90" cy="90" r="67" fill="none" stroke="#55c7df" strokeWidth="22" strokeDasharray="114 421" strokeDashoffset="-360" />
+        {legend.map(item => {
+          const length = total ? (item.value / total) * circumference : 0
+          const circle = (
+            <circle
+              key={`${item.color}-${offset}`}
+              cx="90"
+              cy="90"
+              r="67"
+              fill="none"
+              stroke={item.color}
+              strokeWidth="22"
+              strokeDasharray={`${length} ${circumference}`}
+              strokeDashoffset={-offset}
+            />
+          )
+          offset += length
+          return circle
+        })}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="font-headline text-[32px] font-black leading-none text-[var(--primary)]">11</span>
+        <span className="font-headline text-[32px] font-black leading-none text-[var(--primary)]">{total}</span>
         <span className="mt-1 text-[13px] font-extrabold text-[var(--muted)]">Total</span>
       </div>
     </div>
   )
+}
+
+function meetingTimestamp(meeting: Meeting) {
+  const date = slotDate(meeting)
+  return date?.getTime() ?? new Date(meeting.createdAt).getTime()
+}
+
+function slotDate(meeting: Meeting) {
+  const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
+  return slot ? new Date(`${slot.date}T${slot.time}`) : null
+}
+
+function formatSlotDate(slot: TimeSlot) {
+  return new Date(`${slot.date}T${slot.time}`).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function formatTime(value: string) {
+  return new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+}
+
+function initials(name: string) {
+  return name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
+}
+
+function percent(value: number, total: number) {
+  if (!total) return '0%'
+  return `${Math.round((value / total) * 100)}%`
 }

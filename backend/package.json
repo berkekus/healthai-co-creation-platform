@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "smoke": "ts-node-dev --transpile-only scripts/smoke-test.ts",
-    "seed:realistic-posts": "ts-node-dev --transpile-only scripts/seed-realistic-posts.ts"
+    "seed:realistic-posts": "ts-node-dev --transpile-only scripts/seed-realistic-posts.ts",
+    "seed:realistic-meetings": "ts-node-dev --transpile-only scripts/seed-realistic-meetings.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
