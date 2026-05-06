@@ -1,4 +1,4 @@
-import Notification, { INotification, NotificationType } from '../models/Notification'
+import Notification, { NotificationType } from '../models/Notification'
 import { makeError } from '../utils/AppError'
 
 export async function pushNotification(data: {
@@ -11,8 +11,20 @@ export async function pushNotification(data: {
   return Notification.create({ ...data, isRead: false })
 }
 
-export async function getNotificationsByUser(userId: string): Promise<INotification[]> {
-  return Notification.find({ userId }).sort({ createdAt: -1 }).limit(50)
+export async function getNotificationsByUser(
+  userId: string,
+  opts: { page?: number; limit?: number; isRead?: boolean } = {}
+) {
+  const { page = 1, limit = 20, isRead } = opts
+  const query: Record<string, unknown> = { userId }
+  if (isRead !== undefined) query.isRead = isRead
+
+  const skip = (page - 1) * limit
+  const [notifications, total] = await Promise.all([
+    Notification.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    Notification.countDocuments(query),
+  ])
+  return { notifications, total, page, limit, pages: Math.ceil(total / limit) }
 }
 
 export async function markRead(id: string, userId: string) {

@@ -114,7 +114,7 @@ export async function markPartnerFound(id: string, requesterId: string) {
     postId: id,
     status: { $in: ['pending', 'time_proposed', 'confirmed'] },
   })
-  for (const meeting of activeMeetings) {
+  await Promise.all(activeMeetings.map(async (meeting) => {
     meeting.status = 'cancelled'
     await meeting.save()
     pushNotification({
@@ -124,7 +124,7 @@ export async function markPartnerFound(id: string, requesterId: string) {
       body: `"${post.title}" için zaten bir işbirliği ortağı bulundu.`,
       linkTo: `/posts/${id}`,
     }).catch(() => {})
-  }
+  }))
 
   return post
 }

@@ -13,8 +13,12 @@ export const createNotification = asyncHandler<AuthRequest>(async (req, res) => 
 })
 
 export const getNotifications = asyncHandler<AuthRequest>(async (req, res) => {
-  const notifications = await notificationService.getNotificationsByUser(req.userId as string)
-  res.json({ success: true, data: notifications })
+  const page  = Math.max(1, parseInt(req.query.page  as string) || 1)
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20))
+  const isRead = req.query.isRead === 'true' ? true : req.query.isRead === 'false' ? false : undefined
+
+  const result = await notificationService.getNotificationsByUser(req.userId as string, { page, limit, isRead })
+  res.json({ success: true, data: result })
 })
 
 export const getUnreadCount = asyncHandler<AuthRequest>(async (req, res) => {

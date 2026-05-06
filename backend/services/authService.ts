@@ -237,7 +237,7 @@ export async function deleteAccount(userId: string, password: string) {
     $or: [{ requesterId: userId }, { ownerId: userId }],
     status: { $in: ['pending', 'time_proposed', 'confirmed'] },
   })
-  for (const m of activeMeetings) {
+  await Promise.all(activeMeetings.map(async (m) => {
     m.status = 'cancelled'
     await m.save()
     const otherUserId =
@@ -251,23 +251,14 @@ export async function deleteAccount(userId: string, password: string) {
       body: `Karşı taraf hesabını sildiği için "${m.postTitle}" görüşmesi iptal edildi.`,
       linkTo: '/meetings',
     }).catch(() => {})
-  }
+  }))
 
-  // Anonymize remaining meeting records (preserve audit trail for the other party)
-  await Meeting.updateMany(
-    { requesterId: userId },
-    { $set: { requesterName: 'Deleted user', requesterEmail: '' } }
-  )
-  await Meeting.updateMany(
-    { ownerId: userId },
-    { $set: { ownerName: 'Deleted user', ownerEmail: '' } }
-  )
-
-  // Delete the user's posts (Brief: "permanently deleted")
-  await Post.deleteMany({ authorId: userId })
-
-  // Delete the user's notifications
-  await Notification.deleteMany({ userId })
+  await Promise.all([
+    Meeting.updateMany({ requesterId: userId }, { $set: { requesterName: 'Deleted user', requesterEmail: '' } }),
+    Meeting.updateMany({ ownerId: userId }, { $set: { ownerName: 'Deleted user', ownerEmail: '' } }),
+    Post.deleteMany({ authorId: userId }),
+    Notification.deleteMany({ userId }),
+  ])
 
   // Delete avatar file from disk if it was an uploaded image
   if (user.avatarUrl?.startsWith('/uploads/')) {
@@ -296,7 +287,7 @@ export async function deleteUserByAdmin(userId: string) {
     $or: [{ requesterId: userId }, { ownerId: userId }],
     status: { $in: ['pending', 'time_proposed', 'confirmed'] },
   })
-  for (const m of activeMeetings) {
+  await Promise.all(activeMeetings.map(async (m) => {
     m.status = 'cancelled'
     await m.save()
     const otherUserId = m.requesterId.toString() === userId
@@ -309,12 +300,14 @@ export async function deleteUserByAdmin(userId: string) {
       body: `Karşı taraf hesabı silindiği için "${m.postTitle}" görüşmesi iptal edildi.`,
       linkTo: '/meetings',
     }).catch(() => {})
-  }
+  }))
 
-  await Meeting.updateMany({ requesterId: userId }, { $set: { requesterName: 'Deleted user', requesterEmail: '' } })
-  await Meeting.updateMany({ ownerId: userId }, { $set: { ownerName: 'Deleted user', ownerEmail: '' } })
-  await Post.deleteMany({ authorId: userId })
-  await Notification.deleteMany({ userId })
+  await Promise.all([
+    Meeting.updateMany({ requesterId: userId }, { $set: { requesterName: 'Deleted user', requesterEmail: '' } }),
+    Meeting.updateMany({ ownerId: userId }, { $set: { ownerName: 'Deleted user', ownerEmail: '' } }),
+    Post.deleteMany({ authorId: userId }),
+    Notification.deleteMany({ userId }),
+  ])
 
   if (user.avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(user.avatarUrl)
 

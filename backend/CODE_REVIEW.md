@@ -50,7 +50,7 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - [meetingService.ts:39](services/meetingService.ts#L39) `proposedSlots.length < 3` — array değilse crash. `Array.isArray()` kontrolü yok.
 - [meetingController.ts:84](controllers/meetingController.ts#L84) `slot.date` ve `slot.time` string format kontrolü yok. Kullanıcı `"yarın"` gönderebilir.
 - [postController.ts:25](controllers/postController.ts#L25) `!confidentiality` — eğer client `'public_pitch'` gönderirse OK; ama enum kontrolü yapılmıyor. Mongoose enum'a düşüyor; UX için pre-validation önerilir.
-- [services/logService.ts:31-32](services/logService.ts#L31-L32) `new Date(filters.from)` invalid input'ta `Invalid Date` üretir, MongoDB query patlar. Kontrol edilmeli.
+- ✅ [services/logService.ts:31-32](services/logService.ts#L31-L32) `new Date(filters.from)` invalid input'ta `Invalid Date` üretir, MongoDB query patlar. Kontrol edilmeli.
 - Error format **çoğunlukla** tutarlı: `{ success, message }`. Ama bazen `{ success, data }`, bazen `{ success, message }` dönülüyor; standart bir `{ success, data?, message?, error? }` envelope'u dokümante edilmeli.
 
 ---
@@ -68,7 +68,7 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - [User.ts:28](models/User.ts#L28) `email: { unique: true }` ama `lowercase: true` var. OK; ama Mongoose'da `unique` index oluşturmak için `await mongoose.connection.syncIndexes()` çağırılmıyor — yeni deployment'larda silent index'siz başlayabilir.
 - [Meeting.ts:34-40](models/Meeting.ts#L34-L40) `ITimeSlot` `date: string, time: string`. Ayrı string yerine tek bir `Date` olmalı; timezone bug'ları kapıda.
 - `User` modelinde `password` alanı `select: false` **yok**. Yanlışlıkla `User.findById(...)` ile dönen objelerde password hash leak riski var. Şu anda kod manuel `sanitize()` çağırıyor ama unutulan bir endpoint felaket olur. `password: { select: false }` eklensin, sadece `loginUser`/`changePassword`'da `.select('+password')` denesin.
-- [Log.ts:18](models/Log.ts#L18) `timestamp` field'ı + `timestamps: true` ile birlikte `createdAt` çift kaydediliyor. Tek birini kullan.
+- ✅ [Log.ts:18](models/Log.ts#L18) `timestamp` field'ı + `timestamps: true` ile birlikte `createdAt` çift kaydediliyor. Tek birini kullan.
 - Post'larda `authorId + ref: 'User'` var ama populate hiç çağrılmıyor. Denormalize edilmiş `authorName` için OK ama `authorRole` kullanıcı sonradan rol değiştirirse stale olur (admin değişimi vs).
 
 ---
@@ -97,10 +97,10 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - ⚠️ [postService.ts:53-56](services/postService.ts#L53-L56) `listPosts` her çağrıda `Post.updateMany({ status: 'active', expiryDate: { $lt: now } }, ...)` çalıştırıyor. **Her listeleme isteği bir yazma yapıyor** — yüksek trafikte sorun. Cron job'a (`node-cron`) taşı veya TTL/timestamp tabanlı lazy filter (`$or: [{ status: 'active' }, ...]`) kullan.
 - [meetingService.ts:7-16](services/meetingService.ts#L7-L16) `withEmails` zaten N+1'i önlüyor (toplu `$in` query) — iyi.
 - [services/authService.ts:230-235](services/authService.ts#L230-L235) `exportUserData` paralel `Promise.all` — iyi.
-- [postService.ts:125-139](services/postService.ts#L125-L139) `markPartnerFound` döngüde `meeting.save()` + `pushNotification` her iterasyonda await ediyor; `Promise.all`'a alınabilir.
-- Aynı şekilde [authService.ts:261-275](services/authService.ts#L261-L275), [authService.ts:320-333](services/authService.ts#L320-L333) `for ... await meeting.save()` döngüsü `bulkWrite` ile tek roundtrip'e indirilebilir.
-- `getNotificationsByUser` [notificationService.ts:14](services/notificationService.ts#L14) `limit(50)` hard-coded; **pagination yok**. 50'den fazla bildirimi olan kullanıcı eski olanları göremez.
-- [logService.ts:38-39](services/logService.ts#L38-L39) `countDocuments` + `find` — paralel `Promise.all` yapılabilir.
+- ✅ [postService.ts:125-139](services/postService.ts#L125-L139) `markPartnerFound` döngüde `meeting.save()` + `pushNotification` her iterasyonda await ediyor; `Promise.all`'a alınabilir.
+- ✅ Aynı şekilde [authService.ts:261-275](services/authService.ts#L261-L275), [authService.ts:320-333](services/authService.ts#L320-L333) `for ... await meeting.save()` döngüsü `bulkWrite` ile tek roundtrip'e indirilebilir.
+- ✅ `getNotificationsByUser` [notificationService.ts:14](services/notificationService.ts#L14) `limit(50)` hard-coded; **pagination yok**. 50'den fazla bildirimi olan kullanıcı eski olanları göremez.
+- ✅ [logService.ts:38-39](services/logService.ts#L38-L39) `countDocuments` + `find` — paralel `Promise.all` yapılabilir.
 - Cache: post listesi, public profile gibi sık okunan veriler için Redis cache layer mantıklı.
 
 ---
@@ -127,11 +127,11 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 
 - 🟥 **Şifre sıfırlama (forgot password)**: `resendVerification` var ama `forgot-password` flow yok. Hesabını doğrulamış kullanıcı şifresini unutursa kayıp.
 - 🟥 **Refresh token / token rotation**: Stateless JWT 7 gün — XSS'te token çalınırsa felaket.
-- 🟧 **Pagination** notification'larda yok ([notificationService.ts:14](services/notificationService.ts#L14)).
+- ✅ **Pagination** notification'larda yok ([notificationService.ts:14](services/notificationService.ts#L14)).
 - 🟧 **Sorting**: post listing'de `createdAt: -1` sabit. `?sort=interestCount` gibi opsiyon yok.
 - 🟧 **Swagger/OpenAPI**: `swagger-jsdoc` + `swagger-ui-express` ile API.md otomatik üretilebilir.
 - 🟧 **Global request logger**: Morgan veya custom middleware HTTP request audit eksik.
-- 🟧 **Health check**'in ([src/app.ts:37](src/app.ts#L37)) MongoDB connection state kontrolü yok. `mongoose.connection.readyState === 1` döndürmeli.
+- ✅ **Health check**'in ([src/app.ts:37](src/app.ts#L37)) MongoDB connection state kontrolü yok. `mongoose.connection.readyState === 1` döndürmeli.
 - 🟧 **Rate limit by user (not IP)**: `express-rate-limit` default IP-based; auth sonrası `keyGenerator: req => req.userId` ile per-user limit daha doğru.
 - 🟧 **DTO katmanı**: Şu an Mongoose document'leri direkt JSON olarak dönüyor. Sanitize var ama bu manuel; class-transformer/zod-output-schemas tipinde formal DTO yok.
 - 🟩 **Forgot password mail template**, account suspended mail template eksik.
@@ -200,8 +200,8 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - `Log` modelinde `timestamp` ve `createdAt` çiftlemesi → birini sil.
 - `(post as any)[field]` → tip-safe yardımcı.
 - `req.userId as string` cast'leri için typed `AuthenticatedRequest`.
-- `for ... await` döngüleri `bulkWrite` veya `Promise.all`'a çekilsin (markPartnerFound, deleteAccount).
-- Health endpoint'i Mongo `readyState` döndürsün.
+- ✅ `for ... await` döngüleri `bulkWrite` veya `Promise.all`'a çekilsin (markPartnerFound, deleteAccount).
+- ✅ Health endpoint'i Mongo `readyState` döndürsün.
 - File extension whitelist (`.jpg|.jpeg|.png|.webp|.gif`) MIME ile birlikte uygulansın.
 
 ### Eklenmesi Önerilen Özellikler
@@ -230,7 +230,7 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 9. **Authorization-focused integration testleri** ekle (cross-user 403, admin-only 403).
 10. **Refresh token mekanizması** veya en azından access token süresini kısalt (1-2 saat).
 11. **Mongo transaction** ile `deleteAccount` ve `markPartnerFound` cascade'lerini sarmalayın.
-12. **Notification list pagination** ekle.
+12. ✅ **Notification list pagination** ekle.
 13. **Swagger/OpenAPI** dokümanı oluştur (`API.md` manuel sürümünü değiştir).
 14. **`Date` tipi tutarlılığı** (`ITimeSlot` ve `expiryDate` parse validation).
 15. **`pino` veya `winston`** ile structured logging'e geç.
