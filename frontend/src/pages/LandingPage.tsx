@@ -165,63 +165,32 @@ function TopNav() {
   )
 }
 
-// ── Hero portrait card: real human for each pathway side ────────────
-//
-// Replaces the earlier stylized post mock — users now see an actual
-// healthcare professional (clinician card) and an actual engineer
-// (engineer card). Visual language is preserved:
-//   · Two tile stack (back paper + front photo) with counter-rotation
-//   · Floating soft shadow consistent with the other pathway visuals
-//   · Small branded strip at the bottom (role · city) in the card's
-//     own accent palette so the label belongs to its side
-//
-// Images are served from /public/images and reference a portrait-crop
-// photograph whose background gradient matches the parent card's
-// gradient (teal→mint for clinician, beige→lime for engineer), so the
-// edges of the tile blend into the card surface when the two rotate.
-function HeroPortraitCard({ side }: { side: 'clinician' | 'engineer' }) {
+// ── Hero portrait card: clean photo panel for each pathway card ─────
+function HeroPortraitCard({ side, cardBg }: { side: 'clinician' | 'engineer'; cardBg: string }) {
   const isClinician = side === 'clinician'
   const src = isClinician ? '/images/clinician-portrait.png' : '/images/engineer-portrait.png'
   const alt = isClinician
     ? 'Portrait of a healthcare professional in a clinical coat with a stethoscope'
     : 'Portrait of an engineer wearing minimal glasses and a dark sweater'
-  const labelBg   = isClinician ? 'bg-hai-plum'  : 'bg-hai-plum'
-  const labelText = isClinician ? 'text-hai-mint' : 'text-hai-lime'
   return (
     <div
       aria-hidden="true"
-      className="absolute right-0 bottom-16 w-[78%] h-[260px] flex items-end justify-end pointer-events-none"
-      style={{ transform: isClinician ? 'rotate(-6deg) translateX(10px)' : 'rotate(4deg) translateX(20px)' }}
+      className="absolute right-0 top-0 bottom-0 hidden md:block pointer-events-none overflow-hidden rounded-r-[2rem]"
+      style={{ width: '48%' }}
     >
-      <div className="relative w-full h-full">
-        {/* back paper tile — subtle depth, counter-rotated */}
-        <div
-          className="absolute inset-0 bg-white rounded-[1.6rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.25)] border border-black/5"
-          style={{ transform: 'rotate(-4deg) translate(-16px, -8px)' }}
-        />
-        {/* front photo tile */}
-        <div
-          className="absolute inset-0 rounded-[1.6rem] overflow-hidden shadow-[0_25px_60px_-20px_rgba(0,0,0,0.3)] border border-black/10 bg-white"
-          style={{ transform: 'rotate(2deg) translate(8px, 4px)' }}
-        >
-          <img
-            src={src}
-            alt={alt}
-            loading="lazy"
-            decoding="async"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: isClinician ? '65% 30%' : '50% 25%' }}
-          />
-          {/* branded role strip — sits on a soft gradient scrim so it
-              remains legible regardless of the underlying photo tone */}
-          <div className="absolute inset-x-0 bottom-0 pt-8 pb-3 px-4 bg-gradient-to-t from-black/55 via-black/25 to-transparent">
-            <span className={`inline-flex items-center gap-1.5 ${labelBg} ${labelText} text-[9px] font-mono tracking-[0.16em] uppercase font-bold px-2.5 py-1 rounded-full`}>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              {isClinician ? 'Healthcare Professional · Berlin' : 'Engineer · Delft'}
-            </span>
-          </div>
-        </div>
-      </div>
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ objectPosition: isClinician ? '65% 10%' : '50% 10%' }}
+      />
+      {/* Gradient fade to blend with card background */}
+      <div
+        className="absolute inset-y-0 left-0 w-24 pointer-events-none"
+        style={{ background: `linear-gradient(to right, ${cardBg}, transparent)` }}
+      />
     </div>
   )
 }
@@ -366,12 +335,6 @@ export default function LandingPage() {
   const active = STEPS[step]
   const ActiveVisual = active.Visual
 
-  const heroStats: [string, string][] = [
-    ['.edu', 'institutional email only'],
-    ['20', 'medical domains'],
-    ['12', 'engineering specialties'],
-    ['0', 'file uploads or patient data'],
-  ]
 
   /* ──────────────────────────────────────────────────────────────
      STICKY PARALLAX OVERLAP — scroll-driven blur + drift + fade
@@ -469,30 +432,20 @@ export default function LandingPage() {
   const [clinicianHovered, setClinicianHovered] = useState(false)
   const [engineerHovered,  setEngineerHovered]  = useState(false)
 
-  const clinicianOuterState  = canHover ? (clinicianHovered ? 'hover' : 'rest') : 'rest'
-  const clinicianRevealState = canHover ? (clinicianHovered ? 'hover' : 'rest') : 'hover'
-  const engineerOuterState   = canHover ? (engineerHovered  ? 'hover' : 'rest') : 'rest'
-  const engineerRevealState  = canHover ? (engineerHovered  ? 'hover' : 'rest') : 'hover'
+  const clinicianOuterState = canHover ? (clinicianHovered ? 'hover' : 'rest') : 'rest'
+  const engineerOuterState  = canHover ? (engineerHovered  ? 'hover' : 'rest') : 'rest'
 
   const cardSpring = prefersReducedMotion
     ? { duration: 0.2 }
     : { type: 'spring' as const, stiffness: 260, damping: 22, mass: 0.9 }
-  const revealSpring = prefersReducedMotion
-    ? { duration: 0.2 }
-    : { type: 'spring' as const, stiffness: 220, damping: 24, mass: 0.8 }
 
   const cardOverlapVariants: Variants = {
-    rest:  { scale: 1,                                   zIndex: 1,  transition: cardSpring },
-    hover: { scale: prefersReducedMotion ? 1 : 1.03,     zIndex: 50, transition: cardSpring },
-  }
-
-  const cardRevealVariants: Variants = {
-    rest:  { opacity: 0, y: prefersReducedMotion ? 0 : 20, transition: revealSpring },
-    hover: { opacity: 1, y: 0,                             transition: revealSpring },
+    rest:  { scale: 1,                               zIndex: 1,  transition: cardSpring },
+    hover: { scale: prefersReducedMotion ? 1 : 1.02, zIndex: 50, transition: cardSpring },
   }
 
   return (
-    <div className="min-h-screen flex flex-col font-body bg-hai-teal overflow-x-hidden antialiased">
+    <div className="min-h-screen flex flex-col font-body bg-[#E8F4F7] overflow-x-hidden antialiased">
       <TopNav />
 
       <main className="flex-grow pb-0 relative bg-hai-offwhite">
@@ -536,28 +489,20 @@ export default function LandingPage() {
           */}
           <section
             aria-labelledby="hero-headline"
-            className="sticky top-0 z-0 h-screen min-h-[720px] w-full overflow-hidden flex items-start justify-center pt-32 md:pt-36 pb-12 bg-hai-teal"
+            className="sticky top-0 z-0 w-full overflow-hidden flex items-start justify-center pt-24 sm:pt-28 md:pt-32 pb-16 bg-[#E8F4F7]"
           >
             {/* dot atmosphere */}
             <div
               aria-hidden
               className="absolute inset-0 pointer-events-none"
-              style={{ backgroundImage: 'radial-gradient(circle at center, rgba(0,0,0,0.05) 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+              style={{ backgroundImage: 'radial-gradient(circle at center, rgba(54,33,62,0.04) 1px, transparent 1px)', backgroundSize: '24px 24px' }}
             />
-            {/* mint glow — softens the teal */}
+            {/* soft glow */}
             <div
               aria-hidden
-              className="absolute top-[18%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-hai-mint/30 rounded-full blur-[120px] pointer-events-none"
+              className="absolute top-[18%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-white/60 rounded-full blur-[100px] pointer-events-none"
             />
 
-            {/*
-              Scroll-driven blur + drift + delayed fade. `will-change`
-              hints the compositor so Framer Motion's `y`, `opacity`
-              AND `filter` stay on the GPU path with zero layout
-              thrash. The `filter` string is built with
-              `useMotionTemplate` so the blur radius updates as a
-              MotionValue without re-rendering React on every frame.
-            */}
             <motion.div
               style={{
                 opacity: prefersReducedMotion ? 1 : heroOpacity,
@@ -566,18 +511,18 @@ export default function LandingPage() {
               }}
               className="relative text-center max-w-5xl mx-auto px-6 md:px-8 will-change-[transform,filter,opacity]"
             >
-              <div className="inline-flex items-center gap-2 bg-white/30 backdrop-blur-md border border-white/50 rounded-full px-4 py-1.5 mb-8 text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
+              <div className="inline-flex items-center gap-2 bg-white/60 backdrop-blur-md border border-hai-teal/40 rounded-full px-4 py-1.5 mb-6 text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-hai-plum animate-pulse" />
                 SENG 384 · Spring 2026 · v0.1
               </div>
               <h1
                 id="hero-headline"
-                className="font-headline font-bold text-white leading-[0.98] tracking-[-0.03em] text-[48px] sm:text-[72px] md:text-[92px] lg:text-[104px]"
+                className="font-headline font-bold text-hai-plum leading-[1.0] tracking-[-0.03em] text-[36px] sm:text-[52px] md:text-[64px] lg:text-[72px]"
               >
                 Healthcare co-creation,<br />
-                <span className="opacity-30">without the silos.</span>
+                <span className="opacity-25">without the silos.</span>
               </h1>
-              <p className="mt-8 max-w-2xl mx-auto text-[17px] md:text-[18px] leading-relaxed text-hai-plum/85 font-medium">
+              <p className="mt-5 max-w-xl mx-auto text-[15px] md:text-[16px] leading-relaxed text-hai-plum/65 font-medium">
                 A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional <span className="font-bold text-hai-plum">.edu</span> verification and an immutable audit trail.
               </p>
             </motion.div>
@@ -617,7 +562,7 @@ export default function LandingPage() {
             viewport height (≥ 640 px).
           */}
           <motion.div
-            className="relative z-10 -mt-[10vh] md:-mt-[14vh] will-change-transform"
+            className="relative z-10 -mt-4 will-change-transform"
             style={{
               /*
                 Top 3% ramps from transparent → solid teal so the slab's
@@ -627,7 +572,7 @@ export default function LandingPage() {
                 slab) is enough to dissolve the seam completely while
                 preserving the calm teal-to-off-white journey below.
               */
-              background: 'linear-gradient(180deg, rgba(138,198,208,0) 0%, #8AC6D0 3%, #8AC6D0 14%, #F3F4F6 57%, #F3F4F6 100%)',
+              background: 'linear-gradient(180deg, rgba(232,244,247,0) 0%, #E8F4F7 3%, #E8F4F7 14%, #F3F4F6 57%, #F3F4F6 100%)',
               y: prefersReducedMotion ? 0 : slabY,
             }}
           >
@@ -635,127 +580,121 @@ export default function LandingPage() {
             <section
               id="directory"
               className="max-w-7xl mx-auto px-6 md:px-8 pt-6 md:pt-10 pb-20 md:pb-24 relative"
-              style={{ backgroundImage: 'radial-gradient(circle at center, rgba(0,0,0,0.05) 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+              style={{ backgroundImage: 'radial-gradient(circle at center, rgba(54,33,62,0.03) 1px, transparent 1px)', backgroundSize: '24px 24px' }}
             >
 
-            {/* Join the Directory panel — the first thing that crests the hero.
-                 The wrapper has been split into (a) a blurred teal halo
-                 sitting *behind* the panel and (b) the crisp white panel
-                 itself. The halo softly dissolves the panel's edges into
-                 the teal atmosphere above and around it, killing the hard
-                 rectangle-on-teal seam the user was seeing. The halo is
-                 purely decorative (aria-hidden) and clipped to pointer-
-                 events-none so it never intercepts clicks. */}
-            <div className="relative mb-14">
-              <div
-                aria-hidden
-                className="absolute -inset-x-8 -top-10 -bottom-6 rounded-[2.4rem] pointer-events-none"
-                style={{
-                  background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.55) 0%, rgba(184,243,255,0.35) 35%, rgba(138,198,208,0) 75%)',
-                  filter: 'blur(24px)',
-                }}
-              />
-              <div className="relative bg-white rounded-[2rem] p-4 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.35),0_-20px_50px_-20px_rgba(184,243,255,0.55)]">
-              <div className="flex items-center justify-between px-3 mb-4">
-                <p className="text-[11px] font-mono tracking-[0.18em] uppercase text-neutral-500 font-bold">Join the Directory</p>
-                <p className="text-[11px] font-mono tracking-[0.18em] uppercase text-neutral-400">02 pathways</p>
-              </div>
-              {/*
-                `relative` on the grid so the z-50 cards stack above the
-                sibling at hover without escaping the white wrapper. The
-                grid has gap-4 (16 px) which is slightly smaller than the
-                scaled card's extra footprint (~20 px), so the cards do
-                visually *overlap* at hover — exactly the intended
-                "stacking above the neighbour" effect, enforced by z-50.
-              */}
-              <div className="relative grid md:grid-cols-2 gap-4">
+            {/* ── Pathway cards ─────────────────────────────── */}
+            <div className="relative mb-12">
+              <div className="relative bg-white rounded-[2rem] p-4 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.2),0_-10px_40px_-10px_rgba(232,244,247,0.8)]">
+                <div className="flex items-center justify-between px-3 mb-4">
+                  <p className="text-[11px] font-mono tracking-[0.18em] uppercase text-neutral-500 font-bold">Join the Directory</p>
+                  <p className="text-[11px] font-mono tracking-[0.18em] uppercase text-neutral-400">02 pathways</p>
+                </div>
 
-                {/* ───── For clinicians — pathway card #1 ─────
-                    Both the outer scale/zIndex motion.div AND the inner
-                    frosted reveal motion.div read from the SAME state
-                    (`clinicianHovered`). onHoverStart/End flip it on
-                    pointer enter/leave. Explicit `animate` on both
-                    motion components avoids brittle variant propagation
-                    — every hover fires BOTH animations in lockstep. */}
-                <motion.div
-                  className="rounded-[2rem] p-8 text-neutral-900 relative overflow-hidden min-h-[440px] flex flex-col will-change-transform"
-                  style={{ background: 'linear-gradient(155deg, #B8F3FF 0%, #8AC6D0 100%)' }}
-                  variants={cardOverlapVariants}
-                  initial="rest"
-                  animate={clinicianOuterState}
-                  onHoverStart={() => canHover && setClinicianHovered(true)}
-                  onHoverEnd={() => canHover && setClinicianHovered(false)}
-                >
-                  <div className="relative z-10">
-                    <p className="text-[10px] font-mono tracking-[0.2em] uppercase text-hai-plum/70 mb-2 font-bold">01 · Clinician</p>
-                    <h2 className="text-2xl font-headline font-bold">For healthcare professionals.</h2>
-                  </div>
+                <div className="relative grid md:grid-cols-2 gap-4">
 
-                  <HeroPortraitCard side="clinician" />
-
+                  {/* ───── Engineer card (LEFT) ───── */}
                   <motion.div
-                    className="relative z-10 bg-white/30 backdrop-blur-xl border border-white/40 p-6 rounded-2xl mt-auto will-change-transform"
-                    variants={cardRevealVariants}
-                    initial={canHover ? 'rest' : 'hover'}
-                    animate={clinicianRevealState}
-                    style={{ pointerEvents: clinicianRevealState === 'hover' ? 'auto' : 'none' }}
+                    className="rounded-[1.75rem] text-neutral-900 relative overflow-hidden will-change-transform"
+                    style={{ background: '#EDE7D8' }}
+                    variants={cardOverlapVariants}
+                    initial="rest"
+                    animate={engineerOuterState}
+                    onHoverStart={() => canHover && setEngineerHovered(true)}
+                    onHoverEnd={() => canHover && setEngineerHovered(false)}
                   >
-                    <p className="font-body text-[17px] text-neutral-900 mb-6 leading-snug font-medium">
-                      Publish the clinical need. Describe the domain, the project stage, and what you want built. Meet NDA-protected engineers — <span className="font-bold">no patient data, no file uploads, ever</span>.
-                    </p>
-                    <Link
-                      to={ROUTES.REGISTER}
-                      className="inline-block bg-black text-white px-7 py-3.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-hai-plum hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(54,33,62,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
-                    >
-                      Create Your Account →
-                    </Link>
+                    {/* Content — stacks naturally from top, no h-full stretch */}
+                    <div className="relative z-10 p-7 sm:p-9 flex flex-col md:w-[58%] pb-10 md:pb-14">
+                      <span className="inline-flex items-center gap-1.5 bg-hai-plum text-hai-mint text-[9px] font-mono tracking-[0.22em] uppercase font-bold px-3 py-1.5 rounded-full w-fit mb-6">
+                        I'M AN ENGINEER
+                      </span>
+                      <h2 className="font-headline font-bold text-hai-plum leading-[1.05] tracking-[-0.02em] text-[1.75rem] sm:text-[2rem] md:text-[1.8rem] lg:text-[2rem] mb-4">
+                        Build with clinical insight.
+                      </h2>
+                      <p className="font-body text-[14px] sm:text-[15px] text-neutral-600 leading-relaxed mb-7 max-w-[260px]">
+                        Share your idea or look for the right healthcare partner to co-create solutions.
+                      </p>
+                      <Link
+                        to={ROUTES.REGISTER}
+                        className="inline-flex items-center gap-2 bg-hai-plum text-white px-6 py-3 rounded-full font-bold text-sm w-fit shadow-[0_4px_14px_-4px_rgba(54,33,62,0.4)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(0,0,0,0.35)] active:translate-y-0 transition-all duration-[220ms] ease-out will-change-transform"
+                      >
+                        Create Engineer Account
+                      </Link>
+                    </div>
+                    {/* Portrait — right half, desktop only. Stretches to card height. */}
+                    <HeroPortraitCard side="engineer" cardBg="#EDE7D8" />
+                    {/* Mobile portrait strip */}
+                    <div className="md:hidden w-full h-44 relative overflow-hidden">
+                      <img
+                        src="/images/engineer-portrait.png"
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 w-full h-full object-cover"
+                        style={{ objectPosition: '50% 15%' }}
+                      />
+                      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#EDE7D8] to-transparent" />
+                    </div>
                   </motion.div>
-                </motion.div>
 
-                {/* ───── For engineers — pathway card #2 ───── */}
-                <motion.div
-                  className="rounded-[2rem] p-8 text-neutral-900 relative overflow-hidden min-h-[440px] flex flex-col will-change-transform"
-                  style={{ background: 'linear-gradient(155deg, #E3DCD2 0%, #D2FF74 100%)' }}
-                  variants={cardOverlapVariants}
-                  initial="rest"
-                  animate={engineerOuterState}
-                  onHoverStart={() => canHover && setEngineerHovered(true)}
-                  onHoverEnd={() => canHover && setEngineerHovered(false)}
-                >
-                  <div className="relative z-10">
-                    <p className="text-[10px] font-mono tracking-[0.2em] uppercase text-hai-plum/70 mb-2 font-bold">02 · Engineer</p>
-                    <h2 className="text-2xl font-headline font-bold">For engineers &amp; researchers.</h2>
-                  </div>
-
-                  <HeroPortraitCard side="engineer" />
-
+                  {/* ───── Healthcare Professional card (RIGHT) ───── */}
                   <motion.div
-                    className="relative z-10 bg-white/30 backdrop-blur-xl border border-white/40 p-6 rounded-2xl mt-auto will-change-transform"
-                    variants={cardRevealVariants}
-                    initial={canHover ? 'rest' : 'hover'}
-                    animate={engineerRevealState}
-                    style={{ pointerEvents: engineerRevealState === 'hover' ? 'auto' : 'none' }}
+                    className="rounded-[1.75rem] text-neutral-900 relative overflow-hidden will-change-transform"
+                    style={{ background: '#B8E8EE' }}
+                    variants={cardOverlapVariants}
+                    initial="rest"
+                    animate={clinicianOuterState}
+                    onHoverStart={() => canHover && setClinicianHovered(true)}
+                    onHoverEnd={() => canHover && setClinicianHovered(false)}
                   >
-                    <p className="font-body text-[17px] text-neutral-900 mb-6 leading-snug font-medium">
-                      Publish your capability. Receive curated clinician requests across 20 medical domains. Every meeting logged in a <span className="font-bold">24-month tamper-resistant</span> trail.
-                    </p>
-                    <Link
-                      to={ROUTES.REGISTER}
-                      className="inline-block bg-black text-white px-7 py-3.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-hai-plum hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(54,33,62,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
-                    >
-                      Create Your Account →
-                    </Link>
+                    {/* Content — stacks naturally from top */}
+                    <div className="relative z-10 p-7 sm:p-9 flex flex-col md:w-[58%] pb-10 md:pb-14">
+                      <span className="inline-flex items-center gap-1.5 bg-hai-plum text-hai-mint text-[9px] font-mono tracking-[0.22em] uppercase font-bold px-3 py-1.5 rounded-full w-fit mb-6">
+                        I'M A HEALTHCARE PROFESSIONAL
+                      </span>
+                      <h2 className="font-headline font-bold text-hai-plum leading-[1.05] tracking-[-0.02em] text-[1.75rem] sm:text-[2rem] md:text-[1.8rem] lg:text-[2rem] mb-4">
+                        Shape technology that matters.
+                      </h2>
+                      <p className="font-body text-[14px] sm:text-[15px] text-neutral-600 leading-relaxed mb-7 max-w-[260px]">
+                        Collaborate with engineers on real clinical needs and innovations.
+                      </p>
+                      <Link
+                        to={ROUTES.REGISTER}
+                        className="inline-flex items-center gap-2 bg-hai-plum text-hai-mint px-6 py-3 rounded-full font-bold text-sm w-fit shadow-[0_4px_14px_-4px_rgba(54,33,62,0.4)] hover:bg-black hover:text-white hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(0,0,0,0.35)] active:translate-y-0 transition-all duration-[220ms] ease-out will-change-transform"
+                      >
+                        Create HCP Account
+                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-hai-mint/30 text-[10px] font-bold">♦</span>
+                      </Link>
+                    </div>
+                    {/* Portrait — right half, desktop only. Stretches to card height. */}
+                    <HeroPortraitCard side="clinician" cardBg="#B8E8EE" />
+                    {/* Mobile portrait strip */}
+                    <div className="md:hidden w-full h-44 relative overflow-hidden">
+                      <img
+                        src="/images/clinician-portrait.png"
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 w-full h-full object-cover"
+                        style={{ objectPosition: '65% 15%' }}
+                      />
+                      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#B8E8EE] to-transparent" />
+                    </div>
                   </motion.div>
-                </motion.div>
-              </div>
+
+                </div>
               </div>
             </div>
 
-            {/* Hero stats ribbon — sits on off-white half now */}
-            <div className="flex flex-wrap items-center justify-center gap-x-8 md:gap-x-10 gap-y-4 mb-14 font-mono text-[11px] tracking-[0.18em] uppercase text-hai-plum/80 font-bold">
-              {heroStats.map(([num, label]) => (
-                <span key={label} className="flex items-center gap-2">
-                  <strong className="text-hai-plum text-lg font-headline font-bold">{num}</strong> {label}
+            {/* Trust badges ribbon */}
+            <div className="flex flex-wrap items-center justify-center gap-x-8 md:gap-x-10 gap-y-3 mb-14">
+              {([
+                ['language',        '.EU hosted & GDPR-native'],
+                ['history',         'Immutable audit trail'],
+                ['block',           'Zero patient data'],
+                ['account_balance', 'Built for European institutions'],
+              ] as [string, string][]).map(([icon, label]) => (
+                <span key={label} className="flex items-center gap-2 text-[11px] font-mono tracking-[0.14em] uppercase text-hai-plum/70 font-bold">
+                  <Icon name={icon} className="text-[16px] text-hai-plum/60" filled />
+                  {label}
                 </span>
               ))}
             </div>
