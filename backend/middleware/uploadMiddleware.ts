@@ -10,6 +10,7 @@ if (!fs.existsSync(AVATAR_DIR)) {
 }
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const ALLOWED_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif'])
 const MAX_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
 
 const storage = multer.diskStorage({
@@ -25,7 +26,8 @@ export const avatarUpload = multer({
   storage,
   limits: { fileSize: MAX_SIZE_BYTES },
   fileFilter: (_req, file, cb) => {
-    if (ALLOWED_TYPES.includes(file.mimetype)) {
+    const ext = path.extname(file.originalname).toLowerCase()
+    if (ALLOWED_TYPES.includes(file.mimetype) && ALLOWED_EXTENSIONS.has(ext)) {
       cb(null, true)
     } else {
       cb(new Error('Only JPEG, PNG, WebP, and GIF images are allowed'))

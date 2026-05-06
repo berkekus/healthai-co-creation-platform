@@ -10,7 +10,7 @@ import { pushNotification } from './notificationService'
 import { deleteAvatarFile } from '../middleware/uploadMiddleware'
 import { makeError } from '../utils/AppError'
 
-const SALT_ROUNDS = 10
+const SALT_ROUNDS = 12
 const VERIFY_TOKEN_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
 
 function generateVerifyToken(): string {

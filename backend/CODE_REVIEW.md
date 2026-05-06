@@ -83,7 +83,7 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - ✅ `bcrypt` SALT_ROUNDS=10 → düşük; modern öneri 12. Hesaplama maliyeti uygunsa 12'ye çıkar.
 - [authService.ts:29](services/authService.ts#L29) `JWT_EXPIRES_IN ?? '7d'` — 7 gün uzun. Refresh token mekanizması yok. Stolen token 7 gün boyunca geçerli.
 - [src/index.ts:4](src/index.ts#L4) `JWT_SECRET` minimum length kontrolü yok. Kısa secret → brute force.
-- Avatar upload [middleware/uploadMiddleware.ts:17-21](middleware/uploadMiddleware.ts#L17-L21) — filename `${userId}-${Date.now()}${ext}`. `ext` user-controlled `originalname`'den geliyor. `path.extname` güvenli ama `.php`, `.html` gibi extension'lar engellenmemiş — sadece mime kontrolü var. `ALLOWED_TYPES` MIME'a göre filtreliyor ama dosya extension white-list edilmeli (`.jpg|.jpeg|.png|.webp|.gif`).
+- ✅ Avatar upload [middleware/uploadMiddleware.ts:17-21](middleware/uploadMiddleware.ts#L17-L21) — filename `${userId}-${Date.now()}${ext}`. `ext` user-controlled `originalname`'den geliyor. `path.extname` güvenli ama `.php`, `.html` gibi extension'lar engellenmemiş — sadece mime kontrolü var. `ALLOWED_TYPES` MIME'a göre filtreliyor ama dosya extension white-list edilmeli (`.jpg|.jpeg|.png|.webp|.gif`).
 - `express-mongo-sanitize` v2.2.0 ile Express 4 uyumlu, ancak **Express 5'e geçince `req.query` immutable** ve bu paket çalışmaz; gelecek geçişte dikkat.
 - `.env` validation [src/index.ts:4-10](src/index.ts#L4-L10) — sadece `JWT_SECRET` ve `MONGO_URI` var. `SMTP_*`, `CLIENT_ORIGIN` opsiyonel — OK.
 
@@ -202,7 +202,7 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - `req.userId as string` cast'leri için typed `AuthenticatedRequest`.
 - ✅ `for ... await` döngüleri `bulkWrite` veya `Promise.all`'a çekilsin (markPartnerFound, deleteAccount).
 - ✅ Health endpoint'i Mongo `readyState` döndürsün.
-- File extension whitelist (`.jpg|.jpeg|.png|.webp|.gif`) MIME ile birlikte uygulansın.
+- ✅ File extension whitelist (`.jpg|.jpeg|.png|.webp|.gif`) MIME ile birlikte uygulansın.
 
 ### Eklenmesi Önerilen Özellikler
 - Forgot/reset password flow (email link + tek kullanımlık hash'lenmiş token).
