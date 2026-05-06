@@ -28,8 +28,11 @@ export const useNotificationStore = create<NotificationState>()((set, get) => ({
 
   fetchByUser: async (_userId: string) => {
     try {
-      const { data } = await api.get<{ success: boolean; data: Notification[] }>('/notifications')
-      set({ notifications: data.data.map(normalise) })
+      const { data } = await api.get<{
+        success: boolean
+        data: { notifications: Notification[]; total: number; page: number; limit: number; pages: number }
+      }>('/notifications')
+      set({ notifications: data.data.notifications.map(normalise) })
     } catch {
       // keep existing state on error
     }
