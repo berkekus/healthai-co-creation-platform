@@ -41,7 +41,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     }
 
     req.userId = decoded.id
-    req.userRole = decoded.role
+    req.userRole = user.role
     req.userEmail = user.email
 
     const now = Date.now()

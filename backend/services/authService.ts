@@ -22,6 +22,10 @@ function generateVerifyToken(): string {
   return crypto.randomBytes(32).toString('hex')
 }
 
+function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex')
+}
+
 function signToken(user: IUser): string {
   return jwt.sign(
     { id: user.id as string, role: user.role },
@@ -62,17 +66,17 @@ export async function registerUser(data: {
   if (existing) throw makeError('Email already registered', 409)
 
   const hashed = await bcrypt.hash(data.password, SALT_ROUNDS)
-  const verifyToken = generateVerifyToken()
+  const rawToken = generateVerifyToken()
   const user = await User.create({
     ...data,
     password: hashed,
     isVerified: false,
-    verifyToken,
+    verifyToken: hashToken(rawToken),
     verifyTokenExpires: new Date(Date.now() + VERIFY_TOKEN_TTL_MS),
   })
 
   // Send verification email asynchronously — don't block registration response
-  sendVerificationEmail(user.email, verifyToken, user.name).catch((err) => {
+  sendVerificationEmail(user.email, rawToken, user.name).catch((err) => {
     console.error('[email] failed to send verification:', err.message)
   })
 
@@ -81,7 +85,7 @@ export async function registerUser(data: {
 
 export async function verifyEmail(token: string) {
   const user = await User.findOne({
-    verifyToken: token,
+    verifyToken: hashToken(token),
     verifyTokenExpires: { $gt: new Date() },
   })
   if (!user) throw makeError('Invalid or expired verification token', 400)
@@ -103,18 +107,18 @@ export async function resendVerification(email: string) {
   }
   if (user.isVerified) throw makeError('Account is already verified', 400)
 
-  const verifyToken = generateVerifyToken()
-  user.verifyToken = verifyToken
+  const rawToken = generateVerifyToken()
+  user.verifyToken = hashToken(rawToken)
   user.verifyTokenExpires = new Date(Date.now() + VERIFY_TOKEN_TTL_MS)
   await user.save()
 
-  sendVerificationEmail(user.email, verifyToken, user.name).catch((err) => {
+  sendVerificationEmail(user.email, rawToken, user.name).catch((err) => {
     console.error('[email] failed to resend verification:', err.message)
   })
 }
 
 export async function loginUser(email: string, password: string) {
-  const user = await User.findOne({ email: email.toLowerCase() })
+  const user = await User.findOne({ email: email.toLowerCase() }).select('+password')
   if (!user) throw makeError('Invalid credentials', 401)
 
   if (user.isSuspended) throw makeError('Account suspended', 403)
@@ -201,7 +205,7 @@ export async function changePassword(userId: string, oldPassword: string, newPas
     throw err
   }
 
-  const user = await User.findById(userId)
+  const user = await User.findById(userId).select('+password')
   if (!user) {
     const err: Error & { statusCode?: number } = new Error('User not found')
     err.statusCode = 404
@@ -247,7 +251,7 @@ export async function exportUserData(userId: string) {
 }
 
 export async function deleteAccount(userId: string, password: string) {
-  const user = await User.findById(userId)
+  const user = await User.findById(userId).select('+password')
   if (!user) throw makeError('User not found', 404)
 
   const match = await bcrypt.compare(password, user.password)
