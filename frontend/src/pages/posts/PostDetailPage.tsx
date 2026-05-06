@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { usePostStore } from '../../store/postStore'
 import { useAuthStore } from '../../store/authStore'
@@ -7,6 +7,8 @@ import PostStatusBadge from '../../components/posts/PostStatusBadge'
 import ExpressInterestModal from '../../components/meetings/ExpressInterestModal'
 import PageWrapper from '../../components/layout/PageWrapper'
 import { ROUTES, postEdit } from '../../constants/routes'
+import api from '../../lib/api'
+import type { Post } from '../../types/post.types'
 
 const STAGE_LABELS: Record<string, string> = {
   idea: 'Idea', concept_validation: 'Concept Validation',
@@ -38,9 +40,36 @@ export default function PostDetailPage() {
   const navigate = useNavigate()
   const [showInterest, setShowInterest] = useState(false)
 
-  const post = getById(id ?? '')
+  const storePost = getById(id ?? '')
+  const [fetchedPost, setFetchedPost] = useState<Post | undefined>(undefined)
+  const [isFetching, setIsFetching] = useState(!storePost)
+  const [fetchError, setFetchError] = useState(false)
 
-  if (!post) {
+  useEffect(() => {
+    if (storePost || !id) return
+    setIsFetching(true)
+    api.get<{ success: boolean; data: Post & { _id?: string } }>(`/posts/${id}`)
+      .then(({ data }) => {
+        const raw = data.data
+        setFetchedPost({ ...raw, id: raw._id ?? raw.id })
+      })
+      .catch(() => setFetchError(true))
+      .finally(() => setIsFetching(false))
+  }, [id, storePost])
+
+  const post = storePost ?? fetchedPost
+
+  if (isFetching) {
+    return (
+      <PageWrapper maxWidth={720}>
+        <div className="flex items-center justify-center min-h-[40vh]">
+          <div className="w-8 h-8 border-4 border-hai-plum/20 border-t-hai-plum rounded-full animate-spin" />
+        </div>
+      </PageWrapper>
+    )
+  }
+
+  if (!post || fetchError) {
     return (
       <PageWrapper maxWidth={720}>
         <div className="bg-white rounded-[2rem] border border-neutral-100 p-16 text-center">

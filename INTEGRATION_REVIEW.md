@@ -15,16 +15,16 @@ Temel auth, post ve meeting akışlarının mimarisi sağlam kurulmuş. Ancak **
 ### Kritik (Şu An Çalışmıyor)
 
 - [x] **#1** `notificationStore.fetchByUser` — response shape uyumsuzluğu, bildirimler hiç yüklenmiyor
-- [ ] **#2** `notificationStore.push` — admin-only endpoint çağrılıyor, bildirimleri DB'ye kaydetmiyor
-- [ ] **#3** `meetingController` — hiçbir meeting olayında server-side bildirim oluşturulmuyor
-- [ ] **#4** `PostDetailPage` — direkt URL'de `getById` local-only, "Post not found" hatası
+- [x] **#2** `notificationStore.push` — admin-only endpoint çağrılıyor, bildirimleri DB'ye kaydetmiyor
+- [x] **#3** `meetingController` — hiçbir meeting olayında server-side bildirim oluşturulmuyor
+- [x] **#4** `PostDetailPage` — direkt URL'de `getById` local-only, "Post not found" hatası
 - [ ] **#5** Forgot/Reset Password — backend hazır, frontend sayfaları + route'lar tamamen eksik
 
 ### Önemli (Yanlış Davranış)
 
 - [ ] **#6** `ExpressInterestModal` — meeting isteğinde post statüsünü `meeting_scheduled` yapıyor (bypass)
 - [ ] **#7** `changePassword` — `PUT /auth/me/password` endpoint'i var, frontend UI yok
-- [ ] **#8** `Post.meetingCount` — `requestMeeting`'de güncellenmemiyor, her zaman 0 kalıyor
+- [x] **#8** `Post.meetingCount` — `requestMeeting`'de güncellenmemiyor, her zaman 0 kalıyor
 
 ### Küçük / İyileştirme
 
