@@ -1,21 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { api, createUser, createPost } from './helpers'
 
-async function requestMeeting(
-  requesterToken: string,
-  postId: string,
-  postTitle: string,
-  ownerId: string,
-  ownerName: string,
-) {
+async function requestMeeting(requesterToken: string, postId: string) {
   return api
     .post('/api/meetings')
     .set('Authorization', `Bearer ${requesterToken}`)
     .send({
       postId,
-      postTitle,
-      ownerId,
-      ownerName,
       message: 'I am very interested in collaborating on this project with you.',
       ndaAccepted: true,
       proposedSlots: [
@@ -35,7 +26,7 @@ describe('POST /api/meetings', () => {
     // Publish the post so it can receive meetings
     await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
 
-    const res = await requestMeeting(requester.token, post.id, post.title, owner.user.id, owner.user.name)
+    const res = await requestMeeting(requester.token, post.id)
     expect(res.status).toBe(201)
     expect(res.body.data.status).toBe('pending')
   })
@@ -46,19 +37,9 @@ describe('POST /api/meetings', () => {
     const post = await createPost(owner.token)
     await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
 
-    await requestMeeting(requester.token, post.id, post.title, owner.user.id, owner.user.name)
-    const res = await requestMeeting(requester.token, post.id, post.title, owner.user.id, owner.user.name)
+    await requestMeeting(requester.token, post.id)
+    const res = await requestMeeting(requester.token, post.id)
     expect(res.status).toBe(409)
-  })
-
-  it('returns 400 when ownerId does not match post author', async () => {
-    const owner = await createUser({ role: 'healthcare_professional' })
-    const requester = await createUser()
-    const post = await createPost(owner.token)
-    await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
-
-    const res = await requestMeeting(requester.token, post.id, post.title, requester.user.id, requester.user.name)
-    expect(res.status).toBe(400)
   })
 
   it('returns 400 when NDA is not accepted', async () => {
@@ -72,9 +53,6 @@ describe('POST /api/meetings', () => {
       .set('Authorization', `Bearer ${requester.token}`)
       .send({
         postId: post.id,
-        postTitle: post.title,
-        ownerId: owner.user.id,
-        ownerName: owner.user.name,
         message: 'I am interested in collaborating on this great project.',
         ndaAccepted: false,
         proposedSlots: [
@@ -93,7 +71,7 @@ describe('POST /api/meetings/:id/decline', () => {
     const requester = await createUser()
     const post = await createPost(owner.token)
     await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
-    const meetingRes = await requestMeeting(requester.token, post.id, post.title, owner.user.id, owner.user.name)
+    const meetingRes = await requestMeeting(requester.token, post.id)
     const meetingId = meetingRes.body.data.id
 
     const res = await api
@@ -108,7 +86,7 @@ describe('POST /api/meetings/:id/decline', () => {
     const requester = await createUser()
     const post = await createPost(owner.token)
     await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
-    const meetingRes = await requestMeeting(requester.token, post.id, post.title, owner.user.id, owner.user.name)
+    const meetingRes = await requestMeeting(requester.token, post.id)
     const meetingId = meetingRes.body.data.id
 
     await api.post(`/api/meetings/${meetingId}/decline`).set('Authorization', `Bearer ${owner.token}`)
@@ -125,7 +103,7 @@ describe('Concurrent accept race condition', () => {
     const requester = await createUser()
     const post = await createPost(owner.token)
     await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
-    const meetingRes = await requestMeeting(requester.token, post.id, post.title, owner.user.id, owner.user.name)
+    const meetingRes = await requestMeeting(requester.token, post.id)
     const meetingId = meetingRes.body.data.id
     const slot = { date: '2026-06-01', time: '10:00' }
 
@@ -147,7 +125,7 @@ describe('POST /api/meetings/:id/cancel', () => {
     const requester = await createUser()
     const post = await createPost(owner.token)
     await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
-    const meetingRes = await requestMeeting(requester.token, post.id, post.title, owner.user.id, owner.user.name)
+    const meetingRes = await requestMeeting(requester.token, post.id)
     const meetingId = meetingRes.body.data.id
 
     const res = await api
@@ -162,7 +140,7 @@ describe('POST /api/meetings/:id/cancel', () => {
     const requester = await createUser()
     const post = await createPost(owner.token)
     await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
-    const meetingRes = await requestMeeting(requester.token, post.id, post.title, owner.user.id, owner.user.name)
+    const meetingRes = await requestMeeting(requester.token, post.id)
     const meetingId = meetingRes.body.data.id
 
     await api.post(`/api/meetings/${meetingId}/cancel`).set('Authorization', `Bearer ${requester.token}`)
@@ -177,7 +155,7 @@ describe('POST /api/meetings/:id/cancel', () => {
     const requester = await createUser()
     const post = await createPost(owner.token)
     await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
-    const meetingRes = await requestMeeting(requester.token, post.id, post.title, owner.user.id, owner.user.name)
+    const meetingRes = await requestMeeting(requester.token, post.id)
     const meetingId = meetingRes.body.data.id
 
     await api.post(`/api/meetings/${meetingId}/decline`).set('Authorization', `Bearer ${owner.token}`)

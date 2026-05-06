@@ -151,9 +151,9 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - ✅ Auth, posts, meetings için test var.
 
 **Eksik test senaryoları:**
-- ❌ `notificationController.createNotification` security testi yok — yani kritik açık için failing test bile yok.
-- ❌ Authorization testleri zayıf: "User A, User B'nin post'unu silemez" gibi 403 testleri yok.
-- ❌ `markPartnerFound` cascade testi (diğer meeting'ler cancel edildi mi) yok.
+- ✅ `notificationController.createNotification` security testi yok — yani kritik açık için failing test bile yok.
+- ✅ Authorization testleri zayıf: "User A, User B'nin post'unu silemez" gibi 403 testleri yok.
+- ✅ `markPartnerFound` cascade testi (diğer meeting'ler cancel edildi mi) yok.
 - ❌ `deleteAccount` sonrası meeting'lerin `'Deleted user'` olarak anonymize olduğu testi yok.
 - ❌ `expiryDate` lazy update testi yok (ekspirasyon geçmiş post'un listing'de status='expired' olduğu).
 - ❌ `cancelMeeting` + `recomputePostStatus` round-trip testi.
@@ -227,7 +227,7 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 6. **Validation'ı zod/joi'ye geçir** (auth, post, meeting create endpoint'leri).
 7. ✅ **`listPosts` lazy expiry update'ini cron'a taşı** veya kaldır + dynamic filter kullan.
 8. ✅ **`makeError` ve `log()` helper'larını `utils/`'a taşı** (3 ayrı kopya birleşsin).
-9. **Authorization-focused integration testleri** ekle (cross-user 403, admin-only 403).
+9. ✅ **Authorization-focused integration testleri** ekle (cross-user 403, admin-only 403).
 10. **Refresh token mekanizması** veya en azından access token süresini kısalt (1-2 saat).
 11. **Mongo transaction** ile `deleteAccount` ve `markPartnerFound` cascade'lerini sarmalayın.
 12. ✅ **Notification list pagination** ekle.

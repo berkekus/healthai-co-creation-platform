@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import crypto from 'crypto'
 import { api, createUser, uniqueEmail } from './helpers'
 import User from '../models/User'
 
@@ -148,10 +149,16 @@ describe('POST /api/auth/verify-email', () => {
       city: 'Istanbul',
       country: 'Turkey',
     })
-    const fresh = await User.findOne({ email: email.toLowerCase() })
-    expect(fresh?.verifyToken).toBeTruthy()
 
-    const res = await api.post('/api/auth/verify-email').send({ token: fresh!.verifyToken })
+    // DB stores SHA256(rawToken); inject a known raw token so the test can send it
+    const rawToken = crypto.randomBytes(32).toString('hex')
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex')
+    await User.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      { verifyToken: hashedToken, verifyTokenExpires: new Date(Date.now() + 86400_000) }
+    )
+
+    const res = await api.post('/api/auth/verify-email').send({ token: rawToken })
     expect(res.status).toBe(200)
     expect(res.body.data.token).toBeTruthy()
     expect(res.body.data.user.isVerified).toBe(true)
