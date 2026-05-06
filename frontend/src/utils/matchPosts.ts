@@ -15,6 +15,28 @@ export interface MatchReason {
   isAI?: boolean
 }
 
+const normalize = (value: string) => value.trim().toLowerCase()
+
+function tokenize(value: string) {
+  return normalize(value)
+    .split(/[^a-z0-9ğüşöçıİĞÜŞÖÇ]+/i)
+    .filter(token => token.length >= 3)
+}
+
+function expertiseHits(post: Post, user: User) {
+  const haystack = normalize(`${post.title} ${post.expertiseRequired} ${post.description} ${post.domain}`)
+  const haystackTokens = new Set(tokenize(haystack))
+
+  return (user.expertiseTags ?? [])
+    .map(tag => tag.trim())
+    .filter(tag => {
+      if (tag.length < 2) return false
+      const normalizedTag = normalize(tag)
+      if (haystack.includes(normalizedTag)) return true
+      return tokenize(tag).some(token => haystackTokens.has(token))
+    })
+}
+
 /**
  * Compute "why this post matches you" reasons, used for:
  *   - per-card match chips
@@ -27,10 +49,10 @@ export function computeMatchReasons(post: Post, user: User | null | undefined): 
   if (!user || user.id === post.authorId) return []
 
   const reasons: MatchReason[] = []
-  const userCity    = user.city.trim().toLowerCase()
-  const userCountry = user.country.trim().toLowerCase()
-  const postCity    = post.city.trim().toLowerCase()
-  const postCountry = post.country.trim().toLowerCase()
+  const userCity    = normalize(user.city)
+  const userCountry = normalize(user.country)
+  const postCity    = normalize(post.city)
+  const postCountry = normalize(post.country)
 
   // Location
   if (userCity && userCity === postCity) {
@@ -48,10 +70,7 @@ export function computeMatchReasons(post: Post, user: User | null | undefined): 
 
   // Expertise tag overlap vs expertiseRequired text
   if (user.expertiseTags?.length) {
-    const haystack = `${post.expertiseRequired} ${post.description} ${post.domain}`.toLowerCase()
-    const hits = user.expertiseTags
-      .map(t => t.trim())
-      .filter(t => t.length >= 2 && haystack.includes(t.toLowerCase()))
+    const hits = expertiseHits(post, user)
     if (hits.length > 0) {
       const preview = hits.slice(0, 2).join(' · ')
       reasons.push({
@@ -114,11 +133,42 @@ export function getCombinedMatchScore(
   user: User | null | undefined,
   aiScore?: number,
 ): number {
-  // Base score from reason count
-  const baseScore = computeMatchReasons(post, user).length * 20
-  
-  // Add AI score if available
-  const aiBonus = aiScore || 0
-  
-  return Math.min(100, baseScore + aiBonus)
+  if (!user || user.id === post.authorId || post.status !== 'active') return 0
+
+  let baseScore = 0
+
+  const userCity = normalize(user.city)
+  const userCountry = normalize(user.country)
+  const postCity = normalize(post.city)
+  const postCountry = normalize(post.country)
+
+  if (userCity && userCity === postCity) {
+    baseScore += 18
+  } else if (userCountry && userCountry === postCountry) {
+    baseScore += 8
+  }
+
+  const crossRole =
+    (user.role === 'engineer' && post.authorRole === 'healthcare_professional') ||
+    (user.role === 'healthcare_professional' && post.authorRole === 'engineer')
+  if (crossRole) baseScore += 22
+
+  const hits = expertiseHits(post, user)
+  if (hits.length > 0) {
+    baseScore += Math.min(38, 14 + hits.length * 8)
+  }
+
+  const domainTokens = tokenize(post.domain)
+  const expertiseTokens = new Set((user.expertiseTags ?? []).flatMap(tokenize))
+  if (domainTokens.some(token => expertiseTokens.has(token))) {
+    baseScore += 12
+  }
+
+  baseScore = Math.min(82, baseScore)
+
+  if (typeof aiScore === 'number' && aiScore > 0) {
+    return Math.min(100, Math.round(baseScore * 0.45 + aiScore * 0.55))
+  }
+
+  return Math.round(baseScore)
 }

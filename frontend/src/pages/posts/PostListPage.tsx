@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import {
   ChevronDown,
   Grid2X2,
+  Sparkles,
   List,
   LocateFixed,
   MapPin,
@@ -44,6 +45,7 @@ interface DirectoryPost {
   createdAt: string
   matchScore: number
   aiReason?: string
+  hasAI: boolean
 }
 
 const mockPosts: DirectoryPost[] = [
@@ -68,6 +70,7 @@ const mockPosts: DirectoryPost[] = [
     expiryDate: new Date(Date.now() + 24 * 86400000).toISOString(),
     createdAt: '2026-05-01T10:00:00Z',
     matchScore: 0,
+    hasAI: false,
   },
   {
     id: 'mock-deneme',
@@ -89,6 +92,7 @@ const mockPosts: DirectoryPost[] = [
     expiryDate: new Date(Date.now() + 283 * 86400000).toISOString(),
     createdAt: '2026-04-30T10:00:00Z',
     matchScore: 0,
+    hasAI: false,
   },
   {
     id: 'mock-cgm',
@@ -110,6 +114,7 @@ const mockPosts: DirectoryPost[] = [
     expiryDate: new Date(Date.now() + 120 * 86400000).toISOString(),
     createdAt: '2026-04-29T10:00:00Z',
     matchScore: 0,
+    hasAI: false,
   },
 ]
 
@@ -249,6 +254,7 @@ export default function PostListPage() {
             posts={directoryPosts}
             isLoading={isLoading && posts.length === 0}
             isMatching={isMatching}
+            aiError={Boolean(user && !isMatching && posts.length > 0 && suggestions.size === 0)}
             sort={sort}
             viewMode={viewMode}
             onSort={setSort}
@@ -467,6 +473,7 @@ function PostList({
   posts,
   isLoading,
   isMatching,
+  aiError,
   sort,
   viewMode,
   onSort,
@@ -475,6 +482,7 @@ function PostList({
   posts: DirectoryPost[]
   isLoading: boolean
   isMatching: boolean
+  aiError: boolean
   sort: SortMode
   viewMode: ViewMode
   onSort: (value: SortMode) => void
@@ -482,43 +490,51 @@ function PostList({
 }) {
   return (
     <section className="overflow-hidden rounded-[28px] border border-[var(--border)] bg-white shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)]">
-      <div className="flex h-[68px] items-center justify-between border-b border-[var(--border)] px-7">
-        <div className="text-[15px] font-black text-[var(--muted)]">
-          {isLoading ? 'Loading opportunities...' : `${posts.length} opportunities found${isMatching ? ' · matching...' : ''}`}
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3 text-[13px] font-black text-[var(--muted)]">
-            <span>Sort by</span>
-            <div className="relative">
-              <select
-                value={sort}
-                onChange={event => onSort(event.target.value as SortMode)}
-                className="appearance-none bg-transparent pr-6 text-[var(--text)] outline-none"
-              >
-                <option value="best">Best match</option>
-                <option value="recent">Most recent</option>
-                <option value="oldest">Oldest</option>
-                <option value="expiring">Expiring soon</option>
-              </select>
-              <ChevronDown size={15} className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2" />
+      <div className="border-b border-[var(--border)] px-7 py-5">
+        <div className="flex items-center justify-between gap-6">
+          <div>
+            <div className="text-[15px] font-black text-[var(--muted)]">
+              {isLoading ? 'Loading opportunities...' : `${posts.length} opportunities found`}
+            </div>
+            <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#2d1838] px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-white shadow-[0_12px_28px_-20px_rgba(45,24,56,0.8)]">
+              <Sparkles size={14} />
+              {isMatching ? 'AI matching in progress' : aiError ? 'AI fallback ranking active' : 'AI-ranked for your profile'}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              aria-pressed={viewMode === 'grid'}
-              onClick={() => onViewMode('grid')}
-              className={`flex h-9 w-9 items-center justify-center rounded-full transition ${viewMode === 'grid' ? 'bg-[var(--accent-soft)] text-[var(--primary)]' : 'text-[var(--muted)] hover:bg-[var(--tag-bg)] hover:text-[var(--primary)]'}`}
-            >
-              <Grid2X2 size={17} />
-            </button>
-            <button
-              aria-pressed={viewMode === 'list'}
-              onClick={() => onViewMode('list')}
-              className={`flex h-9 w-9 items-center justify-center rounded-full transition ${viewMode === 'list' ? 'bg-[var(--accent-soft)] text-[var(--primary)]' : 'text-[var(--muted)] hover:bg-[var(--tag-bg)] hover:text-[var(--primary)]'}`}
-            >
-              <List size={18} />
-            </button>
+
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 text-[13px] font-black text-[var(--muted)]">
+              <span>Sort by</span>
+              <div className="relative">
+                <select
+                  value={sort}
+                  onChange={event => onSort(event.target.value as SortMode)}
+                  className="appearance-none bg-transparent pr-6 text-[var(--text)] outline-none"
+                >
+                  <option value="best">AI best match</option>
+                  <option value="recent">Most recent</option>
+                  <option value="oldest">Oldest</option>
+                  <option value="expiring">Expiring soon</option>
+                </select>
+                <ChevronDown size={15} className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2" />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                aria-pressed={viewMode === 'grid'}
+                onClick={() => onViewMode('grid')}
+                className={`flex h-9 w-9 items-center justify-center rounded-full transition ${viewMode === 'grid' ? 'bg-[var(--accent-soft)] text-[var(--primary)]' : 'text-[var(--muted)] hover:bg-[var(--tag-bg)] hover:text-[var(--primary)]'}`}
+              >
+                <Grid2X2 size={17} />
+              </button>
+              <button
+                aria-pressed={viewMode === 'list'}
+                onClick={() => onViewMode('list')}
+                className={`flex h-9 w-9 items-center justify-center rounded-full transition ${viewMode === 'list' ? 'bg-[var(--accent-soft)] text-[var(--primary)]' : 'text-[var(--muted)] hover:bg-[var(--tag-bg)] hover:text-[var(--primary)]'}`}
+              >
+                <List size={18} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -560,11 +576,26 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
       </div>
 
       <div className="min-w-0 pt-1">
+        {post.matchScore > 0 && (
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] ${
+              post.hasAI ? 'bg-[#2d1838] text-white' : 'bg-[#d8ff8f] text-[#2d1838]'
+            }`}>
+              <Sparkles size={14} />
+              {post.hasAI ? 'AI match' : 'Profile match'} · {post.matchScore}%
+            </div>
+            {post.aiReason && (
+              <div className="rounded-full bg-[#e8f9fc] px-4 py-2 text-[12px] font-black text-[#2d1838]">
+                {post.aiReason}
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="mb-6 flex flex-wrap gap-2">
           {post.tags.map(tag => (
             <Tag key={tag} label={tag} />
           ))}
-          {post.aiReason && <Tag label={post.aiReason} />}
         </div>
 
         <h2 className="truncate font-headline text-2xl font-black leading-tight text-[var(--primary)]">{post.title}</h2>
@@ -634,12 +665,12 @@ function toDirectoryPost(
 ): DirectoryPost {
   const days = Math.ceil((new Date(post.expiryDate).getTime() - Date.now()) / 86400000)
   const basicReasons = computeMatchReasons(post, user)
-  const tags = [
+  const tags = Array.from(new Set([
     ...basicReasons.slice(0, 2).map(reason => reason.label),
     post.country ? `In ${post.country}` : '',
     post.domain,
     statusLabel(post.status),
-  ].filter(Boolean)
+  ].filter(Boolean)))
   return {
     id: post.id,
     initials: initials(post.authorName),
@@ -660,7 +691,8 @@ function toDirectoryPost(
     expiryDate: post.expiryDate,
     createdAt: post.createdAt,
     matchScore: user ? getCombinedMatchScore(post, user, aiSuggestion?.score) : 0,
-    aiReason: aiSuggestion?.reason ? `AI: ${aiSuggestion.reason}` : undefined,
+    aiReason: aiSuggestion?.reason,
+    hasAI: Boolean(aiSuggestion?.reason),
   }
 }
 
