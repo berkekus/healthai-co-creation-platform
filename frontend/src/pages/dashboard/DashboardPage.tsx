@@ -1,231 +1,313 @@
-import { useAuthStore } from '../../store/authStore'
-import { usePostStore } from '../../store/postStore'
-import { useMeetingStore } from '../../store/meetingStore'
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { ArrowRight, CalendarDays, Eye, FileText, Handshake, Plus, Search } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { ROUTES } from '../../constants/routes'
-import PageWrapper from '../../components/layout/PageWrapper'
+import { useAuthStore } from '../../store/authStore'
+import { useMeetingStore } from '../../store/meetingStore'
+import { usePostStore } from '../../store/postStore'
+import type { Meeting } from '../../types/meeting.types'
+import type { Post } from '../../types/post.types'
 
 export default function DashboardPage() {
   const { user } = useAuthStore()
-  const allPosts = usePostStore(s => s.posts)
-  const allMeetings = useMeetingStore(s => s.meetings)
+  const { getByUser, fetchByUser } = useMeetingStore()
+  const { posts, fetchPosts } = usePostStore()
 
-  const myPosts    = allPosts.filter(p => p.authorId === user?.id)
-  const myMeetings = allMeetings.filter(m => m.requesterId === user?.id || m.ownerId === user?.id)
-  const activePosts = allPosts.filter(p => p.status === 'active').length
+  useEffect(() => {
+    if (user) fetchByUser(user.id)
+  }, [fetchByUser, user])
 
-  const pendingMeetings = myMeetings.filter(m => m.status === 'pending' || m.status === 'time_proposed')
+  useEffect(() => {
+    if (user) fetchPosts({ limit: 100, mine: true, filters: {} })
+  }, [fetchPosts, user])
 
-  const stats: { label: string; value: number; icon: string; tint: string }[] = [
-    { label: 'My Posts',        value: myPosts.length,    icon: 'article',       tint: '#B8F3FF' },
-    { label: 'My Meetings',     value: myMeetings.length, icon: 'handshake',     tint: '#D2FF74' },
-    { label: 'Active Listings', value: activePosts,       icon: 'visibility',    tint: '#E3DCD2' },
-  ]
-
-  const firstName = user?.name.split(' ')[0] ?? ''
+  const myMeetings = user ? getByUser(user.id) : []
+  const upcomingMeetings = myMeetings.filter(meeting =>
+    meeting.status === 'confirmed' || meeting.status === 'pending' || meeting.status === 'time_proposed'
+  )
+  const activeListings = posts.filter(post => post.status === 'active' || post.status === 'meeting_scheduled').length
 
   return (
-    <PageWrapper maxWidth={1200}>
-      {/* Header card */}
-      <div className="bg-white rounded-[2rem] border border-neutral-100 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.15)] p-6 md:p-10 mb-6 relative overflow-hidden">
-        <div
-          className="absolute top-0 right-0 w-64 h-64 pointer-events-none opacity-60"
-          style={{ background: 'radial-gradient(circle, #B8F3FF 0%, transparent 70%)' }}
-        />
-        <div className="relative">
-          <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-4 py-1.5 mb-5 text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-hai-teal animate-pulse" />
-            <span className="text-hai-plum/70">04</span>
-            <span>Dashboard</span>
-            {user?.role === 'admin' && (
-              <>
-                <span className="w-1 h-1 rounded-full bg-hai-plum/30" />
-                <span className="text-hai-teal">admin</span>
-              </>
-            )}
-          </div>
+    <main className="min-h-screen bg-[#f7f8fa] text-[#2d1838]">
+      <div className="mx-auto w-full max-w-[1640px] px-8 pb-24 pt-[94px]">
+        <section className="grid min-h-[500px] grid-cols-[420px_minmax(0,1fr)] items-start gap-28">
+          <WelcomePanel />
+          <WeeklyBlob postCount={posts.length} meetingCount={myMeetings.length} activeListings={activeListings} />
+        </section>
 
-          <h1 className="font-headline font-bold text-[36px] md:text-[52px] leading-[0.98] tracking-[-0.035em] text-hai-plum mb-2">
-            Welcome back,<br />
-            <span className="text-hai-teal">{firstName}<span className="text-hai-plum">.</span></span>
-          </h1>
-          <p className="text-[15px] md:text-base text-neutral-600 leading-relaxed max-w-2xl font-body">
-            {user?.role === 'admin'
-              ? <>Platform administrator · <b className="text-hai-plum">{user?.institution}</b></>
-              : <>Signed in as <b className="text-hai-plum">{user?.role === 'engineer' ? 'Engineer' : 'Healthcare Professional'}</b> · <b className="text-hai-plum">{user?.institution}</b></>}
-          </p>
-
-          {/* Quick actions */}
-          <div className="flex flex-wrap gap-3 mt-7">
-            <Link
-              to={ROUTES.POST_CREATE}
-              className="inline-flex items-center gap-2 bg-hai-plum text-white px-5 py-3 rounded-full font-bold text-sm hover:bg-black transition-colors"
-            >
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              Post an opportunity
-            </Link>
-            <Link
-              to={ROUTES.POSTS}
-              className="inline-flex items-center gap-2 bg-white border border-neutral-300 text-neutral-800 px-5 py-3 rounded-full font-bold text-sm hover:bg-neutral-50 transition-colors"
-            >
-              <span className="material-symbols-outlined text-[18px]">search</span>
-              Browse directory
-            </Link>
-            <Link
-              to={ROUTES.MEETINGS}
-              className="inline-flex items-center gap-2 bg-white border border-neutral-300 text-neutral-800 px-5 py-3 rounded-full font-bold text-sm hover:bg-neutral-50 transition-colors"
-            >
-              <span className="material-symbols-outlined text-[18px]">event</span>
-              View meetings
-              {pendingMeetings.length > 0 && (
-                <span className="ml-1 bg-hai-plum text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
-                  {pendingMeetings.length}
-                </span>
-              )}
-            </Link>
-          </div>
-        </div>
+        <section className="mt-10 grid grid-cols-[minmax(0,680px)_minmax(0,700px)] gap-28">
+          <RecentPosts posts={posts} />
+          <UpcomingMeetings meetings={upcomingMeetings} userId={user?.id ?? ''} />
+        </section>
       </div>
-
-      {/* Stats grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-        {stats.map(({ label, value, icon, tint }) => (
-          <div
-            key={label}
-            className="bg-white rounded-[1.75rem] border border-neutral-100 p-6 shadow-sm hover:shadow-[0_20px_50px_-20px_rgba(54,33,62,0.2)] transition-shadow flex items-center gap-5"
-          >
-            <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
-              style={{ backgroundColor: tint }}
-            >
-              <span className="material-symbols-outlined text-hai-plum text-[28px]" style={{ fontVariationSettings: '"FILL" 1' }}>
-                {icon}
-              </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-headline font-bold text-[40px] leading-none tracking-[-0.03em] text-hai-plum">
-                {value}
-              </div>
-              <div className="text-[10.5px] font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mt-2">
-                {label}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Content rows */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
-        {/* My recent posts */}
-        <div className="bg-white rounded-[1.75rem] border border-neutral-100 overflow-hidden">
-          <div className="px-6 py-4 bg-hai-offwhite border-b border-neutral-100 flex items-center justify-between">
-            <span className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
-              My recent posts
-            </span>
-            <Link to={ROUTES.POSTS} className="text-[11px] font-mono tracking-[0.14em] uppercase text-hai-teal hover:text-hai-plum transition-colors font-bold">
-              View all →
-            </Link>
-          </div>
-          {myPosts.length > 0 ? (
-            <ul className="divide-y divide-neutral-100">
-              {myPosts.slice(0, 5).map(p => (
-                <li key={p.id}>
-                  <Link
-                    to={`/posts/${p.id}`}
-                    className="flex items-center justify-between gap-4 px-6 py-4 hover:bg-hai-offwhite transition-colors"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="font-body font-semibold text-[14.5px] text-hai-plum truncate">
-                        {p.title}
-                      </div>
-                      <div className="text-[11px] font-mono tracking-wider uppercase text-neutral-500 mt-1 truncate">
-                        {p.domain || 'General'}
-                      </div>
-                    </div>
-                    <StatusChip status={p.status} />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <EmptyRow
-              icon="article"
-              title="No posts yet"
-              cta={<Link to={ROUTES.POST_CREATE} className="text-hai-plum font-bold text-sm hover:text-hai-teal transition-colors">Create your first post →</Link>}
-            />
-          )}
-        </div>
-
-        {/* Meetings awaiting action */}
-        <div className={`rounded-[1.75rem] border overflow-hidden ${pendingMeetings.length > 0 ? 'bg-gradient-to-br from-amber-50 to-white border-amber-200' : 'bg-white border-neutral-100'}`}>
-          <div className={`px-6 py-4 border-b flex items-center justify-between ${pendingMeetings.length > 0 ? 'bg-amber-100/40 border-amber-200' : 'bg-hai-offwhite border-neutral-100'}`}>
-            <span className="text-[10px] font-mono tracking-[0.18em] uppercase font-bold flex items-center gap-2 text-hai-plum">
-              {pendingMeetings.length > 0 && <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />}
-              Meetings awaiting action
-            </span>
-            <Link to={ROUTES.MEETINGS} className="text-[11px] font-mono tracking-[0.14em] uppercase text-hai-teal hover:text-hai-plum transition-colors font-bold">
-              View all →
-            </Link>
-          </div>
-          {pendingMeetings.length > 0 ? (
-            <ul className="divide-y divide-amber-100">
-              {pendingMeetings.map(m => (
-                <li key={m.id}>
-                  <Link to={ROUTES.MEETINGS} className="flex items-center justify-between gap-4 px-6 py-4 hover:bg-amber-50 transition-colors">
-                    <div className="min-w-0 flex-1">
-                      <div className="font-body font-semibold text-[14.5px] text-hai-plum truncate">
-                        {m.postTitle}
-                      </div>
-                      <div className="text-[11px] font-mono tracking-wider uppercase text-amber-700 mt-1 font-bold">
-                        {m.status === 'time_proposed' ? 'Time proposed' : 'Pending'}
-                      </div>
-                    </div>
-                    <span className="text-[11px] font-mono tracking-[0.14em] uppercase text-amber-800 font-bold shrink-0">
-                      Action →
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <EmptyRow
-              icon="check_circle"
-              title="All caught up"
-              subtitle="No pending meetings."
-            />
-          )}
-        </div>
-      </div>
-    </PageWrapper>
+    </main>
   )
 }
 
-function StatusChip({ status }: { status: string }) {
-  const map: Record<string, { label: string; bg: string; text: string }> = {
-    draft:              { label: 'Draft',             bg: 'bg-neutral-100',   text: 'text-neutral-600' },
-    active:             { label: 'Active',            bg: 'bg-hai-mint',      text: 'text-hai-plum' },
-    meeting_scheduled:  { label: 'Meeting',           bg: 'bg-hai-lime',      text: 'text-hai-plum' },
-    partner_found:      { label: 'Partner Found',     bg: 'bg-hai-plum',      text: 'text-hai-mint' },
-    expired:            { label: 'Expired',           bg: 'bg-neutral-200',   text: 'text-neutral-500' },
-  }
-  const s = map[status] ?? { label: status, bg: 'bg-neutral-100', text: 'text-neutral-600' }
+function WelcomePanel() {
   return (
-    <span className={`text-[10px] font-mono tracking-[0.14em] uppercase font-bold px-2.5 py-1 rounded-full shrink-0 ${s.bg} ${s.text}`}>
-      {s.label}
+    <div className="pt-6">
+      <h1 className="font-headline text-[54px] font-black leading-[1.05] tracking-normal text-[#2d1838]">
+        Welcome back,
+      </h1>
+      <h2 className="font-headline text-[54px] font-black leading-[1.05] tracking-normal text-[#8bddea]">
+        Ahmet<span className="text-[#2d1838]">.</span>
+      </h2>
+
+      <p className="mt-5 text-[16px] font-semibold text-[#77727f]">
+        Signed in as <span className="font-black text-[#3a3043]">Engineer</span>
+        <span className="px-1.5">·</span>
+        <span className="font-black text-[#3a3043]">METU</span>
+      </p>
+
+      <div className="mt-10 border-l-2 border-[#b7c1ca] py-1 pl-6 text-[17px] font-semibold leading-8 text-[#77727f]">
+        Collaborate, innovate, and build the future<br />
+        of healthcare — together.
+      </div>
+
+      <div className="mt-14 flex w-[292px] flex-col gap-[13px]">
+        <Link
+          to={ROUTES.POST_CREATE}
+          className="flex h-[48px] items-center gap-5 rounded-full bg-[#2d1838] px-7 text-[14px] font-black text-white shadow-[0_18px_30px_-18px_rgba(45,24,56,0.82)] transition hover:bg-[#1e1027]"
+        >
+          <Plus size={18} strokeWidth={2.5} />
+          Post an opportunity
+        </Link>
+        <Link
+          to={ROUTES.POSTS}
+          className="flex h-[48px] items-center gap-5 rounded-full border border-[#cfd3d9] bg-white/55 px-7 text-[14px] font-black text-[#16121b] transition hover:border-[#8bddea] hover:bg-white"
+        >
+          <Search size={17} strokeWidth={2.4} />
+          Browse directory
+        </Link>
+        <Link
+          to={ROUTES.MEETINGS}
+          className="flex h-[48px] items-center gap-5 rounded-full border border-[#cfd3d9] bg-white/55 px-7 text-[14px] font-black text-[#16121b] transition hover:border-[#8bddea] hover:bg-white"
+        >
+          <CalendarDays size={17} strokeWidth={2.4} />
+          View meetings
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+function WeeklyBlob({
+  postCount,
+  meetingCount,
+  activeListings,
+}: {
+  postCount: number
+  meetingCount: number
+  activeListings: number
+}) {
+  return (
+    <div className="relative h-[455px]">
+      <div
+        className="absolute inset-x-0 top-0 h-[430px] bg-[#e7f8fc]"
+        style={{
+          borderRadius: '42% 58% 34% 66% / 42% 36% 64% 58%',
+          transform: 'rotate(1deg)',
+        }}
+      />
+      <div
+        className="absolute right-10 top-[250px] h-[82px] w-[120px] opacity-60"
+        style={{
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.95) 1.4px, transparent 1.4px)',
+          backgroundSize: '18px 18px',
+        }}
+      />
+
+      <div className="relative z-10 mx-auto max-w-[790px] px-4 pt-[115px]">
+        <div className="mb-10 flex items-center justify-between">
+          <div className="text-[15px] font-black text-[#44364f]">Weekly overview</div>
+          <div className="text-[14px] font-bold text-[#86a8b4]">May 12 - May 18, 2026</div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-16">
+          <Metric icon={<FileText size={21} />} iconBg="#8bddea" value={postCount} label="My posts" change="↗ Synced with backend" />
+          <Metric icon={<Handshake size={21} />} iconBg="#d8ff8f" value={meetingCount} label="My meetings" change={meetingCount > 0 ? '↗ Review queue' : '— No change'} />
+          <Metric icon={<Eye size={21} />} iconBg="#e7dccb" value={activeListings} label="Active listings" change={activeListings > 0 ? '↗ Open for interest' : '— No active listings'} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Metric({
+  icon,
+  iconBg,
+  value,
+  label,
+  change,
+}: {
+  icon: ReactNode
+  iconBg: string
+  value: number
+  label: string
+  change: string
+}) {
+  return (
+    <div>
+      <div className="mb-7 flex h-[50px] w-[50px] items-center justify-center rounded-[14px] text-[#2d1838]" style={{ backgroundColor: iconBg }}>
+        {icon}
+      </div>
+      <div className="font-headline text-[42px] font-black leading-none text-[#2d1838]">{value}</div>
+      <div className="mt-3 text-[17px] font-semibold text-[#5d5668]">{label}</div>
+      <div className="mt-3 text-[14px] font-semibold text-[#6f8792]">{change}</div>
+    </div>
+  )
+}
+
+function RecentPosts({ posts }: { posts: Post[] }) {
+  const recentPosts = [...posts]
+    .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
+    .slice(0, 3)
+
+  return (
+    <div>
+      <div className="mb-9 flex items-center justify-between">
+        <h3 className="text-[16px] font-black text-[#403645]">Recent posts</h3>
+        <Link to={ROUTES.POSTS} className="flex items-center gap-6 text-[14px] font-black text-[#85cbd8] transition hover:text-[#2d1838]">
+          View all
+          <ArrowRight size={16} />
+        </Link>
+      </div>
+
+      <div className="relative ml-2 pl-9">
+        <div className="absolute left-0 top-[8px] bottom-[34px] border-l border-dashed border-[#c5cbd2]" />
+        {recentPosts.length > 0 ? (
+          recentPosts.map(post => (
+            <Link
+              to={`/posts/${post.id}`}
+              key={post.id}
+              className="group relative grid min-h-[94px] grid-cols-[minmax(0,1fr)_132px] items-start gap-8 border-b border-[#dfe2e7] pt-0.5 transition hover:border-[#8bddea]"
+            >
+              <span className="absolute -left-[41px] top-[4px] h-2.5 w-2.5 rounded-full bg-[#9bdce8]" />
+              <div>
+                <div className="truncate text-[16px] font-black text-[#393041] transition group-hover:text-[#2d1838]">{post.title}</div>
+                <div className="mt-2 text-[15px] font-semibold text-[#7b7682]">{post.domain}</div>
+              </div>
+              <StatusPill status={post.status} />
+            </Link>
+          ))
+        ) : (
+          <div className="relative min-h-[94px] border-b border-[#dfe2e7] pt-0.5 text-[15px] font-semibold text-[#7b7682]">
+            <span className="absolute -left-[41px] top-[4px] h-2.5 w-2.5 rounded-full bg-[#9bdce8]" />
+            No posts yet.
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function StatusPill({ status }: { status: Post['status'] }) {
+  const labels: Record<Post['status'], string> = {
+    draft: 'Draft',
+    active: 'Active',
+    meeting_scheduled: 'Meeting',
+    partner_found: 'Partner Found',
+    expired: 'Expired',
+  }
+
+  return (
+    <span className="mt-1 rounded-full bg-[#2d1838] px-4 py-1.5 text-center text-[11px] font-black uppercase tracking-[0.1em] text-[#dff8ff]">
+      {labels[status]}
     </span>
   )
 }
 
-function EmptyRow({ icon, title, subtitle, cta }: { icon: string; title: string; subtitle?: string; cta?: React.ReactNode }) {
+function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: string }) {
+  const visibleMeetings = meetings.slice(0, 3)
+  const positions = ['left-[312px] top-[76px]', 'left-[112px] top-[210px]', 'left-[334px] top-[270px]']
+
   return (
-    <div className="px-6 py-10 text-center">
-      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-hai-offwhite mb-3">
-        <span className="material-symbols-outlined text-hai-plum/50 text-[24px]">{icon}</span>
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-[16px] font-black text-[#403645]">Upcoming meetings</h3>
+        <Link to={ROUTES.MEETINGS} className="flex items-center gap-6 text-[14px] font-black text-[#85cbd8] transition hover:text-[#2d1838]">
+          View all
+          <ArrowRight size={16} />
+        </Link>
       </div>
-      <div className="font-body font-bold text-hai-plum text-[15px]">{title}</div>
-      {subtitle && <div className="text-[13px] text-neutral-500 mt-1 font-body">{subtitle}</div>}
-      {cta && <div className="mt-3">{cta}</div>}
+
+      <div className="relative mx-auto h-[360px] w-[520px]">
+        <div className="absolute left-[88px] top-[34px] h-[330px] w-[330px] rounded-full border border-[#edf0f4]" />
+        <div className="absolute left-[128px] top-[74px] h-[250px] w-[250px] rounded-full border border-[#edf0f4]" />
+        <div className="absolute left-[168px] top-[114px] h-[170px] w-[170px] rounded-full border border-[#edf0f4]" />
+        <div className="absolute left-[206px] top-[152px] flex h-[94px] w-[94px] items-center justify-center rounded-full bg-[#dff8ff]">
+          <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-[#c7edf5] text-[#2d1838]">
+            <CalendarDays size={23} strokeWidth={2.4} />
+          </div>
+        </div>
+
+        {visibleMeetings.map((meeting, index) => (
+          <MeetingAvatar
+            key={meeting.id}
+            meeting={meeting}
+            userId={userId}
+            className={positions[index]}
+            imageSrc={index === 1 ? '/images/engineer-portrait.png' : '/images/clinician-portrait.png'}
+          />
+        ))}
+
+        <div className="absolute left-[200px] top-[248px] w-[120px] text-center">
+          {visibleMeetings.length === 0 ? (
+            <>
+              <div className="text-[18px] font-black text-[#2d1838]">All caught up</div>
+              <div className="mt-2 text-[15px] font-semibold leading-6 text-[#7c7682]">
+                No pending<br />meetings.
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-[18px] font-black text-[#2d1838]">{visibleMeetings.length} upcoming</div>
+              <div className="mt-2 text-[15px] font-semibold leading-6 text-[#7c7682]">
+                Hover profiles<br />for details.
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function MeetingAvatar({
+  meeting,
+  userId,
+  imageSrc,
+  className,
+}: {
+  meeting: Meeting
+  userId: string
+  imageSrc: string
+  className: string
+}) {
+  const isRequester = meeting.requesterId === userId
+  const partner = isRequester ? meeting.ownerName : meeting.requesterName
+  const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
+  const statusLabel = meeting.status === 'time_proposed'
+    ? 'Time proposed'
+    : meeting.status.charAt(0).toUpperCase() + meeting.status.slice(1)
+  const dateLabel = slot
+    ? new Date(`${slot.date}T${slot.time}`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : 'Slot pending'
+
+  return (
+    <div className={`group absolute flex h-[54px] w-[54px] items-center justify-center rounded-full bg-white shadow-[0_10px_28px_-18px_rgba(45,24,56,0.6)] ${className}`}>
+      <img src={imageSrc} alt={partner} className="h-[38px] w-[38px] rounded-full object-cover" />
+      <div className="pointer-events-none absolute left-1/2 top-[62px] z-20 w-[230px] -translate-x-1/2 translate-y-2 rounded-2xl border border-[#e8e8ee] bg-white px-4 py-3 text-left opacity-0 shadow-[0_24px_60px_-28px_rgba(45,24,56,0.45)] transition group-hover:translate-y-0 group-hover:opacity-100">
+        <div className="truncate text-[13px] font-black text-[#2d1838]">{partner}</div>
+        <div className="mt-1 line-clamp-2 text-[12px] font-semibold leading-4 text-[#6f6b76]">{meeting.postTitle}</div>
+        <div className="mt-3 flex items-center justify-between gap-3 text-[11px] font-black uppercase tracking-[0.08em] text-[#7f9ca6]">
+          <span>{statusLabel}</span>
+          <span>{slot ? slot.time : ''}</span>
+        </div>
+        <div className="mt-1 text-[11px] font-bold text-[#9a95a1]">{dateLabel}</div>
+      </div>
     </div>
   )
 }

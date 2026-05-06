@@ -64,14 +64,14 @@ function Icon({ name, className = '', filled = false }: { name: string; classNam
 function Logo({ inverted = false }: { inverted?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
-      <div className={`p-1.5 rounded-lg ${inverted ? 'bg-white' : 'bg-black'}`}>
-        <svg width="22" height="22" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="16.5" y="5" width="7" height="30" rx="1.5" fill={inverted ? 'black' : 'white'} />
-          <rect x="5" y="16.5" width="30" height="7" rx="1.5" fill={inverted ? 'black' : 'white'} />
-        </svg>
-      </div>
-      <span className={`text-[22px] font-extrabold tracking-tight font-body ${inverted ? 'text-white' : 'text-black'}`}>
-        healthai<span className="text-hai-plum">.</span>
+      <img
+        src="/images/healthailogo.svg"
+        alt="HealthAI logo"
+        className="h-9 w-auto"
+        style={inverted ? { filter: 'brightness(0) invert(1)' } : undefined}
+      />
+      <span className={`text-[21px] font-extrabold tracking-tight font-headline ${inverted ? 'text-white' : 'text-[#03326D]'}`}>
+        HealthAI
       </span>
     </div>
   )
