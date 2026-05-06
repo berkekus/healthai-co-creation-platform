@@ -1,11 +1,11 @@
-import { useId, useEffect, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
+import type { ReactNode } from 'react'
 import { Controller, useWatch } from 'react-hook-form'
-import type { UseFormRegister, FieldErrors, Control, UseFormSetValue } from 'react-hook-form'
+import type { Control, FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form'
+import { CalendarDays, Lock, ShieldCheck } from 'lucide-react'
 import type { PostCreateFormData } from '../../utils/validators'
-import FormField, { inputStyle } from '../ui/FormField'
 import SearchableSelect from '../ui/SearchableSelect'
 import { COUNTRIES, getCitiesForCountry } from '../../data/locations'
-
 
 const MEDICAL_DOMAINS = [
   'Cardiology','Oncology','Radiology & Imaging','Neurology','Orthopedics',
@@ -16,49 +16,10 @@ const MEDICAL_DOMAINS = [
   'Endocrinology & Diabetes','Remote Patient Monitoring','Mental Health AI',
 ]
 
-const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'
-const ERROR_SHADOW = '0 0 0 3px rgba(220,38,38,0.18)'
-
-const focusIn = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, err?: string) => {
-  e.currentTarget.style.borderColor = err ? '#DC2626' : '#36213E'
-  e.currentTarget.style.boxShadow = err ? ERROR_SHADOW : FOCUS_SHADOW
-}
-const focusOut = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, err?: string) => {
-  e.currentTarget.style.borderColor = err ? '#DC2626' : '#E5E5E5'
-  e.currentTarget.style.boxShadow = 'none'
-}
-
-const chevronSvg = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2336213E' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`
-
-const selectStyle = (error?: string): React.CSSProperties => ({
-  ...inputStyle(error),
-  appearance: 'none',
-  backgroundImage: chevronSvg,
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'right 16px center',
-  paddingRight: 40,
-  cursor: 'pointer',
-})
-const textareaStyle = (error?: string): React.CSSProperties => ({
-  ...inputStyle(error),
-  minHeight: 160,
-  resize: 'vertical',
-  lineHeight: 1.6,
-})
-
-function SectionHeader({ number, title, subtitle }: { number: string; title: string; subtitle?: string }) {
-  return (
-    <header className="flex items-start gap-4 mb-6">
-      <div className="w-10 h-10 rounded-2xl bg-hai-mint border border-hai-teal/40 flex items-center justify-center font-mono font-bold text-[13px] text-hai-plum shrink-0">
-        {number}
-      </div>
-      <div>
-        <h2 className="font-headline font-bold text-[22px] leading-tight text-hai-plum">{title}</h2>
-        {subtitle && <p className="text-[13.5px] text-neutral-600 mt-1 leading-relaxed">{subtitle}</p>}
-      </div>
-    </header>
-  )
-}
+const baseInput =
+  'h-14 w-full rounded-[10px] border border-[#d7dbe3] bg-white px-4 text-[14px] font-semibold text-[#2d1838] outline-none transition placeholder:text-[#9a95a1] focus:border-[#66c8e7] focus:ring-4 focus:ring-[#66c8e7]/20'
+const baseSelect =
+  `${baseInput} appearance-none pr-10`
 
 interface Props {
   register: UseFormRegister<PostCreateFormData>
@@ -81,210 +42,194 @@ export default function PostFormFields({ register, control, setValue, errors, mi
   const availableCities = getCitiesForCountry(selectedCountry)
 
   return (
-    <div className="flex flex-col gap-10">
-
-      {/* 01 — Basics */}
-      <section className="bg-white rounded-[2rem] border border-neutral-100 p-6 md:p-8 shadow-[0_20px_50px_-30px_rgba(54,33,62,0.12)]">
-        <SectionHeader number="01" title="The basics" subtitle="A clear title and the clinical domain help the right people find you." />
-        <div className="flex flex-col gap-5">
-          <FormField label="Post title" error={errors.title?.message} required>
+    <div className="space-y-6">
+      <FormSection number="1" title="The basics" subtitle="A clear title and domain help the right people find you.">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          <Field label="Post title" error={errors.title?.message} required>
             <input
               {...register('title')}
-              type="text"
-              placeholder="e.g. ECG anomaly detection for ICU bedside monitors"
-              style={inputStyle(errors.title?.message)}
-              onFocus={e => focusIn(e, errors.title?.message)}
-              onBlur={e => focusOut(e, errors.title?.message)}
+              className={baseInput}
+              placeholder="e.g. AI-powered glucose monitoring system"
             />
-          </FormField>
-
-          <FormField label="Medical domain" error={errors.domain?.message} required>
-            <select
-              {...register('domain')}
-              style={selectStyle(errors.domain?.message)}
-              onFocus={e => focusIn(e, errors.domain?.message)}
-              onBlur={e => focusOut(e, errors.domain?.message)}
-            >
-              <option value="">Select a domain…</option>
-              {MEDICAL_DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
-          </FormField>
+          </Field>
+          <Field label="Domain" error={errors.domain?.message} required>
+            <SelectShell>
+              <select {...register('domain')} className={baseSelect} defaultValue="">
+                <option value="">Select a domain</option>
+                {MEDICAL_DOMAINS.map(domain => <option key={domain} value={domain}>{domain}</option>)}
+              </select>
+            </SelectShell>
+          </Field>
         </div>
-      </section>
+      </FormSection>
 
-      {/* 02 — Details */}
-      <section className="bg-white rounded-[2rem] border border-neutral-100 p-6 md:p-8 shadow-[0_20px_50px_-30px_rgba(54,33,62,0.12)]">
-        <SectionHeader number="02" title="What you're looking for" subtitle="Describe the collaboration without revealing confidential details." />
-        <div className="flex flex-col gap-5">
-          <FormField
-            label="Expertise required"
-            error={errors.expertiseRequired?.message}
-            required
-            hint="e.g. Signal Processing, Embedded ML"
-          >
+      <FormSection number="2" title="What you're looking for" subtitle="Describe the collaboration without revealing confidential details.">
+        <div className="grid grid-cols-1 gap-x-8 gap-y-5 lg:grid-cols-[minmax(0,1fr)_230px]">
+          <Field label="Expertise required" error={errors.expertiseRequired?.message} required>
             <input
               {...register('expertiseRequired')}
-              type="text"
-              placeholder="Describe the technical or clinical expertise you need"
-              style={inputStyle(errors.expertiseRequired?.message)}
-              onFocus={e => focusIn(e, errors.expertiseRequired?.message)}
-              onBlur={e => focusOut(e, errors.expertiseRequired?.message)}
+              className={baseInput}
+              placeholder="e.g. Signal processing, Embedded ML, Clinical validation"
             />
-          </FormField>
+          </Field>
+          <Hint>Add the technical or clinical expertise you're seeking.</Hint>
 
-          <FormField
-            label="Description"
-            error={errors.description?.message}
-            required
-            hint="Min. 50 characters"
-          >
+          <Field label="Project summary" error={errors.description?.message} required>
             <textarea
               {...register('description')}
-              placeholder="Describe your project, what you've built so far, and what you're looking for in a collaborator. Patient data must not be included."
-              style={textareaStyle(errors.description?.message)}
-              onFocus={e => focusIn(e, errors.description?.message)}
-              onBlur={e => focusOut(e, errors.description?.message)}
+              className={`${baseInput} h-[96px] resize-none py-4 leading-6`}
+              placeholder="Describe your project goal, what you've built so far, and what you need from a collaborator."
             />
-          </FormField>
+          </Field>
+          <Hint>Min. 50 characters.</Hint>
         </div>
-      </section>
+      </FormSection>
 
-      {/* 03 — Classification */}
-      <section className="bg-white rounded-[2rem] border border-neutral-100 p-6 md:p-8 shadow-[0_20px_50px_-30px_rgba(54,33,62,0.12)]">
-        <SectionHeader number="03" title="How you want to collaborate" subtitle="Set expectations on project stage, engagement type, and confidentiality." />
-        <div className="flex flex-col gap-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <FormField label="Project stage" error={errors.projectStage?.message} required>
-              <select
-                {...register('projectStage')}
-                style={selectStyle(errors.projectStage?.message)}
-                onFocus={e => focusIn(e, errors.projectStage?.message)}
-                onBlur={e => focusOut(e, errors.projectStage?.message)}
-              >
+      <FormSection number="3" title="How you want to collaborate" subtitle="Set expectations on project stage, engagement type, and confidentiality.">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <Field label="Project stage" error={errors.projectStage?.message} required>
+            <SelectShell>
+              <select {...register('projectStage')} className={baseSelect}>
                 <option value="idea">Idea</option>
                 <option value="concept_validation">Concept Validation</option>
-                <option value="prototype">Prototype Developed</option>
-                <option value="pilot">Pilot Testing</option>
-                <option value="pre_deployment">Pre-Deployment</option>
+                <option value="prototype">Prototype</option>
+                <option value="pilot">Pilot</option>
+                <option value="pre_deployment">Pre-deployment</option>
               </select>
-            </FormField>
+            </SelectShell>
+          </Field>
 
-            <FormField label="Collaboration type" error={errors.collaborationType?.message} required>
-              <select
-                {...register('collaborationType')}
-                style={selectStyle(errors.collaborationType?.message)}
-                onFocus={e => focusIn(e, errors.collaborationType?.message)}
-                onBlur={e => focusOut(e, errors.collaborationType?.message)}
-              >
-                <option value="">Select…</option>
+          <Field label="Collaboration type" error={errors.collaborationType?.message} required>
+            <SelectShell>
+              <select {...register('collaborationType')} className={baseSelect} defaultValue="">
+                <option value="">Select type</option>
                 <option value="advisor">Advisor</option>
                 <option value="co_founder">Co-Founder</option>
                 <option value="research_partner">Research Partner</option>
                 <option value="contract">Contract Work</option>
               </select>
-            </FormField>
-          </div>
-
-          <FormField label="Confidentiality level" error={errors.confidentiality?.message} required>
-            <div className="flex flex-col gap-3 pt-1" role="radiogroup" aria-labelledby={`${radioGroupId}-label`}>
-              {([
-                { value: 'public_pitch', label: 'Public Pitch',             desc: 'Short idea summary visible to all members',                                            icon: 'visibility' },
-                { value: 'meeting_only', label: 'Details in Meeting Only',  desc: 'Only title and domain are public; full details shared under NDA in meeting',           icon: 'lock' },
-              ] as const).map(opt => (
-                <label
-                  key={opt.value}
-                  className="flex gap-4 cursor-pointer p-4 rounded-2xl border border-neutral-200 bg-hai-offwhite hover:border-hai-teal hover:bg-white transition-colors has-[:checked]:border-hai-plum has-[:checked]:bg-gradient-to-br has-[:checked]:from-hai-mint/40 has-[:checked]:to-white"
-                >
-                  <input
-                    {...register('confidentiality')}
-                    type="radio"
-                    value={opt.value}
-                    className="peer sr-only"
-                  />
-                  <div className="w-10 h-10 rounded-xl bg-white border border-hai-teal/40 flex items-center justify-center shrink-0 peer-checked:bg-hai-plum peer-checked:border-hai-plum peer-checked:text-hai-mint text-hai-plum">
-                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: '"FILL" 1' }}>{opt.icon}</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-body font-bold text-[15px] text-hai-plum">{opt.label}</div>
-                    <div className="text-[12.5px] text-neutral-600 mt-0.5 leading-relaxed">{opt.desc}</div>
-                  </div>
-                  <div className="w-5 h-5 rounded-full border-2 border-neutral-300 flex items-center justify-center shrink-0 self-center peer-checked:border-hai-plum peer-checked:bg-hai-plum">
-                    <div className="w-2 h-2 rounded-full bg-hai-mint opacity-0 peer-checked:opacity-100" />
-                  </div>
-                </label>
-              ))}
-            </div>
-          </FormField>
+            </SelectShell>
+          </Field>
         </div>
-      </section>
 
-      {/* 04 — Location & timeline */}
-      <section className="bg-white rounded-[2rem] border border-neutral-100 p-6 md:p-8 shadow-[0_20px_50px_-30px_rgba(54,33,62,0.12)]">
-        <SectionHeader number="04" title="Where & when" subtitle="Location helps with in-person meetings; the expiry date closes the post automatically." />
-        <div className="flex flex-col gap-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <FormField label="Country" error={errors.country?.message} required>
-              <Controller
-                name="country"
-                control={control}
-                render={({ field }) => (
-                  <SearchableSelect
-                    options={COUNTRIES}
-                    value={field.value ?? ''}
-                    onChange={field.onChange}
-                    placeholder="Select a country…"
-                    error={errors.country?.message}
-                  />
-                )}
-              />
-            </FormField>
-            <FormField label="City" error={errors.city?.message} required>
-              <Controller
-                name="city"
-                control={control}
-                render={({ field }) => (
-                  <SearchableSelect
-                    options={availableCities}
-                    value={field.value ?? ''}
-                    onChange={field.onChange}
-                    placeholder={selectedCountry ? 'Select a city…' : 'Select a country first…'}
-                    error={errors.city?.message}
-                  />
-                )}
-              />
-            </FormField>
+        <Field label="Confidentiality level" error={errors.confidentiality?.message} required>
+          <div id={`${radioGroupId}-label`} className="grid grid-cols-1 gap-4 md:grid-cols-2" role="radiogroup">
+            {([
+              { value: 'public_pitch', title: 'Public Pitch', desc: 'Short idea summary visible to all members' },
+              { value: 'meeting_only', title: 'Details in Meeting Only', desc: 'Only title and domain are public; full details shared under NDA' },
+            ] as const).map(option => (
+              <label
+                key={option.value}
+                className="group relative flex cursor-pointer items-center gap-4 rounded-[10px] border border-[#d7dbe3] bg-white p-4 transition has-[:checked]:border-[#66c8e7] has-[:checked]:bg-[#f2fbff]"
+              >
+                <input {...register('confidentiality')} type="radio" value={option.value} className="peer sr-only" />
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eefaff] text-[#2d1838]">
+                  <Lock size={18} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[14px] font-black text-[#2d1838]">{option.title}</span>
+                  <span className="mt-1 block text-[12px] font-semibold leading-5 text-[#6f6a76]">{option.desc}</span>
+                </span>
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[#cfd3dc] peer-checked:border-[#2d1838] peer-checked:bg-[#2d1838]">
+                  <span className="h-2 w-2 rounded-full bg-white opacity-0 peer-checked:opacity-100" />
+                </span>
+              </label>
+            ))}
           </div>
+        </Field>
+      </FormSection>
 
-          <FormField
-            label="Listing expiry date"
-            error={errors.expiryDate?.message}
-            required
-            hint="Post closes automatically on this date"
-          >
-            <input
-              {...register('expiryDate')}
-              type="date"
-              min={minDateStr}
-              style={inputStyle(errors.expiryDate?.message)}
-              onFocus={e => focusIn(e, errors.expiryDate?.message)}
-              onBlur={e => focusOut(e, errors.expiryDate?.message)}
+      <FormSection number="4" title="Where & when" subtitle="Location helps with in-person meetings; the expiry date closes the post automatically.">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <Field label="Country" error={errors.country?.message} required>
+            <Controller
+              name="country"
+              control={control}
+              render={({ field }) => (
+                <SearchableSelect options={COUNTRIES} value={field.value ?? ''} onChange={field.onChange} placeholder="Select country" error={errors.country?.message} />
+              )}
             />
-          </FormField>
+          </Field>
+          <Field label="City" error={errors.city?.message} required>
+            <Controller
+              name="city"
+              control={control}
+              render={({ field }) => (
+                <SearchableSelect options={availableCities} value={field.value ?? ''} onChange={field.onChange} placeholder={selectedCountry ? 'Select city' : 'Select country first'} error={errors.city?.message} />
+              )}
+            />
+          </Field>
         </div>
-      </section>
 
-      {/* GDPR notice */}
-      <div className="p-5 md:p-6 bg-gradient-to-br from-hai-cream/60 to-white border border-hai-plum/10 rounded-2xl flex items-start gap-4">
-        <div className="w-10 h-10 rounded-xl bg-hai-plum text-hai-mint flex items-center justify-center shrink-0">
-          <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: '"FILL" 1' }}>shield_person</span>
-        </div>
-        <div>
-          <div className="text-[10.5px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold mb-1.5">GDPR notice</div>
-          <div className="text-[13.5px] text-neutral-700 leading-relaxed">
-            Do not include patient data, identifiable clinical records, or proprietary IP. File uploads are not permitted on this platform — technical details belong in meetings under NDA.
+        <Field label="Listing expiry date" error={errors.expiryDate?.message} required>
+          <div className="relative">
+            <input {...register('expiryDate')} type="date" min={minDateStr} className={`${baseInput} pr-12`} />
+            <CalendarDays size={18} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#2d1838]" />
+          </div>
+        </Field>
+      </FormSection>
+
+      <FormSection number="5" title="Review & publish" subtitle="Review your details before making your post visible.">
+        <div className="flex gap-4 rounded-[10px] border border-[#cdeefa] bg-[#eefaff] p-5">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d8f5ff] text-[#2d1838]">
+            <ShieldCheck size={20} />
+          </span>
+          <div>
+            <div className="text-[14px] font-black text-[#2d1838]">GDPR Notice</div>
+            <p className="mt-1 text-[13px] font-semibold leading-5 text-[#4f4a58]">
+              Do not include patient data, identifiable clinical records, or proprietary IP.
+              <br />
+              File uploads are not permitted on this platform - technical details belong in meetings under NDA.
+            </p>
           </div>
         </div>
-      </div>
+      </FormSection>
+    </div>
+  )
+}
+
+function FormSection({ number, title, subtitle, children }: { number: string; title: string; subtitle: string; children: ReactNode }) {
+  return (
+    <section className="rounded-[18px] bg-white p-7 shadow-[0_24px_80px_-68px_rgba(45,24,56,0.75)]">
+      <header className="mb-7 flex items-start gap-4">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#66c8e7] text-[12px] font-black text-white">
+          {number}
+        </span>
+        <div>
+          <h2 className="text-[22px] font-black leading-tight text-[#2d1838]">{title}</h2>
+          <p className="mt-1 text-[13px] font-semibold text-[#6f6a76]">{subtitle}</p>
+        </div>
+      </header>
+      <div className="space-y-6">{children}</div>
+    </section>
+  )
+}
+
+function Field({ label, error, required, children }: { label: string; error?: string; required?: boolean; children: ReactNode }) {
+  return (
+    <div className="block">
+      <span className={`mb-2 block text-[12px] font-black ${error ? 'text-red-600' : 'text-[#2d1838]'}`}>
+        {label} {required && <span className="text-red-600">*</span>}
+      </span>
+      {children}
+      {error && <span className="mt-2 block text-[12px] font-semibold text-red-600">{error}</span>}
+    </div>
+  )
+}
+
+function Hint({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex items-center text-[13px] font-semibold leading-5 text-[#6f6a76] lg:pt-7">
+      {children}
+    </div>
+  )
+}
+
+function SelectShell({ children }: { children: ReactNode }) {
+  return (
+    <div className="relative">
+      {children}
+      <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#6f6a76]">⌄</span>
     </div>
   )
 }
