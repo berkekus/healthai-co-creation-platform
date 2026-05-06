@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "smoke": "ts-node-dev --transpile-only scripts/smoke-test.ts"
+    "smoke": "ts-node-dev --transpile-only scripts/smoke-test.ts",
+    "seed:realistic-posts": "ts-node-dev --transpile-only scripts/seed-realistic-posts.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
