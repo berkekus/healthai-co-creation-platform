@@ -95,6 +95,21 @@ const dottedDays = new Set([4, 8, 14, 18, 23, 27])
 
 export default function MeetingsPage() {
   const [activeTab, setActiveTab] = useState<TabId>('all')
+  const [sortMode, setSortMode] = useState<'recent' | 'oldest'>('recent')
+
+  const visibleMeetings = meetings
+    .filter(meeting => {
+      if (activeTab === 'incoming') return meeting.direction === 'Incoming'
+      if (activeTab === 'outgoing') return meeting.direction === 'Outgoing'
+      if (activeTab === 'confirmed') return meeting.status === 'Confirmed'
+      if (activeTab === 'cancelled') return meeting.status === 'Cancelled'
+      return true
+    })
+    .sort((a, b) => {
+      const left = new Date(`${a.date} ${a.time}`).getTime()
+      const right = new Date(`${b.date} ${b.time}`).getTime()
+      return sortMode === 'recent' ? right - left : left - right
+    })
 
   return (
     <main
@@ -119,11 +134,11 @@ export default function MeetingsPage() {
         <div className="mt-11 flex flex-col gap-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <FilterTabs activeTab={activeTab} onChange={setActiveTab} />
-            <SortControl />
+            <SortControl value={sortMode} onChange={setSortMode} />
           </div>
 
           <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.41fr)]">
-            <MeetingList />
+            <MeetingList meetings={visibleMeetings} />
             <aside>
               <WidgetArea />
             </aside>
@@ -196,24 +211,37 @@ function FilterTabs({ activeTab, onChange }: { activeTab: TabId; onChange: (tab:
   )
 }
 
-function SortControl() {
+function SortControl({ value, onChange }: { value: 'recent' | 'oldest'; onChange: (value: 'recent' | 'oldest') => void }) {
   return (
     <div className="flex items-center gap-3 text-[13px] font-bold text-[var(--muted)]">
       <span>Sort by</span>
-      <button className="inline-flex h-11 items-center gap-2 rounded-full border border-[var(--border)] bg-white px-4 text-[13px] font-extrabold text-[var(--text)] transition hover:border-[var(--accent)]">
-        Most recent
-        <ChevronDown size={16} />
-      </button>
+      <label className="relative">
+        <select
+          value={value}
+          onChange={event => onChange(event.target.value as 'recent' | 'oldest')}
+          className="h-11 appearance-none rounded-full border border-[var(--border)] bg-white px-4 pr-9 text-[13px] font-extrabold text-[var(--text)] outline-none transition hover:border-[var(--accent)]"
+        >
+          <option value="recent">Most recent</option>
+          <option value="oldest">Oldest first</option>
+        </select>
+        <ChevronDown size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2" />
+      </label>
     </div>
   )
 }
 
-function MeetingList() {
+function MeetingList({ meetings }: { meetings: MeetingItem[] }) {
   return (
     <section className="overflow-hidden rounded-[28px] border border-[var(--border)] bg-white shadow-[0_24px_70px_-54px_rgba(45,24,56,0.5)]">
-      {meetings.map((meeting, index) => (
-        <MeetingRow key={`${meeting.title}-${meeting.date}`} meeting={meeting} isLast={index === meetings.length - 1} />
-      ))}
+      {meetings.length > 0 ? (
+        meetings.map((meeting, index) => (
+          <MeetingRow key={`${meeting.title}-${meeting.date}`} meeting={meeting} isLast={index === meetings.length - 1} />
+        ))
+      ) : (
+        <div className="px-7 py-16 text-center text-[15px] font-bold text-[var(--muted)]">
+          No meetings match this filter.
+        </div>
+      )}
 
       <div className="flex h-[76px] items-center justify-center border-t border-[var(--border)]">
         <button className="text-[14px] font-extrabold text-[var(--primary)] transition hover:text-[var(--accent-strong)]">
@@ -274,53 +302,55 @@ function MeetingRow({ meeting, isLast }: { meeting: MeetingItem; isLast: boolean
 }
 
 function WidgetArea() {
+  const [calendarOpen, setCalendarOpen] = useState(true)
+  const [overviewOpen, setOverviewOpen] = useState(true)
+
   return (
     <div className="relative">
       <div className="mb-6 flex items-start justify-end gap-4 pr-2">
-        <div className="relative mr-2 mt-1 hidden w-[190px] text-right text-[13px] font-bold leading-snug text-[var(--accent-strong)] sm:block">
-          Takvim ve overview etkileşimle açılır
-          <svg className="absolute -right-10 top-7 h-12 w-12 overflow-visible" viewBox="0 0 64 64" fill="none">
-            <path d="M4 9C20 10 24 35 50 37" stroke="#55c7df" strokeWidth="2" strokeLinecap="round" strokeDasharray="4 6" />
-            <path d="M42 29L51 38L39 43" stroke="#55c7df" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-        <IconButton icon={<Calendar size={20} />} label="Open calendar" />
-        <IconButton icon={<PieChart size={20} />} label="Open overview" />
+        <IconButton icon={<Calendar size={20} />} label="Open calendar" onClick={() => setCalendarOpen(open => !open)} active={calendarOpen} />
+        <IconButton icon={<PieChart size={20} />} label="Open overview" onClick={() => setOverviewOpen(open => !open)} active={overviewOpen} />
       </div>
 
       <div className="space-y-6">
-        <CalendarPanel />
-        <OverviewPanel />
+        {calendarOpen && <CalendarPanel onClose={() => setCalendarOpen(false)} />}
+        {overviewOpen && <OverviewPanel onClose={() => setOverviewOpen(false)} />}
       </div>
     </div>
   )
 }
 
-function IconButton({ icon, label }: { icon: React.ReactNode; label: string }) {
+function IconButton({ icon, label, onClick, active }: { icon: React.ReactNode; label: string; onClick: () => void; active: boolean }) {
   return (
     <button
+      onClick={onClick}
       aria-label={label}
       title={label}
-      className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--primary)] shadow-[0_18px_45px_-32px_rgba(45,24,56,0.72)] transition hover:border-[var(--accent)] hover:bg-[var(--success-bg)]"
+      className={`flex h-14 w-14 items-center justify-center rounded-full border text-[var(--primary)] shadow-[0_18px_45px_-32px_rgba(45,24,56,0.72)] transition hover:border-[var(--accent)] hover:bg-[var(--success-bg)] ${
+        active ? 'border-[var(--accent)] bg-[var(--success-bg)]' : 'border-[var(--border)] bg-white'
+      }`}
     >
       {icon}
     </button>
   )
 }
 
-function CalendarPanel() {
+function CalendarPanel({ onClose }: { onClose: () => void }) {
+  const [monthOffset, setMonthOffset] = useState(0)
+  const monthLabel = monthOffset === 0 ? 'May 2026' : monthOffset > 0 ? 'June 2026' : 'April 2026'
+
   return (
     <section className="rounded-[28px] border border-[var(--border)] bg-white p-6 shadow-[0_28px_70px_-54px_rgba(45,24,56,0.6)]">
       <div className="mb-5 flex items-center justify-between">
-        <h2 className="font-headline text-[18px] font-extrabold text-[var(--primary)]">May 2026</h2>
+        <h2 className="font-headline text-[18px] font-extrabold text-[var(--primary)]">{monthLabel}</h2>
         <div className="flex items-center gap-1.5">
-          <button className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
+          <button onClick={() => setMonthOffset(offset => offset - 1)} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
             <ChevronLeft size={16} />
           </button>
-          <button className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
+          <button onClick={() => setMonthOffset(offset => offset + 1)} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
             <ChevronRight size={16} />
           </button>
-          <button className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
             <X size={16} />
           </button>
         </div>
@@ -354,7 +384,8 @@ function CalendarPanel() {
   )
 }
 
-function OverviewPanel() {
+function OverviewPanel({ onClose }: { onClose: () => void }) {
+  const [range, setRange] = useState('month')
   const legend = [
     { label: 'Pending review', value: 1, percent: '9%', color: '#d8ff8f' },
     { label: 'Confirmed', value: 4, percent: '36%', color: '#8fdff0' },
@@ -367,11 +398,18 @@ function OverviewPanel() {
       <div className="mb-6 flex items-center justify-between gap-4">
         <h2 className="font-headline text-[18px] font-extrabold text-[var(--primary)]">Meetings overview</h2>
         <div className="flex items-center gap-2">
-          <button className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[var(--border)] px-3 text-[12px] font-extrabold text-[var(--text)]">
-            This month
-            <ChevronDown size={14} />
-          </button>
-          <button className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
+          <label className="relative">
+            <select
+              value={range}
+              onChange={event => setRange(event.target.value)}
+              className="h-9 appearance-none rounded-full border border-[var(--border)] bg-white px-3 pr-8 text-[12px] font-extrabold text-[var(--text)] outline-none"
+            >
+              <option value="month">This month</option>
+              <option value="quarter">This quarter</option>
+            </select>
+            <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" />
+          </label>
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
             <X size={16} />
           </button>
         </div>
