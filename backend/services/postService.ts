@@ -114,7 +114,7 @@ export async function markPartnerFound(id: string, requesterId: string) {
   // Cancel all non-terminal meetings and notify each requester
   const activeMeetings = await Meeting.find({
     postId: id,
-    status: { $in: ['pending', 'time_proposed', 'confirmed'] },
+    status: { $in: ['pending', 'confirmed'] },
   })
   await Promise.all(activeMeetings.map(async (meeting) => {
     meeting.status = 'cancelled'

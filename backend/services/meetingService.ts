@@ -36,7 +36,7 @@ export async function requestMeeting(data: {
   const existing = await Meeting.exists({
     postId: data.postId,
     requesterId: data.requesterId,
-    status: { $in: ['pending', 'time_proposed'] },
+    status: 'pending',
   })
   if (existing) throw makeError('You already have a pending meeting request for this post', 409)
 
@@ -86,7 +86,7 @@ async function resolveUpdateFailure(
 
 export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot) {
   const meeting = await Meeting.findOneAndUpdate(
-    { _id: id, ownerId, status: { $in: ['pending', 'time_proposed'] } },
+    { _id: id, ownerId, status: 'pending' },
     { $set: { status: 'confirmed', confirmedSlot: slot } },
     { new: true },
   )
@@ -106,7 +106,7 @@ export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot
 
 export async function declineMeeting(id: string, ownerId: string) {
   const meeting = await Meeting.findOneAndUpdate(
-    { _id: id, ownerId, status: { $in: ['pending', 'time_proposed'] } },
+    { _id: id, ownerId, status: 'pending' },
     { $set: { status: 'declined' } },
     { new: true },
   )

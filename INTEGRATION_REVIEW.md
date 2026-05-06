@@ -28,11 +28,11 @@ Temel auth, post ve meeting akışlarının mimarisi sağlam kurulmuş. Ancak **
 
 ### Küçük / İyileştirme
 
-- [ ] **#9** `meetingStore.fetchByUser` — `userId` query param gönderiyor, backend ignore ediyor
-- [ ] **#10** `expressInterest` — duplicate önleme yok, aynı kullanıcı sonsuz kez artırabilir
-- [ ] **#11** `Meeting.time_proposed` — enum'da tanımlı ama hiçbir endpoint bu statüyü setlemiyor
-- [ ] **#12** `GET /notifications/unread-count` — verimli endpoint var, frontend 30s'de tüm listeyi çekiyor
-- [ ] **#13** `GET /auth/me/export` — endpoint çalışıyor, ProfilePage'de download butonu yok
+- [x] **#9** `meetingStore.fetchByUser` — `userId` query param gönderiyor, backend ignore ediyor
+- [x] **#10** `expressInterest` — duplicate önleme yok, aynı kullanıcı sonsuz kez artırabilir
+- [x] **#11** `Meeting.time_proposed` — enum'da tanımlı ama hiçbir endpoint bu statüyü setlemiyor
+- [x] **#12** `GET /notifications/unread-count` — verimli endpoint var, frontend 30s'de tüm listeyi çekiyor
+- [x] **#13** `GET /auth/me/export` — endpoint çalışıyor, ProfilePage'de download butonu yok
 
 ---
 

@@ -4,7 +4,9 @@ import api from '../lib/api'
 
 interface NotificationState {
   notifications: Notification[]
-  fetchByUser: (userId: string) => Promise<void>
+  unreadTotal: number
+  fetchByUser: (userId?: string) => Promise<void>
+  fetchUnreadCount: () => Promise<void>
   unreadCount: (userId: string) => number
   markRead: (id: string) => Promise<void>
   markAllRead: (userId: string) => Promise<void>
@@ -25,21 +27,31 @@ const POLL_INTERVAL_MS = 30_000
 
 export const useNotificationStore = create<NotificationState>()((set, get) => ({
   notifications: [],
+  unreadTotal: 0,
 
-  fetchByUser: async (_userId: string) => {
+  fetchByUser: async (_userId?: string) => {
     try {
       const { data } = await api.get<{
         success: boolean
         data: { notifications: Notification[]; total: number; page: number; limit: number; pages: number }
       }>('/notifications')
       set({ notifications: data.data.notifications.map(normalise) })
+      get().fetchUnreadCount()
     } catch {
       // keep existing state on error
     }
   },
 
-  unreadCount: (userId) =>
-    get().notifications.filter(n => n.userId === userId && !n.isRead).length,
+  fetchUnreadCount: async () => {
+    try {
+      const { data } = await api.get<{ success: boolean; data: { count: number } }>('/notifications/unread-count')
+      set({ unreadTotal: data.data.count })
+    } catch {
+      // keep existing count on error
+    }
+  },
+
+  unreadCount: (_userId) => get().unreadTotal,
 
   getByUser: (userId) =>
     get().notifications
@@ -50,6 +62,7 @@ export const useNotificationStore = create<NotificationState>()((set, get) => ({
     await api.post(`/notifications/${id}/read`)
     set(s => ({
       notifications: s.notifications.map(n => n.id === id ? { ...n, isRead: true } : n),
+      unreadTotal: Math.max(0, s.unreadTotal - (s.notifications.find(n => n.id === id && !n.isRead) ? 1 : 0)),
     }))
   },
 
@@ -57,6 +70,7 @@ export const useNotificationStore = create<NotificationState>()((set, get) => ({
     await api.post('/notifications/mark-all-read')
     set(s => ({
       notifications: s.notifications.map(n => ({ ...n, isRead: true })),
+      unreadTotal: 0,
     }))
   },
 
@@ -64,7 +78,10 @@ export const useNotificationStore = create<NotificationState>()((set, get) => ({
     try {
       const { data } = await api.post<{ success: boolean; data: Notification }>('/notifications', n)
       const notification = normalise(data.data)
-      set(s => ({ notifications: [notification, ...s.notifications] }))
+      set(s => ({
+        notifications: [notification, ...s.notifications],
+        unreadTotal: notification.isRead ? s.unreadTotal : s.unreadTotal + 1,
+      }))
     } catch {
       // optimistic fallback — still show locally
       set(s => ({
@@ -72,24 +89,31 @@ export const useNotificationStore = create<NotificationState>()((set, get) => ({
           { ...n, id: `n${Date.now()}`, createdAt: new Date().toISOString() },
           ...s.notifications,
         ],
+        unreadTotal: n.isRead ? s.unreadTotal : s.unreadTotal + 1,
       }))
     }
   },
 
   deleteNotification: async (id) => {
     await api.delete(`/notifications/${id}`)
-    set(s => ({ notifications: s.notifications.filter(n => n.id !== id) }))
+    set(s => {
+      const deleted = s.notifications.find(n => n.id === id)
+      return {
+        notifications: s.notifications.filter(n => n.id !== id),
+        unreadTotal: Math.max(0, s.unreadTotal - (deleted && !deleted.isRead ? 1 : 0)),
+      }
+    })
   },
 
   deleteAll: async () => {
     await api.delete('/notifications')
-    set({ notifications: [] })
+    set({ notifications: [], unreadTotal: 0 })
   },
 
   startPolling: () => {
     if (_pollInterval !== null) return
-    get().fetchByUser('')
-    _pollInterval = setInterval(() => get().fetchByUser(''), POLL_INTERVAL_MS)
+    get().fetchUnreadCount()
+    _pollInterval = setInterval(() => get().fetchUnreadCount(), POLL_INTERVAL_MS)
   },
 
   stopPolling: () => {

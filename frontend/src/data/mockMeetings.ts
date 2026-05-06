@@ -29,7 +29,7 @@ export const mockMeetings: Meeting[] = [
     requesterName: 'Kenji Nakamura',
     ownerId: 'u3',
     ownerName: 'Dr. Ingrid Larsson',
-    status: 'time_proposed',
+    status: 'pending',
     message: 'We have worked on similar histopathology segmentation tasks. Happy to share preliminary results.',
     ndaAccepted: true,
     proposedSlots: [
@@ -66,7 +66,7 @@ export const mockMeetings: Meeting[] = [
     requesterName: 'Dr. Elena Müller',
     ownerId: 'u2',
     ownerName: 'Marco Rossi',
-    status: 'time_proposed',
+    status: 'pending',
     message: 'Our stroke unit has curated imaging + outcome data across three sites. Happy to define clinically meaningful endpoints together.',
     ndaAccepted: true,
     proposedSlots: [

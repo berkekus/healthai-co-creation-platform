@@ -4,7 +4,7 @@ import api from '../lib/api'
 
 interface MeetingState {
   meetings: Meeting[]
-  fetchByUser: (userId: string) => Promise<void>
+  fetchByUser: (userId?: string) => Promise<void>
   request: (data: MeetingRequestData, requesterId: string, requesterName: string, ownerId: string, ownerName: string, postTitle: string) => Promise<Meeting>
   accept: (id: string, slot: TimeSlot) => Promise<void>
   decline: (id: string) => Promise<void>
@@ -21,7 +21,7 @@ function normalise(raw: Meeting & { _id?: string }): Meeting {
 export const useMeetingStore = create<MeetingState>()((set, get) => ({
   meetings: [],
 
-  fetchByUser: async (_userId: string) => {
+  fetchByUser: async (_userId?: string) => {
     try {
       const { data } = await api.get<{ success: boolean; data: Meeting[] }>('/meetings')
       set({ meetings: data.data.map(normalise) })
