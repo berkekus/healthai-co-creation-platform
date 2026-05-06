@@ -2,12 +2,7 @@ import Post, { IPost } from '../models/Post'
 import { FilterQuery } from 'mongoose'
 import Meeting from '../models/Meeting'
 import { pushNotification } from './notificationService'
-
-function makeError(message: string, statusCode: number): Error & { statusCode: number } {
-  const err = new Error(message) as Error & { statusCode: number }
-  err.statusCode = statusCode
-  return err
-}
+import { makeError } from '../utils/AppError'
 
 export interface PostFilters {
   domain?: string

@@ -3,6 +3,7 @@ import Post from '../models/Post'
 import User from '../models/User'
 import { incrementMeetingCount, markPartnerFound, recomputePostStatus } from './postService'
 import { pushNotification } from './notificationService'
+import { makeError } from '../utils/AppError'
 
 async function withEmails(meetings: IMeeting[]) {
   const ids = [...new Set(meetings.flatMap(m => [m.requesterId.toString(), m.ownerId.toString()]))]
@@ -13,12 +14,6 @@ async function withEmails(meetings: IMeeting[]) {
     requesterEmail: (m.requesterEmail || map.get(m.requesterId.toString()) || ''),
     ownerEmail:     (m.ownerEmail     || map.get(m.ownerId.toString())     || ''),
   }))
-}
-
-function makeError(message: string, statusCode: number): Error & { statusCode: number } {
-  const err = new Error(message) as Error & { statusCode: number }
-  err.statusCode = statusCode
-  return err
 }
 
 export async function requestMeeting(data: {

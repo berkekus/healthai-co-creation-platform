@@ -1,4 +1,5 @@
 import Notification, { INotification, NotificationType } from '../models/Notification'
+import { makeError } from '../utils/AppError'
 
 export async function pushNotification(data: {
   userId: string
@@ -20,11 +21,7 @@ export async function markRead(id: string, userId: string) {
     { isRead: true },
     { new: true }
   )
-  if (!notification) {
-    const err = new Error('Notification not found') as Error & { statusCode: number }
-    err.statusCode = 404
-    throw err
-  }
+  if (!notification) throw makeError('Notification not found', 404)
   return notification
 }
 
@@ -38,11 +35,7 @@ export async function getUnreadCount(userId: string): Promise<number> {
 
 export async function deleteNotification(id: string, userId: string) {
   const notification = await Notification.findOneAndDelete({ _id: id, userId })
-  if (!notification) {
-    const err = new Error('Notification not found') as Error & { statusCode: number }
-    err.statusCode = 404
-    throw err
-  }
+  if (!notification) throw makeError('Notification not found', 404)
   return notification
 }
 

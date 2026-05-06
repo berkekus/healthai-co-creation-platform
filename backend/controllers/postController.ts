@@ -1,21 +1,9 @@
 import { AuthRequest } from '../middleware/authMiddleware'
 import * as postService from '../services/postService'
-import { createLog } from '../services/logService'
 import { LOG } from '../constants/logActions'
 import User from '../models/User'
 import { asyncHandler } from '../utils/asyncHandler'
-
-function log(req: AuthRequest, action: string, targetEntityId?: string) {
-  createLog({
-    userId: req.userId as string,
-    userEmail: req.userEmail as string,
-    role: req.userRole as string,
-    action,
-    targetEntityId,
-    result: 'success',
-    ipAddress: req.ip,
-  }).catch(() => {})
-}
+import { log } from '../utils/controllerLog'
 
 export const createPost = asyncHandler<AuthRequest>(async (req, res) => {
   const { title, domain, expertiseRequired, description, projectStage,
