@@ -45,7 +45,7 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 
 **Sorunlar:**
 - **Validation çok ince**. [authController.ts:12-34](controllers/authController.ts#L12-L34) elle yapılmış `if` zincirleri var; `expressionRequired`, `description`, `expiryDate` gibi alanların min/max uzunluğu, `expiryDate >= now` kontrolü **yok**. Önerim: `zod` veya `joi` ile schema-based validation. Şu anki regex `EMAIL_RE` aşırı naif.
-- [postController.ts:24-28](controllers/postController.ts#L24-L28) `expiryDate` string olarak alınıyor, sonra Mongoose `Date` olarak parse ediyor. `new Date('blabla')` → `Invalid Date`; sonra `expiryDate: { type: Date, required: true }` validation'ı tetikler ama hata mesajı kullanıcıya kafa karıştırıcı. Önceden parse + 400 dönmek lazım.
+- ✅ [postController.ts:24-28](controllers/postController.ts#L24-L28) `expiryDate` string olarak alınıyor, sonra Mongoose `Date` olarak parse ediyor. `new Date('blabla')` → `Invalid Date`; sonra `expiryDate: { type: Date, required: true }` validation'ı tetikler ama hata mesajı kullanıcıya kafa karıştırıcı. Önceden parse + 400 dönmek lazım.
 - ✅ [meetingService.ts:38](services/meetingService.ts#L38) `data.message.length < 20` — `data.message` undefined olursa TypeError. Controller `!message` kontrolü yapıyor ama `message: ''` boş string için yine de fail eder. Yine de boundary check yapılmalı.
 - ✅ [meetingService.ts:39](services/meetingService.ts#L39) `proposedSlots.length < 3` — array değilse crash. `Array.isArray()` kontrolü yok.
 - ✅ [meetingController.ts:84](controllers/meetingController.ts#L84) `slot.date` ve `slot.time` string format kontrolü yok. Kullanıcı `"yarın"` gönderebilir.
@@ -114,10 +114,10 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 
 **Sorunlar:**
 - ✅ [postService.ts:99-101](services/postService.ts#L99-L101) `(post as any)[field] = (data as any)[field]` — `any` kaçışı.
-- [postService.ts:164](services/postService.ts#L164) `return updated!` — non-null assertion. `findByIdAndUpdate` null dönerse runtime crash. `if (!updated) throw makeError(...)` ile guard et.
+- ✅ [postService.ts:164](services/postService.ts#L164) `return updated!` — non-null assertion. `findByIdAndUpdate` null dönerse runtime crash. `if (!updated) throw makeError(...)` ile guard et.
 - [meetingService.ts:104, 124, 148, 174](services/meetingService.ts#L104) — `await resolveUpdateFailure(...)` her zaman throw eder ama sonraki satırda `meeting!` non-null assertion var. Tip sistemi `resolveUpdateFailure: Promise<never>` döndüğü için doğru ama okunabilirlik açısından zayıf.
 - [authService.ts:147-151, 156-161, 199-201, 204-208, 211-216, 353-357](services/authService.ts) — `const err: Error & { statusCode?: number } = new Error(...)` boilerplate **6 kez** tekrarlanmış. Bunun için zaten `makeError()` aynı dosyada var ama tutarsız kullanılmış.
-- `console.error` / `console.log` ([authService.ts:76, 112, 305](services/authService.ts#L76); [emailService.ts:28-31](services/emailService.ts#L28-L31)) doğrudan kullanılıyor. Production-grade için `pino` veya `winston` logger lazım.
+- ✅ `console.error` / `console.log` ([authService.ts:76, 112, 305](services/authService.ts#L76); [emailService.ts:28-31](services/emailService.ts#L28-L31)) doğrudan kullanılıyor. Production-grade için `pino` veya `winston` logger lazım.
 - ✅ `req.userId as string`, `req.userRole as string` cast'leri sık. Tip-safe alternatif: `protect` middleware'de `req.userId` zorunlu olduktan sonra `AuthenticatedRequest` (userId required) tipi kullan.
 - Magic number: `SALT_ROUNDS = 10`, `LAST_ACTIVE_THROTTLE_MS = 5min`, `VERIFY_TOKEN_TTL_MS = 24h` — config dosyasına çekilebilir.
 
@@ -193,7 +193,7 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 - `makeError` ve `log()` yardımcıları 3-4 dosyada kopyalanmış.
 
 ### Küçük İyileştirmeler
-- `console.log/error` → `pino`/`winston` logger.
+- ✅ `console.log/error` → `pino`/`winston` logger.
 - ✅ `SALT_ROUNDS = 10` → 12.
 - ✅ `JWT_SECRET` min length doğrulama (>= 32 char).
 - `Date` field'ları için ayrı string tutma yerine native `Date` ([Meeting ITimeSlot](models/Meeting.ts#L11-L14)).
@@ -233,4 +233,4 @@ Kapsam: `backend/` altındaki tüm dosyalar (models, controllers, services, rout
 12. ✅ **Notification list pagination** ekle.
 13. **Swagger/OpenAPI** dokümanı oluştur (`API.md` manuel sürümünü değiştir).
 14. ✅ **`Date` tipi tutarlılığı** (`ITimeSlot` ve `expiryDate` parse validation).
-15. **`pino` veya `winston`** ile structured logging'e geç.
+15. ✅ **`pino` veya `winston`** ile structured logging'e geç.

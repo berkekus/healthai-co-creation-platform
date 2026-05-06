@@ -1,4 +1,5 @@
 import nodemailer, { Transporter } from 'nodemailer'
+import logger from '../src/logger'
 
 let transporter: Transporter | null = null
 
@@ -25,10 +26,7 @@ async function send(to: string, subject: string, html: string): Promise<void> {
   const t = getTransporter()
   if (!t) {
     // Dev mode fallback: log the email content so the link is still visible
-    console.log('\n[EMAIL — SMTP not configured, logging instead]')
-    console.log(`  To:      ${to}`)
-    console.log(`  Subject: ${subject}`)
-    console.log(`  Body:\n${html}\n`)
+    logger.debug({ to, subject, body: html }, '[EMAIL — SMTP not configured, logging instead]')
     return
   }
   await t.sendMail({ from: FROM, to, subject, html })

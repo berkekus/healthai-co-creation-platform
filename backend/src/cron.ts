@@ -1,5 +1,6 @@
 import cron from 'node-cron'
 import Post from '../models/Post'
+import logger from './logger'
 
 export function startCronJobs() {
   // Every hour: mark active posts past their expiry date as expired
@@ -10,10 +11,10 @@ export function startCronJobs() {
         { $set: { status: 'expired' } }
       )
       if (result.modifiedCount > 0) {
-        console.log(`[cron] Marked ${result.modifiedCount} post(s) as expired`)
+        logger.info({ count: result.modifiedCount }, 'Cron: posts marked as expired')
       }
     } catch (err) {
-      console.error('[cron] Failed to expire posts:', err)
+      logger.error({ err }, 'Cron: failed to expire posts')
     }
   })
 }

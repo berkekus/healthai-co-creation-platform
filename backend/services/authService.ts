@@ -10,6 +10,7 @@ import { sendVerificationEmail, sendAccountDeletedEmail, sendPasswordResetEmail 
 import { pushNotification } from './notificationService'
 import { deleteAvatarFile } from '../middleware/uploadMiddleware'
 import { makeError } from '../utils/AppError'
+import logger from '../src/logger'
 
 const SALT_ROUNDS = 12
 const VERIFY_TOKEN_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
@@ -89,7 +90,7 @@ export async function registerUser(data: {
 
   // Send verification email asynchronously — don't block registration response
   sendVerificationEmail(user.email, rawToken, user.name).catch((err) => {
-    console.error('[email] failed to send verification:', err.message)
+    logger.error({ err }, 'Failed to send verification email')
   })
 
   return { user: sanitize(user), requiresVerification: true }
@@ -125,7 +126,7 @@ export async function resendVerification(email: string) {
   await user.save()
 
   sendVerificationEmail(user.email, rawToken, user.name).catch((err) => {
-    console.error('[email] failed to resend verification:', err.message)
+    logger.error({ err }, 'Failed to resend verification email')
   })
 }
 
@@ -308,7 +309,7 @@ export async function deleteAccount(userId: string, password: string) {
   if (avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(avatarUrl)
 
   sendAccountDeletedEmail(userEmail, userName).catch((err) => {
-    console.error('[email] failed to send deletion confirmation:', err.message)
+    logger.error({ err }, 'Failed to send account deletion email')
   })
 
   return { email: userEmail, name: userName }
@@ -362,7 +363,7 @@ export async function forgotPassword(email: string) {
   await user.save()
 
   sendPasswordResetEmail(user.email, rawToken, user.name).catch((err) => {
-    console.error('[email] failed to send password reset:', err.message)
+    logger.error({ err }, 'Failed to send password reset email')
   })
 }
 
