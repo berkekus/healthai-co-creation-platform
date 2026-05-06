@@ -123,7 +123,7 @@ export default function MeetingsPage() {
         <div className="mt-11 flex flex-col gap-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <FilterTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
-            <SortControl value={sortMode} onChange={setSortMode} />
+            <NewMeetingButton />
           </div>
 
           {error && (
@@ -137,6 +137,8 @@ export default function MeetingsPage() {
               meetings={visibleMeetings}
               userId={user?.id ?? ''}
               busyId={busyId}
+              sortValue={sortMode}
+              onSortChange={setSortMode}
               onAccept={(meeting, slot) => runAction(meeting.id, () => accept(meeting.id, slot))}
               onDecline={meeting => runAction(meeting.id, () => decline(meeting.id))}
               onCancel={meeting => runAction(meeting.id, () => cancel(meeting.id))}
@@ -154,10 +156,8 @@ export default function MeetingsPage() {
 }
 
 function Hero({ total }: { total: number }) {
-  const navigate = useNavigate()
-
   return (
-    <div className="flex flex-col gap-7 lg:flex-row lg:items-start lg:justify-between">
+    <div>
       <div>
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-[var(--primary)] shadow-[0_10px_30px_-24px_rgba(45,24,56,0.5)]">
           <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
@@ -173,7 +173,14 @@ function Hero({ total }: { total: number }) {
           Review requests, confirm time slots, and keep your collaboration pipeline in motion.
         </p>
       </div>
+    </div>
+  )
+}
 
+function NewMeetingButton() {
+  const navigate = useNavigate()
+
+  return (
       <button
         onClick={() => navigate(ROUTES.POSTS)}
         className="inline-flex h-14 items-center justify-center gap-2.5 self-start rounded-full bg-[var(--primary)] px-7 text-[15px] font-extrabold text-white shadow-[0_16px_34px_-22px_rgba(45,24,56,0.8)] transition hover:bg-[#1b1022]"
@@ -181,7 +188,6 @@ function Hero({ total }: { total: number }) {
         <Plus size={18} strokeWidth={2.6} />
         New meeting request
       </button>
-    </div>
   )
 }
 
@@ -246,6 +252,8 @@ function MeetingList({
   meetings,
   userId,
   busyId,
+  sortValue,
+  onSortChange,
   onAccept,
   onDecline,
   onCancel,
@@ -255,6 +263,8 @@ function MeetingList({
   meetings: Meeting[]
   userId: string
   busyId: string | null
+  sortValue: SortMode
+  onSortChange: (value: SortMode) => void
   onAccept: (meeting: Meeting, slot: TimeSlot) => void
   onDecline: (meeting: Meeting) => void
   onCancel: (meeting: Meeting) => void
@@ -263,6 +273,10 @@ function MeetingList({
 }) {
   return (
     <section className="overflow-hidden rounded-[28px] border border-[var(--border)] bg-white shadow-[0_24px_70px_-54px_rgba(45,24,56,0.5)]">
+      <div className="flex min-h-[72px] items-center justify-end border-b border-[var(--border)] px-7">
+        <SortControl value={sortValue} onChange={onSortChange} />
+      </div>
+
       {meetings.length > 0 ? (
         meetings.map((meeting, index) => (
           <MeetingRow
