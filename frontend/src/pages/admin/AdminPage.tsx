@@ -175,6 +175,16 @@ export default function AdminPage() {
     }
   }
 
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!window.confirm(`"${userName}" hesabını kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.`)) return
+    try {
+      await api.delete(`/auth/users/${userId}`)
+      setUsers(prev => prev.filter(u => u.id !== userId))
+    } catch (err: any) {
+      alert(err?.response?.data?.message ?? 'Hesap silinemedi.')
+    }
+  }
+
   const handleRemovePost = async (postId: string, ownerId: string) => {
     await removePost(postId)
     push({ userId: ownerId, type: 'post_closed', title: 'Post removed', body: 'One of your posts was removed by an administrator.', isRead: false, linkTo: '/posts' })
@@ -351,19 +361,29 @@ export default function AdminPage() {
                         {new Date(u.lastActive).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                       </td>
                       <td className="px-5 py-4 align-middle">
-                        <button
-                          onClick={() => handleSuspend(u.id)}
-                          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10.5px] font-mono tracking-[0.1em] uppercase font-bold transition-colors whitespace-nowrap ${
-                            u.isSuspended
-                              ? 'bg-white border border-hai-plum text-hai-plum hover:bg-hai-mint/40'
-                              : 'bg-white border border-red-200 text-red-600 hover:bg-red-50'
-                          }`}
-                        >
-                          <span className="material-symbols-outlined text-[13px]">
-                            {u.isSuspended ? 'person_add' : 'block'}
-                          </span>
-                          {u.isSuspended ? 'Reinstate' : 'Suspend'}
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleSuspend(u.id)}
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10.5px] font-mono tracking-[0.1em] uppercase font-bold transition-colors whitespace-nowrap ${
+                              u.isSuspended
+                                ? 'bg-white border border-hai-plum text-hai-plum hover:bg-hai-mint/40'
+                                : 'bg-white border border-red-200 text-red-600 hover:bg-red-50'
+                            }`}
+                          >
+                            <span className="material-symbols-outlined text-[13px]">
+                              {u.isSuspended ? 'person_add' : 'block'}
+                            </span>
+                            {u.isSuspended ? 'Reinstate' : 'Suspend'}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(u.id, u.name)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white border border-red-300 text-red-600 text-[10.5px] font-mono tracking-[0.1em] uppercase font-bold hover:bg-red-50 transition-colors whitespace-nowrap"
+                            title="Permanently delete account"
+                          >
+                            <span className="material-symbols-outlined text-[13px]">delete_forever</span>
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )

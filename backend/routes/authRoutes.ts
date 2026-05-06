@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import {
   register, login, logout, getMe, updateProfile, changePassword,
-  getUserById, getAllUsers, setSuspended, uploadAvatar,
+  getUserById, getAllUsers, setSuspended, deleteUser, uploadAvatar,
   verifyEmail, resendVerification, deleteAccount, exportMyData,
 } from '../controllers/authController'
 import { protect, adminOnly } from '../middleware/authMiddleware'
@@ -23,5 +23,6 @@ router.get('/me/export', protect, exportMyData)
 router.get('/users', protect, adminOnly, getAllUsers)
 router.get('/users/:id', protect, getUserById)
 router.put('/users/:id/suspend', protect, adminOnly, setSuspended)
+router.delete('/users/:id', protect, adminOnly, deleteUser)
 
 export default router

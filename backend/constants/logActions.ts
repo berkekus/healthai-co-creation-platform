@@ -12,6 +12,7 @@ export const LOG = {
   // Admin — user management
   USER_SUSPEND:     'user_suspend',
   USER_UNSUSPEND:   'user_unsuspend',
+  USER_DELETE:      'user_delete',
   // Posts
   POST_CREATE:      'post_create',
   POST_PUBLISH:     'post_publish',
