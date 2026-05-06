@@ -14,16 +14,11 @@ import {
   Users,
   Wrench,
 } from 'lucide-react'
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
 import { usePostStore } from '../../store/postStore'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
-import { usePostStore } from '../../store/postStore'
 import ExpressInterestModal from '../../components/meetings/ExpressInterestModal'
 import { postEdit, ROUTES } from '../../constants/routes'
-import PageWrapper from '../../components/layout/PageWrapper'
-import { ROUTES, postEdit } from '../../constants/routes'
 import api from '../../lib/api'
 import type { Post } from '../../types/post.types'
 
@@ -34,16 +29,19 @@ const STAGE_LABELS: Record<string, string> = {
   pilot: 'Pilot',
   pre_deployment: 'Pre-Deployment',
 }
+
 const COLLAB_LABELS: Record<string, string> = {
   advisor: 'Advisor',
   co_founder: 'Co-Founder',
   research_partner: 'Research Partner',
   contract: 'Contract Work',
 }
+
 const CONF_LABELS: Record<string, string> = {
   public_pitch: 'Public Pitch',
   meeting_only: 'Details in Meeting Only',
 }
+
 const ROLE_LABELS: Record<string, string> = {
   engineer: 'Engineer',
   healthcare_professional: 'Healthcare Professional',
@@ -57,23 +55,39 @@ export default function PostDetailPage() {
   const { getByPost, fetchByUser } = useMeetingStore()
   const [showInterest, setShowInterest] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [fetchedPost, setFetchedPost] = useState<Post | undefined>(undefined)
+  const [isFetching, setIsFetching] = useState(false)
+  const [fetchError, setFetchError] = useState(false)
+
+  const storePost = getById(id ?? '')
+  const post = storePost ?? fetchedPost
 
   useEffect(() => {
     if (!posts.length) fetchPosts({ limit: 100, filters: {} })
   }, [fetchPosts, posts.length])
 
   useEffect(() => {
-    if (user) fetchByUser(user.id)
+    if (user) fetchByUser()
   }, [fetchByUser, user])
 
-  const storePost = getById(id ?? '')
-  const [fetchedPost, setFetchedPost] = useState<Post | undefined>(undefined)
-  const [isFetching, setIsFetching] = useState(!storePost)
-  const [fetchError, setFetchError] = useState(false)
+  useEffect(() => {
+    if (storePost || !id) return
+    setIsFetching(true)
+    setFetchError(false)
+    api.get<{ success: boolean; data: Post & { _id?: string } }>(`/posts/${id}`)
+      .then(({ data }) => {
+        const raw = data.data
+        setFetchedPost({ ...raw, id: raw._id ?? raw.id })
+      })
+      .catch(() => setFetchError(true))
+      .finally(() => setIsFetching(false))
+  }, [id, storePost])
 
   const userMeetings = post ? getByPost(post.id) : []
   const isOwner = !!post && user?.id === post.authorId
-  const alreadyRequested = !!user && userMeetings.some(m => m.requesterId === user.id && m.status !== 'cancelled' && m.status !== 'declined')
+  const alreadyRequested = !!user && userMeetings.some(m =>
+    m.requesterId === user.id && m.status !== 'cancelled' && m.status !== 'declined',
+  )
   const canExpressInterest = !!post && !isOwner && post.status === 'active' && !alreadyRequested
   const canPublish = !!post && isOwner && post.status === 'draft'
   const canMarkFound = !!post && isOwner && (post.status === 'active' || post.status === 'meeting_scheduled')
@@ -95,28 +109,13 @@ export default function PostDetailPage() {
     ]
   }, [post])
 
-  if (!post) {
-  useEffect(() => {
-    if (storePost || !id) return
-    setIsFetching(true)
-    api.get<{ success: boolean; data: Post & { _id?: string } }>(`/posts/${id}`)
-      .then(({ data }) => {
-        const raw = data.data
-        setFetchedPost({ ...raw, id: raw._id ?? raw.id })
-      })
-      .catch(() => setFetchError(true))
-      .finally(() => setIsFetching(false))
-  }, [id, storePost])
-
-  const post = storePost ?? fetchedPost
-
-  if (isFetching) {
+  if (isFetching && !post) {
     return (
-      <PageWrapper maxWidth={720}>
-        <div className="flex items-center justify-center min-h-[40vh]">
-          <div className="w-8 h-8 border-4 border-hai-plum/20 border-t-hai-plum rounded-full animate-spin" />
+      <main className="min-h-screen bg-[#f6f7f9] px-8 py-20 text-[#2d1838]">
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2d1838]/20 border-t-[#2d1838]" />
         </div>
-      </PageWrapper>
+      </main>
     )
   }
 
