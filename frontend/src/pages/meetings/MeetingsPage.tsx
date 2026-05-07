@@ -9,11 +9,9 @@ import {
   Clock,
   MessageSquare,
   PieChart,
-  Plus,
   X,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { ROUTES } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
 import { useConversationStore } from '../../store/conversationStore'
@@ -127,7 +125,6 @@ export default function MeetingsPage() {
         <div className="mt-11 flex flex-col gap-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <FilterTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
-            <NewMeetingButton />
           </div>
 
           {error && (
@@ -179,20 +176,6 @@ function Hero({ total }: { total: number }) {
         </p>
       </div>
     </div>
-  )
-}
-
-function NewMeetingButton() {
-  const navigate = useNavigate()
-
-  return (
-      <button
-        onClick={() => navigate(ROUTES.POSTS)}
-        className="inline-flex h-14 items-center justify-center gap-2.5 self-start rounded-full bg-[var(--primary)] px-7 text-[15px] font-extrabold text-white shadow-[0_16px_34px_-22px_rgba(45,24,56,0.8)] transition hover:bg-[#1b1022]"
-      >
-        <Plus size={18} strokeWidth={2.6} />
-        New meeting request
-      </button>
   )
 }
 

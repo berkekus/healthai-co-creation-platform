@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Bell, Menu, MessageSquare, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
+import { Bell, Calendar, FileText, Menu, MessageSquare, Star, Users, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import { useConversationStore } from '../../store/conversationStore'
 import ThemeToggle from '../ui/ThemeToggle'
 import { ROUTES } from '../../constants/routes'
+import type { NotificationType, Notification } from '../../types/common.types'
 
 const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
 const resolveAvatar = (url?: string) => {
@@ -14,23 +15,129 @@ const resolveAvatar = (url?: string) => {
   return url
 }
 
-/**
- * Authenticated-app Navbar (Faz 1 refresh).
- * Visual language matches the landing page: hai-* palette, Plus Jakarta Sans
- * (display / caps pills) + Source Sans 3 (body), "healthai." logo mark,
- * pill-style active link state, round Request Access / Sign in buttons.
- */
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'Just now'
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  const days = Math.floor(hrs / 24)
+  if (days === 1) return 'Yesterday'
+  return `${days}d ago`
+}
+
+function NotifIcon({ type }: { type: NotificationType }) {
+  const base = 'flex items-center justify-center w-9 h-9 rounded-xl shrink-0'
+  switch (type) {
+    case 'meeting_request':
+    case 'meeting_accepted':
+    case 'meeting_declined':
+    case 'meeting_cancelled':
+    case 'meeting_completed':
+      return <span className={`${base} bg-[#eefaff]`}><Calendar size={15} className="text-[#55bde0]" /></span>
+    case 'post_closed':
+    case 'post_status_changed':
+      return <span className={`${base} bg-[#f3eeff]`}><FileText size={15} className="text-[#7c4dcc]" /></span>
+    case 'partner_found':
+      return <span className={`${base} bg-[#eefff5]`}><Users size={15} className="text-[#22c55e]" /></span>
+    case 'interest_received':
+      return <span className={`${base} bg-[#fff0f5]`}><Star size={15} className="text-[#f43f8e]" /></span>
+    default:
+      return <span className={`${base} bg-[#f4f4f5]`}><Bell size={15} className="text-[#6f6a76]" /></span>
+  }
+}
+
+function NotifDropdown({
+  items,
+  unread,
+  onMarkAllRead,
+  onViewAll,
+  onNavigate,
+}: {
+  items: Notification[]
+  unread: number
+  onMarkAllRead: () => void
+  onViewAll: () => void
+  onNavigate: (linkTo?: string) => void
+}) {
+  return (
+    <div className="absolute right-0 top-[calc(100%+10px)] w-[340px] rounded-2xl border border-[#e8e8ee] bg-white shadow-[0_20px_60px_-20px_rgba(45,24,56,0.22)] z-[60] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[#f0f0f5]">
+        <span className="text-[14px] font-black text-[#2d1838]">Notifications</span>
+        {unread > 0 && (
+          <button
+            onClick={onMarkAllRead}
+            className="text-[12px] font-bold text-[#55bde0] hover:text-[#2d1838] transition-colors"
+          >
+            Mark all as read
+          </button>
+        )}
+      </div>
+
+      {/* Items */}
+      {items.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f4f4f5]">
+            <Bell size={18} className="text-[#6f6a76]" />
+          </span>
+          <p className="text-[13px] font-semibold text-[#6f6a76]">No notifications yet</p>
+        </div>
+      ) : (
+        <ul>
+          {items.map(n => (
+            <li key={n.id}>
+              <button
+                onClick={() => onNavigate(n.linkTo)}
+                className="flex w-full items-start gap-3 px-5 py-3.5 text-left transition-colors hover:bg-[#f8f8fc]"
+              >
+                <NotifIcon type={n.type} />
+                <div className="min-w-0 flex-1">
+                  <p className={`text-[13px] leading-[1.35] ${n.isRead ? 'font-semibold text-[#4f4a58]' : 'font-black text-[#2d1838]'}`}>
+                    {n.title}
+                  </p>
+                  <p className="mt-0.5 truncate text-[12px] font-medium text-[#8a8593]">{n.body}</p>
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-2 pt-0.5">
+                  <span className="whitespace-nowrap text-[11px] font-semibold text-[#a0a0aa]">{timeAgo(n.createdAt)}</span>
+                  {!n.isRead && <span className="h-2 w-2 rounded-full bg-[#55bde0]" />}
+                </div>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Footer */}
+      <div className="border-t border-[#f0f0f5] px-5 py-3.5">
+        <button
+          onClick={onViewAll}
+          className="flex items-center gap-1.5 text-[13px] font-bold text-[#55bde0] hover:text-[#2d1838] transition-colors"
+        >
+          View all notifications
+          <span className="text-[16px] leading-none">→</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function Navbar() {
   const { user, logout } = useAuthStore()
-  const unreadCount = useNotificationStore(s => s.unreadCount)
+  const { unreadCount, fetchByUser: fetchNotifs, getByUser, markAllRead } = useNotificationStore()
   const { unreadCount: msgUnread, fetchUnreadCount } = useConversationStore()
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [notifOpen, setNotifOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
+  const notifRef = useRef<HTMLDivElement>(null)
+  const notifTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const unread = user ? unreadCount(user.id) : 0
+  const recentNotifs = user ? getByUser(user.id).slice(0, 5) : []
 
   useEffect(() => {
     if (!user) return
@@ -38,6 +145,16 @@ export default function Navbar() {
     const interval = setInterval(fetchUnreadCount, 30000)
     return () => clearInterval(interval)
   }, [user, fetchUnreadCount])
+
+  const handleNotifEnter = () => {
+    if (notifTimer.current) clearTimeout(notifTimer.current)
+    setNotifOpen(true)
+    if (user) fetchNotifs()
+  }
+
+  const handleNotifLeave = () => {
+    notifTimer.current = setTimeout(() => setNotifOpen(false), 150)
+  }
 
   const navLinks: { to: string; label: string }[] = [
     { to: ROUTES.DASHBOARD, label: 'Dashboard' },
@@ -52,7 +169,6 @@ export default function Navbar() {
     setProfileOpen(false)
   }
 
-  // close profile dropdown on outside click
   useEffect(() => {
     if (!profileOpen) return
     const onDoc = (e: MouseEvent) => {
@@ -79,11 +195,6 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Center nav — premium micro-interaction:
-            generous px-4 py-2 tap target, soft rounded-lg corners, and a
-            barely-there black/5 wash that fades in over 200 ms. Text color
-            only shifts by a hair (neutral-600 → neutral-900) so it stays in
-            harmony with the background tint instead of fighting it. */}
         <nav className="hidden md:flex flex-1 items-center justify-center gap-3">
           {user ? navLinks.map(({ to, label }) => {
             const active = isActive(to)
@@ -132,19 +243,40 @@ export default function Navbar() {
                 )}
               </Link>
 
-              {/* Notifications */}
-              <Link
-                to={ROUTES.NOTIFICATIONS}
-                aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
-                className="relative w-12 h-12 rounded-full border border-[#e8e8ee] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
+              {/* Notifications with hover dropdown */}
+              <div
+                ref={notifRef}
+                className="relative"
+                onMouseEnter={handleNotifEnter}
+                onMouseLeave={handleNotifLeave}
               >
-                <Bell size={17} />
-                {unread > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-hai-plum text-hai-mint rounded-full flex items-center justify-center text-[10px] font-mono font-bold border-2 border-white">
-                    {unread > 9 ? '9+' : unread}
-                  </span>
+                <button
+                  onClick={() => navigate(ROUTES.NOTIFICATIONS)}
+                  aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
+                  className="relative w-12 h-12 rounded-full border border-[#e8e8ee] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
+                >
+                  <Bell size={17} />
+                  {unread > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-hai-plum text-hai-mint rounded-full flex items-center justify-center text-[10px] font-mono font-bold border-2 border-white">
+                      {unread > 9 ? '9+' : unread}
+                    </span>
+                  )}
+                </button>
+
+                {notifOpen && (
+                  <NotifDropdown
+                    items={recentNotifs}
+                    unread={unread}
+                    onMarkAllRead={() => markAllRead(user.id)}
+                    onViewAll={() => { navigate(ROUTES.NOTIFICATIONS); setNotifOpen(false) }}
+                    onNavigate={(linkTo) => {
+                      if (linkTo) navigate(linkTo)
+                      else navigate(ROUTES.NOTIFICATIONS)
+                      setNotifOpen(false)
+                    }}
+                  />
                 )}
-              </Link>
+              </div>
 
               {/* Avatar / profile dropdown */}
               <div className="relative" ref={profileRef}>
