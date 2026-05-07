@@ -209,6 +209,7 @@ export default function PostListPage() {
             viewMode={viewMode}
             onSort={setSort}
             onViewMode={setViewMode}
+            onClear={clearFilters}
             page={currentPage}
             totalPages={totalPages}
             onPage={setPage}
@@ -433,6 +434,7 @@ function PostList({
   viewMode,
   onSort,
   onViewMode,
+  onClear,
   page,
   totalPages,
   onPage,
@@ -447,6 +449,7 @@ function PostList({
   viewMode: ViewMode
   onSort: (value: SortMode) => void
   onViewMode: (value: ViewMode) => void
+  onClear: () => void
   page: number
   totalPages: number
   onPage: (page: number) => void
@@ -507,8 +510,15 @@ function PostList({
       ) : totalPosts === 0 && !hasActiveFilters ? (
         <EmptyState />
       ) : totalPosts === 0 ? (
-        <div className="px-7 py-16 text-center text-[15px] font-semibold text-[var(--muted)]">
-          No opportunities match your filters.
+        <div className="flex flex-col items-center gap-4 px-7 py-16 text-center">
+          <p className="text-[15px] font-semibold text-[var(--muted)]">No opportunities match your filters.</p>
+          <button
+            onClick={onClear}
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-5 py-2 text-[13px] font-black text-[var(--primary)] transition hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
+          >
+            <RotateCcw size={14} />
+            Reset filters
+          </button>
         </div>
       ) : (
         <>
@@ -544,26 +554,26 @@ function PostListSkeleton() {
           style={{ minHeight: 246, padding: '32px 28px' }}
         >
           <div style={{ paddingTop: 54 }}>
-            <Skeleton className="h-[42px] w-[42px] rounded-full" />
+            <Skeleton width={42} height={42} rounded="full" />
           </div>
           <div className="min-w-0 space-y-4 pt-1">
-            <SkeletonLine className="h-7 w-3/4" />
-            <SkeletonLine className="h-4 w-full" />
-            <SkeletonLine className="h-4 w-2/3" />
+            <SkeletonLine height={26} width="75%" />
+            <SkeletonLine width="100%" />
+            <SkeletonLine width="66%" />
             <div className="flex gap-3 pt-3">
-              <SkeletonPill className="h-4 w-24" />
-              <SkeletonPill className="h-4 w-20" />
+              <SkeletonPill height={16} width={96} />
+              <SkeletonPill height={16} width={80} />
             </div>
           </div>
           <div className="post-row-side flex flex-col items-end justify-between gap-8">
             <div className="flex gap-3">
-              <SkeletonPill className="h-8 w-28" />
-              <SkeletonPill className="h-8 w-24" />
+              <SkeletonPill height={32} width={112} />
+              <SkeletonPill height={32} width={96} />
             </div>
             <div className="flex flex-wrap justify-end gap-2">
-              <SkeletonPill className="h-[22px] w-20" />
-              <SkeletonPill className="h-[22px] w-16" />
-              <SkeletonPill className="h-[22px] w-24" />
+              <SkeletonPill height={22} width={80} />
+              <SkeletonPill height={22} width={64} />
+              <SkeletonPill height={22} width={96} />
             </div>
           </div>
         </div>
@@ -598,7 +608,7 @@ function EmptyState() {
 function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boolean; compact: boolean }) {
   return (
     <Link
-      to={post.id.startsWith('mock-') ? ROUTES.POSTS : postDetail(post.id)}
+      to={postDetail(post.id)}
       className={`post-row block transition hover:bg-[#fbfcfd] ${compact ? 'post-row-compact' : ''} ${isLast ? '' : 'border-b border-[var(--border)]'}`}
       style={{ minHeight: compact ? 220 : 246, padding: '32px 28px' }}
     >
