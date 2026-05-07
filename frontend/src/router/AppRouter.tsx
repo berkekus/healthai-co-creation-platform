@@ -22,6 +22,8 @@ const PostEditPage       = lazy(() => import('../pages/posts/PostEditPage'))
 const MeetingsPage       = lazy(() => import('../pages/meetings/MeetingsPage'))
 const ProfilePage        = lazy(() => import('../pages/profile/ProfilePage'))
 const NotificationsPage  = lazy(() => import('../pages/notifications/NotificationsPage'))
+const ConversationsPage  = lazy(() => import('../pages/messages/ConversationsPage'))
+const ConversationPage   = lazy(() => import('../pages/messages/ConversationPage'))
 const AdminPage          = lazy(() => import('../pages/admin/AdminPage'))
 const PrivacyPage        = lazy(() => import('../pages/errors/PrivacyPage'))
 const NotFoundPage       = lazy(() => import('../pages/errors/NotFoundPage'))
@@ -65,6 +67,8 @@ export default function AppRouter() {
             <Route path={ROUTES.MEETINGS}     element={<ProtectedRoute><MeetingsPage /></ProtectedRoute>} />
             <Route path={ROUTES.PROFILE}      element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path={ROUTES.NOTIFICATIONS} element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+            <Route path={ROUTES.MESSAGES}      element={<ProtectedRoute><ConversationsPage /></ProtectedRoute>} />
+            <Route path={ROUTES.CONVERSATION}  element={<ProtectedRoute><ConversationPage /></ProtectedRoute>} />
 
             {/* Admin only */}
             <Route path={ROUTES.ADMIN} element={
