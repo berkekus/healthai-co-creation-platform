@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, CalendarDays, Eye, FileText, Handshake, Plus, Search } from 'lucide-react'
+import { ArrowRight, CalendarDays, Eye, FileText, Handshake, Plus, Search, Sparkles, User } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { ROUTES } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
@@ -27,6 +27,7 @@ export default function DashboardPage() {
     meeting.status === 'confirmed' || meeting.status === 'pending'
   )
   const activeListings = posts.filter(post => post.status === 'active' || post.status === 'meeting_scheduled').length
+  const isNewUser = posts.length === 0 && myMeetings.length === 0
 
   return (
     <main className="min-h-screen bg-[#f7f8fa] text-[#2d1838]">
@@ -36,12 +37,78 @@ export default function DashboardPage() {
           <WeeklyBlob postCount={posts.length} meetingCount={myMeetings.length} activeListings={activeListings} />
         </section>
 
-        <section className="mt-10 grid grid-cols-[minmax(0,680px)_minmax(0,700px)] gap-28">
-          <RecentPosts posts={posts} />
-          <UpcomingMeetings meetings={upcomingMeetings} userId={user?.id ?? ''} />
-        </section>
+        {isNewUser ? (
+          <OnboardingPanel />
+        ) : (
+          <section className="mt-10 grid grid-cols-[minmax(0,680px)_minmax(0,700px)] gap-28">
+            <RecentPosts posts={posts} />
+            <UpcomingMeetings meetings={upcomingMeetings} userId={user?.id ?? ''} />
+          </section>
+        )}
       </div>
     </main>
+  )
+}
+
+function OnboardingPanel() {
+  const steps = [
+    {
+      icon: <User size={22} />,
+      bg: '#dff8ff',
+      title: 'Complete your profile',
+      body: 'Add your expertise tags, bio, and institution so collaborators can find you.',
+      cta: 'Go to profile',
+      to: ROUTES.PROFILE,
+    },
+    {
+      icon: <Search size={22} />,
+      bg: '#d8ff8f',
+      title: 'Browse the directory',
+      body: 'Explore active collaboration opportunities from clinicians and engineers.',
+      cta: 'Browse directory',
+      to: ROUTES.POSTS,
+    },
+    {
+      icon: <Plus size={22} />,
+      bg: '#e7dccb',
+      title: 'Post an opportunity',
+      body: 'Have a project idea? Post it and let the right partner find you.',
+      cta: 'Post now',
+      to: ROUTES.POST_CREATE,
+    },
+  ]
+
+  return (
+    <section className="mt-10">
+      <div className="mb-8 flex items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2d1838] text-[#dff8ff]">
+          <Sparkles size={17} />
+        </div>
+        <h3 className="text-[16px] font-black text-[#403645]">Get started</h3>
+      </div>
+
+      <div className="grid grid-cols-3 gap-7">
+        {steps.map((step, i) => (
+          <div key={i} className="rounded-[24px] border border-[#e3e7ec] bg-white p-7 shadow-[0_20px_60px_-44px_rgba(45,24,56,0.35)]">
+            <div
+              className="mb-6 flex h-[50px] w-[50px] items-center justify-center rounded-[14px] text-[#2d1838]"
+              style={{ backgroundColor: step.bg }}
+            >
+              {step.icon}
+            </div>
+            <div className="mb-2 text-[17px] font-black text-[#2d1838]">{step.title}</div>
+            <p className="mb-7 text-[14px] font-semibold leading-6 text-[#77727f]">{step.body}</p>
+            <Link
+              to={step.to}
+              className="inline-flex items-center gap-2 text-[13px] font-black text-[#85cbd8] transition hover:text-[#2d1838]"
+            >
+              {step.cta}
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }
 

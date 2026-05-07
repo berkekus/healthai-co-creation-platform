@@ -13,6 +13,22 @@ const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'
 const ERROR_SHADOW = '0 0 0 3px rgba(220,38,38,0.18)'
 const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
 
+const EXPERTISE_TAGS = [
+  // Clinical domains
+  'Cardiology', 'Neurology', 'Oncology', 'Orthopedics', 'Radiology',
+  'Geriatrics & Rehabilitation', 'Endocrinology & Diabetes', 'Gastroenterology',
+  'Public Health & Epidemiology', 'Clinical Pharmacy', 'Mental Health',
+  'Infectious Diseases', 'Pediatrics', 'Dermatology', 'Ophthalmology',
+  'Emergency Medicine', 'Surgery', 'Pulmonology', 'Nephrology', 'Rheumatology',
+  // Engineering / tech
+  'AI/ML', 'Deep Learning', 'Natural Language Processing', 'Computer Vision',
+  'Federated Learning', 'Wearables', 'Digital Health', 'mHealth',
+  'Clinical NLP', 'Electronic Health Records (EHR)', 'Telemedicine',
+  'Medical Imaging', 'Biostatistics', 'Data Science', 'IoT in Healthcare',
+  'Healthcare Informatics', 'Signal Processing', 'Time Series Analysis',
+  'Bioinformatics', 'Robotics', 'Drug Discovery', 'Genomics',
+]
+
 const ROLE_LABEL: Record<string, string> = {
   engineer: 'Engineer',
   healthcare_professional: 'Healthcare Professional',
@@ -39,6 +55,84 @@ const onInputFocus = (hasError: boolean) => (e: React.FocusEvent<HTMLInputElemen
 const onInputBlur = (hasError: boolean) => (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
   e.currentTarget.style.borderColor = hasError ? '#DC2626' : '#E5E5E5'
   e.currentTarget.style.boxShadow = 'none'
+}
+
+function TagAutocomplete({
+  value,
+  onChange,
+  onAdd,
+  activeTags,
+}: {
+  value: string
+  onChange: (v: string) => void
+  onAdd: (tag: string) => void
+  activeTags: string[]
+}) {
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const query = value.trim().toLowerCase()
+  const suggestions = query.length > 0
+    ? EXPERTISE_TAGS.filter(t => t.toLowerCase().includes(query) && !activeTags.includes(t)).slice(0, 8)
+    : []
+
+  const add = (tag: string) => {
+    if (tag && !activeTags.includes(tag)) onAdd(tag)
+    onChange('')
+    setOpen(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      if (suggestions.length > 0) add(suggestions[0])
+      else if (value.trim()) add(value.trim())
+    }
+    if (e.key === 'Escape') setOpen(false)
+  }
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  return (
+    <div ref={containerRef} className="relative flex-1">
+      <input
+        value={value}
+        onChange={e => { onChange(e.target.value); setOpen(true) }}
+        onKeyDown={handleKeyDown}
+        onFocus={e => {
+          setOpen(true)
+          e.currentTarget.style.borderColor = '#36213E'
+          e.currentTarget.style.boxShadow = FOCUS_SHADOW
+        }}
+        onBlur={e => {
+          e.currentTarget.style.borderColor = '#E5E5E5'
+          e.currentTarget.style.boxShadow = 'none'
+        }}
+        placeholder="Search or type a tag… (Enter to add)"
+        style={inputStyle()}
+      />
+      {open && suggestions.length > 0 && (
+        <div className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-[0_8px_24px_-8px_rgba(54,33,62,0.18)]">
+          {suggestions.map(s => (
+            <button
+              key={s}
+              type="button"
+              onMouseDown={() => add(s)}
+              className="w-full px-4 py-2.5 text-left text-[13px] font-semibold text-hai-plum hover:bg-[#f5f3ff]"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 function Section({
@@ -214,12 +308,6 @@ export default function ProfilePage() {
     setIsEditing(false)
   }
 
-  const addTag = () => {
-    const tag = tagInput.trim()
-    if (tag && !tags.includes(tag)) setTags(prev => [...prev, tag])
-    setTagInput('')
-  }
-
   const handleExport = async () => {
     try {
       const { data: blob } = await api.get('/auth/me/export', { responseType: 'blob' })
@@ -390,9 +478,13 @@ export default function ProfilePage() {
 
             <Section id="expertise" icon="star" title="Expertise" subtitle="These tags help others find you for relevant opportunities.">
               {isEditing && (
-                <div className="mb-4 flex gap-2">
-                  <input value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag() } }} placeholder="e.g. Digital Health, AI/ML..." style={inputStyle()} onFocus={onInputFocus(false)} onBlur={onInputBlur(false)} />
-                  <button type="button" onClick={addTag} disabled={!tagInput.trim()} className="rounded-xl bg-hai-plum px-5 text-[12px] font-black text-white disabled:bg-neutral-300">Add</button>
+                <div className="mb-4">
+                  <TagAutocomplete
+                    value={tagInput}
+                    onChange={setTagInput}
+                    onAdd={tag => setTags(prev => [...prev, tag])}
+                    activeTags={tags}
+                  />
                 </div>
               )}
               <div className="flex flex-wrap gap-3">
