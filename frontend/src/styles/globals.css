@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* NOTE: Typography is loaded from Google Fonts in index.html
-   → Plus Jakarta Sans (headlines / logo / buttons · Tailwind `font-headline`, `font-feixen`)
+   → Plus Jakarta Sans (headlines / logo / buttons · Tailwind `font-headline`, `font-headline`)
    → Source Sans 3     (body copy · Tailwind `font-body`)
    The legacy CSS vars below (`--ff-display` / `--ff-sans` / `--ff-mono`) are
    kept only for backward compat with any lingering inline styles and map to

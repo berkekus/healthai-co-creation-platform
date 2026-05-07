@@ -37,14 +37,14 @@ export default function ConversationsPage() {
 
         {/* Header */}
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#e8e8ee] bg-white px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#2d1838] shadow-[0_10px_30px_-24px_rgba(45,24,56,0.5)]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#e8e8ee] bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#2d1838] shadow-[0_10px_30px_-24px_rgba(45,24,56,0.5)]">
             <MessageSquare size={12} />
             {conversations.length} conversations
           </div>
-          <h1 className="mt-5 font-headline text-[52px] font-black leading-[0.98] tracking-normal text-[#2d1838] md:text-[68px]">
+          <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-[#2d1838] md:text-7xl">
             Messages<span className="text-[#55c7df]">.</span>
           </h1>
-          <p className="mt-4 max-w-[520px] text-[16px] leading-7 text-[#6f6a76]">
+          <p className="mt-4 max-w-[520px] text-base leading-7 text-[#6f6a76]">
             Collaborate privately with your partner after a meeting is confirmed.
           </p>
         </div>
@@ -53,8 +53,8 @@ export default function ConversationsPage() {
         {conversations.length === 0 ? (
           <div className="rounded-[24px] border border-[#e8e8ee] bg-white p-16 text-center shadow-[0_24px_70px_-54px_rgba(45,24,56,0.4)]">
             <MessageSquare size={40} className="mx-auto text-[#c5c0cc] mb-4" />
-            <p className="font-headline text-[20px] font-extrabold text-[#2d1838]">No conversations yet</p>
-            <p className="mt-2 text-[14px] text-[#6f6a76]">
+            <p className="font-headline text-xl font-black text-[#2d1838]">No conversations yet</p>
+            <p className="mt-2 text-sm text-[#6f6a76]">
               Conversations open automatically when a meeting request is accepted.
             </p>
           </div>
@@ -113,22 +113,22 @@ function ConversationRow({
     >
       {/* Clickable area */}
       <button onClick={onClick} className="flex items-center gap-4 flex-1 min-w-0 text-left">
-        <div className="w-12 h-12 rounded-full bg-[#2d1838] text-[#8fdff0] font-black text-[13px] flex items-center justify-center shrink-0">
+        <div className="w-12 h-12 rounded-full bg-[#2d1838] text-[#8fdff0] font-black text-sm flex items-center justify-center shrink-0">
           {initials}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-3 mb-1">
-            <span className="font-headline font-extrabold text-[15px] text-[#2d1838] truncate">
+            <span className="font-headline font-black text-base text-[#2d1838] truncate">
               {partner?.name ?? 'Unknown'}
             </span>
-            <span className="flex items-center gap-1 text-[11px] text-[#9f9aaa] font-semibold shrink-0">
+            <span className="flex items-center gap-1 text-xs text-[#9f9aaa] font-semibold shrink-0">
               <Clock size={11} />
               {timeAgo}
             </span>
           </div>
-          <p className="text-[13px] text-[#6f6a76] font-semibold truncate">{conv.postTitle}</p>
+          <p className="text-sm text-[#6f6a76] font-semibold truncate">{conv.postTitle}</p>
           {conv.lastMessagePreview && (
-            <p className="text-[12px] text-[#9f9aaa] truncate mt-0.5">{conv.lastMessagePreview}</p>
+            <p className="text-xs text-[#9f9aaa] truncate mt-0.5">{conv.lastMessagePreview}</p>
           )}
         </div>
       </button>
@@ -148,13 +148,13 @@ function ConversationRow({
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="h-7 px-2.5 rounded-full bg-red-500 text-white text-[11px] font-bold hover:bg-red-600 disabled:opacity-50 transition-colors"
+              className="h-7 px-2.5 rounded-full bg-red-500 text-white text-xs font-bold hover:bg-red-600 disabled:opacity-50 transition-colors"
             >
               {deleting ? '…' : 'Delete'}
             </button>
             <button
               onClick={e => { e.stopPropagation(); setConfirm(false) }}
-              className="h-7 px-2.5 rounded-full border border-[#e8e8ee] text-[11px] font-bold text-[#6f6a76] hover:bg-[#f5f6f8] transition-colors"
+              className="h-7 px-2.5 rounded-full border border-[#e8e8ee] text-xs font-bold text-[#6f6a76] hover:bg-[#f5f6f8] transition-colors"
             >
               Cancel
             </button>

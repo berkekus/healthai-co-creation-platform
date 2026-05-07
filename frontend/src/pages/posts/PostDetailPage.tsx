@@ -143,7 +143,7 @@ export default function PostDetailPage() {
         <div className="mb-[22px] flex items-center justify-between gap-4">
           <button
             onClick={() => navigate(ROUTES.POSTS)}
-            className="inline-flex items-center gap-3 text-[14px] font-black text-[#26162f] transition hover:text-[#55bde0]"
+            className="inline-flex items-center gap-3 text-sm font-black text-[#26162f] transition hover:text-[#55bde0]"
           >
             <ArrowLeft size={17} />
             Back to directory
@@ -152,14 +152,14 @@ export default function PostDetailPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigator.clipboard?.writeText(window.location.href).catch(() => {})}
-              className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-6 text-[14px] font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
             >
               <LinkIcon size={18} />
               Share
             </button>
             <button
               onClick={() => setSaved(value => !value)}
-              className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-6 text-[14px] font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
             >
               <Bookmark size={18} fill={saved ? '#36213E' : 'none'} />
               {saved ? 'Saved' : 'Save'}
@@ -175,18 +175,18 @@ export default function PostDetailPage() {
                 <Pill tone={active ? 'green' : 'gray'}>{statusLabel(post.status)}</Pill>
               </div>
 
-              <h1 className="mt-7 max-w-[780px] break-words font-headline text-[34px] font-black leading-[1.08] text-[#36213E] sm:text-[42px]">
+              <h1 className="mt-7 max-w-[780px] break-words font-headline text-4xl font-black leading-tight text-[#36213E] sm:text-5xl">
                 {post.title}
               </h1>
 
               <div className="mt-7 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-center gap-5">
-                <div className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-[#dceeff] text-[15px] font-black text-[#36213E]">
+                <div className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-[#dceeff] text-base font-black text-[#36213E]">
                   {initials}
                 </div>
                   <div className="min-w-0">
-                  <div className="text-[18px] font-black">{post.authorName}</div>
-                  <div className="mt-2 flex items-center gap-2 text-[13px] font-semibold text-[#6F6878]">
+                  <div className="text-lg font-black">{post.authorName}</div>
+                  <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-[#6F6878]">
                     {ROLE_LABELS[post.authorRole] ?? post.authorRole}
                     <ShieldCheck size={14} className="text-[#50627a]" />
                   </div>
@@ -195,18 +195,18 @@ export default function PostDetailPage() {
 
                 <div className="flex flex-wrap gap-3">
                   {alreadyRequested && !isOwner ? (
-                    <button onClick={() => navigate(ROUTES.MEETINGS)} className="h-[46px] rounded-full bg-[#36213E] px-7 text-[14px] font-black text-white transition hover:bg-[#4b3055]">
+                    <button onClick={() => navigate(ROUTES.MEETINGS)} className="h-[46px] rounded-full bg-[#36213E] px-7 text-sm font-black text-white transition hover:bg-[#4b3055]">
                       Manage interest
                     </button>
                   ) : canExpressInterest ? (
-                    <button onClick={() => setShowInterest(true)} className="h-[46px] rounded-full bg-[#36213E] px-7 text-[14px] font-black text-white transition hover:bg-[#4b3055]">
+                    <button onClick={() => setShowInterest(true)} className="h-[46px] rounded-full bg-[#36213E] px-7 text-sm font-black text-white transition hover:bg-[#4b3055]">
                       Express interest
                     </button>
                   ) : isOwner ? (
                     <>
-                      {canPublish && <button onClick={() => publish(post.id)} className="h-[46px] rounded-full bg-[#36213E] px-7 text-[14px] font-black text-white">Publish</button>}
-                      {canMarkFound && <button onClick={() => markPartnerFound(post.id)} className="h-[46px] rounded-full bg-[#D8EFF2] px-7 text-[14px] font-black text-[#36213E]">Mark partner found</button>}
-                      {canEdit && <button onClick={() => navigate(postEdit(post.id))} className="h-[46px] rounded-full border border-[#D5DAE0] bg-white px-7 text-[14px] font-black">Edit post</button>}
+                      {canPublish && <button onClick={() => publish(post.id)} className="h-[46px] rounded-full bg-[#36213E] px-7 text-sm font-black text-white">Publish</button>}
+                      {canMarkFound && <button onClick={() => markPartnerFound(post.id)} className="h-[46px] rounded-full bg-[#D8EFF2] px-7 text-sm font-black text-[#36213E]">Mark partner found</button>}
+                      {canEdit && <button onClick={() => navigate(postEdit(post.id))} className="h-[46px] rounded-full border border-[#D5DAE0] bg-white px-7 text-sm font-black">Edit post</button>}
                     </>
                   ) : null}
                 </div>
@@ -217,14 +217,14 @@ export default function PostDetailPage() {
               <div className="flex items-center gap-4">
                 <CalendarDays className="text-[#36213E]" size={25} />
                 <div>
-                  <div className="text-[31px] font-black leading-none">{daysLeft}</div>
-                  <div className="mt-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#6F6878]">Days left</div>
+                  <div className="text-3xl font-black leading-none">{daysLeft}</div>
+                  <div className="mt-2 text-xs font-black uppercase tracking-[0.12em] text-[#6F6878]">Days left</div>
                 </div>
               </div>
               <div className="mt-5 h-[6px] overflow-hidden rounded-full bg-white/70">
                 <div className="h-full rounded-full bg-[#8AC6D0]" style={{ width: `${Math.min(100, Math.max(8, 100 - daysLeft / 4))}%` }} />
               </div>
-              <p className="mt-5 text-[13px] font-semibold leading-6 text-[#6F6878]">
+              <p className="mt-5 text-sm font-semibold leading-6 text-[#6F6878]">
                 {alreadyRequested && !isOwner
                   ? "You've already expressed interest. We'll keep you updated."
                   : canExpressInterest
@@ -242,8 +242,8 @@ export default function PostDetailPage() {
                 <div key={item.label} className="flex items-start gap-4">
                   <span className="mt-1 shrink-0 text-[#6FB8C4]">{item.icon}</span>
                   <span>
-                    <span className="block text-[11px] font-black uppercase tracking-[0.12em] text-[#6F6878]">{item.label}</span>
-                    <span className="mt-2 block break-words text-[13px] font-black leading-5 text-[#36213E]">{item.value}</span>
+                    <span className="block text-xs font-black uppercase tracking-[0.12em] text-[#6F6878]">{item.label}</span>
+                    <span className="mt-2 block break-words text-sm font-black leading-5 text-[#36213E]">{item.value}</span>
                     </span>
                 </div>
               ))}
@@ -255,37 +255,36 @@ export default function PostDetailPage() {
           <div className="rounded-[28px] bg-white px-6 py-8 shadow-[0_30px_90px_-84px_rgba(45,24,56,0.7)] sm:px-9">
             <DetailSection title="Project description">
               {post.confidentiality === 'public_pitch' ? (
-                <p className="whitespace-pre-wrap break-words text-[15px] font-semibold leading-8 text-[#4f4a58]">{post.description}</p>
+                <p className="whitespace-pre-wrap break-words text-base font-semibold leading-8 text-[#4f4a58]">{post.description}</p>
               ) : (
-                <p className="text-[15px] font-semibold leading-8 text-[#4f4a58]">Full details are shared in a meeting under NDA.</p>
+                <p className="text-base font-semibold leading-8 text-[#4f4a58]">Full details are shared in a meeting under NDA.</p>
               )}
             </DetailSection>
 
             <DetailSection title="Expertise required">
               <div className="flex flex-wrap gap-3">
-                <span className="inline-flex max-w-full break-words rounded-full bg-[#E8F4F7] px-5 py-3 text-[14px] font-black text-[#36213E]">{post.expertiseRequired}</span>
+                <span className="inline-flex max-w-full break-words rounded-full bg-[#E8F4F7] px-5 py-3 text-sm font-black text-[#36213E]">{post.expertiseRequired}</span>
               </div>
             </DetailSection>
 
             <DetailSection title="About the author" isLast>
               <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-5">
-                  <div className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-[#dfefff] text-[15px] font-black">{initials}</div>
+                  <div className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-[#dfefff] text-base font-black">{initials}</div>
                   <div>
-                    <div className="text-[17px] font-black">{post.authorName}</div>
-                    <div className="mt-2 flex items-center gap-2 text-[13px] font-semibold text-[#6F6878]">
+                    <div className="text-lg font-black">{post.authorName}</div>
+                    <div className="mt-2 flex items-center gap-2 text-sm font-semibold text-[#6F6878]">
                       {ROLE_LABELS[post.authorRole] ?? post.authorRole}
                       <ShieldCheck size={14} className="text-[#50627a]" />
                     </div>
-                    <div className="mt-2 text-[13px] font-semibold text-[#6F6878]">
+                    <div className="mt-2 text-sm font-semibold text-[#6F6878]">
                       Member since {new Date(post.createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
                     </div>
                   </div>
                 </div>
-<<<<<<< HEAD
                 <button
                   onClick={() => navigate(`/profile/${post.authorId}`)}
-                  className="h-[48px] rounded-[13px] border border-[#dfe2e8] bg-white px-8 text-[14px] font-black hover:border-[#3db8d8] hover:text-[#3db8d8] transition-colors"
+                  className="h-[48px] rounded-full border border-[#D5DAE0] bg-white px-8 text-sm font-black transition hover:border-[#8AC6D0]"
                 >
                   View profile
                 </button>
@@ -295,7 +294,7 @@ export default function PostDetailPage() {
 
           <aside className="lg:pt-2">
             <div className="sticky top-6 rounded-[28px] bg-white px-6 py-7 shadow-[0_30px_90px_-84px_rgba(45,24,56,0.7)]">
-              <h2 className="text-[20px] font-black leading-tight text-[#36213E]">Opportunity details</h2>
+              <h2 className="text-xl font-black leading-tight text-[#36213E]">Opportunity details</h2>
               <div className="mt-6 space-y-[18px]">
                 {[
                   ['Domain', post.domain, <Wrench size={18} />],
@@ -310,8 +309,8 @@ export default function PostDetailPage() {
                       {icon}
                     </span>
                     <span>
-                      <span className="block text-[13px] font-semibold text-[#6F6878]">{label}</span>
-                      <span className="mt-1 block break-words text-[13px] font-black text-[#36213E]">{value}</span>
+                      <span className="block text-sm font-semibold text-[#6F6878]">{label}</span>
+                      <span className="mt-1 block break-words text-sm font-black text-[#36213E]">{value}</span>
                     </span>
                   </div>
                 ))}
@@ -334,13 +333,13 @@ export default function PostDetailPage() {
 
 function Pill({ children, tone }: { children: string; tone: 'blue' | 'green' | 'gray' }) {
   const cls = tone === 'green' ? 'bg-[#E8F4F7] text-[#6FB8C4]' : tone === 'blue' ? 'bg-[#E8F4F7] text-[#6FB8C4]' : 'bg-[#EEF0F3] text-[#6F6878]'
-  return <span className={`rounded-full px-5 py-2 text-[12px] font-black uppercase tracking-[0.02em] ${cls}`}>{children}</span>
+  return <span className={`rounded-full px-5 py-2 text-xs font-black uppercase tracking-normal ${cls}`}>{children}</span>
 }
 
 function DetailSection({ title, children, isLast = false }: { title: string; children: React.ReactNode; isLast?: boolean }) {
   return (
     <section className={`${isLast ? '' : 'border-b border-[#E3E7EC] pb-8'} ${isLast ? 'pt-8' : 'py-8'} first:pt-0`}>
-      <h2 className="text-[20px] font-black leading-tight text-[#36213E]">{title}</h2>
+      <h2 className="text-xl font-black leading-tight text-[#36213E]">{title}</h2>
       <div className="mt-5">{children}</div>
     </section>
   )

@@ -42,16 +42,16 @@ export default function CookieConsentBanner() {
 
           <div className="relative flex items-start gap-3 flex-1 min-w-0">
             <div className="shrink-0 w-10 h-10 rounded-2xl bg-hai-mint/15 text-hai-mint flex items-center justify-center">
-              <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+              <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>
                 cookie
               </span>
             </div>
             <div className="min-w-0">
-              <div className="inline-flex items-center gap-1.5 text-[10px] font-mono tracking-[0.18em] uppercase text-hai-mint/80 font-bold mb-1.5">
+              <div className="inline-flex items-center gap-1.5 text-xs font-mono tracking-[0.16em] uppercase text-hai-mint/80 font-bold mb-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-hai-mint" />
                 GDPR · Essential cookies only
               </div>
-              <p className="text-[13.5px] leading-relaxed text-hai-offwhite/90">
+              <p className="text-sm leading-relaxed text-hai-offwhite/90">
                 We use only essential cookies for session management and security — no tracking, no analytics, no third-party scripts.{' '}
                 <Link to={ROUTES.PRIVACY} className="text-hai-mint underline underline-offset-2 hover:text-white transition-colors">
                   Privacy policy
@@ -63,15 +63,15 @@ export default function CookieConsentBanner() {
           <div className="relative flex items-center gap-2 shrink-0 self-stretch md:self-auto">
             <button
               onClick={() => accept('essential')}
-              className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 bg-transparent border border-hai-mint/30 text-hai-offwhite hover:bg-white/5 hover:border-hai-mint/60 rounded-full px-4 py-2.5 text-[11px] font-mono tracking-[0.12em] uppercase font-bold transition-colors whitespace-nowrap"
+              className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 bg-transparent border border-hai-mint/30 text-hai-offwhite hover:bg-white/5 hover:border-hai-mint/60 rounded-full px-4 py-2.5 text-xs font-mono tracking-[0.12em] uppercase font-bold transition-colors whitespace-nowrap"
             >
               Essential only
             </button>
             <button
               onClick={() => accept('all')}
-              className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 bg-hai-mint text-hai-plum hover:bg-white rounded-full px-5 py-2.5 text-[11px] font-mono tracking-[0.12em] uppercase font-bold transition-colors whitespace-nowrap shadow-[0_10px_30px_-10px_rgba(184,243,255,0.5)]"
+              className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 bg-hai-mint text-hai-plum hover:bg-white rounded-full px-5 py-2.5 text-xs font-mono tracking-[0.12em] uppercase font-bold transition-colors whitespace-nowrap shadow-[0_10px_30px_-10px_rgba(184,243,255,0.5)]"
             >
-              <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>check</span>
+              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>check</span>
               Accept all
             </button>
           </div>

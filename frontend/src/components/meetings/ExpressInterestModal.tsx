@@ -15,7 +15,7 @@ const NDA_TEXT = `By proceeding, you acknowledge that any information shared dur
 const STEP_LABELS = ['Your message', 'NDA agreement', 'Propose times']
 
 const inputCls =
-  'w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-[14.5px] font-body font-medium text-hai-plum outline-none transition-colors focus:border-hai-plum focus:shadow-[0_0_0_3px_rgba(138,198,208,0.32)]'
+  'w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-sm font-body font-semibold text-hai-plum outline-none transition-colors focus:border-hai-plum focus:shadow-[0_0_0_3px_rgba(138,198,208,0.32)]'
 
 function StepPill({ n, active, done, label }: { n: number; active: boolean; done: boolean; label: string }) {
   return (
@@ -24,14 +24,14 @@ function StepPill({ n, active, done, label }: { n: number; active: boolean; done
       active ? 'bg-hai-mint text-hai-plum' :
       'bg-hai-offwhite text-neutral-500'
     }`}>
-      <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-mono font-bold ${
+      <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-mono font-bold ${
         done ? 'bg-hai-mint text-hai-plum' :
         active ? 'bg-hai-plum text-hai-mint' :
         'bg-white text-neutral-500'
       }`}>
         {done ? '✓' : n}
       </span>
-      <span className="text-[10.5px] font-mono tracking-[0.12em] uppercase font-bold hidden sm:inline">{label}</span>
+      <span className="text-xs font-mono tracking-[0.12em] uppercase font-bold hidden sm:inline">{label}</span>
     </div>
   )
 }
@@ -117,14 +117,14 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
           <div className="absolute top-0 right-0 w-48 h-48 pointer-events-none opacity-60" style={{ background: 'radial-gradient(circle, #B8F3FF 0%, transparent 70%)' }} />
           <div className="relative flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-3 py-1 mb-3 text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
+              <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-3 py-1 mb-3 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
                 Express interest
               </div>
-              <h2 id="express-interest-title" className="font-headline font-bold text-[22px] md:text-[26px] leading-[1.15] tracking-[-0.02em] text-hai-plum line-clamp-2">
+              <h2 id="express-interest-title" className="font-headline font-bold text-xl md:text-2xl leading-tight tracking-normal text-hai-plum line-clamp-2">
                 {post.title}
               </h2>
-              <div className="mt-1.5 text-[12px] font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold">
+              <div className="mt-1.5 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold">
                 To {post.authorName}
               </div>
             </div>
@@ -133,7 +133,7 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
               aria-label="Close"
               className="shrink-0 w-9 h-9 rounded-full bg-hai-offwhite hover:bg-hai-mint/60 text-hai-plum flex items-center justify-center transition-colors"
             >
-              <span className="material-symbols-outlined text-[20px]">close</span>
+              <span className="material-symbols-outlined text-xl">close</span>
             </button>
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
         <div className="px-6 md:px-8 py-6 flex-1 overflow-auto">
           {step === 1 && (
             <div className="flex flex-col gap-4">
-              <p className="text-[14.5px] text-neutral-600 leading-relaxed">
+              <p className="text-sm text-neutral-600 leading-relaxed">
                 Write a short message to <strong className="text-hai-plum">{post.authorName}</strong> explaining your background and why you're interested in this collaboration.
               </p>
               <textarea
@@ -164,7 +164,7 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
                 rows={6}
                 className={`${inputCls} resize-y leading-relaxed`}
               />
-              <div className={`inline-flex items-center gap-2 text-[10.5px] font-mono tracking-[0.12em] uppercase font-bold ${
+              <div className={`inline-flex items-center gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold ${
                 message.length >= 20 ? 'text-neutral-500' : 'text-hai-plum/60'
               }`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${message.length >= 20 ? 'bg-hai-teal' : 'bg-hai-cream'}`} />
@@ -176,13 +176,13 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
           {step === 2 && (
             <div className="flex flex-col gap-4">
               <div className="bg-hai-cream/60 border border-hai-plum/10 rounded-2xl p-5">
-                <div className="flex items-center gap-2 mb-3 text-[10.5px] font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
-                  <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+                <div className="flex items-center gap-2 mb-3 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
+                  <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: '"FILL" 1' }}>
                     shield_lock
                   </span>
                   Non-disclosure agreement
                 </div>
-                <p className="text-[14px] text-hai-plum leading-relaxed">{NDA_TEXT}</p>
+                <p className="text-sm text-hai-plum leading-relaxed">{NDA_TEXT}</p>
               </div>
 
               <label className={`cursor-pointer flex items-start gap-3 p-4 rounded-2xl border-2 transition-all ${
@@ -191,7 +191,7 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
                 <span className={`shrink-0 w-5 h-5 rounded-md flex items-center justify-center transition-colors ${
                   ndaChecked ? 'bg-hai-plum text-hai-mint' : 'bg-hai-offwhite text-transparent border border-neutral-300'
                 }`}>
-                  <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>check</span>
+                  <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>check</span>
                 </span>
                 <input
                   type="checkbox"
@@ -199,7 +199,7 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
                   onChange={e => setNdaChecked(e.target.checked)}
                   className="sr-only"
                 />
-                <span className="text-[14px] text-hai-plum leading-relaxed">
+                <span className="text-sm text-hai-plum leading-relaxed">
                   I have read and accept the terms of this NDA. I understand that all information shared during this collaboration is confidential.
                 </span>
               </label>
@@ -209,10 +209,10 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
           {step === 3 && (
             <div className="flex flex-col gap-4">
               <div className="flex items-start justify-between gap-3 flex-wrap">
-                <p className="text-[14.5px] text-neutral-600 leading-relaxed flex-1 min-w-[240px]">
+                <p className="text-sm text-neutral-600 leading-relaxed flex-1 min-w-[240px]">
                   Propose at least 3 time slots when you're available. <strong className="text-hai-plum">{post.authorName}</strong> will confirm one.
                 </p>
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10.5px] font-mono tracking-[0.12em] uppercase font-bold ${
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono tracking-[0.12em] uppercase font-bold ${
                   filledCount >= 3 ? 'bg-hai-mint text-hai-plum' : 'bg-hai-offwhite text-neutral-500'
                 }`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${filledCount >= 3 ? 'bg-hai-teal' : 'bg-neutral-400'}`} />
@@ -225,10 +225,10 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
                   <div key={i} className="bg-hai-offwhite rounded-2xl p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-hai-plum/10 flex items-center justify-center font-mono font-bold text-[11px] text-hai-plum">
+                        <div className="w-6 h-6 rounded-full bg-hai-plum/10 flex items-center justify-center font-mono font-bold text-xs text-hai-plum">
                           {i + 1}
                         </div>
-                        <span className="text-[10.5px] font-mono tracking-[0.14em] uppercase font-bold text-neutral-400">
+                        <span className="text-xs font-mono tracking-[0.12em] uppercase font-bold text-neutral-400">
                           Time slot {i + 1}
                         </span>
                       </div>
@@ -238,14 +238,14 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
                           aria-label={`Remove slot ${i + 1}`}
                           className="w-7 h-7 rounded-full bg-white hover:bg-red-50 text-neutral-400 hover:text-red-500 flex items-center justify-center transition-colors"
                         >
-                          <span className="material-symbols-outlined text-[16px]">close</span>
+                          <span className="material-symbols-outlined text-base">close</span>
                         </button>
                       )}
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <div className="flex items-center gap-1 text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-400 mb-1.5">
-                          <span className="material-symbols-outlined text-[13px]">calendar_month</span>
+                        <div className="flex items-center gap-1 text-xs font-mono tracking-[0.12em] uppercase text-neutral-400 mb-1.5">
+                          <span className="material-symbols-outlined text-sm">calendar_month</span>
                           Date
                         </div>
                         <input
@@ -258,8 +258,8 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
                         />
                       </div>
                       <div>
-                        <div className="flex items-center gap-1 text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-400 mb-1.5">
-                          <span className="material-symbols-outlined text-[13px]">schedule</span>
+                        <div className="flex items-center gap-1 text-xs font-mono tracking-[0.12em] uppercase text-neutral-400 mb-1.5">
+                          <span className="material-symbols-outlined text-sm">schedule</span>
                           Time
                         </div>
                         <input
@@ -278,9 +278,9 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
               <div className="max-w-md mx-auto w-full">
                 <button
                   onClick={addSlot}
-                  className="w-full rounded-full border-2 border-dashed border-neutral-300 py-3 text-[11px] font-mono tracking-[0.14em] uppercase font-bold text-hai-plum hover:border-hai-plum hover:bg-hai-mint/20 transition-colors flex items-center justify-center gap-2"
+                  className="w-full rounded-full border-2 border-dashed border-neutral-300 py-3 text-xs font-mono tracking-[0.12em] uppercase font-bold text-hai-plum hover:border-hai-plum hover:bg-hai-mint/20 transition-colors flex items-center justify-center gap-2"
                 >
-                  <span className="material-symbols-outlined text-[16px]">add</span>
+                  <span className="material-symbols-outlined text-base">add</span>
                   Add another slot
                 </button>
               </div>
@@ -288,8 +288,8 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
           )}
 
           {error && (
-            <div role="alert" className="mt-5 flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-2xl p-3.5 text-[13px] text-red-700 font-medium leading-relaxed">
-              <span className="material-symbols-outlined text-[18px] shrink-0 mt-px" style={{ fontVariationSettings: '"FILL" 1' }}>error</span>
+            <div role="alert" className="mt-5 flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-2xl p-3.5 text-sm text-red-700 font-semibold leading-relaxed">
+              <span className="material-symbols-outlined text-lg shrink-0 mt-px" style={{ fontVariationSettings: '"FILL" 1' }}>error</span>
               {error}
             </div>
           )}
@@ -299,23 +299,23 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
         <div className="px-6 md:px-8 py-4 border-t border-neutral-100 bg-hai-offwhite/60 flex items-center justify-between gap-3">
           <button
             onClick={step === 1 ? onClose : () => setStep(s => s - 1)}
-            className="px-5 py-2.5 rounded-full bg-white border border-neutral-200 text-hai-plum text-[13px] font-bold hover:bg-neutral-100 transition-colors inline-flex items-center gap-1.5"
+            className="px-5 py-2.5 rounded-full bg-white border border-neutral-200 text-hai-plum text-sm font-bold hover:bg-neutral-100 transition-colors inline-flex items-center gap-1.5"
           >
             {step === 1 ? 'Cancel' : <><span aria-hidden="true">←</span> Back</>}
           </button>
           {step < 3 ? (
             <button
               onClick={handleNext}
-              className="px-6 py-2.5 rounded-full bg-hai-plum text-white text-[13px] font-bold hover:bg-black transition-colors inline-flex items-center gap-1.5"
+              className="px-6 py-2.5 rounded-full bg-hai-plum text-white text-sm font-bold hover:bg-black transition-colors inline-flex items-center gap-1.5"
             >
               {step === 2 ? 'I accept & continue' : 'Next'} <span aria-hidden="true">→</span>
             </button>
           ) : (
             <button
               onClick={handleSubmit}
-              className="px-6 py-2.5 rounded-full bg-hai-plum text-white text-[13px] font-bold hover:bg-black transition-colors inline-flex items-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]"
+              className="px-6 py-2.5 rounded-full bg-hai-plum text-white text-sm font-bold hover:bg-black transition-colors inline-flex items-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]"
             >
-              <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: '"FILL" 1' }}>send</span>
+              <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: '"FILL" 1' }}>send</span>
               Send request
             </button>
           )}

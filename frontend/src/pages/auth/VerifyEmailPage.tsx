@@ -48,8 +48,8 @@ export default function VerifyEmailPage() {
       <PageShell>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <div className="w-14 h-14 rounded-full border-4 border-[#c4c4e0] border-t-[#36213E] animate-spin mb-6" />
-          <h1 className="font-headline font-black text-[32px] text-[#36213E] mb-2">Verifying your email…</h1>
-          <p className="text-[14px] text-[#6F6878]">Please wait a moment.</p>
+          <h1 className="font-headline font-black text-3xl text-[#36213E] mb-2">Verifying your email…</h1>
+          <p className="text-sm text-[#6F6878]">Please wait a moment.</p>
         </div>
       </PageShell>
     )
@@ -65,9 +65,9 @@ export default function VerifyEmailPage() {
               <path d="M10 18l6 6 10-10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h1 className="font-headline font-black text-[40px] text-[#36213E] mb-3">Email verified!</h1>
-          <p className="text-[14.5px] text-[#6F6878] mb-7 max-w-sm">Welcome aboard. Redirecting you to your dashboard…</p>
-          <Link to={ROUTES.DASHBOARD} className="inline-flex items-center gap-2 bg-[#36213E] text-white px-6 py-3 rounded-full font-bold text-[14px] hover:bg-black transition-colors">
+          <h1 className="font-headline font-black text-4xl text-[#36213E] mb-3">Email verified!</h1>
+          <p className="text-sm text-[#6F6878] mb-7 max-w-sm">Welcome aboard. Redirecting you to your dashboard…</p>
+          <Link to={ROUTES.DASHBOARD} className="inline-flex items-center gap-2 bg-[#36213E] text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-black transition-colors">
             Go to dashboard →
           </Link>
         </div>
@@ -86,12 +86,12 @@ export default function VerifyEmailPage() {
               <path d="M14 8v7M14 19v1" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" />
             </svg>
           </div>
-          <h1 className="font-headline font-black text-[40px] leading-[1.05] text-[#36213E] mb-3">
+          <h1 className="font-headline font-black text-4xl leading-tight text-[#36213E] mb-3">
             Verification<br />failed<span className="text-[#8AC6D0]">.</span>
           </h1>
-          <p className="text-[15px] text-[#6F6878] mb-8">{errorMsg ?? 'The link is invalid or has expired.'}</p>
+          <p className="text-base text-[#6F6878] mb-8">{errorMsg ?? 'The link is invalid or has expired.'}</p>
           <ResendForm email={resendEmail} onChange={setResendEmail} onSubmit={handleResend} loading={resending} sent={resendSent} />
-          <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-1.5 text-[#8AC6D0] font-bold text-[14px] hover:text-[#36213E] transition-colors mt-6">
+          <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-1.5 text-[#8AC6D0] font-bold text-sm hover:text-[#36213E] transition-colors mt-6">
             Already verified? Sign in →
           </Link>
         </div>
@@ -122,19 +122,19 @@ export default function VerifyEmailPage() {
             </div>
           </div>
 
-          <h1 className="font-headline font-black text-[44px] md:text-[54px] leading-[1.05] tracking-[-0.02em] text-[#36213E] mb-5">
+          <h1 className="font-headline font-black text-5xl md:text-6xl leading-tight tracking-normal text-[#36213E] mb-5">
             Check your<br />inbox<span className="text-[#8AC6D0]">.</span>
           </h1>
 
-          <p className="text-[15px] text-[#6F6878] leading-relaxed mb-1">
+          <p className="text-base text-[#6F6878] leading-relaxed mb-1">
             We've sent a verification link to
           </p>
           {pendingVerificationEmail && (
-            <span className="inline-block bg-white border border-[#D5DAE0] rounded-lg px-3 py-1.5 text-[13.5px] font-mono text-[#36213E] font-semibold mb-4">
+            <span className="inline-block bg-white border border-[#D5DAE0] rounded-lg px-3 py-1.5 text-sm font-mono text-[#36213E] font-semibold mb-4">
               {pendingVerificationEmail}
             </span>
           )}
-          <p className="text-[15px] text-[#6F6878] leading-relaxed mb-8">
+          <p className="text-base text-[#6F6878] leading-relaxed mb-8">
             Click the link to activate your account before signing in.<br />
             The link expires in 24 hours.
           </p>
@@ -149,7 +149,7 @@ export default function VerifyEmailPage() {
 
           <Link
             to={ROUTES.LOGIN}
-            className="inline-flex items-center gap-1.5 text-[#8AC6D0] font-bold text-[14px] hover:text-[#36213E] transition-colors mt-6"
+            className="inline-flex items-center gap-1.5 text-[#8AC6D0] font-bold text-sm hover:text-[#36213E] transition-colors mt-6"
           >
             Already verified? Sign in →
           </Link>
@@ -176,8 +176,8 @@ function StepBadge() {
   return (
     <div className="inline-flex items-center gap-2 bg-white border border-neutral-200 rounded-full px-4 py-1.5">
       <span className="w-2 h-2 rounded-full bg-[#8AC6D0]" />
-      <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#6F6878]">03</span>
-      <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#36213E]">Verify Email</span>
+      <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#6F6878]">03</span>
+      <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#36213E]">Verify Email</span>
     </div>
   )
 }
@@ -191,7 +191,7 @@ function ResendForm({ email, onChange, onSubmit, loading, sent }: {
 }) {
   return (
     <form onSubmit={onSubmit} className="bg-white rounded-[18px] border border-neutral-200 p-5 max-w-[460px]">
-      <span className="block text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#6F6878] mb-3">
+      <span className="block text-xs font-bold tracking-[0.16em] uppercase text-[#6F6878] mb-3">
         Didn't get the email?
       </span>
       <input
@@ -200,13 +200,13 @@ function ResendForm({ email, onChange, onSubmit, loading, sent }: {
         onChange={e => onChange(e.target.value)}
         placeholder="your.email@university.edu"
         required
-        className="w-full bg-[#F3F4F6] border border-[#E3E7EC] rounded-xl px-4 py-3 text-[14px] font-mono text-[#36213E] outline-none focus:border-[#8AC6D0] focus:bg-white transition-all mb-3"
+        className="w-full bg-[#F3F4F6] border border-[#E3E7EC] rounded-xl px-4 py-3 text-sm font-mono text-[#36213E] outline-none focus:border-[#8AC6D0] focus:bg-white transition-all mb-3"
       />
       <div className="flex items-center gap-3 flex-wrap">
         <button
           type="submit"
           disabled={loading || !email.trim()}
-          className="inline-flex items-center gap-2.5 bg-[#36213E] text-white px-5 py-2.5 rounded-full font-bold text-[13.5px] hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center gap-2.5 bg-[#36213E] text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <path d="M1 7h12M7 1l6 6-6 6" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -214,7 +214,7 @@ function ResendForm({ email, onChange, onSubmit, loading, sent }: {
           {loading ? 'Sending…' : 'Resend verification'}
         </button>
         {sent && (
-          <span className="text-[12.5px] text-[#6FB8C4] font-semibold">
+          <span className="text-xs text-[#6FB8C4] font-semibold">
             ✓ Link sent — check your inbox.
           </span>
         )}

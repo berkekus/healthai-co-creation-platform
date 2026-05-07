@@ -70,7 +70,7 @@ function Logo({ inverted = false }: { inverted?: boolean }) {
         className="h-9 w-auto"
         style={inverted ? { filter: 'brightness(0) invert(1)' } : undefined}
       />
-      <span className={`text-[21px] font-extrabold tracking-tight font-headline ${inverted ? 'text-white' : 'text-[#03326D]'}`}>
+      <span className={`text-xl font-black tracking-normal font-headline ${inverted ? 'text-white' : 'text-[#03326D]'}`}>
         HealthAI
       </span>
     </div>
@@ -234,23 +234,23 @@ const ProfileVisual = () => (
         AY
       </div>
       <div>
-        <div className="font-headline font-bold text-hai-plum text-[18px] leading-tight">Aylin Yilmaz</div>
-        <div className="text-[11px] font-mono tracking-[0.14em] uppercase text-neutral-500">Clinician profile</div>
+        <div className="font-headline font-bold text-hai-plum text-lg leading-tight">Aylin Yilmaz</div>
+        <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">Clinician profile</div>
       </div>
-      <Icon name="verified" className="ml-auto text-hai-teal text-[24px]" filled />
+      <Icon name="verified" className="ml-auto text-hai-teal text-2xl" filled />
     </div>
     <div className="grid grid-cols-2 gap-2 mt-4">
       {['Cardiology', 'Istanbul, Turkiye', 'Clinical AI', 'Institution verified'].map((item) => (
-        <div key={item} className="rounded-xl bg-neutral-100 px-3 py-2 text-[11px] font-bold text-hai-plum">
+        <div key={item} className="rounded-xl bg-neutral-100 px-3 py-2 text-xs font-bold text-hai-plum">
           {item}
         </div>
       ))}
     </div>
     <div className="mt-4 rounded-2xl bg-hai-mint/45 p-3 flex items-center gap-3">
-      <Icon name="tune" className="text-hai-plum text-[22px]" filled />
+      <Icon name="tune" className="text-hai-plum text-xl" filled />
       <div>
-        <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Match basis</div>
-        <div className="text-[13px] font-semibold text-neutral-700">Expertise, location, role, and collaboration goals.</div>
+        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Match basis</div>
+        <div className="text-sm font-semibold text-neutral-700">Expertise, location, role, and collaboration goals.</div>
       </div>
     </div>
   </div>
@@ -259,24 +259,24 @@ const ProfileVisual = () => (
 const PostVisual = () => (
   <div className="relative w-full max-w-[340px] aspect-[5/4] mx-auto">
     <div className="absolute inset-0 bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5 flex flex-col gap-2.5">
-      <div className="flex items-center gap-2 text-[9px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold mb-1">
+      <div className="flex items-center gap-2 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-1">
         <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" /> Draft · new post
       </div>
       <div className="h-6 bg-gradient-to-r from-hai-teal/30 to-hai-mint/40 rounded-md w-5/6" />
       <div className="grid grid-cols-2 gap-2 mt-1">
-        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-[10px] font-mono tracking-wider uppercase text-neutral-500">Domain</div>
-        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-[10px] font-mono tracking-wider uppercase text-neutral-500">Stage</div>
+        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em]r uppercase text-neutral-500">Domain</div>
+        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em]r uppercase text-neutral-500">Stage</div>
       </div>
       <div className="h-2 bg-neutral-100 rounded-full w-full" />
       <div className="h-2 bg-neutral-100 rounded-full w-4/5" />
       <div className="h-2 bg-neutral-100 rounded-full w-3/5" />
       <div className="mt-auto flex items-center justify-between pt-2">
-        <span className="text-[10px] font-mono tracking-[0.12em] uppercase text-neutral-400">0 / 0 files</span>
-        <span className="bg-hai-plum text-white text-[11px] font-bold px-3 py-1.5 rounded-full">Publish →</span>
+        <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-400">0 / 0 files</span>
+        <span className="bg-hai-plum text-white text-xs font-bold px-3 py-1.5 rounded-full">Publish →</span>
       </div>
     </div>
     <div className="absolute -bottom-3 -right-3 w-14 h-14 bg-hai-lime rounded-2xl shadow-lg flex items-center justify-center rotate-6">
-      <Icon name="edit_note" className="text-hai-plum text-[30px]" filled />
+      <Icon name="edit_note" className="text-hai-plum text-3xl" filled />
     </div>
   </div>
 )
@@ -289,26 +289,26 @@ const MatchVisual = () => {
   return (
     <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold">Browse Posts</span>
-        <span className="flex items-center gap-1 text-[10px] font-mono tracking-[0.15em] uppercase text-hai-plum"><Icon name="auto_awesome" className="text-[14px]" filled /> 82% match</span>
+        <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Browse Posts</span>
+        <span className="flex items-center gap-1 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum"><Icon name="auto_awesome" className="text-sm" filled /> 82% match</span>
       </div>
       <div className="rounded-2xl border border-neutral-100 p-3 mb-4">
-        <div className="font-headline font-bold text-hai-plum text-[16px] leading-tight">Structured MRI report assistant</div>
-        <div className="mt-2 flex items-center gap-2 text-[11px] font-semibold text-neutral-500">
-          <Icon name="location_on" className="text-[15px]" />
+        <div className="font-headline font-bold text-hai-plum text-base leading-tight">Structured MRI report assistant</div>
+        <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-neutral-500">
+          <Icon name="location_on" className="text-base" />
           Ankara, Turkiye
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
         {chips.map(([label, active]) => (
-          <span key={label} className={`text-[11px] font-bold px-3 py-1.5 rounded-full transition ${active ? 'bg-hai-plum text-white' : 'bg-neutral-100 text-neutral-500'}`}>
+          <span key={label} className={`text-xs font-bold px-3 py-1.5 rounded-full transition ${active ? 'bg-hai-plum text-white' : 'bg-neutral-100 text-neutral-500'}`}>
             {label}
           </span>
         ))}
       </div>
       <div className="mt-5 pt-4 border-t border-neutral-100 flex items-center gap-3">
-        <Icon name="view_list" className="text-hai-plum text-[18px]" filled />
-        <span className="text-[11px] font-mono tracking-wider uppercase text-neutral-500">Filters, sorting, and pagination stay in sync.</span>
+        <Icon name="view_list" className="text-hai-plum text-lg" filled />
+        <span className="text-xs font-mono tracking-[0.12em]r uppercase text-neutral-500">Filters, sorting, and pagination stay in sync.</span>
       </div>
     </div>
   )
@@ -318,13 +318,13 @@ const MeetVisual = () => (
   <div className="w-full max-w-[340px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
     <div className="flex items-start gap-3 mb-4 pb-4 border-b border-neutral-100">
       <div className="w-9 h-9 rounded-xl bg-hai-mint/60 flex items-center justify-center shrink-0">
-        <Icon name="shield_lock" className="text-hai-plum text-[20px]" filled />
+        <Icon name="shield_lock" className="text-hai-plum text-xl" filled />
       </div>
       <div className="flex-1">
-        <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-0.5">Step 01 · NDA</div>
-        <div className="font-headline text-[15px] font-bold text-hai-plum leading-tight">One-page NDA, accepted inline.</div>
+        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-0.5">Step 01 · NDA</div>
+        <div className="font-headline text-base font-bold text-hai-plum leading-tight">One-page NDA, accepted inline.</div>
       </div>
-      <Icon name="check_circle" className="text-hai-teal text-[22px]" filled />
+      <Icon name="check_circle" className="text-hai-teal text-xl" filled />
     </div>
     {[
       ['Mon · 28 Apr', '14:00 CET'],
@@ -334,9 +334,9 @@ const MeetVisual = () => (
       <div key={date} className="flex items-center justify-between py-2.5 border-b border-neutral-100 last:border-0">
         <span className="flex items-center gap-2.5">
           <span className={`w-5 h-5 rounded-full border-2 ${i === 1 ? 'bg-hai-teal border-hai-teal' : 'border-neutral-300'}`} />
-          <span className="text-[13px] font-semibold text-neutral-800">{date}</span>
+          <span className="text-sm font-semibold text-neutral-800">{date}</span>
         </span>
-        <span className="text-[11px] font-mono tracking-wider text-neutral-500">{time}</span>
+        <span className="text-xs font-mono tracking-[0.12em]r text-neutral-500">{time}</span>
       </div>
     ))}
   </div>
@@ -345,8 +345,8 @@ const MeetVisual = () => (
 const MeetingsVisual = () => (
   <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
     <div className="flex items-center justify-between mb-4">
-      <span className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold">Meetings</span>
-      <span className="rounded-full bg-hai-mint px-3 py-1 text-[10px] font-mono tracking-[0.14em] uppercase text-hai-plum font-bold">Pending review</span>
+      <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Meetings</span>
+      <span className="rounded-full bg-hai-mint px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold">Pending review</span>
     </div>
     <div className="space-y-3">
       {[
@@ -356,14 +356,14 @@ const MeetingsVisual = () => (
       ].map(([status, title, action]) => (
         <div key={title} className="rounded-2xl border border-neutral-100 p-3">
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-xl bg-hai-plum text-white flex items-center justify-center text-[11px] font-bold">
+            <div className="w-8 h-8 rounded-xl bg-hai-plum text-white flex items-center justify-center text-xs font-bold">
               {status.slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-400 font-bold">{status}</div>
-              <div className="font-headline font-bold text-hai-plum text-[14px] truncate">{title}</div>
+              <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-400 font-bold">{status}</div>
+              <div className="font-headline font-bold text-hai-plum text-sm truncate">{title}</div>
             </div>
-            <span className="rounded-full bg-neutral-100 px-3 py-1 text-[10px] font-bold text-hai-plum">{action}</span>
+            <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-hai-plum">{action}</span>
           </div>
         </div>
       ))}
@@ -375,11 +375,11 @@ const NotifyVisual = () => (
   <div className="w-full max-w-[350px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
     <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
       <div>
-        <div className="text-[10px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold">Notifications</div>
-        <div className="font-headline text-[20px] font-bold text-hai-plum">Follow the thread.</div>
+        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Notifications</div>
+        <div className="font-headline text-xl font-bold text-hai-plum">Follow the thread.</div>
       </div>
       <div className="relative">
-        <Icon name="notifications" className="text-hai-plum text-[28px]" filled />
+        <Icon name="notifications" className="text-hai-plum text-3xl" filled />
         <span className="absolute -right-1 -top-1 w-3 h-3 rounded-full bg-hai-lime border-2 border-white" />
       </div>
     </div>
@@ -391,8 +391,8 @@ const NotifyVisual = () => (
       <div key={title} className="flex items-center gap-3 py-3 border-b border-neutral-100 last:border-0">
         <span className="w-2 h-2 rounded-full bg-hai-teal shrink-0" />
         <div className="min-w-0 flex-1">
-          <div className="text-[13px] font-bold text-hai-plum truncate">{title}</div>
-          <div className="text-[11px] font-mono tracking-[0.12em] uppercase text-neutral-400">{time}</div>
+          <div className="text-sm font-bold text-hai-plum truncate">{title}</div>
+          <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-400">{time}</div>
         </div>
       </div>
     ))}
@@ -671,18 +671,18 @@ export default function LandingPage() {
               }}
               className="relative text-center max-w-5xl mx-auto px-6 md:px-8 will-change-[transform,filter,opacity]"
             >
-              <div className="inline-flex items-center gap-2 bg-white/60 backdrop-blur-md border border-hai-teal/40 rounded-full px-4 py-1.5 mb-6 text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
+              <div className="inline-flex items-center gap-2 bg-white/60 backdrop-blur-md border border-hai-teal/40 rounded-full px-4 py-1.5 mb-6 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-hai-plum animate-pulse" />
                 SENG 384 · Spring 2026 · v0.1
               </div>
               <h1
                 id="hero-headline"
-                className="font-headline font-bold text-hai-plum leading-[1.0] tracking-[-0.03em] text-[42px] sm:text-[60px] md:text-[72px] lg:text-[84px]"
+                className="font-headline font-bold text-hai-plum leading-none tracking-normal text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
               >
                 Healthcare co-creation,<br />
                 <span className="opacity-25">without the silos.</span>
               </h1>
-              <p className="mt-6 max-w-2xl mx-auto text-[17px] md:text-[19px] leading-relaxed text-hai-plum/65 font-medium">
+              <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed text-hai-plum/65 font-semibold">
                 A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional <span className="font-bold text-hai-plum">.edu</span> verification and an immutable audit trail.
               </p>
             </motion.div>
@@ -749,8 +749,8 @@ export default function LandingPage() {
             {/* ── Pathway cards ─────────────────────────────── */}
             <div className="relative mb-10 overflow-hidden py-3">
               <div className="mb-5 flex items-center justify-center gap-3">
-                <Icon name="verified_user" className="text-[20px] text-[#5A6FD6]" filled />
-                <p className="font-mono text-[11px] font-black uppercase tracking-[0.34em] text-[#77728f]">
+                <Icon name="verified_user" className="text-xl text-[#5A6FD6]" filled />
+                <p className="font-mono text-xs font-black uppercase tracking-[0.16em] text-[#77728f]">
                   Verified Institutional Network
                 </p>
               </div>
@@ -774,7 +774,7 @@ export default function LandingPage() {
                         'University of Helsinki',
                         'Karolinska Institutet',
                       ].map((name) => (
-                        <span key={`${groupIndex}-${name}`} className="flex items-center gap-8 font-mono text-[11px] font-black uppercase tracking-[0.12em] text-[#77728f]">
+                        <span key={`${groupIndex}-${name}`} className="flex items-center gap-8 font-mono text-xs font-black uppercase tracking-[0.12em] text-[#77728f]">
                           {name}
                           <span className="h-1 w-1 rounded-full bg-[#6B6FEA]" />
                         </span>
@@ -788,7 +788,7 @@ export default function LandingPage() {
             <div className="relative mb-12">
               <div className="relative rounded-[32px] bg-white px-5 pb-6 pt-5 shadow-[0_30px_86px_-66px_rgba(45,24,56,0.55),0_-14px_50px_-18px_rgba(255,255,255,0.9)] md:px-7 md:pb-7 md:pt-7">
                 <div className="mb-5 flex items-center justify-between px-1">
-                  <p className="text-[12px] font-mono tracking-[0.32em] uppercase text-[#77728f] font-black">Join the Directory</p>
+                  <p className="text-xs font-mono tracking-[0.16em] uppercase text-[#77728f] font-black">Join the Directory</p>
                 </div>
 
                 <div className="relative grid gap-4 md:grid-cols-2">
@@ -804,22 +804,23 @@ export default function LandingPage() {
                   >
                     {/* Content — stacks naturally from top, no h-full stretch */}
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
-                      <span className="mb-8 inline-flex items-center gap-3 text-[12px] font-mono font-black uppercase tracking-[0.24em] text-[#2d2844]">
+                      <span className="mb-8 inline-flex items-center gap-3 text-xs font-mono font-black uppercase tracking-[0.16em] text-[#2d2844]">
                         <span className="h-4 w-1 bg-[#36213E]" />
                         FOR ENGINEERS
                       </span>
-                      <h2 className="font-headline text-[2.15rem] font-black leading-[1.12] tracking-[-0.035em] text-hai-plum sm:text-[2.45rem] lg:text-[2.75rem]">
+                      <h2 className="font-headline text-[2.15rem] font-black leading-tight tracking-normal text-hai-plum sm:text-[2.45rem] lg:text-[2.75rem]">
                         Build with clinical insight.
                       </h2>
-                      <p className="mt-6 max-w-[320px] font-body text-[16px] font-semibold leading-[1.55] text-[#514d62]">
+                      <p className="mt-6 max-w-[320px] font-body text-base font-semibold leading-relaxed text-[#514d62]">
                         Share your idea or look for the right healthcare partner to co-create solutions.
                       </p>
                       <Link
                         to={ROUTES.REGISTER}
-                        className="mt-auto inline-flex w-[260px] items-center justify-between border-b-2 border-[#b9b2e0] pb-4 text-[16px] font-black text-hai-plum transition hover:border-hai-plum"
+                        state={{ role: 'engineer' }}
+                        className="mt-auto inline-flex w-[260px] items-center justify-between border-b-2 border-[#b9b2e0] pb-4 text-base font-black text-hai-plum transition hover:border-hai-plum"
                       >
                         Create Engineer Account
-                        <span className="text-[34px] leading-none">→</span>
+                        <span className="text-4xl leading-none">→</span>
                       </Link>
                     </div>
                     {/* Portrait — right half, desktop only. Stretches to card height. */}
@@ -848,22 +849,23 @@ export default function LandingPage() {
                   >
                     {/* Content — stacks naturally from top */}
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
-                      <span className="mb-8 inline-flex items-center gap-3 text-[12px] font-mono font-black uppercase tracking-[0.24em] text-[#2d2844]">
+                      <span className="mb-8 inline-flex items-center gap-3 text-xs font-mono font-black uppercase tracking-[0.16em] text-[#2d2844]">
                         <span className="h-4 w-1 bg-[#72d6dd]" />
                         FOR HEALTHCARE PROFESSIONALS
                       </span>
-                      <h2 className="font-headline text-[2.15rem] font-black leading-[1.12] tracking-[-0.035em] text-hai-plum sm:text-[2.45rem] lg:text-[2.75rem]">
+                      <h2 className="font-headline text-[2.15rem] font-black leading-tight tracking-normal text-hai-plum sm:text-[2.45rem] lg:text-[2.75rem]">
                         Shape technology that matters.
                       </h2>
-                      <p className="mt-6 max-w-[330px] font-body text-[16px] font-semibold leading-[1.55] text-[#514d62]">
+                      <p className="mt-6 max-w-[330px] font-body text-base font-semibold leading-relaxed text-[#514d62]">
                         Collaborate with engineers on real clinical needs and innovations.
                       </p>
                       <Link
                         to={ROUTES.REGISTER}
-                        className="mt-auto inline-flex w-[300px] items-center justify-between border-b-2 border-[#9fdde4] pb-5 text-[18px] font-black text-hai-plum transition after:text-[34px] after:leading-none after:content-['→'] hover:border-hai-plum [&>span]:hidden"
+                        state={{ role: 'healthcare_professional' }}
+                        className="mt-auto inline-flex w-[300px] items-center justify-between border-b-2 border-[#9fdde4] pb-5 text-lg font-black text-hai-plum transition after:text-4xl after:leading-none after:content-['→'] hover:border-hai-plum [&>span]:hidden"
                       >
                         Create HCP Account
-                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-hai-mint/30 text-[10px] font-bold">♦</span>
+                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-hai-mint/30 text-xs font-bold">♦</span>
                       </Link>
                     </div>
                     {/* Portrait — right half, desktop only. Stretches to card height. */}
@@ -890,9 +892,9 @@ export default function LandingPage() {
                     ['lock',            'Zero patient data'],
                     ['account_balance', 'Built for European institutions'],
                   ] as [string, string][]).map(([icon, label], index) => (
-                    <span key={label} className="flex items-center gap-4 text-[12px] font-mono font-black uppercase tracking-[0.18em] text-[#77728f]">
+                    <span key={label} className="flex items-center gap-4 text-xs font-mono font-black uppercase tracking-[0.16em] text-[#77728f]">
                       {index > 0 && <span className="hidden h-5 w-px bg-[#d9d7e4] lg:block" />}
-                      <Icon name={icon} className="text-[20px] text-[#77728f]" filled />
+                      <Icon name={icon} className="text-xl text-[#77728f]" filled />
                       {label}
                     </span>
                   ))}
@@ -908,8 +910,8 @@ export default function LandingPage() {
                 ['block',           'Zero patient data'],
                 ['account_balance', 'Built for European institutions'],
               ] as [string, string][]).map(([icon, label]) => (
-                <span key={label} className="flex items-center gap-2 text-[11px] font-mono tracking-[0.14em] uppercase text-hai-plum/70 font-bold">
-                  <Icon name={icon} className="text-[16px] text-hai-plum/60" filled />
+                <span key={label} className="flex items-center gap-2 text-xs font-mono tracking-[0.12em] uppercase text-hai-plum/70 font-bold">
+                  <Icon name={icon} className="text-base text-hai-plum/60" filled />
                   {label}
                 </span>
               ))}
@@ -917,7 +919,7 @@ export default function LandingPage() {
 
             {/* Giant "Platform" wordmark — on off-white, uses ghost tone */}
             <div className="mt-16 text-center md:mt-24">
-              <h2 className="text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-[-0.04em]"
+              <h2 className="text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-normal"
                 style={{ color: '#36213E', opacity: 0.08 }}>
                 Platform
               </h2>
@@ -929,13 +931,13 @@ export default function LandingPage() {
             <div className="relative overflow-hidden px-0 py-10 md:px-2 md:py-14 lg:px-4">
               <div className="grid min-h-[640px] grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.45fr] lg:items-center">
                 <div className="relative z-10 max-w-[500px]">
-                  <p className="font-mono text-[12px] font-black uppercase tracking-[0.28em] text-[#008EA2]">Built for Europe.</p>
+                  <p className="font-mono text-xs font-black uppercase tracking-[0.16em] text-[#008EA2]">Built for Europe.</p>
                   <div className="mt-6 h-0.5 w-10 bg-[#008EA2]" />
-                  <h2 className="mt-10 font-headline text-[2.65rem] font-black leading-[1.12] tracking-[-0.025em] text-hai-plum sm:text-[3.2rem] lg:text-[3.55rem]">
+                  <h2 className="mt-10 font-headline text-[2.65rem] font-black leading-tight tracking-normal text-hai-plum sm:text-[3.2rem] lg:text-[3.55rem]">
                     Designed for European institutions.<br />
                     <span className="text-[#008EA2]">Trusted across borders.</span>
                   </h2>
-                  <p className="mt-8 max-w-[430px] font-body text-[18px] font-semibold leading-[1.65] text-[#596079]">
+                  <p className="mt-8 max-w-[430px] font-body text-lg font-semibold leading-relaxed text-[#596079]">
                     HealthAI is built with a European-first approach to privacy, compliance, and collaboration. One platform. Many countries. Shared standards.
                   </p>
 
@@ -947,11 +949,11 @@ export default function LandingPage() {
                     ].map(([icon, title, desc]) => (
                       <div key={title} className="flex items-start gap-4">
                         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#F0F4FF] text-[#5A6FD6]">
-                          <Icon name={icon} className="text-[28px]" filled />
+                          <Icon name={icon} className="text-3xl" filled />
                         </div>
                         <div>
-                          <h3 className="font-headline text-[16px] font-black leading-tight text-hai-plum">{title}</h3>
-                          <p className="mt-1 max-w-[300px] font-body text-[14px] font-semibold leading-[1.5] text-[#596079]">{desc}</p>
+                          <h3 className="font-headline text-base font-black leading-tight text-hai-plum">{title}</h3>
+                          <p className="mt-1 max-w-[300px] font-body text-sm font-semibold leading-relaxed text-[#596079]">{desc}</p>
                         </div>
                       </div>
                     ))}
@@ -970,11 +972,11 @@ export default function LandingPage() {
                   <div className="relative z-10 ml-auto mt-8 max-w-[270px] rounded-[14px] border border-[#E3EAF0] bg-white/88 p-6 shadow-[0_28px_72px_-50px_rgba(54,33,62,0.38)] backdrop-blur-md lg:mt-28">
                     <div className="flex items-start gap-4">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#008EA2] text-white">
-                        <Icon name="stars" className="text-[22px]" filled />
+                        <Icon name="stars" className="text-xl" filled />
                       </div>
                       <div>
-                        <h3 className="font-headline text-[15px] font-black leading-snug text-hai-plum">European standards.<br />Global impact.</h3>
-                        <p className="mt-5 font-body text-[13px] font-semibold leading-[1.65] text-[#596079]">
+                        <h3 className="font-headline text-base font-black leading-snug text-hai-plum">European standards.<br />Global impact.</h3>
+                        <p className="mt-5 font-body text-sm font-semibold leading-relaxed text-[#596079]">
                           Supporting innovation in healthcare through secure, ethical and compliant collaboration.
                         </p>
                       </div>
@@ -992,12 +994,12 @@ export default function LandingPage() {
                 ].map(([icon, value, label, desc], index) => (
                   <div key={label} className={`flex min-h-[150px] items-start gap-5 p-7 ${index > 0 ? 'lg:border-l lg:border-[#E4EAF0]' : ''}`}>
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F0F4FF] text-[#5A6FD6]">
-                      <Icon name={icon} className="text-[28px]" filled />
+                      <Icon name={icon} className="text-3xl" filled />
                     </div>
                     <div>
-                      <div className="font-headline text-[22px] font-black leading-none text-[#008EA2]">{value}</div>
-                      <h3 className="mt-3 font-headline text-[15px] font-black leading-tight text-hai-plum">{label}</h3>
-                      <p className="mt-4 font-body text-[13px] font-semibold leading-[1.55] text-[#596079]">{desc}</p>
+                      <div className="font-headline text-xl font-black leading-none text-[#008EA2]">{value}</div>
+                      <h3 className="mt-3 font-headline text-base font-black leading-tight text-hai-plum">{label}</h3>
+                      <p className="mt-4 font-body text-sm font-semibold leading-relaxed text-[#596079]">{desc}</p>
                     </div>
                   </div>
                 ))}
@@ -1020,7 +1022,7 @@ export default function LandingPage() {
                     <div className="absolute inset-x-3 bottom-4 h-1.5 bg-hai-teal rounded-full w-1/2" />
                   </div>
                 </div>
-                <p className="font-body text-[13.5px] text-neutral-600 leading-relaxed">
+                <p className="font-body text-sm text-neutral-600 leading-relaxed">
                   Every post follows a clinical–engineering grammar: domain, expertise required, project stage, confidentiality level. Engineers publish capability, clinicians publish need — matches become meaningful.
                 </p>
               </div>
@@ -1045,7 +1047,7 @@ export default function LandingPage() {
                     </span>
                   </div>
                 </div>
-                <p className="font-body text-[13.5px] text-neutral-600 leading-relaxed">
+                <p className="font-body text-sm text-neutral-600 leading-relaxed">
                   Express interest. Accept a one-page NDA inline. Propose three timeslots. The post owner confirms — a meeting is scheduled and the handshake is logged in a 24-month audit trail.
                 </p>
               </div>
@@ -1057,17 +1059,17 @@ export default function LandingPage() {
                   <h3 className="text-xl font-headline font-bold leading-tight">Intelligent matching across disciplines.</h3>
                 </div>
                 <div className="flex-grow flex flex-col items-center justify-center mb-5 bg-hai-plum rounded-2xl p-6 min-h-[200px] relative overflow-hidden">
-                  <div className="w-full max-w-[200px] bg-hai-cream h-11 rounded-lg mb-2 relative z-10 shadow-lg border border-white/20 flex items-center px-3 text-[10px] font-mono uppercase tracking-widest text-neutral-700">
+                  <div className="w-full max-w-[200px] bg-hai-cream h-11 rounded-lg mb-2 relative z-10 shadow-lg border border-white/20 flex items-center px-3 text-xs font-mono uppercase tracking-[0.12em]st text-neutral-700">
                     Cardiology · ICU
                   </div>
                   <button className="bg-hai-plum text-hai-mint font-bold py-2 px-7 rounded-full relative z-20 -my-3 shadow-lg border-[3px] border-hai-plum w-max text-sm">
                     Match
                   </button>
-                  <div className="w-full max-w-[200px] bg-hai-mint h-11 rounded-lg mt-2 relative z-10 shadow-lg border border-white/20 flex items-center px-3 text-[10px] font-mono uppercase tracking-widest text-hai-plum">
+                  <div className="w-full max-w-[200px] bg-hai-mint h-11 rounded-lg mt-2 relative z-10 shadow-lg border border-white/20 flex items-center px-3 text-xs font-mono uppercase tracking-[0.12em]st text-hai-plum">
                     Embedded ML · Berlin
                   </div>
                 </div>
-                <p className="font-body text-[13.5px] text-neutral-600 leading-relaxed">
+                <p className="font-body text-sm text-neutral-600 leading-relaxed">
                   Filter across <b>20 medical domains</b> and <b>12 engineering specialties</b>. By city. By project stage. By collaboration type. City-based match highlights surface the nearest credible partner.
                 </p>
               </div>
@@ -1086,7 +1088,7 @@ export default function LandingPage() {
                     <div className="absolute inset-8 rounded-full border border-blue-300/20" />
                   </div>
                 </div>
-                <p className="font-body text-[13.5px] text-neutral-300 leading-relaxed relative z-10">
+                <p className="font-body text-sm text-neutral-300 leading-relaxed relative z-10">
                   Institutional .edu verification, tamper-resistant audit log, export everything, delete everything. No file uploads. No patient data. <b className="text-white">No exceptions.</b>
                 </p>
               </div>
@@ -1115,8 +1117,8 @@ export default function LandingPage() {
             {/* Section header */}
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
               <div>
-                <p className="text-[11px] font-mono tracking-[0.2em] uppercase text-hai-plum/70 font-bold mb-3">03 · How it works</p>
-                <h2 className="text-[3rem] md:text-[5.5rem] font-headline font-bold text-hai-plum tracking-[-0.03em] leading-[0.95]">
+                <p className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-3">03 · How it works</p>
+                <h2 className="text-[3rem] md:text-[5.5rem] font-headline font-bold text-hai-plum tracking-normal leading-tight">
                   A working<br />user guide.
                 </h2>
               </div>
@@ -1144,41 +1146,41 @@ export default function LandingPage() {
                       <div>
                         <div className="flex items-center gap-3 mb-5">
                           <div className="w-12 h-12 rounded-xl bg-hai-mint flex items-center justify-center">
-                            <Icon name={active.icon} className="text-hai-plum text-[26px]" filled />
+                            <Icon name={active.icon} className="text-hai-plum text-2xl" filled />
                           </div>
-                          <span className="text-[11px] font-mono tracking-[0.2em] uppercase text-hai-plum/70 font-bold">
+                          <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">
                             Step {active.num} / 0{STEPS.length}
                           </span>
                         </div>
 
-                        <h3 className="font-headline font-bold text-hai-plum tracking-[-0.035em] leading-[0.95] text-[3.5rem] md:text-[5rem] mb-2">
+                        <h3 className="font-headline font-bold text-hai-plum tracking-normal leading-tight text-[3.5rem] md:text-[5rem] mb-2">
                           {active.name}<span className="text-hai-teal">.</span>
                         </h3>
                         <p className="text-lg md:text-xl font-headline text-neutral-700 leading-snug mb-6">
                           {active.tagline}
                         </p>
-                        <p className="text-[15px] md:text-base text-neutral-600 leading-relaxed max-w-md">
+                        <p className="text-base md:text-base text-neutral-600 leading-relaxed max-w-md">
                           {active.desc}
                         </p>
                         <div className="mt-6 flex flex-wrap items-center gap-2">
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-hai-mint/60 px-3 py-1.5 text-[11px] font-mono tracking-[0.14em] uppercase text-hai-plum font-bold">
-                            <Icon name="desktop_windows" className="text-[15px]" filled />
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-hai-mint/60 px-3 py-1.5 text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold">
+                            <Icon name="desktop_windows" className="text-base" filled />
                             {active.screen}
                           </span>
                           {active.route && (
                             <Link
                               to={active.route}
-                              className="inline-flex items-center gap-1.5 rounded-full bg-hai-plum px-3 py-1.5 text-[11px] font-mono tracking-[0.14em] uppercase text-white font-bold hover:bg-black transition-colors"
+                              className="inline-flex items-center gap-1.5 rounded-full bg-hai-plum px-3 py-1.5 text-xs font-mono tracking-[0.12em] uppercase text-white font-bold hover:bg-black transition-colors"
                             >
                               {active.routeLabel}
-                              <Icon name="arrow_forward" className="text-[15px]" />
+                              <Icon name="arrow_forward" className="text-base" />
                             </Link>
                           )}
                         </div>
                         <div className="mt-5 grid gap-2 max-w-md">
                           {active.checkpoints.map((checkpoint) => (
-                            <div key={checkpoint} className="flex items-start gap-2.5 text-[13px] font-semibold text-neutral-600">
-                              <Icon name="check_circle" className="mt-0.5 text-hai-teal text-[17px] shrink-0" filled />
+                            <div key={checkpoint} className="flex items-start gap-2.5 text-sm font-semibold text-neutral-600">
+                              <Icon name="check_circle" className="mt-0.5 text-hai-teal text-lg shrink-0" filled />
                               <span>{checkpoint}</span>
                             </div>
                           ))}
@@ -1191,10 +1193,10 @@ export default function LandingPage() {
                           <button
                             key={s.num}
                             onClick={() => goTo(i)}
-                            className={`flex items-center gap-2 text-[12px] font-mono tracking-[0.14em] uppercase font-bold transition-colors ${i === step ? 'text-hai-plum' : 'text-neutral-400 hover:text-neutral-700'}`}
+                            className={`flex items-center gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold transition-colors ${i === step ? 'text-hai-plum' : 'text-neutral-400 hover:text-neutral-700'}`}
                             aria-label={`Jump to step ${s.num}`}
                           >
-                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] transition-all ${i === step ? 'bg-hai-plum text-white' : i < step ? 'bg-hai-teal text-hai-plum' : 'bg-neutral-100 text-neutral-400'}`}>
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all ${i === step ? 'bg-hai-plum text-white' : i < step ? 'bg-hai-teal text-hai-plum' : 'bg-neutral-100 text-neutral-400'}`}>
                               {i < step ? '✓' : s.num}
                             </span>
                             {s.name}
@@ -1230,7 +1232,7 @@ export default function LandingPage() {
                 className="group flex items-center gap-3 bg-white border border-neutral-200 rounded-full pl-3 pr-5 py-3 font-bold text-sm text-hai-plum shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 <span className="w-9 h-9 rounded-full bg-hai-plum text-white flex items-center justify-center group-hover:-translate-x-0.5 transition-transform">
-                  <Icon name="arrow_back" className="text-[20px]" />
+                  <Icon name="arrow_back" className="text-xl" />
                 </span>
                 {step > 0 ? STEPS[step - 1].name : 'Start'}
               </button>
@@ -1260,7 +1262,7 @@ export default function LandingPage() {
               >
                 {step < STEPS.length - 1 ? STEPS[step + 1].name : 'Done'}
                 <span className="w-9 h-9 rounded-full bg-hai-mint text-hai-plum flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
-                  <Icon name="arrow_forward" className="text-[20px]" />
+                  <Icon name="arrow_forward" className="text-xl" />
                 </span>
               </button>
             </div>
@@ -1275,10 +1277,10 @@ export default function LandingPage() {
         >
           <div className="max-w-7xl mx-auto px-6 md:px-8 text-center flex flex-col gap-6 pt-10">
             <div className="border-y border-hai-teal/50 py-4">
-              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-[-0.025em]">GDPR-native</h2>
+              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">GDPR-native</h2>
             </div>
             <div className="border-b border-hai-teal/50 pb-4">
-              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-[-0.025em]">Built for European institutions</h2>
+              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">Built for European institutions</h2>
             </div>
             <div className="border-b border-hai-teal/50 py-8 max-w-3xl mx-auto w-full">
               <p className="text-hai-plum font-semibold text-lg leading-relaxed">
@@ -1286,10 +1288,10 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="border-b border-hai-teal/50 pb-4">
-              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-[-0.025em]">Immutable audit trail</h3>
+              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">Immutable audit trail</h3>
             </div>
             <div className="border-b border-hai-teal/50 pb-4">
-              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-[-0.025em]">Zero patient data</h3>
+              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">Zero patient data</h3>
             </div>
           </div>
         </section>
@@ -1298,15 +1300,15 @@ export default function LandingPage() {
         <section className="w-full bg-hai-offwhite py-28 md:py-32 relative">
           <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-hai-mint to-transparent pointer-events-none" />
           <div className="max-w-5xl mx-auto px-6 md:px-8 relative z-10">
-            <h2 className="text-[3rem] md:text-[5rem] font-headline font-bold text-black tracking-[-0.025em] leading-[0.95] mb-10">
+            <h2 className="text-[3rem] md:text-[5rem] font-headline font-bold text-black tracking-normal leading-tight mb-10">
               Structured<br />collaboration.
             </h2>
 
             <div className="max-w-4xl mb-14 space-y-6">
-              <p className="text-xl md:text-[28px] font-headline text-neutral-900 leading-snug">
+              <p className="text-xl md:text-3xl font-headline text-neutral-900 leading-snug">
                 We know medical–engineering partnerships can stall in legal uncertainty, vague scope, and the wrong introduction. Our protocol is designed to make the first conversation easy — and the handshake legitimate.
               </p>
-              <p className="text-xl md:text-[28px] font-headline text-neutral-900 leading-snug">
+              <p className="text-xl md:text-3xl font-headline text-neutral-900 leading-snug">
                 Think of the platform as the common ground: a shared grammar, a shared NDA, a shared log — so every meeting starts on record.
               </p>
             </div>
@@ -1342,7 +1344,7 @@ export default function LandingPage() {
         {/* ── UPCOMING FEATURES ──────────────────────────────── */}
         <section className="w-full bg-hai-offwhite py-24 border-t border-neutral-200">
           <div className="max-w-5xl mx-auto px-6 md:px-8 text-center mb-14">
-            <h2 className="text-[4rem] md:text-[7rem] font-headline font-bold text-black tracking-[-0.04em] leading-[0.95] mb-4">
+            <h2 className="text-[4rem] md:text-[7rem] font-headline font-bold text-black tracking-normal leading-tight mb-4">
               Upcoming<br />Features
             </h2>
             <p className="text-base md:text-lg text-neutral-600 max-w-xl mx-auto">
@@ -1358,11 +1360,11 @@ export default function LandingPage() {
               <div key={f.title} className="flex flex-col md:flex-row items-start md:items-center py-7 border-b border-neutral-300 gap-6 md:gap-12">
                 <div className="flex items-center gap-5 w-full md:w-1/2">
                   <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-neutral-100 flex items-center justify-center shrink-0">
-                    <Icon name={f.icon} className="text-[28px] text-hai-plum" filled />
+                    <Icon name={f.icon} className="text-3xl text-hai-plum" filled />
                   </div>
                   <h3 className="text-xl md:text-2xl font-headline font-semibold text-black">{f.title}</h3>
                 </div>
-                <p className="text-[15px] md:text-base text-neutral-600 font-body leading-relaxed w-full md:w-1/2">{f.desc}</p>
+                <p className="text-base md:text-base text-neutral-600 font-body leading-relaxed w-full md:w-1/2">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -1374,7 +1376,7 @@ export default function LandingPage() {
         <div className="px-6 md:px-16 lg:px-24 grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-12 relative z-10">
           <div>
             <h4 className="font-bold mb-4 text-lg font-headline">Contact</h4>
-            <p className="font-semibold text-[15px] leading-snug text-hai-mint/90">
+            <p className="font-semibold text-base leading-snug text-hai-mint/90">
               Bilkent University<br />
               Dept. of Software Engineering<br />
               06800 Çankaya, Ankara<br />
@@ -1384,7 +1386,7 @@ export default function LandingPage() {
 
           <div>
             <h4 className="font-bold mb-4 text-lg font-headline">Platform</h4>
-            <ul className="space-y-2 text-sm font-medium">
+            <ul className="space-y-2 text-sm font-semibold">
               <li><a href="#platform" className="hover:text-white transition-colors">Platform</a></li>
               <li><a href="#directory" className="hover:text-white transition-colors">Directory</a></li>
               <li><a href="#how" className="hover:text-white transition-colors">How it works</a></li>
@@ -1395,7 +1397,7 @@ export default function LandingPage() {
 
           <div>
             <h4 className="font-bold mb-4 text-lg font-headline">Legal</h4>
-            <ul className="space-y-2 text-sm font-medium">
+            <ul className="space-y-2 text-sm font-semibold">
               <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Privacy Policy</Link></li>
               <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">GDPR &amp; your rights</Link></li>
               <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Data Export</Link></li>
@@ -1406,9 +1408,9 @@ export default function LandingPage() {
 
           <div>
             <h4 className="font-bold mb-4 text-lg font-headline">Access</h4>
-            <ul className="space-y-2 text-sm font-medium">
-              <li><Link to={ROUTES.REGISTER} className="hover:text-white transition-colors">For Clinicians</Link></li>
-              <li><Link to={ROUTES.REGISTER} className="hover:text-white transition-colors">For Engineers</Link></li>
+            <ul className="space-y-2 text-sm font-semibold">
+              <li><Link to={ROUTES.REGISTER} state={{ role: 'healthcare_professional' }} className="hover:text-white transition-colors">For Clinicians</Link></li>
+              <li><Link to={ROUTES.REGISTER} state={{ role: 'engineer' }} className="hover:text-white transition-colors">For Engineers</Link></li>
               <li><Link to={ROUTES.REGISTER} className="hover:text-white transition-colors">Request Access</Link></li>
               <li><a href="mailto:team@healthai.edu" className="hover:text-white transition-colors">Contact team</a></li>
             </ul>
@@ -1422,7 +1424,7 @@ export default function LandingPage() {
         */}
         <div className="w-full px-6 mt-12 flex items-center justify-center">
           <span
-            className="font-headline font-bold text-white tracking-[-0.05em] leading-[0.9] w-full text-center block whitespace-nowrap"
+            className="font-headline font-bold text-white tracking-normal leading-none w-full text-center block whitespace-nowrap"
             style={{ fontSize: 'clamp(56px, 16vw, 240px)' }}
           >
             healthai
@@ -1431,16 +1433,16 @@ export default function LandingPage() {
 
         {/* Bottom strip */}
         <div className="px-6 md:px-16 lg:px-24 py-8 mt-6 flex justify-between items-end relative z-10 w-full text-hai-teal gap-8 flex-wrap border-t border-hai-teal/20">
-          <div className="text-xs font-medium text-hai-teal font-mono tracking-wider">
+          <div className="text-xs font-semibold text-hai-teal font-mono tracking-[0.12em]r">
             2026<br />Copyright<br />HealthAI
           </div>
           <div className="flex items-end justify-between flex-grow ml-4 md:ml-12 gap-6 flex-wrap">
-            <div className="text-[10px] font-medium text-hai-teal/80 leading-snug font-mono tracking-wide max-w-sm">
+            <div className="text-xs font-semibold text-hai-teal/80 leading-snug font-mono tracking-[0.12em] max-w-sm">
               <p>SENG 384 · Spring 2026 · v0.1 · last audited 20·04·2026</p>
               <p>Institutional .edu accounts only. Verification is automated and one-time.</p>
               <p>No file uploads. No patient data. No exceptions.</p>
             </div>
-            <div className="text-[10px] font-medium text-hai-teal/80 shrink-0 ml-4 font-mono tracking-wide">
+            <div className="text-xs font-semibold text-hai-teal/80 shrink-0 ml-4 font-mono tracking-[0.12em]">
               Built in Europe · by Team HealthAI
             </div>
           </div>

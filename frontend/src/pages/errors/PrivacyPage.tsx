@@ -22,21 +22,21 @@ function SectionCard({
   return (
     <section className="bg-white rounded-[1.5rem] border border-neutral-100 p-6 md:p-7 font-body">
       <div className="flex items-start gap-3 mb-4">
-        <div className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-mono font-bold text-[11px] tracking-[0.08em] ${s.disc}`}>
+        <div className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-mono font-bold text-xs tracking-[0.12em] ${s.disc}`}>
           {index}
         </div>
         <div className="flex items-center gap-2 flex-wrap min-w-0">
-          <h2 className="font-headline font-bold text-[20px] leading-tight tracking-[-0.015em] text-hai-plum">
+          <h2 className="font-headline font-bold text-xl leading-tight tracking-normal text-hai-plum">
             {title}
           </h2>
           <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full ${s.icon}`}>
-            <span className="material-symbols-outlined text-hai-plum text-[16px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+            <span className="material-symbols-outlined text-hai-plum text-base" style={{ fontVariationSettings: '"FILL" 1' }}>
               {icon}
             </span>
           </span>
         </div>
       </div>
-      <div className="text-[14.5px] text-neutral-600 leading-relaxed space-y-3">
+      <div className="text-sm text-neutral-600 leading-relaxed space-y-3">
         {children}
       </div>
     </section>
@@ -62,27 +62,27 @@ export default function PrivacyPage() {
       <div className="bg-white rounded-[2rem] border border-neutral-100 shadow-[0_30px_80px_-30px_rgba(54,33,62,0.12)] p-6 md:p-10 mb-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-72 h-72 pointer-events-none opacity-60" style={{ background: 'radial-gradient(circle, #B8F3FF 0%, transparent 70%)' }} />
         <div className="relative">
-          <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-4 py-1.5 mb-5 text-[11px] font-mono tracking-[0.18em] uppercase text-hai-plum font-bold">
-            <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: '"FILL" 1' }}>shield_lock</span>
+          <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-4 py-1.5 mb-5 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
+            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>shield_lock</span>
             <span className="text-hai-plum/70">19</span>
             <span>Privacy policy</span>
           </div>
 
-          <h1 className="font-headline font-bold text-[40px] md:text-[56px] leading-[0.98] tracking-[-0.035em] text-hai-plum mb-4">
+          <h1 className="font-headline font-bold text-4xl md:text-6xl leading-tight tracking-normal text-hai-plum mb-4">
             Privacy<br />policy<span className="text-hai-teal">.</span>
           </h1>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 bg-hai-mint text-hai-plum rounded-full px-3 py-1 text-[10.5px] font-mono tracking-[0.14em] uppercase font-bold">
+            <span className="inline-flex items-center gap-1.5 bg-hai-mint text-hai-plum rounded-full px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
               GDPR compliant
             </span>
-            <span className="inline-flex items-center gap-1.5 bg-hai-offwhite text-hai-plum rounded-full px-3 py-1 text-[10.5px] font-mono tracking-[0.14em] uppercase font-bold">
-              <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: '"FILL" 1' }}>event</span>
+            <span className="inline-flex items-center gap-1.5 bg-hai-offwhite text-hai-plum rounded-full px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase font-bold">
+              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>event</span>
               Last updated · 19 Apr 2026
             </span>
-            <span className="inline-flex items-center gap-1.5 bg-hai-lime text-hai-plum rounded-full px-3 py-1 text-[10.5px] font-mono tracking-[0.14em] uppercase font-bold">
-              <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: '"FILL" 1' }}>location_on</span>
+            <span className="inline-flex items-center gap-1.5 bg-hai-lime text-hai-plum rounded-full px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase font-bold">
+              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>location_on</span>
               EEA
             </span>
           </div>
@@ -97,10 +97,10 @@ export default function PrivacyPage() {
             <strong className="text-hai-plum font-body font-bold">SENG 384, Spring 2026</strong>.
             We connect engineers and healthcare professionals across Europe for structured research collaboration.
           </p>
-          <p className="text-[13px] text-neutral-500">
+          <p className="text-sm text-neutral-500">
             Contact:{' '}
-            <span className="inline-flex items-center gap-1 bg-hai-offwhite rounded-full px-2.5 py-0.5 font-mono text-[12px] text-hai-plum font-bold">
-              <span className="material-symbols-outlined text-[13px]">mail</span>
+            <span className="inline-flex items-center gap-1 bg-hai-offwhite rounded-full px-2.5 py-0.5 font-mono text-xs text-hai-plum font-bold">
+              <span className="material-symbols-outlined text-sm">mail</span>
               admin@healthai.edu
             </span>
           </p>
@@ -122,8 +122,8 @@ export default function PrivacyPage() {
             </BulletRow>
           </div>
           <div className="mt-4 bg-hai-cream/50 border border-hai-plum/10 rounded-2xl p-4 flex items-start gap-3">
-            <span className="material-symbols-outlined text-hai-plum text-[18px] shrink-0 mt-0.5" style={{ fontVariationSettings: '"FILL" 1' }}>block</span>
-            <p className="text-[13.5px] text-hai-plum leading-relaxed">
+            <span className="material-symbols-outlined text-hai-plum text-lg shrink-0 mt-0.5" style={{ fontVariationSettings: '"FILL" 1' }}>block</span>
+            <p className="text-sm text-hai-plum leading-relaxed">
               We do <strong className="font-body font-bold">not</strong> collect patient data, clinical records, proprietary IP, or personal emails. File uploads are prohibited on this platform.
             </p>
           </div>
@@ -146,20 +146,20 @@ export default function PrivacyPage() {
         <SectionCard index="04" title="Data retention" icon="schedule" tone="mint">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="bg-hai-offwhite rounded-2xl p-4">
-              <div className="text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold mb-1">Account & posts</div>
-              <div className="font-headline font-bold text-[18px] text-hai-plum leading-tight">While active</div>
+              <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold mb-1">Account & posts</div>
+              <div className="font-headline font-bold text-lg text-hai-plum leading-tight">While active</div>
             </div>
             <div className="bg-hai-lime/60 rounded-2xl p-4">
-              <div className="text-[10px] font-mono tracking-[0.14em] uppercase text-hai-plum font-bold mb-1">Security logs</div>
-              <div className="font-headline font-bold text-[18px] text-hai-plum leading-tight">24 months</div>
+              <div className="text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold mb-1">Security logs</div>
+              <div className="font-headline font-bold text-lg text-hai-plum leading-tight">24 months</div>
             </div>
             <div className="bg-hai-mint rounded-2xl p-4">
-              <div className="text-[10px] font-mono tracking-[0.14em] uppercase text-hai-plum font-bold mb-1">Session</div>
-              <div className="font-headline font-bold text-[18px] text-hai-plum leading-tight">In-memory</div>
+              <div className="text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold mb-1">Session</div>
+              <div className="font-headline font-bold text-lg text-hai-plum leading-tight">In-memory</div>
             </div>
           </div>
-          <p className="text-[13px] text-neutral-500 mt-3 flex items-start gap-1.5">
-            <span className="material-symbols-outlined text-[14px] mt-0.5" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
+          <p className="text-sm text-neutral-500 mt-3 flex items-start gap-1.5">
+            <span className="material-symbols-outlined text-sm mt-0.5" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
             Security logs are tamper-resistant — no manual deletion permitted.
           </p>
         </SectionCard>
@@ -179,7 +179,7 @@ export default function PrivacyPage() {
             We use only <strong className="text-hai-plum font-body font-bold">essential cookies</strong> required for session security. No analytics, advertising, or third-party tracking cookies are used.
           </p>
           <p>
-            You may choose <span className="inline-flex items-center gap-1 bg-hai-offwhite text-hai-plum rounded-full px-2.5 py-0.5 font-mono text-[11px] font-bold">Essential only</span> in the cookie consent banner to explicitly limit cookies.
+            You may choose <span className="inline-flex items-center gap-1 bg-hai-offwhite text-hai-plum rounded-full px-2.5 py-0.5 font-mono text-xs font-bold">Essential only</span> in the cookie consent banner to explicitly limit cookies.
           </p>
         </SectionCard>
 
@@ -198,16 +198,16 @@ export default function PrivacyPage() {
         <div className="absolute -top-6 -right-6 w-48 h-48 pointer-events-none opacity-30" style={{ background: 'radial-gradient(circle, #B8F3FF 0%, transparent 70%)' }} />
         <div className="relative flex items-start gap-4">
           <div className="shrink-0 w-11 h-11 rounded-2xl bg-hai-mint/15 text-hai-mint flex items-center justify-center">
-            <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: '"FILL" 1' }}>contact_support</span>
+            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>contact_support</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[10.5px] font-mono tracking-[0.18em] uppercase text-hai-mint/80 font-bold mb-1.5">
+            <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-mint/80 font-bold mb-1.5">
               Contact & complaints
             </div>
-            <div className="font-headline font-bold text-[22px] leading-tight tracking-[-0.015em] mb-2">
+            <div className="font-headline font-bold text-xl leading-tight tracking-normal mb-2">
               Reach out anytime.
             </div>
-            <p className="text-[13.5px] leading-relaxed text-hai-offwhite/85">
+            <p className="text-sm leading-relaxed text-hai-offwhite/85">
               Email{' '}
               <a href="mailto:admin@healthai.edu" className="underline underline-offset-2 text-hai-mint hover:text-white transition-colors">
                 admin@healthai.edu
