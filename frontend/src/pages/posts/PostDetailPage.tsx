@@ -269,7 +269,12 @@ export default function PostDetailPage() {
                     </div>
                   </div>
                 </div>
-                <button className="h-[48px] rounded-[13px] border border-[#dfe2e8] bg-white px-8 text-[14px] font-black">View profile</button>
+                <button
+                  onClick={() => navigate(`/profile/${post.authorId}`)}
+                  className="h-[48px] rounded-[13px] border border-[#dfe2e8] bg-white px-8 text-[14px] font-black hover:border-[#3db8d8] hover:text-[#3db8d8] transition-colors"
+                >
+                  View profile
+                </button>
               </div>
             </InfoCard>
           </div>
