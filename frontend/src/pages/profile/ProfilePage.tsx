@@ -118,13 +118,13 @@ function TagAutocomplete({
         style={inputStyle()}
       />
       {open && suggestions.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-[0_8px_24px_-8px_rgba(54,33,62,0.18)]">
+        <div className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-[#D5DAE0] bg-white shadow-[0_8px_24px_-8px_rgba(54,33,62,0.18)]">
           {suggestions.map(s => (
             <button
               key={s}
               type="button"
               onMouseDown={() => add(s)}
-              className="w-full px-4 py-2.5 text-left text-[13px] font-semibold text-hai-plum hover:bg-[#f5f3ff]"
+              className="w-full px-4 py-2.5 text-left text-[13px] font-semibold text-hai-plum hover:bg-[#E8F4F7]"
             >
               {s}
             </button>
@@ -149,13 +149,13 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section id={id} className="border-b border-[#dde3ea] py-9 last:border-b-0">
+    <section id={id} className="border-b border-[#D5DAE0] py-9 last:border-b-0">
       <div className="mb-7 flex items-start justify-between gap-6">
         <div className="flex items-center gap-4">
           <span className="material-symbols-outlined text-[21px] text-hai-plum">{icon}</span>
           <h2 className="font-headline text-[20px] font-black leading-tight text-hai-plum">{title}</h2>
         </div>
-        {subtitle && <p className="max-w-[380px] text-right text-[13px] font-semibold leading-5 text-[#77727f]">{subtitle}</p>}
+        {subtitle && <p className="max-w-[380px] text-right text-[13px] font-semibold leading-5 text-[#6F6878]">{subtitle}</p>}
       </div>
       {children}
     </section>
@@ -165,7 +165,7 @@ function Section({
 function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[180px_minmax(0,1fr)] gap-8 py-2">
-      <div className="text-[14px] font-semibold text-[#77727f]">{label}</div>
+      <div className="text-[14px] font-semibold text-[#6F6878]">{label}</div>
       <div className="min-w-0 text-[15px] font-black leading-snug text-hai-plum">{children}</div>
     </div>
   )
@@ -346,12 +346,12 @@ export default function ProfilePage() {
             </button>
             <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarChange} />
             <h2 className="mt-5 text-[17px] font-black leading-tight text-hai-plum">{user.name}</h2>
-            <p className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#77727f]">
+            <p className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#6F6878]">
               <span className="material-symbols-outlined text-[15px]">{ROLE_ICON[user.role] ?? 'person'}</span>
               {ROLE_LABEL[user.role]}
             </p>
             {user.isVerified && (
-              <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#dff4fb] px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-hai-plum">
+              <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#E8F4F7] px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-hai-plum">
                 <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: '"FILL" 1' }}>verified</span>
                 Verified
               </span>
@@ -368,17 +368,17 @@ export default function ProfilePage() {
               ['star', 'Expertise', '#expertise'],
               ['lock', 'Privacy & Data', '#data-account'],
             ].map(([icon, label, href], index) => (
-              <a key={label} href={href} className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-[#eef9fc] ${index === 0 ? 'bg-[#e8f8fc] text-[#008ed0]' : ''}`}>
+              <a key={label} href={href} className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-[#E8F4F7] ${index === 0 ? 'bg-[#E8F4F7] text-[#6FB8C4]' : ''}`}>
                 <span className="material-symbols-outlined text-[18px]">{icon}</span>
                 {label}
               </a>
             ))}
           </nav>
 
-          <div className="profile-help-card rounded-2xl bg-[#f2f4f8] p-4">
+          <div className="profile-help-card rounded-2xl bg-[#EEF0F3] p-4">
             <div className="text-[12px] font-black text-hai-plum">Need help?</div>
-            <p className="mt-3 text-[11px] font-semibold leading-5 text-[#77727f]">If you have any questions or need support, we're here to help.</p>
-            <button className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-[#d9dee7] bg-white text-[12px] font-black text-hai-plum">
+            <p className="mt-3 text-[11px] font-semibold leading-5 text-[#6F6878]">If you have any questions or need support, we're here to help.</p>
+            <button className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-[#D5DAE0] bg-white text-[12px] font-black text-hai-plum">
               <span className="material-symbols-outlined text-[16px]">support_agent</span>
               Contact support
             </button>
@@ -391,7 +391,7 @@ export default function ProfilePage() {
               <h1 className="font-headline text-[46px] font-black leading-none tracking-[-0.035em] text-hai-plum">
                 Your profile<span className="text-hai-teal">.</span>
               </h1>
-              <p className="mt-5 text-[15px] font-semibold text-[#6f6978]">Manage your information and preferences.</p>
+              <p className="mt-5 text-[15px] font-semibold text-[#6F6878]">Manage your information and preferences.</p>
             </div>
             {!isEditing ? (
               <button onClick={() => setIsEditing(true)} className="mt-1 inline-flex items-center gap-2 rounded-full bg-hai-plum px-7 py-3 text-[13px] font-black text-white shadow-[0_18px_36px_-22px_rgba(54,33,62,0.7)]">
@@ -400,7 +400,7 @@ export default function ProfilePage() {
               </button>
             ) : (
               <div className="flex gap-2">
-                <button type="button" onClick={handleCancel} className="rounded-full border border-[#dbe0e8] bg-white px-5 py-3 text-[13px] font-black text-hai-plum">Cancel</button>
+                <button type="button" onClick={handleCancel} className="rounded-full border border-[#D5DAE0] bg-white px-5 py-3 text-[13px] font-black text-hai-plum">Cancel</button>
                 <button form="profile-form" type="submit" className="rounded-full bg-hai-plum px-6 py-3 text-[13px] font-black text-white">Save changes</button>
               </div>
             )}
@@ -408,17 +408,17 @@ export default function ProfilePage() {
 
           {saved && <div className="mt-7 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 px-5 py-4 text-[14px] font-bold text-hai-plum">Profile updated successfully.</div>}
 
-          <div className="mt-10 flex items-center justify-between gap-6 rounded-[22px] bg-[#dff4fb] px-7 py-8">
+          <div className="mt-10 flex items-center justify-between gap-6 rounded-[22px] bg-[#E8F4F7] px-7 py-8">
             <div className="flex items-center gap-5">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#c8eef8] text-[#008ed0]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#D7EEF2] text-[#6FB8C4]">
                 <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: '"FILL" 1' }}>verified_user</span>
               </div>
               <div>
                 <h2 className="text-[18px] font-black text-hai-plum">Verified {ROLE_LABEL[user.role]}</h2>
-                <p className="mt-2 text-[13px] font-semibold text-[#5f6877]">Your profile has been verified. You can now connect and collaborate with others.</p>
+                <p className="mt-2 text-[13px] font-semibold text-[#6F6878]">Your profile has been verified. You can now connect and collaborate with others.</p>
               </div>
             </div>
-            <button className="rounded-full border border-[#bdd7e2] px-6 py-3 text-[13px] font-black text-hai-plum">Learn more</button>
+            <button className="rounded-full border border-[#D5DAE0] px-6 py-3 text-[13px] font-black text-hai-plum">Learn more</button>
           </div>
 
           <form id="profile-form" onSubmit={handleSubmit(onSubmit)} noValidate className="mt-9">
@@ -439,7 +439,7 @@ export default function ProfilePage() {
                   <FieldRow label="Professional email">
                     <span className="inline-flex flex-wrap items-center gap-2">
                       {user.email}
-                      <span className="rounded-full bg-[#dff4fb] px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.12em] text-[#4d7080]">.edu only</span>
+                      <span className="rounded-full bg-[#E8F4F7] px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.12em] text-[#6F6878]">.edu only</span>
                     </span>
                   </FieldRow>
                   <FieldRow label="Member since">{memberSince}</FieldRow>
@@ -489,7 +489,7 @@ export default function ProfilePage() {
               )}
               <div className="flex flex-wrap gap-3">
                 {tags.length > 0 ? tags.map(tag => (
-                  <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-[#eef0f5] px-4 py-1.5 text-[12px] font-bold text-hai-plum">
+                  <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-[#EEF0F3] px-4 py-1.5 text-[12px] font-bold text-hai-plum">
                     {tag}
                     {isEditing && <button type="button" onClick={() => setTags(prev => prev.filter(item => item !== tag))} className="text-[14px]">x</button>}
                   </span>
@@ -542,7 +542,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <p className="mt-6 flex items-start gap-4 rounded-2xl border border-[#dfe4ea] bg-white/36 px-6 py-5 text-[12px] font-semibold leading-relaxed text-neutral-500">
+            <p className="mt-6 flex items-start gap-4 rounded-2xl border border-[#D5DAE0] bg-white/36 px-6 py-5 text-[12px] font-semibold leading-relaxed text-neutral-500">
               <span className="material-symbols-outlined mt-0.5 shrink-0 text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
               All data is stored encrypted at rest. Audit logs related to your account are retained for 24 months per our privacy policy, even after account deletion.
             </p>

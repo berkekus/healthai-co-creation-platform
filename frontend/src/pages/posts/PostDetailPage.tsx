@@ -111,9 +111,9 @@ export default function PostDetailPage() {
 
   if (isFetching && !post) {
     return (
-      <main className="min-h-screen bg-[#f6f7f9] px-8 py-20 text-[#2d1838]">
+      <main className="min-h-screen bg-[#f6f7f9] px-8 py-20 text-[#36213E]">
         <div className="flex min-h-[40vh] items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2d1838]/20 border-t-[#2d1838]" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#36213E]/20 border-t-[#36213E]" />
         </div>
       </main>
     )
@@ -121,11 +121,11 @@ export default function PostDetailPage() {
 
   if (!post || fetchError) {
     return (
-      <main className="min-h-screen bg-[#f6f7f9] px-8 py-20 text-[#2d1838]">
+      <main className="min-h-screen bg-[#f6f7f9] px-8 py-20 text-[#36213E]">
         <div className="mx-auto max-w-[760px] rounded-[18px] bg-white p-12 text-center shadow-[0_24px_80px_-68px_rgba(45,24,56,0.75)]">
           <h1 className="text-3xl font-black">Post not found</h1>
-          <p className="mt-3 text-[#6f6a76]">This listing may have been removed or the link is broken.</p>
-          <button onClick={() => navigate(ROUTES.POSTS)} className="mt-8 rounded-full bg-[#2d1838] px-6 py-3 text-sm font-black text-white">
+          <p className="mt-3 text-[#6F6878]">This listing may have been removed or the link is broken.</p>
+          <button onClick={() => navigate(ROUTES.POSTS)} className="mt-8 rounded-full bg-[#36213E] px-6 py-3 text-sm font-black text-white">
             Back to directory
           </button>
         </div>
@@ -138,7 +138,7 @@ export default function PostDetailPage() {
   const active = post.status === 'active'
 
   return (
-    <main className="bg-[#f6f7f9] text-[#2d1838]">
+    <main className="bg-[#f6f7f9] text-[#36213E]">
       <div className="mx-auto w-full max-w-[1120px] px-5 pb-10 pt-[46px] sm:px-8 xl:px-0">
         <div className="mb-[22px] flex items-center justify-between gap-4">
           <button
@@ -152,22 +152,22 @@ export default function PostDetailPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigator.clipboard?.writeText(window.location.href).catch(() => {})}
-              className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#dfe2e8] bg-white px-6 text-[14px] font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-6 text-[14px] font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
             >
               <LinkIcon size={18} />
               Share
             </button>
             <button
               onClick={() => setSaved(value => !value)}
-              className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#dfe2e8] bg-white px-6 text-[14px] font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-6 text-[14px] font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
             >
-              <Bookmark size={18} fill={saved ? '#2d1838' : 'none'} />
+              <Bookmark size={18} fill={saved ? '#36213E' : 'none'} />
               {saved ? 'Saved' : 'Save'}
             </button>
           </div>
         </div>
 
-        <section className="overflow-hidden rounded-[20px] border border-[#eceef2] bg-white px-[32px] pb-[30px] pt-[30px] shadow-[0_34px_95px_-78px_rgba(45,24,56,0.8)] sm:px-[34px]">
+        <section className="overflow-hidden rounded-[20px] border border-[#E3E7EC] bg-white px-[32px] pb-[30px] pt-[30px] shadow-[0_34px_95px_-78px_rgba(45,24,56,0.8)] sm:px-[34px]">
           <div className="grid grid-cols-1 gap-9 lg:grid-cols-[minmax(0,1fr)_154px]">
             <div>
               <div className="flex flex-wrap gap-4">
@@ -175,17 +175,17 @@ export default function PostDetailPage() {
                 <Pill tone={active ? 'green' : 'gray'}>{statusLabel(post.status)}</Pill>
               </div>
 
-              <h1 className="mt-[30px] max-w-[760px] break-words font-headline text-[34px] font-black leading-[1.08] text-[#2d1838] sm:text-[38px]">
+              <h1 className="mt-[30px] max-w-[760px] break-words font-headline text-[34px] font-black leading-[1.08] text-[#36213E] sm:text-[38px]">
                 {post.title}
               </h1>
 
               <div className="mt-[28px] flex items-center gap-5">
-                <div className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-[#dceeff] text-[15px] font-black text-[#2d1838]">
+                <div className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-[#dceeff] text-[15px] font-black text-[#36213E]">
                   {initials}
                 </div>
                 <div>
                   <div className="text-[18px] font-black">{post.authorName}</div>
-                  <div className="mt-2 flex items-center gap-2 text-[13px] font-semibold text-[#6f6a76]">
+                  <div className="mt-2 flex items-center gap-2 text-[13px] font-semibold text-[#6F6878]">
                     {ROLE_LABELS[post.authorRole] ?? post.authorRole}
                     <ShieldCheck size={14} className="text-[#50627a]" />
                   </div>
@@ -194,11 +194,11 @@ export default function PostDetailPage() {
             </div>
 
             <div className="self-start rounded-[9px] border border-[#dfe3ea] bg-white px-6 py-6 text-center">
-              <CalendarDays className="mx-auto text-[#2d1838]" size={25} />
+              <CalendarDays className="mx-auto text-[#36213E]" size={25} />
               <div className="mt-5 text-[31px] font-black leading-none">{daysLeft}</div>
-              <div className="mt-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#6f6a76]">Days left</div>
+              <div className="mt-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#6F6878]">Days left</div>
               <div className="mt-5 h-[6px] overflow-hidden rounded-full bg-[#e8eef4]">
-                <div className="h-full rounded-full bg-[#66c8e7]" style={{ width: `${Math.min(100, Math.max(8, 100 - daysLeft / 4))}%` }} />
+                <div className="h-full rounded-full bg-[#8AC6D0]" style={{ width: `${Math.min(100, Math.max(8, 100 - daysLeft / 4))}%` }} />
               </div>
             </div>
           </div>
@@ -208,10 +208,10 @@ export default function PostDetailPage() {
               {meta.map(item => (
                 <div key={item.label} className="lg:min-h-[58px] lg:border-r lg:border-[#e1e4e9] lg:px-[22px] lg:first:pl-0 lg:last:border-r-0">
                   <div className="flex items-start gap-4">
-                    <span className="mt-1 shrink-0 text-[#2d1838]">{item.icon}</span>
+                    <span className="mt-1 shrink-0 text-[#36213E]">{item.icon}</span>
                     <span>
-                      <span className="block text-[11px] font-black uppercase tracking-[0.12em] text-[#6f6a76]">{item.label}</span>
-                      <span className="mt-2 block break-words text-[13px] font-black leading-5 text-[#2d1838]">{item.value}</span>
+                      <span className="block text-[11px] font-black uppercase tracking-[0.12em] text-[#6F6878]">{item.label}</span>
+                      <span className="mt-2 block break-words text-[13px] font-black leading-5 text-[#36213E]">{item.value}</span>
                     </span>
                   </div>
                 </div>
@@ -223,15 +223,15 @@ export default function PostDetailPage() {
         {alreadyRequested && !isOwner && (
           <section className="mt-[28px] flex items-center justify-between gap-6 rounded-[16px] border border-[#bfeafa] bg-[#eefaff] px-6 py-6">
             <div className="flex items-center gap-5">
-              <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-[#2d1838] text-white">
+              <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-[#36213E] text-white">
                 <Users size={24} />
               </div>
               <div>
                 <div className="text-[16px] font-black">You've already expressed interest</div>
-                <div className="mt-2 text-[13px] font-semibold text-[#6f6a76]">We'll notify you about any updates or changes to this opportunity.</div>
+                <div className="mt-2 text-[13px] font-semibold text-[#6F6878]">We'll notify you about any updates or changes to this opportunity.</div>
               </div>
             </div>
-            <button onClick={() => navigate(ROUTES.MEETINGS)} className="h-[46px] rounded-[13px] border border-[#dfe2e8] bg-white px-8 text-[14px] font-black">
+            <button onClick={() => navigate(ROUTES.MEETINGS)} className="h-[46px] rounded-[13px] border border-[#D5DAE0] bg-white px-8 text-[14px] font-black">
               Manage interest
             </button>
           </section>
@@ -260,16 +260,16 @@ export default function PostDetailPage() {
                   <div className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-[#dfefff] text-[15px] font-black">{initials}</div>
                   <div>
                     <div className="text-[17px] font-black">{post.authorName}</div>
-                    <div className="mt-2 flex items-center gap-2 text-[13px] font-semibold text-[#6f6a76]">
+                    <div className="mt-2 flex items-center gap-2 text-[13px] font-semibold text-[#6F6878]">
                       {ROLE_LABELS[post.authorRole] ?? post.authorRole}
                       <ShieldCheck size={14} className="text-[#50627a]" />
                     </div>
-                    <div className="mt-2 text-[13px] font-semibold text-[#6f6a76]">
+                    <div className="mt-2 text-[13px] font-semibold text-[#6F6878]">
                       Member since {new Date(post.createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
                     </div>
                   </div>
                 </div>
-                <button className="h-[48px] rounded-[13px] border border-[#dfe2e8] bg-white px-8 text-[14px] font-black">View profile</button>
+                <button className="h-[48px] rounded-[13px] border border-[#D5DAE0] bg-white px-8 text-[14px] font-black">View profile</button>
               </div>
             </InfoCard>
           </div>
@@ -286,12 +286,12 @@ export default function PostDetailPage() {
                   ['Listing Expiry', new Date(post.expiryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), <CalendarDays size={18} />],
                 ].map(([label, value, icon]) => (
                   <div key={String(label)} className="flex gap-4">
-                    <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-[#f0f4f8] text-[#245b8f]">
+                    <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-[#EEF0F3] text-[#6FB8C4]">
                       {icon}
                     </span>
                     <span>
-                      <span className="block text-[13px] font-semibold text-[#6f6a76]">{label}</span>
-                      <span className="mt-1 block break-words text-[13px] font-black text-[#2d1838]">{value}</span>
+                      <span className="block text-[13px] font-semibold text-[#6F6878]">{label}</span>
+                      <span className="mt-1 block break-words text-[13px] font-black text-[#36213E]">{value}</span>
                     </span>
                   </div>
                 ))}
@@ -301,26 +301,26 @@ export default function PostDetailPage() {
             <InfoCard title="Interested in this opportunity?" className="min-h-[198px]">
               {alreadyRequested ? (
                 <>
-                  <p className="text-[14px] font-semibold leading-7 text-[#6f6a76]">You've already expressed interest. We'll keep you updated.</p>
-                  <button onClick={() => navigate(ROUTES.MEETINGS)} className="mt-6 h-[46px] rounded-[12px] bg-[#2d1838] px-7 text-[14px] font-black text-white">
+                  <p className="text-[14px] font-semibold leading-7 text-[#6F6878]">You've already expressed interest. We'll keep you updated.</p>
+                  <button onClick={() => navigate(ROUTES.MEETINGS)} className="mt-6 h-[46px] rounded-[12px] bg-[#36213E] px-7 text-[14px] font-black text-white">
                     Manage interest
                   </button>
                 </>
               ) : canExpressInterest ? (
                 <>
-                  <p className="text-[14px] font-semibold leading-7 text-[#6f6a76]">Send a short message, accept the NDA, and propose meeting times.</p>
-                  <button onClick={() => setShowInterest(true)} className="mt-6 h-[46px] rounded-[12px] bg-[#2d1838] px-7 text-[14px] font-black text-white">
+                  <p className="text-[14px] font-semibold leading-7 text-[#6F6878]">Send a short message, accept the NDA, and propose meeting times.</p>
+                  <button onClick={() => setShowInterest(true)} className="mt-6 h-[46px] rounded-[12px] bg-[#36213E] px-7 text-[14px] font-black text-white">
                     Express interest
                   </button>
                 </>
               ) : isOwner ? (
                 <div className="flex flex-wrap gap-3">
-                  {canPublish && <button onClick={() => publish(post.id)} className="h-12 rounded-[14px] bg-[#2d1838] px-6 text-sm font-black text-white">Publish</button>}
-                  {canMarkFound && <button onClick={() => markPartnerFound(post.id)} className="h-12 rounded-[14px] bg-[#d8ff8f] px-6 text-sm font-black text-[#2d1838]">Mark partner found</button>}
-                  {canEdit && <button onClick={() => navigate(postEdit(post.id))} className="h-12 rounded-[14px] border border-[#dfe2e8] bg-white px-6 text-sm font-black">Edit post</button>}
+                  {canPublish && <button onClick={() => publish(post.id)} className="h-12 rounded-[14px] bg-[#36213E] px-6 text-sm font-black text-white">Publish</button>}
+                  {canMarkFound && <button onClick={() => markPartnerFound(post.id)} className="h-12 rounded-[14px] bg-[#D8EFF2] px-6 text-sm font-black text-[#36213E]">Mark partner found</button>}
+                  {canEdit && <button onClick={() => navigate(postEdit(post.id))} className="h-12 rounded-[14px] border border-[#D5DAE0] bg-white px-6 text-sm font-black">Edit post</button>}
                 </div>
               ) : (
-                <p className="text-[15px] font-semibold leading-7 text-[#6f6a76]">This opportunity is not currently accepting interest.</p>
+                <p className="text-[15px] font-semibold leading-7 text-[#6F6878]">This opportunity is not currently accepting interest.</p>
               )}
             </InfoCard>
           </aside>
@@ -339,14 +339,14 @@ export default function PostDetailPage() {
 }
 
 function Pill({ children, tone }: { children: string; tone: 'blue' | 'green' | 'gray' }) {
-  const cls = tone === 'green' ? 'bg-[#d8f6d8] text-[#228a37]' : tone === 'blue' ? 'bg-[#e8f5ff] text-[#1f5798]' : 'bg-[#f0f1f4] text-[#6f6a76]'
+  const cls = tone === 'green' ? 'bg-[#E8F4F7] text-[#6FB8C4]' : tone === 'blue' ? 'bg-[#E8F4F7] text-[#6FB8C4]' : 'bg-[#EEF0F3] text-[#6F6878]'
   return <span className={`rounded-full px-5 py-2 text-[12px] font-black uppercase tracking-[0.02em] ${cls}`}>{children}</span>
 }
 
 function InfoCard({ title, children, className = '' }: { title: string; children: React.ReactNode; className?: string }) {
   return (
-    <section className={`rounded-[16px] border border-[#eceef2] bg-white px-7 py-7 shadow-[0_32px_90px_-78px_rgba(45,24,56,0.8)] ${className}`}>
-      <h2 className="border-l-[3px] border-[#66c8e7] pl-5 text-[20px] font-black leading-tight text-[#2d1838]">{title}</h2>
+    <section className={`rounded-[16px] border border-[#E3E7EC] bg-white px-7 py-7 shadow-[0_32px_90px_-78px_rgba(45,24,56,0.8)] ${className}`}>
+      <h2 className="border-l-[3px] border-[#8AC6D0] pl-5 text-[20px] font-black leading-tight text-[#36213E]">{title}</h2>
       <div className="mt-7">{children}</div>
     </section>
   )

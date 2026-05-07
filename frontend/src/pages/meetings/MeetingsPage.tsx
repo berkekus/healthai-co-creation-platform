@@ -31,7 +31,7 @@ const STATUS_LABELS: Record<MeetingStatus, string> = {
 const STATUS_CLASS: Record<MeetingStatus, string> = {
   pending: 'bg-[var(--pending-bg)] text-[var(--primary)]',
   confirmed: 'bg-[var(--success-bg)] text-[var(--primary)]',
-  completed: 'bg-[#d8ff8f] text-[var(--primary)]',
+  completed: 'bg-[#D8EFF2] text-[var(--primary)]',
   declined: 'bg-[#ffe8e8] text-[#a33a3a]',
   cancelled: 'bg-[var(--cancelled-bg)] text-[var(--muted)]',
 }
@@ -106,17 +106,17 @@ export default function MeetingsPage() {
     <main
       className="min-h-screen bg-[var(--bg)] text-[var(--text)]"
       style={{
-        '--bg': '#f5f6f8',
+        '--bg': '#F3F4F6',
         '--surface': '#ffffff',
-        '--primary': '#2d1838',
-        '--accent': '#8fdff0',
-        '--accent-strong': '#55c7df',
-        '--text': '#25172f',
-        '--muted': '#6f6a76',
-        '--border': '#e8e8ee',
-        '--success-bg': '#dff8ff',
-        '--pending-bg': '#d8ff8f',
-        '--cancelled-bg': '#eeeeee',
+        '--primary': '#36213E',
+        '--accent': '#8AC6D0',
+        '--accent-strong': '#6FB8C4',
+        '--text': '#36213E',
+        '--muted': '#6F6878',
+        '--border': '#E3E7EC',
+        '--success-bg': '#E8F4F7',
+        '--pending-bg': '#D8EFF2',
+        '--cancelled-bg': '#EEF0F3',
       } as CSSProperties}
     >
       <section className="mx-auto w-full max-w-[1640px] px-6 pb-20 pt-[72px] md:px-10 2xl:px-0">
@@ -205,7 +205,7 @@ function FilterTabs({
             {tab.label}
             <span
               className={`flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-[11px] font-black ${
-                active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-[#f0f1f4] text-[var(--muted)]'
+                active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-[#EEF0F3] text-[var(--muted)]'
               }`}
             >
               {tab.count}
@@ -340,7 +340,7 @@ function MeetingRow({
 
   return (
     <article
-      className={`grid min-h-[128px] grid-cols-[52px_minmax(0,1fr)_minmax(160px,0.2fr)_minmax(220px,0.24fr)] items-center gap-5 px-7 transition hover:bg-[#fbfcfd] max-lg:grid-cols-[46px_minmax(0,1fr)] max-lg:py-5 ${
+      className={`grid min-h-[128px] grid-cols-[52px_minmax(0,1fr)_minmax(160px,0.2fr)_minmax(220px,0.24fr)] items-center gap-5 px-7 transition hover:bg-[#F3F4F6] max-lg:grid-cols-[46px_minmax(0,1fr)] max-lg:py-5 ${
         isLast ? '' : 'border-b border-[var(--border)]'
       }`}
     >
@@ -356,10 +356,10 @@ function MeetingRow({
           </span>
         </div>
         <p className="mt-2 truncate text-[14px] font-semibold text-[var(--muted)]">
-          {direction} <span className="px-1.5 text-[#bbb8c2]">•</span> {partner}
+          {direction} <span className="px-1.5 text-[#D5DAE0]">•</span> {partner}
           {partnerEmail && (
             <>
-              <span className="px-1.5 text-[#bbb8c2]">•</span> {partnerEmail}
+              <span className="px-1.5 text-[#D5DAE0]">•</span> {partnerEmail}
             </>
           )}
         </p>
@@ -400,7 +400,7 @@ function MeetingRow({
               placeholder={`Optional reason for ${confirmMode === 'decline' ? 'declining' : 'cancelling'}…`}
               rows={2}
               maxLength={300}
-              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[13px] font-semibold text-[var(--text)] outline-none placeholder:text-[#bbb8c2] focus:border-[var(--accent-strong)]"
+              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[13px] font-semibold text-[var(--text)] outline-none placeholder:text-[#D5DAE0] focus:border-[var(--accent-strong)]"
             />
             <div className="flex justify-end gap-2">
               <ActionButton disabled={false} onClick={handleAbort} tone="quiet">
@@ -468,9 +468,9 @@ function ActionButton({
   tone: 'primary' | 'quiet' | 'chat'
 }) {
   const cls = {
-    primary: 'bg-[var(--primary)] text-white hover:bg-[#1b1022]',
+    primary: 'bg-[var(--primary)] text-white hover:bg-[#24162B]',
     quiet:   'border border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--primary)]',
-    chat:    'bg-[#dff8ff] text-[var(--primary)] border border-[var(--accent)] hover:bg-[var(--success-bg)]',
+    chat:    'bg-[#E8F4F7] text-[var(--primary)] border border-[var(--accent)] hover:bg-[var(--success-bg)]',
   }[tone]
 
   return (
@@ -538,13 +538,13 @@ function CalendarPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
           {monthCursor.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
         </h2>
         <div className="flex items-center gap-1.5">
-          <button onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() - 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
+          <button onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() - 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#EEF0F3]">
             <ChevronLeft size={16} />
           </button>
-          <button onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() + 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
+          <button onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() + 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#EEF0F3]">
             <ChevronRight size={16} />
           </button>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#EEF0F3]">
             <X size={16} />
           </button>
         </div>
@@ -552,7 +552,7 @@ function CalendarPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
 
       <div className="grid grid-cols-7 gap-y-2">
         {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-          <div key={`${day}-${index}`} className="text-center text-[11px] font-black uppercase text-[#b6b1bd]">
+          <div key={`${day}-${index}`} className="text-center text-[11px] font-black uppercase text-[#6F6878]">
             {day}
           </div>
         ))}
@@ -583,10 +583,10 @@ function OverviewPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
   const [range, setRange] = useState('month')
   const total = meetings.length
   const legend = [
-    { label: 'Pending review', value: meetings.filter(m => m.status === 'pending').length, color: '#d8ff8f' },
-    { label: 'Confirmed', value: meetings.filter(m => m.status === 'confirmed').length, color: '#8fdff0' },
-    { label: 'Completed', value: meetings.filter(m => m.status === 'completed').length, color: '#55c7df' },
-    { label: 'Closed', value: meetings.filter(m => m.status === 'cancelled' || m.status === 'declined').length, color: '#2d1838' },
+    { label: 'Pending review', value: meetings.filter(m => m.status === 'pending').length, color: '#D8EFF2' },
+    { label: 'Confirmed', value: meetings.filter(m => m.status === 'confirmed').length, color: '#8AC6D0' },
+    { label: 'Completed', value: meetings.filter(m => m.status === 'completed').length, color: '#6FB8C4' },
+    { label: 'Closed', value: meetings.filter(m => m.status === 'cancelled' || m.status === 'declined').length, color: '#36213E' },
   ]
 
   return (
@@ -605,7 +605,7 @@ function OverviewPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
             </select>
             <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" />
           </label>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#f0f1f4]">
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#EEF0F3]">
             <X size={16} />
           </button>
         </div>
@@ -638,7 +638,7 @@ function DonutChart({ total, legend }: { total: number; legend: { value: number;
   return (
     <div className="relative h-[178px] w-[178px]">
       <svg viewBox="0 0 180 180" className="h-full w-full -rotate-90">
-        <circle cx="90" cy="90" r="67" fill="none" stroke="#f0f1f4" strokeWidth="22" />
+        <circle cx="90" cy="90" r="67" fill="none" stroke="#EEF0F3" strokeWidth="22" />
         {legend.map(item => {
           const length = total ? (item.value / total) * circumference : 0
           const circle = (

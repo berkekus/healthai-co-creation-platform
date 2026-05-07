@@ -16,18 +16,18 @@
   --hai-mint:     184 243 255;
   --hai-teal:     138 198 208;
   --hai-offwhite: 243 244 246;
-  --hai-lime:     210 255 116;
+  --hai-lime:     216 239 242;
   --hai-cream:    227 220 210;
 
   /* Semantic surface / text / border tokens (used by dark-mode page overrides) */
   --surface-base:   247 248 250;
   --surface-card:   255 255 255;
-  --surface-blob:   231 248 252;
+  --surface-blob:   232 244 247;
   --surface-subtle: 223 248 255;
   --text-primary:   45 24 56;
   --text-secondary: 119 114 127;
   --text-heading:   64 54 69;
-  --text-link:      133 203 216;
+  --text-link:      138 198 208;
   --border-default: 207 211 217;
   --border-divider: 223 226 231;
 
@@ -104,7 +104,7 @@
   --hai-mint:     18 45 58;
   --hai-teal:     85 195 215;
   --hai-offwhite: 6 8 18;
-  --hai-lime:     190 230 0;
+  --hai-lime:     42 82 92;
   --hai-cream:    35 32 28;
 
   --surface-base:   6 8 18;

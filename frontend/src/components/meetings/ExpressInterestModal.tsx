@@ -165,9 +165,9 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
                 className={`${inputCls} resize-y leading-relaxed`}
               />
               <div className={`inline-flex items-center gap-2 text-[10.5px] font-mono tracking-[0.12em] uppercase font-bold ${
-                message.length >= 20 ? 'text-neutral-500' : 'text-amber-700'
+                message.length >= 20 ? 'text-neutral-500' : 'text-hai-plum/60'
               }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${message.length >= 20 ? 'bg-hai-teal' : 'bg-amber-500'}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${message.length >= 20 ? 'bg-hai-teal' : 'bg-hai-cream'}`} />
                 {message.length} / 20 min characters
               </div>
             </div>

@@ -260,7 +260,7 @@ const PostVisual = () => (
   <div className="relative w-full max-w-[340px] aspect-[5/4] mx-auto">
     <div className="absolute inset-0 bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5 flex flex-col gap-2.5">
       <div className="flex items-center gap-2 text-[9px] font-mono tracking-[0.18em] uppercase text-hai-plum/70 font-bold mb-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Draft · new post
+        <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" /> Draft · new post
       </div>
       <div className="h-6 bg-gradient-to-r from-hai-teal/30 to-hai-mint/40 rounded-md w-5/6" />
       <div className="grid grid-cols-2 gap-2 mt-1">
@@ -324,7 +324,7 @@ const MeetVisual = () => (
         <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-0.5">Step 01 · NDA</div>
         <div className="font-headline text-[15px] font-bold text-hai-plum leading-tight">One-page NDA, accepted inline.</div>
       </div>
-      <Icon name="check_circle" className="text-emerald-600 text-[22px]" filled />
+      <Icon name="check_circle" className="text-hai-teal text-[22px]" filled />
     </div>
     {[
       ['Mon · 28 Apr', '14:00 CET'],
@@ -805,7 +805,7 @@ export default function LandingPage() {
                     {/* Content — stacks naturally from top, no h-full stretch */}
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
                       <span className="mb-8 inline-flex items-center gap-3 text-[12px] font-mono font-black uppercase tracking-[0.24em] text-[#2d2844]">
-                        <span className="h-4 w-1 bg-[#4933a3]" />
+                        <span className="h-4 w-1 bg-[#36213E]" />
                         FOR ENGINEERS
                       </span>
                       <h2 className="font-headline text-[2.15rem] font-black leading-[1.12] tracking-[-0.035em] text-hai-plum sm:text-[2.45rem] lg:text-[2.75rem]">
@@ -1034,7 +1034,7 @@ export default function LandingPage() {
                 <div className="grid grid-cols-1 gap-3 mb-5 flex-grow">
                   <div className="bg-neutral-100 rounded-2xl flex items-center justify-between px-5 py-4 min-h-[72px]">
                     <span className="text-neutral-900 font-semibold text-sm">One-page NDA</span>
-                    <Icon name="check_circle" filled className="text-emerald-600" />
+                    <Icon name="check_circle" filled className="text-hai-teal" />
                   </div>
                   <div className="bg-neutral-100 rounded-2xl flex items-center justify-between px-5 py-4 min-h-[72px]">
                     <span className="text-neutral-900 font-semibold text-sm">Three timeslots</span>
@@ -1053,14 +1053,14 @@ export default function LandingPage() {
               {/* Card 3 — Matching */}
               <div className="bg-white rounded-3xl p-7 shadow-sm border border-neutral-100 flex flex-col h-full">
                 <div className="flex items-center gap-3 mb-5">
-                  <IconSquare icon="tune" color="#1E40AF" bg="rgba(59,130,246,0.18)" />
+                  <IconSquare icon="tune" color="#6FB8C4" bg="rgba(59,130,246,0.18)" />
                   <h3 className="text-xl font-headline font-bold leading-tight">Intelligent matching across disciplines.</h3>
                 </div>
-                <div className="flex-grow flex flex-col items-center justify-center mb-5 bg-indigo-700 rounded-2xl p-6 min-h-[200px] relative overflow-hidden">
+                <div className="flex-grow flex flex-col items-center justify-center mb-5 bg-hai-plum rounded-2xl p-6 min-h-[200px] relative overflow-hidden">
                   <div className="w-full max-w-[200px] bg-hai-cream h-11 rounded-lg mb-2 relative z-10 shadow-lg border border-white/20 flex items-center px-3 text-[10px] font-mono uppercase tracking-widest text-neutral-700">
                     Cardiology · ICU
                   </div>
-                  <button className="bg-hai-plum text-hai-mint font-bold py-2 px-7 rounded-full relative z-20 -my-3 shadow-lg border-[3px] border-indigo-700 w-max text-sm">
+                  <button className="bg-hai-plum text-hai-mint font-bold py-2 px-7 rounded-full relative z-20 -my-3 shadow-lg border-[3px] border-hai-plum w-max text-sm">
                     Match
                   </button>
                   <div className="w-full max-w-[200px] bg-hai-mint h-11 rounded-lg mt-2 relative z-10 shadow-lg border border-white/20 flex items-center px-3 text-[10px] font-mono uppercase tracking-widest text-hai-plum">
