@@ -31,8 +31,8 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-[#f7f8fa] text-[#2d1838]">
-      <div className="mx-auto w-full max-w-[1640px] px-8 pb-24 pt-[94px]">
-        <section className="grid min-h-[500px] grid-cols-[420px_minmax(0,1fr)] items-start gap-28">
+      <div className="mx-auto w-full max-w-[1640px] px-4 pb-24 pt-[94px] sm:px-8">
+        <section className="grid grid-cols-1 items-start gap-10 xl:grid-cols-[420px_minmax(0,1fr)] xl:gap-28">
           <WelcomePanel user={user} />
           <WeeklyBlob postCount={posts.length} meetingCount={myMeetings.length} activeListings={activeListings} />
         </section>
@@ -40,7 +40,7 @@ export default function DashboardPage() {
         {isNewUser ? (
           <OnboardingPanel />
         ) : (
-          <section className="mt-10 grid grid-cols-[minmax(0,680px)_minmax(0,700px)] gap-28">
+          <section className="mt-10 grid grid-cols-1 gap-12 xl:grid-cols-[minmax(0,680px)_minmax(0,700px)] xl:gap-28">
             <RecentPosts posts={posts} />
             <UpcomingMeetings meetings={upcomingMeetings} userId={user?.id ?? ''} />
           </section>
@@ -87,7 +87,7 @@ function OnboardingPanel() {
         <h3 className="text-[16px] font-black text-[#403645]">Get started</h3>
       </div>
 
-      <div className="grid grid-cols-3 gap-7">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-7">
         {steps.map((step, i) => (
           <div key={i} className="rounded-[24px] border border-[#e3e7ec] bg-white p-7 shadow-[0_20px_60px_-44px_rgba(45,24,56,0.35)]">
             <div
@@ -133,10 +133,10 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
   const firstName = user?.name?.split(' ')[0] ?? 'there'
   return (
     <div className="pt-6">
-      <h1 className="font-headline text-[54px] font-black leading-[1.05] tracking-normal text-[#2d1838]">
+      <h1 className="font-headline text-[38px] font-black leading-[1.05] tracking-normal text-[#2d1838] sm:text-[54px]">
         Welcome back,
       </h1>
-      <h2 className="font-headline text-[54px] font-black leading-[1.05] tracking-normal text-[#8bddea]">
+      <h2 className="font-headline text-[38px] font-black leading-[1.05] tracking-normal text-[#8bddea] sm:text-[54px]">
         {firstName}<span className="text-[#2d1838]">.</span>
       </h2>
 
@@ -155,7 +155,7 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
         of healthcare — together.
       </div>
 
-      <div className="mt-14 flex w-[292px] flex-col gap-[13px]">
+      <div className="mt-14 flex w-full max-w-[292px] flex-col gap-[13px]">
         <Link
           to={ROUTES.POST_CREATE}
           className="flex h-[48px] items-center gap-5 rounded-full bg-[#2d1838] px-7 text-[14px] font-black text-white shadow-[0_18px_30px_-18px_rgba(45,24,56,0.82)] transition hover:bg-[#1e1027]"
@@ -192,29 +192,29 @@ function WeeklyBlob({
   activeListings: number
 }) {
   return (
-    <div className="relative h-[455px]">
+    <div className="relative xl:h-[455px]">
       <div
-        className="absolute left-[-86px] right-[-42px] top-[-28px] h-[505px] bg-[#eaf8fb]/75"
+        className="absolute left-[-86px] right-[-42px] top-[-28px] hidden h-[505px] bg-[#eaf8fb]/75 xl:block"
         style={{
           borderRadius: '46% 54% 41% 59% / 44% 39% 61% 56%',
           transform: 'rotate(1.2deg)',
         }}
       />
       <div
-        className="absolute right-2 top-[240px] h-[96px] w-[150px] opacity-45"
+        className="absolute right-2 top-[240px] hidden h-[96px] w-[150px] opacity-45 xl:block"
         style={{
           backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.95) 1.4px, transparent 1.4px)',
           backgroundSize: '18px 18px',
         }}
       />
 
-      <div className="relative z-10 mx-auto max-w-[790px] px-4 pt-[115px]">
-        <div className="mb-10 flex items-center justify-between">
+      <div className="relative z-10 mx-auto max-w-[790px] px-4 pt-6 xl:pt-[115px]">
+        <div className="mb-8 flex items-center justify-between">
           <div className="text-[15px] font-black text-[#44364f]">Weekly overview</div>
           <div className="text-[14px] font-bold text-[#86a8b4]">{weekRange()}</div>
         </div>
 
-        <div className="grid grid-cols-3 gap-16">
+        <div className="grid grid-cols-3 gap-6 xl:gap-16">
           <Metric icon={<FileText size={21} />} iconBg="#8bddea" value={postCount} label="My posts" change="↗ Synced with backend" />
           <Metric icon={<Handshake size={21} />} iconBg="#d8ff8f" value={meetingCount} label="My meetings" change={meetingCount > 0 ? '↗ Review queue' : '— No change'} />
           <Metric icon={<Eye size={21} />} iconBg="#e7dccb" value={activeListings} label="Active listings" change={activeListings > 0 ? '↗ Open for interest' : '— No active listings'} />
@@ -271,7 +271,7 @@ function RecentPosts({ posts }: { posts: Post[] }) {
             <Link
               to={`/posts/${post.id}`}
               key={post.id}
-              className="group relative grid min-h-[94px] grid-cols-[minmax(0,1fr)_132px] items-start gap-8 border-b border-[#dfe2e7] pt-0.5 transition hover:border-[#8bddea]"
+              className="group relative grid min-h-[94px] grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-[#dfe2e7] pt-0.5 transition hover:border-[#8bddea] sm:grid-cols-[minmax(0,1fr)_132px] sm:gap-8"
             >
               <span className="absolute -left-[41px] top-[4px] h-2.5 w-2.5 rounded-full bg-[#9bdce8]" />
               <div>
@@ -322,7 +322,36 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
         </Link>
       </div>
 
-      <div className="relative mx-auto h-[360px] w-[520px]">
+      {/* Mobile: simple list */}
+      <div className="mt-4 xl:hidden">
+        {visibleMeetings.length === 0 ? (
+          <p className="text-[14px] font-semibold text-[#7c7682]">No pending meetings.</p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {visibleMeetings.map(meeting => {
+              const isRequester = meeting.requesterId === userId
+              const partner = isRequester ? meeting.ownerName : meeting.requesterName
+              const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
+              return (
+                <Link key={meeting.id} to={ROUTES.MEETINGS} className="flex items-center gap-4 rounded-2xl border border-[#e8e8ee] bg-white px-4 py-3 transition hover:border-[#8bddea]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2d1838] text-[11px] font-black tracking-[0.06em] text-[#8bddea]">
+                    {partner.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="truncate text-[14px] font-black text-[#2d1838]">{partner}</div>
+                    <div className="truncate text-[12px] font-semibold text-[#7c7682]">
+                      {slot ? `${slot.date} · ${slot.time}` : 'Slot pending'} · {meeting.status}
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop: orbit widget */}
+      <div className="relative mx-auto hidden h-[360px] w-[520px] xl:block">
         <div className="absolute left-[88px] top-[34px] h-[330px] w-[330px] rounded-full border border-[#edf0f4]" />
         <div className="absolute left-[128px] top-[74px] h-[250px] w-[250px] rounded-full border border-[#edf0f4]" />
         <div className="absolute left-[168px] top-[114px] h-[170px] w-[170px] rounded-full border border-[#edf0f4]" />
