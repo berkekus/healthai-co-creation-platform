@@ -15,6 +15,7 @@ import type { User } from '../../types/auth.types'
 import { ROUTES } from '../../constants/routes'
 
 type AdminView = 'overview' | 'users' | 'posts' | 'logs'
+const USERS_PER_PAGE = 20
 
 const ROLE_LABEL: Record<string, string> = {
   engineer: 'Engineer',
@@ -61,15 +62,15 @@ function timeAgo(iso: string) {
 function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: AdminView) => void }) {
   const mainViews = new Set<AdminView>(['overview', 'users', 'posts', 'logs'])
 
-  const navItems: { id: string; label: string; icon: React.ReactNode; route?: string }[] = [
+  const navItems: { id: string; label: string; icon: React.ReactNode; route?: string; soon?: true }[] = [
     { id: 'overview',  label: 'Overview',        icon: <LayoutDashboard size={18} strokeWidth={1.8} /> },
     { id: 'users',     label: 'Users',            icon: <Users size={18} strokeWidth={1.8} /> },
     { id: 'posts',     label: 'Posts & Listings', icon: <FileText size={18} strokeWidth={1.8} /> },
     { id: 'logs',      label: 'Activity Logs',    icon: <Clock size={18} strokeWidth={1.8} /> },
     { id: 'meetings',  label: 'Meetings',         icon: <Calendar size={18} strokeWidth={1.8} />, route: ROUTES.MEETINGS },
-    { id: 'security',  label: 'Security',         icon: <Shield size={18} strokeWidth={1.8} /> },
-    { id: 'reports',   label: 'Reports',          icon: <BarChart2 size={18} strokeWidth={1.8} /> },
-    { id: 'settings',  label: 'Settings',         icon: <Settings size={18} strokeWidth={1.8} /> },
+    { id: 'security',  label: 'Security',         icon: <Shield size={18} strokeWidth={1.8} />, soon: true },
+    { id: 'reports',   label: 'Reports',          icon: <BarChart2 size={18} strokeWidth={1.8} />, soon: true },
+    { id: 'settings',  label: 'Settings',         icon: <Settings size={18} strokeWidth={1.8} />, soon: true },
   ]
 
   return (
@@ -99,7 +100,12 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
                 : 'text-[#6b7280] hover:bg-[#f5f5ff] hover:text-[#4f46e5]'
               }`}>
               <span className="shrink-0">{item.icon}</span>
-              <span className="text-[13px] font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75">{item.label}</span>
+              <span className="text-[13px] font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 flex-1">{item.label}</span>
+              {item.soon && (
+                <span className="text-[9px] font-black uppercase tracking-[0.1em] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 bg-[#f0f0ff] text-[#a8a4d4] rounded-full px-2 py-0.5">
+                  Yakında
+                </span>
+              )}
             </button>
           )
         })}
@@ -508,6 +514,7 @@ export default function AdminPage() {
   const [view, setView] = useState<AdminView>('overview')
   const [users, setUsers] = useState<User[]>([])
   const [userQuery, setUserQuery] = useState('')
+  const [usersPage, setUsersPage] = useState(1)
   const [logs, setLogs] = useState<ActivityLog[]>([])
   const [logsLoading, setLogsLoading] = useState(false)
   const [logAction, setLogAction] = useState('')
@@ -518,13 +525,15 @@ export default function AdminPage() {
   const { meetings, fetchByUser: fetchMeetings } = useMeetingStore()
 
   useEffect(() => {
-    api.get<{ success: boolean; data: { users: (User & { _id?: string })[]; total: number } }>('/auth/users', { params: { limit: 200 } })
+    api.get<{ success: boolean; data: { users: (User & { _id?: string })[]; total: number } }>('/auth/users', { params: { limit: 500 } })
       .then(({ data }) => setUsers(data.data.users.map(u => ({ ...u, id: u._id ?? u.id }))))
       .catch(() => {})
   }, [])
 
   useEffect(() => { fetchMeetings() }, [fetchMeetings])
   useEffect(() => { fetchPosts({ limit: 200 }) }, [fetchPosts])
+
+  useEffect(() => { fetchPosts({ limit: 100 }) }, [fetchPosts])
 
   useEffect(() => {
     if (view !== 'logs' && view !== 'overview') return
@@ -547,13 +556,26 @@ export default function AdminPage() {
     ))
   }, [users, userQuery])
 
+  useEffect(() => { setUsersPage(1) }, [userQuery])
+
+  const usersTotalPages = Math.max(1, Math.ceil(filteredUsers.length / USERS_PER_PAGE))
+  const usersCurrentPage = Math.min(usersPage, usersTotalPages)
+  const paginatedUsers = filteredUsers.slice(
+    (usersCurrentPage - 1) * USERS_PER_PAGE,
+    usersCurrentPage * USERS_PER_PAGE,
+  )
+
   const handleSuspend = async (userId: string) => {
     const target = users.find(u => u.id === userId)
     if (!target) return
     const next = !target.isSuspended
-    try { await api.put(`/auth/users/${userId}/suspend`, { isSuspended: next }) } catch {}
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, isSuspended: next } : u))
-    if (next) push({ userId, type: 'post_closed', title: 'Account suspended', body: 'Your account has been suspended.', isRead: false })
+    try {
+      await api.put(`/auth/users/${userId}/suspend`, { isSuspended: next })
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, isSuspended: next } : u))
+      if (next) push({ userId, type: 'post_closed', title: 'Account suspended', body: 'Your account has been suspended.', isRead: false })
+    } catch (err: unknown) {
+      alert((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Could not update suspension status.')
+    }
   }
 
   const handleDeleteUser = async (userId: string, userName: string) => {
@@ -620,7 +642,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUsers.map(u => {
+                    {paginatedUsers.map(u => {
                       const initials = u.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
                       return (
                         <tr key={u.id} className={`border-b border-[#f9fafb] last:border-b-0 transition-colors ${u.isSuspended ? 'bg-red-50/30' : 'hover:bg-[#fafafa]'}`}>
@@ -669,6 +691,42 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
+              {usersTotalPages > 1 && (
+                <div className="flex items-center justify-between border-t border-[#f3f4f6] px-6 py-3">
+                  <span className="text-[12px] text-[#9ca3af] font-semibold">
+                    {(usersCurrentPage - 1) * USERS_PER_PAGE + 1}–{Math.min(filteredUsers.length, usersCurrentPage * USERS_PER_PAGE)} of {filteredUsers.length}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setUsersPage(p => Math.max(1, p - 1))}
+                      disabled={usersCurrentPage === 1}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#eaecf0] text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <ChevronDown size={14} className="rotate-90" />
+                    </button>
+                    {Array.from({ length: usersTotalPages }, (_, i) => i + 1).map(p => (
+                      <button
+                        key={p}
+                        onClick={() => setUsersPage(p)}
+                        className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-[12px] font-black transition ${
+                          p === usersCurrentPage
+                            ? 'bg-[#4f46e5] text-white'
+                            : 'border border-[#eaecf0] text-[#374151] hover:border-[#4f46e5] hover:text-[#4f46e5]'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setUsersPage(p => Math.min(usersTotalPages, p + 1))}
+                      disabled={usersCurrentPage === usersTotalPages}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#eaecf0] text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <ChevronDown size={14} className="-rotate-90" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -5,6 +5,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  FileText,
   Grid2X2,
   Sparkles,
   List,
@@ -15,6 +16,7 @@ import {
   Search,
   SlidersHorizontal,
 } from 'lucide-react'
+import { Skeleton, SkeletonLine, SkeletonPill } from '../../components/ui/Skeleton'
 import { ROUTES, postDetail } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
 import { usePostStore } from '../../store/postStore'
@@ -50,77 +52,6 @@ interface DirectoryPost {
   aiReason?: string
   hasAI: boolean
 }
-
-const mockPosts: DirectoryPost[] = [
-  {
-    id: 'mock-heart-failure',
-    initials: 'EK',
-    tags: ['Cardiology', 'Active'],
-    title: 'Home-based heart failure monitoring from wearable vitals',
-    description:
-      'Looking for an engineering partner to prototype a simple risk signal for recently discharged heart failure patients using vitals and symptom diaries.',
-    author: 'Dr. Elif Kaya',
-    location: 'Istanbul, Türkiye',
-    daysLeft: '80D LEFT',
-    stage: 'Concept Validation',
-    type: 'Research Partner',
-    domain: 'Cardiology',
-    projectStage: 'concept_validation',
-    status: 'active',
-    authorRole: 'healthcare_professional',
-    country: 'Turkey',
-    city: 'Istanbul',
-    expiryDate: new Date(Date.now() + 80 * 86400000).toISOString(),
-    createdAt: '2026-05-05T10:00:00Z',
-    matchScore: 0,
-    hasAI: false,
-  },
-  {
-    id: 'mock-stroke-federated',
-    initials: 'MA',
-    tags: ['Federated Learning', 'Neurology', 'Active'],
-    title: 'Federated learning baseline for stroke outcome prediction',
-    description: 'A privacy-preserving training scaffold is ready; the next step is clinical endpoint definition and failure-case review with stroke teams.',
-    author: 'Mert Aydin',
-    location: 'Ankara, Türkiye',
-    daysLeft: '120D LEFT',
-    stage: 'Prototype',
-    type: 'Research Partner',
-    domain: 'Neurology',
-    projectStage: 'prototype',
-    status: 'active',
-    authorRole: 'engineer',
-    country: 'Turkey',
-    city: 'Ankara',
-    expiryDate: new Date(Date.now() + 120 * 86400000).toISOString(),
-    createdAt: '2026-05-02T10:00:00Z',
-    matchScore: 0,
-    hasAI: false,
-  },
-  {
-    id: 'mock-fall-risk',
-    initials: 'JK',
-    tags: ['Wearables', 'Geriatrics & Rehabilitation', 'Active'],
-    title: 'Fall-risk sensing with low-cost IMU tags in rehab wards',
-    description:
-      'Seeking a rehab ward partner to test where lightweight gait-instability alerts fit without adding alarm fatigue.',
-    author: 'Jonas Keller',
-    location: 'Munich, Germany',
-    daysLeft: '70D LEFT',
-    stage: 'Pilot',
-    type: 'Co-Founder',
-    domain: 'Geriatrics & Rehabilitation',
-    projectStage: 'pilot',
-    status: 'active',
-    authorRole: 'engineer',
-    country: 'Germany',
-    city: 'Munich',
-    expiryDate: new Date(Date.now() + 70 * 86400000).toISOString(),
-    createdAt: '2026-04-26T10:00:00Z',
-    matchScore: 0,
-    hasAI: false,
-  },
-]
 
 const domainOptions = ['Cardiology', 'Orthopedics', 'Clinical Pharmacy', 'Public Health & Epidemiology', 'Endocrinology & Diabetes']
 const stageOptions: { value: ProjectStage; label: string }[] = [
@@ -162,7 +93,7 @@ export default function PostListPage() {
   const [stage, setStage] = useState('')
   const [status, setStatus] = useState('')
   const [postedBy, setPostedBy] = useState<PostedBy>('Anyone')
-  const [location, setLocation] = useState('Ankara')
+  const [location, setLocation] = useState('')
   const [sort, setSort] = useState<SortMode>('best')
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [page, setPage] = useState(1)
@@ -179,10 +110,10 @@ export default function PostListPage() {
     loadSmartSuggestions(user, posts)
   }, [loadSmartSuggestions, posts, resetSmartSuggestions, user])
 
+  const hasActiveFilters = Boolean(search.trim() || domain || stage || status || location.trim() || postedBy !== 'Anyone')
+
   const directoryPosts = useMemo(() => {
-    const source = posts.length > 0
-      ? posts.map(post => toDirectoryPost(post, user, suggestions.get(post.id)))
-      : mockPosts
+    const source = posts.map(post => toDirectoryPost(post, user, suggestions.get(post.id)))
     const query = search.trim().toLowerCase()
 
     return source
@@ -273,10 +204,12 @@ export default function PostListPage() {
             isLoading={isLoading && posts.length === 0}
             isMatching={isMatching}
             aiError={Boolean(user && !isMatching && posts.length > 0 && suggestions.size === 0)}
+            hasActiveFilters={hasActiveFilters}
             sort={sort}
             viewMode={viewMode}
             onSort={setSort}
             onViewMode={setViewMode}
+            onClear={clearFilters}
             page={currentPage}
             totalPages={totalPages}
             onPage={setPage}
@@ -496,10 +429,12 @@ function PostList({
   isLoading,
   isMatching,
   aiError,
+  hasActiveFilters,
   sort,
   viewMode,
   onSort,
   onViewMode,
+  onClear,
   page,
   totalPages,
   onPage,
@@ -509,10 +444,12 @@ function PostList({
   isLoading: boolean
   isMatching: boolean
   aiError: boolean
+  hasActiveFilters: boolean
   sort: SortMode
   viewMode: ViewMode
   onSort: (value: SortMode) => void
   onViewMode: (value: ViewMode) => void
+  onClear: () => void
   page: number
   totalPages: number
   onPage: (page: number) => void
@@ -523,7 +460,7 @@ function PostList({
         <div className="flex items-center justify-between gap-6">
           <div>
             <div className="text-[15px] font-black text-[var(--muted)]">
-              {isLoading ? 'Loading opportunities...' : `${totalPosts} opportunities found`}
+              {isLoading ? 'Loading opportunities…' : `${totalPosts} opportunities found`}
             </div>
             <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#2d1838] px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-white shadow-[0_12px_28px_-20px_rgba(45,24,56,0.8)]">
               <Sparkles size={14} />
@@ -568,9 +505,20 @@ function PostList({
         </div>
       </div>
 
-      {totalPosts === 0 ? (
-        <div className="px-7 py-16 text-center text-[15px] font-semibold text-[var(--muted)]">
-          No opportunities match your filters.
+      {isLoading ? (
+        <PostListSkeleton />
+      ) : totalPosts === 0 && !hasActiveFilters ? (
+        <EmptyState />
+      ) : totalPosts === 0 ? (
+        <div className="flex flex-col items-center gap-4 px-7 py-16 text-center">
+          <p className="text-[15px] font-semibold text-[var(--muted)]">No opportunities match your filters.</p>
+          <button
+            onClick={onClear}
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-5 py-2 text-[13px] font-black text-[var(--primary)] transition hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
+          >
+            <RotateCcw size={14} />
+            Reset filters
+          </button>
         </div>
       ) : (
         <>
@@ -596,10 +544,71 @@ function PostList({
   )
 }
 
+function PostListSkeleton() {
+  return (
+    <div>
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div
+          key={i}
+          className="post-row border-b border-[var(--border)] last:border-b-0"
+          style={{ minHeight: 246, padding: '32px 28px' }}
+        >
+          <div style={{ paddingTop: 54 }}>
+            <Skeleton width={42} height={42} rounded="full" />
+          </div>
+          <div className="min-w-0 space-y-4 pt-1">
+            <SkeletonLine height={26} width="75%" />
+            <SkeletonLine width="100%" />
+            <SkeletonLine width="66%" />
+            <div className="flex gap-3 pt-3">
+              <SkeletonPill height={16} width={96} />
+              <SkeletonPill height={16} width={80} />
+            </div>
+          </div>
+          <div className="post-row-side flex flex-col items-end justify-between gap-8">
+            <div className="flex gap-3">
+              <SkeletonPill height={32} width={112} />
+              <SkeletonPill height={32} width={96} />
+            </div>
+            <div className="flex flex-wrap justify-end gap-2">
+              <SkeletonPill height={22} width={80} />
+              <SkeletonPill height={22} width={64} />
+              <SkeletonPill height={22} width={96} />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center gap-6 px-7 py-20 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
+        <FileText size={28} className="text-[var(--primary)]" strokeWidth={1.5} />
+      </div>
+      <div>
+        <p className="text-[17px] font-black text-[var(--primary)]">No opportunities yet</p>
+        <p className="mt-2 text-[14px] font-semibold text-[var(--muted)]">
+          Be the first to post a collaboration opportunity.
+        </p>
+      </div>
+      <Link
+        to={ROUTES.POST_CREATE}
+        className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-6 py-3 text-[13px] font-black text-white transition hover:bg-[#1d1025]"
+      >
+        <Plus size={16} strokeWidth={2.6} />
+        Post an opportunity
+      </Link>
+    </div>
+  )
+}
+
 function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boolean; compact: boolean }) {
   return (
     <Link
-      to={post.id.startsWith('mock-') ? ROUTES.POSTS : postDetail(post.id)}
+      to={postDetail(post.id)}
       className={`post-row block transition hover:bg-[#fbfcfd] ${compact ? 'post-row-compact' : ''} ${isLast ? '' : 'border-b border-[var(--border)]'}`}
       style={{ minHeight: compact ? 220 : 246, padding: '32px 28px' }}
     >

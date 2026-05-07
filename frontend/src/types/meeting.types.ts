@@ -20,6 +20,8 @@ export interface Meeting {
   ndaAccepted: boolean
   proposedSlots: TimeSlot[]
   confirmedSlot?: TimeSlot
+  declineReason?: string
+  cancelReason?: string
   createdAt: string
   updatedAt: string
 }

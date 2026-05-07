@@ -121,10 +121,12 @@ export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot
   return (await withEmails([meeting!]))[0]
 }
 
-export async function declineMeeting(id: string, ownerId: string) {
+export async function declineMeeting(id: string, ownerId: string, reason?: string) {
+  const update: Record<string, unknown> = { status: 'declined' }
+  if (reason) update.declineReason = reason
   const meeting = await Meeting.findOneAndUpdate(
     { _id: id, ownerId, status: 'pending' },
-    { $set: { status: 'declined' } },
+    { $set: update },
     { new: true },
   )
   if (!meeting) await resolveUpdateFailure(id, ownerId, 'ownerId', 'decline')
@@ -141,14 +143,16 @@ export async function declineMeeting(id: string, ownerId: string) {
   return (await withEmails([meeting!]))[0]
 }
 
-export async function cancelMeeting(id: string, userId: string) {
+export async function cancelMeeting(id: string, userId: string, reason?: string) {
+  const update: Record<string, unknown> = { status: 'cancelled' }
+  if (reason) update.cancelReason = reason
   const meeting = await Meeting.findOneAndUpdate(
     {
       _id: id,
       $or: [{ requesterId: userId }, { ownerId: userId }],
       status: { $nin: ['declined', 'cancelled'] },
     },
-    { $set: { status: 'cancelled' } },
+    { $set: update },
     { new: true },
   )
   if (!meeting) await resolveUpdateFailure(id, userId, null, 'cancel')

@@ -26,6 +26,8 @@ export interface IMeeting extends Document {
   ndaAccepted: boolean
   proposedSlots: ITimeSlot[]
   confirmedSlot?: ITimeSlot
+  declineReason?: string
+  cancelReason?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -57,6 +59,8 @@ const MeetingSchema = new Schema<IMeeting>(
     ndaAccepted: { type: Boolean, required: true },
     proposedSlots: { type: [TimeSlotSchema], required: true },
     confirmedSlot: { type: TimeSlotSchema },
+    declineReason: { type: String, trim: true },
+    cancelReason: { type: String, trim: true },
   },
   {
     timestamps: true,

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, CalendarDays, Eye, FileText, Handshake, Plus, Search } from 'lucide-react'
+import { ArrowRight, CalendarDays, Eye, FileText, Handshake, Plus, Search, Sparkles, User } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { ROUTES } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
@@ -27,38 +27,127 @@ export default function DashboardPage() {
     meeting.status === 'confirmed' || meeting.status === 'pending'
   )
   const activeListings = posts.filter(post => post.status === 'active' || post.status === 'meeting_scheduled').length
+  const isNewUser = posts.length === 0 && myMeetings.length === 0
 
   return (
     <main className="min-h-screen bg-[#f7f8fa] text-[#2d1838]">
       <div className="mx-auto w-full max-w-[1640px] px-8 pb-24 pt-[94px]">
         <section className="grid min-h-[500px] grid-cols-[420px_minmax(0,1fr)] items-start gap-28">
-          <WelcomePanel />
+          <WelcomePanel user={user} />
           <WeeklyBlob postCount={posts.length} meetingCount={myMeetings.length} activeListings={activeListings} />
         </section>
 
-        <section className="mt-10 grid grid-cols-[minmax(0,680px)_minmax(0,700px)] gap-28">
-          <RecentPosts posts={posts} />
-          <UpcomingMeetings meetings={upcomingMeetings} userId={user?.id ?? ''} />
-        </section>
+        {isNewUser ? (
+          <OnboardingPanel />
+        ) : (
+          <section className="mt-10 grid grid-cols-[minmax(0,680px)_minmax(0,700px)] gap-28">
+            <RecentPosts posts={posts} />
+            <UpcomingMeetings meetings={upcomingMeetings} userId={user?.id ?? ''} />
+          </section>
+        )}
       </div>
     </main>
   )
 }
 
-function WelcomePanel() {
+function OnboardingPanel() {
+  const steps = [
+    {
+      icon: <User size={22} />,
+      bg: '#dff8ff',
+      title: 'Complete your profile',
+      body: 'Add your expertise tags, bio, and institution so collaborators can find you.',
+      cta: 'Go to profile',
+      to: ROUTES.PROFILE,
+    },
+    {
+      icon: <Search size={22} />,
+      bg: '#d8ff8f',
+      title: 'Browse the directory',
+      body: 'Explore active collaboration opportunities from clinicians and engineers.',
+      cta: 'Browse directory',
+      to: ROUTES.POSTS,
+    },
+    {
+      icon: <Plus size={22} />,
+      bg: '#e7dccb',
+      title: 'Post an opportunity',
+      body: 'Have a project idea? Post it and let the right partner find you.',
+      cta: 'Post now',
+      to: ROUTES.POST_CREATE,
+    },
+  ]
+
+  return (
+    <section className="mt-10">
+      <div className="mb-8 flex items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2d1838] text-[#dff8ff]">
+          <Sparkles size={17} />
+        </div>
+        <h3 className="text-[16px] font-black text-[#403645]">Get started</h3>
+      </div>
+
+      <div className="grid grid-cols-3 gap-7">
+        {steps.map((step, i) => (
+          <div key={i} className="rounded-[24px] border border-[#e3e7ec] bg-white p-7 shadow-[0_20px_60px_-44px_rgba(45,24,56,0.35)]">
+            <div
+              className="mb-6 flex h-[50px] w-[50px] items-center justify-center rounded-[14px] text-[#2d1838]"
+              style={{ backgroundColor: step.bg }}
+            >
+              {step.icon}
+            </div>
+            <div className="mb-2 text-[17px] font-black text-[#2d1838]">{step.title}</div>
+            <p className="mb-7 text-[14px] font-semibold leading-6 text-[#77727f]">{step.body}</p>
+            <Link
+              to={step.to}
+              className="inline-flex items-center gap-2 text-[13px] font-black text-[#85cbd8] transition hover:text-[#2d1838]"
+            >
+              {step.cta}
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+const ROLE_LABEL: Record<string, string> = {
+  engineer: 'Engineer',
+  healthcare_professional: 'Healthcare Professional',
+  admin: 'Administrator',
+}
+
+function weekRange() {
+  const now = new Date()
+  const day = now.getDay()
+  const monday = new Date(now)
+  monday.setDate(now.getDate() - ((day + 6) % 7))
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+  const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  return `${fmt(monday)} - ${fmt(sunday)}, ${sunday.getFullYear()}`
+}
+
+function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>['user'] }) {
+  const firstName = user?.name?.split(' ')[0] ?? 'there'
   return (
     <div className="pt-6">
       <h1 className="font-headline text-[54px] font-black leading-[1.05] tracking-normal text-[#2d1838]">
         Welcome back,
       </h1>
       <h2 className="font-headline text-[54px] font-black leading-[1.05] tracking-normal text-[#8bddea]">
-        Ahmet<span className="text-[#2d1838]">.</span>
+        {firstName}<span className="text-[#2d1838]">.</span>
       </h2>
 
       <p className="mt-5 text-[16px] font-semibold text-[#77727f]">
-        Signed in as <span className="font-black text-[#3a3043]">Engineer</span>
-        <span className="px-1.5">·</span>
-        <span className="font-black text-[#3a3043]">METU</span>
+        Signed in as <span className="font-black text-[#3a3043]">{ROLE_LABEL[user?.role ?? ''] ?? user?.role}</span>
+        {user?.institution && (
+          <>
+            <span className="px-1.5">·</span>
+            <span className="font-black text-[#3a3043]">{user.institution}</span>
+          </>
+        )}
       </p>
 
       <div className="mt-10 border-l-2 border-[#b7c1ca] py-1 pl-6 text-[17px] font-semibold leading-8 text-[#77727f]">
@@ -105,14 +194,14 @@ function WeeklyBlob({
   return (
     <div className="relative h-[455px]">
       <div
-        className="absolute inset-x-0 top-0 h-[430px] bg-[#e7f8fc]"
+        className="absolute left-[-86px] right-[-42px] top-[-28px] h-[505px] bg-[#eaf8fb]/75"
         style={{
-          borderRadius: '42% 58% 34% 66% / 42% 36% 64% 58%',
-          transform: 'rotate(1deg)',
+          borderRadius: '46% 54% 41% 59% / 44% 39% 61% 56%',
+          transform: 'rotate(1.2deg)',
         }}
       />
       <div
-        className="absolute right-10 top-[250px] h-[82px] w-[120px] opacity-60"
+        className="absolute right-2 top-[240px] h-[96px] w-[150px] opacity-45"
         style={{
           backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.95) 1.4px, transparent 1.4px)',
           backgroundSize: '18px 18px',
@@ -122,7 +211,7 @@ function WeeklyBlob({
       <div className="relative z-10 mx-auto max-w-[790px] px-4 pt-[115px]">
         <div className="mb-10 flex items-center justify-between">
           <div className="text-[15px] font-black text-[#44364f]">Weekly overview</div>
-          <div className="text-[14px] font-bold text-[#86a8b4]">May 12 - May 18, 2026</div>
+          <div className="text-[14px] font-bold text-[#86a8b4]">{weekRange()}</div>
         </div>
 
         <div className="grid grid-cols-3 gap-16">

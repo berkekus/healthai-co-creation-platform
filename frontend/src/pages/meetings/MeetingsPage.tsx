@@ -144,8 +144,8 @@ export default function MeetingsPage() {
               sortValue={sortMode}
               onSortChange={setSortMode}
               onAccept={(meeting, slot) => runAction(meeting.id, () => accept(meeting.id, slot))}
-              onDecline={meeting => runAction(meeting.id, () => decline(meeting.id))}
-              onCancel={meeting => runAction(meeting.id, () => cancel(meeting.id))}
+              onDecline={(meeting, reason) => runAction(meeting.id, () => decline(meeting.id, reason))}
+              onCancel={(meeting, reason) => runAction(meeting.id, () => cancel(meeting.id, reason))}
               onComplete={meeting => runAction(meeting.id, () => complete(meeting.id))}
               onViewAll={() => setActiveTab('all')}
               onOpenChat={meeting => navigate(`/messages?meetingId=${meeting.id}`)}
@@ -272,8 +272,8 @@ function MeetingList({
   sortValue: SortMode
   onSortChange: (value: SortMode) => void
   onAccept: (meeting: Meeting, slot: TimeSlot) => void
-  onDecline: (meeting: Meeting) => void
-  onCancel: (meeting: Meeting) => void
+  onDecline: (meeting: Meeting, reason?: string) => void
+  onCancel: (meeting: Meeting, reason?: string) => void
   onComplete: (meeting: Meeting) => void
   onViewAll: () => void
   onOpenChat: (meeting: Meeting) => void
@@ -293,8 +293,8 @@ function MeetingList({
             busy={busyId === meeting.id}
             isLast={index === meetings.length - 1}
             onAccept={slot => onAccept(meeting, slot)}
-            onDecline={() => onDecline(meeting)}
-            onCancel={() => onCancel(meeting)}
+            onDecline={reason => onDecline(meeting, reason)}
+            onCancel={reason => onCancel(meeting, reason)}
             onComplete={() => onComplete(meeting)}
             onOpenChat={() => onOpenChat(meeting)}
           />
@@ -330,17 +330,30 @@ function MeetingRow({
   busy: boolean
   isLast: boolean
   onAccept: (slot: TimeSlot) => void
-  onDecline: () => void
-  onCancel: () => void
+  onDecline: (reason?: string) => void
+  onCancel: (reason?: string) => void
   onComplete: () => void
   onOpenChat: () => void
 }) {
+  const [confirmMode, setConfirmMode] = useState<'decline' | 'cancel' | null>(null)
+  const [reason, setReason] = useState('')
+
   const isOwner = meeting.ownerId === userId
   const direction = isOwner ? 'Incoming' : 'Outgoing'
   const partner = isOwner ? meeting.requesterName : meeting.ownerName
   const partnerEmail = isOwner ? meeting.requesterEmail : meeting.ownerEmail
   const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
   const acceptedSlot = meeting.proposedSlots[0]
+
+  const handleConfirm = () => {
+    const trimmed = reason.trim() || undefined
+    if (confirmMode === 'decline') onDecline(trimmed)
+    else onCancel(trimmed)
+    setConfirmMode(null)
+    setReason('')
+  }
+
+  const handleAbort = () => { setConfirmMode(null); setReason('') }
 
   return (
     <article
@@ -372,6 +385,16 @@ function MeetingRow({
             {meeting.proposedSlots.length} proposed slots
           </p>
         )}
+        {(meeting.status === 'declined' && meeting.declineReason) && (
+          <p className="mt-2 text-[12px] font-semibold text-[#a33a3a]">
+            Reason: {meeting.declineReason}
+          </p>
+        )}
+        {(meeting.status === 'cancelled' && meeting.cancelReason) && (
+          <p className="mt-2 text-[12px] font-semibold text-[var(--muted)]">
+            Reason: {meeting.cancelReason}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2 text-[14px] font-bold text-[var(--muted)] max-lg:col-start-2">
@@ -386,41 +409,64 @@ function MeetingRow({
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-2 max-lg:col-span-2 max-lg:justify-start">
-        {meeting.status === 'pending' && isOwner && acceptedSlot && (
+        {confirmMode ? (
+          <div className="flex w-full flex-col gap-2">
+            <textarea
+              value={reason}
+              onChange={e => setReason(e.target.value)}
+              placeholder={`Optional reason for ${confirmMode === 'decline' ? 'declining' : 'cancelling'}…`}
+              rows={2}
+              maxLength={300}
+              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[13px] font-semibold text-[var(--text)] outline-none placeholder:text-[#bbb8c2] focus:border-[var(--accent-strong)]"
+            />
+            <div className="flex justify-end gap-2">
+              <ActionButton disabled={false} onClick={handleAbort} tone="quiet">
+                Go back
+              </ActionButton>
+              <ActionButton disabled={busy} onClick={handleConfirm} tone="primary">
+                {confirmMode === 'decline' ? 'Confirm decline' : 'Confirm cancel'}
+              </ActionButton>
+            </div>
+          </div>
+        ) : (
           <>
-            <ActionButton disabled={busy} onClick={() => onAccept(acceptedSlot)} tone="primary">
-              <Check size={14} />
-              Accept
-            </ActionButton>
-            <ActionButton disabled={busy} onClick={onDecline} tone="quiet">
-              Decline
-            </ActionButton>
+            {meeting.status === 'pending' && isOwner && acceptedSlot && (
+              <>
+                <ActionButton disabled={busy} onClick={() => onAccept(acceptedSlot)} tone="primary">
+                  <Check size={14} />
+                  Accept
+                </ActionButton>
+                <ActionButton disabled={busy} onClick={() => setConfirmMode('decline')} tone="quiet">
+                  Decline
+                </ActionButton>
+              </>
+            )}
+            {meeting.status === 'pending' && !isOwner && (
+              <ActionButton disabled={busy} onClick={() => setConfirmMode('cancel')} tone="quiet">
+                Cancel request
+              </ActionButton>
+            )}
+            {meeting.status === 'confirmed' && (
+              <>
+                <ActionButton disabled={busy} onClick={onOpenChat} tone="chat">
+                  <MessageSquare size={14} />
+                  Open Chat
+                </ActionButton>
+                <ActionButton disabled={busy} onClick={onComplete} tone="primary">
+                  <Check size={14} />
+                  Complete
+                </ActionButton>
+                <ActionButton disabled={busy} onClick={() => setConfirmMode('cancel')} tone="quiet">
+                  Cancel
+                </ActionButton>
+              </>
+            )}
+            {(meeting.status === 'completed' || meeting.status === 'cancelled' || meeting.status === 'declined') && (
+              <span className="text-[12px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+                No actions
+              </span>
+            )}
           </>
-        )}
-        {meeting.status === 'pending' && !isOwner && (
-          <ActionButton disabled={busy} onClick={onCancel} tone="quiet">
-            Cancel request
-          </ActionButton>
-        )}
-        {meeting.status === 'confirmed' && (
-          <>
-            <ActionButton disabled={busy} onClick={onOpenChat} tone="chat">
-              <MessageSquare size={14} />
-              Open Chat
-            </ActionButton>
-            <ActionButton disabled={busy} onClick={onComplete} tone="primary">
-              <Check size={14} />
-              Complete
-            </ActionButton>
-            <ActionButton disabled={busy} onClick={onCancel} tone="quiet">
-              Cancel
-            </ActionButton>
-          </>
-        )}
-        {(meeting.status === 'completed' || meeting.status === 'cancelled' || meeting.status === 'declined') && (
-          <span className="text-[12px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
-            No actions
-          </span>
         )}
       </div>
     </article>
