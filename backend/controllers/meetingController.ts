@@ -101,13 +101,15 @@ export const acceptMeeting = asyncHandler<AuthenticatedRequest>(async (req, res)
 })
 
 export const declineMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const meeting = await meetingService.declineMeeting(req.params.id, req.userId)
+  const reason = typeof req.body?.reason === 'string' ? req.body.reason.trim() : undefined
+  const meeting = await meetingService.declineMeeting(req.params.id, req.userId, reason || undefined)
   log(req, LOG.MEETING_DECLINE, req.params.id)
   res.json({ success: true, data: meeting })
 })
 
 export const cancelMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const meeting = await meetingService.cancelMeeting(req.params.id, req.userId)
+  const reason = typeof req.body?.reason === 'string' ? req.body.reason.trim() : undefined
+  const meeting = await meetingService.cancelMeeting(req.params.id, req.userId, reason || undefined)
   log(req, LOG.MEETING_CANCEL, req.params.id)
   res.json({ success: true, data: meeting })
 })

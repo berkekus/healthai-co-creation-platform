@@ -7,8 +7,8 @@ interface MeetingState {
   fetchByUser: (userId?: string) => Promise<void>
   request: (data: MeetingRequestData, requesterId: string, requesterName: string, ownerId: string, ownerName: string, postTitle: string) => Promise<Meeting>
   accept: (id: string, slot: TimeSlot) => Promise<void>
-  decline: (id: string) => Promise<void>
-  cancel: (id: string) => Promise<void>
+  decline: (id: string, reason?: string) => Promise<void>
+  cancel: (id: string, reason?: string) => Promise<void>
   complete: (id: string) => Promise<void>
   getByUser: (userId: string) => Meeting[]
   getByPost: (postId: string) => Meeting[]
@@ -52,14 +52,14 @@ export const useMeetingStore = create<MeetingState>()((set, get) => ({
     set(s => ({ meetings: s.meetings.map(m => m.id === id ? updated : m) }))
   },
 
-  decline: async (id) => {
-    const { data: res } = await api.post<{ success: boolean; data: Meeting }>(`/meetings/${id}/decline`)
+  decline: async (id, reason) => {
+    const { data: res } = await api.post<{ success: boolean; data: Meeting }>(`/meetings/${id}/decline`, reason ? { reason } : undefined)
     const updated = normalise(res.data)
     set(s => ({ meetings: s.meetings.map(m => m.id === id ? updated : m) }))
   },
 
-  cancel: async (id) => {
-    const { data: res } = await api.post<{ success: boolean; data: Meeting }>(`/meetings/${id}/cancel`)
+  cancel: async (id, reason) => {
+    const { data: res } = await api.post<{ success: boolean; data: Meeting }>(`/meetings/${id}/cancel`, reason ? { reason } : undefined)
     const updated = normalise(res.data)
     set(s => ({ meetings: s.meetings.map(m => m.id === id ? updated : m) }))
   },
