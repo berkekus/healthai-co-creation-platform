@@ -169,16 +169,16 @@ export default function PostListPage() {
     <main
       className="min-h-screen bg-[var(--bg)] text-[var(--text)]"
       style={{
-        '--bg': '#f5f6f8',
+        '--bg': '#F3F4F6',
         '--surface': '#ffffff',
-        '--primary': '#2d1838',
-        '--accent': '#8bddea',
-        '--accent-soft': '#e8f9fc',
-        '--text': '#26162f',
-        '--muted': '#6f6a76',
-        '--border': '#e7e7ec',
-        '--tag-bg': '#f0f1f4',
-        '--tag-text': '#5c5864',
+        '--primary': '#36213E',
+        '--accent': '#8AC6D0',
+        '--accent-soft': '#E8F4F7',
+        '--text': '#36213E',
+        '--muted': '#6F6878',
+        '--border': '#E3E7EC',
+        '--tag-bg': '#EEF0F3',
+        '--tag-text': '#6F6878',
       } as CSSProperties}
     >
       <div className="mx-auto w-full px-8 pb-16 pt-[70px]" style={{ maxWidth: 1760 }}>
@@ -236,7 +236,7 @@ function PageHeader({ search, onSearch }: { search: string; onSearch: (value: st
         <div>
           <h1 className="font-headline text-[58px] font-black leading-[0.98] tracking-normal md:text-[72px]">
             <span className="text-[var(--primary)]">Collaboration </span>
-            <span className="text-[#78cbd8]">opportunities</span>
+            <span className="text-[#8AC6D0]">opportunities</span>
             <span className="text-[var(--primary)]">.</span>
           </h1>
           <p className="mt-5 text-[18px] font-semibold leading-8 text-[var(--muted)]">
@@ -254,19 +254,19 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
   return (
     <div className="flex items-center gap-12 max-sm:flex-col max-sm:items-stretch">
       <label className="relative block min-w-0 flex-1" style={{ height: 58 }}>
-        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#a5a0aa]" size={20} />
+        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#6F6878]" size={20} />
         <input
           type="search"
           value={value}
           onChange={event => onChange(event.target.value)}
           placeholder="Search by title, expertise, or keyword..."
-          className="h-full w-full rounded-full border border-transparent bg-[#eceef2] pl-16 pr-6 text-sm font-semibold text-[var(--text)] outline-none transition placeholder:text-[#9a95a0] hover:bg-white hover:border-[var(--border)] focus:bg-white focus:border-[var(--accent)]"
+          className="h-full w-full rounded-full border border-transparent bg-[#EEF0F3] pl-16 pr-6 text-sm font-semibold text-[var(--text)] outline-none transition placeholder:text-[#6F6878] hover:bg-white hover:border-[var(--border)] focus:bg-white focus:border-[var(--accent)]"
         />
       </label>
 
       <Link
         to={ROUTES.POST_CREATE}
-        className="inline-flex shrink-0 items-center justify-center gap-3 rounded-full bg-[var(--primary)] text-sm font-black text-white shadow-[0_18px_42px_-28px_rgba(45,24,56,0.9)] transition hover:bg-[#1d1025]"
+        className="inline-flex shrink-0 items-center justify-center gap-3 rounded-full bg-[var(--primary)] text-sm font-black text-white shadow-[0_18px_42px_-28px_rgba(45,24,56,0.9)] transition hover:bg-[#24162B]"
         style={{ width: 196, height: 58 }}
       >
         <Plus size={19} strokeWidth={2.6} />
@@ -347,7 +347,7 @@ function FilterSidebar({
                 value={location}
                 onChange={event => onLocation(event.target.value)}
                 placeholder="Search city or country..."
-                className="h-12 w-full bg-white px-4 pr-10 text-[13px] font-semibold text-[var(--text)] outline-none placeholder:text-[#aaa6b0]"
+                className="h-12 w-full bg-white px-4 pr-10 text-[13px] font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878]"
               />
               <LocateFixed size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
             </div>
@@ -462,7 +462,7 @@ function PostList({
             <div className="text-[15px] font-black text-[var(--muted)]">
               {isLoading ? 'Loading opportunities…' : `${totalPosts} opportunities found`}
             </div>
-            <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#2d1838] px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-white shadow-[0_12px_28px_-20px_rgba(45,24,56,0.8)]">
+            <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#36213E] px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-white shadow-[0_12px_28px_-20px_rgba(45,24,56,0.8)]">
               <Sparkles size={14} />
               {isMatching ? 'AI matching in progress' : aiError ? 'AI fallback ranking active' : 'AI-ranked for your profile'}
             </div>
@@ -596,7 +596,7 @@ function EmptyState() {
       </div>
       <Link
         to={ROUTES.POST_CREATE}
-        className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-6 py-3 text-[13px] font-black text-white transition hover:bg-[#1d1025]"
+        className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-6 py-3 text-[13px] font-black text-white transition hover:bg-[#24162B]"
       >
         <Plus size={16} strokeWidth={2.6} />
         Post an opportunity
@@ -609,12 +609,12 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
   return (
     <Link
       to={postDetail(post.id)}
-      className={`post-row block transition hover:bg-[#fbfcfd] ${compact ? 'post-row-compact' : ''} ${isLast ? '' : 'border-b border-[var(--border)]'}`}
+      className={`post-row block transition hover:bg-[#F3F4F6] ${compact ? 'post-row-compact' : ''} ${isLast ? '' : 'border-b border-[var(--border)]'}`}
       style={{ minHeight: compact ? 220 : 246, padding: '32px 28px' }}
     >
       <div style={{ paddingTop: compact ? 0 : 54 }}>
         <div
-          className="flex shrink-0 items-center justify-center rounded-full bg-[#dff8ff] text-xs font-black tracking-[0.08em] text-[var(--primary)]"
+          className="flex shrink-0 items-center justify-center rounded-full bg-[#E8F4F7] text-xs font-black tracking-[0.08em] text-[var(--primary)]"
           style={{ width: 42, height: 42 }}
         >
           {post.initials}
@@ -625,13 +625,13 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
         {post.matchScore > 0 && (
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] ${
-              post.hasAI ? 'bg-[#2d1838] text-white' : 'bg-[#d8ff8f] text-[#2d1838]'
+              post.hasAI ? 'bg-[#36213E] text-white' : 'bg-[#D8EFF2] text-[#36213E]'
             }`}>
               <Sparkles size={14} />
               {post.hasAI ? 'AI match' : 'Profile match'} · {post.matchScore}%
             </div>
             {post.aiReason && (
-              <div className="rounded-full bg-[#e8f9fc] px-4 py-2 text-[12px] font-black text-[#2d1838]">
+              <div className="rounded-full bg-[#E8F4F7] px-4 py-2 text-[12px] font-black text-[#36213E]">
                 {post.aiReason}
               </div>
             )}
@@ -649,7 +649,7 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
           </span>
           {post.daysLeft && (
             <>
-              <span className="text-[#d2d1d8]">|</span>
+              <span className="text-[#D5DAE0]">|</span>
               <span className="uppercase tracking-[0.12em]">{post.daysLeft}</span>
             </>
           )}
@@ -683,7 +683,7 @@ function Tag({ label }: { label: string }) {
         primary
           ? 'bg-[var(--primary)] text-white'
           : cyan
-            ? 'bg-[#dff8ff] text-[var(--tag-text)]'
+            ? 'bg-[#E8F4F7] text-[var(--tag-text)]'
             : 'bg-[var(--tag-bg)] text-[var(--tag-text)]'
       }`}
       style={{ height: 22 }}
