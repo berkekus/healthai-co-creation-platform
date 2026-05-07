@@ -2,10 +2,16 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Eye, EyeOff, Lock, Mail, Shield, Users } from 'lucide-react'
+import { Eye, EyeOff, Lock, Mail, Shield, Users, Stethoscope, Wrench, ShieldCheck } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { loginSchema, type LoginFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
+
+const DEV_ACCOUNTS = [
+  { label: 'Doctor',    email: 'elif.kaya@istanbul.edu.tr', password: 'HealthAI2026!', icon: Stethoscope, color: '#0ea5e9' },
+  { label: 'Engineer',  email: 'mert.aydin@metu.edu.tr',   password: 'HealthAI2026!', icon: Wrench,      color: '#8b5cf6' },
+  { label: 'Admin',     email: 'admin@healthai.edu',        password: 'Admin1234!',    icon: ShieldCheck, color: '#f97316' },
+] as const
 
 const RATE_LIMIT_AFTER = 3
 const COOLDOWN_SEC = 60
@@ -21,13 +27,16 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const quickLoginRef = useRef(false)
 
   const { register, handleSubmit, formState: { errors }, setFocus } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   })
 
   useEffect(() => { setFocus('email') }, [setFocus])
-  useEffect(() => { if (isAuthenticated) navigate(from, { replace: true }) }, [isAuthenticated, navigate, from])
+  useEffect(() => {
+    if (isAuthenticated) navigate(quickLoginRef.current ? ROUTES.DASHBOARD : from, { replace: true })
+  }, [isAuthenticated, navigate, from])
   useEffect(() => () => { clearError() }, [clearError])
   useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current) }, [])
 
@@ -51,6 +60,12 @@ export default function LoginPage() {
     } else {
       setFailedAttempts(0)
     }
+  }
+
+  const quickLogin = (email: string, password: string) => {
+    if (isLoading) return
+    quickLoginRef.current = true
+    login({ email, password })
   }
 
   return (
@@ -293,6 +308,34 @@ export default function LoginPage() {
                 Request Access {'\u2192'}
               </Link>
             </p>
+
+            {/* Dev quick-login */}
+            <div className="mt-8">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="flex-1 h-px bg-[#eef0f5]" />
+                <span className="text-[10.5px] font-bold tracking-widest uppercase text-[#c5cad6] font-headline">Dev Access</span>
+                <div className="flex-1 h-px bg-[#eef0f5]" />
+              </div>
+              <div className="flex gap-2">
+                {DEV_ACCOUNTS.map(({ label, email, password, icon: Icon, color }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => quickLogin(email, password)}
+                    disabled={isLoading}
+                    className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] bg-[#fafbfc] hover:bg-white hover:border-[#dde2ea] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                  >
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: `${color}18` }}
+                    >
+                      <Icon size={14} strokeWidth={2} style={{ color }} />
+                    </div>
+                    <span className="text-[11px] font-bold text-[#4a5270] font-headline">{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
