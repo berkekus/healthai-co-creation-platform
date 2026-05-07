@@ -11,6 +11,26 @@
 
 /* ───────── DESIGN TOKENS ───────── */
 :root {
+  /* hai-* palette — space-separated RGB so Tailwind can use rgb(var(--hai-x)) */
+  --hai-plum:     54 33 62;
+  --hai-mint:     184 243 255;
+  --hai-teal:     138 198 208;
+  --hai-offwhite: 243 244 246;
+  --hai-lime:     210 255 116;
+  --hai-cream:    227 220 210;
+
+  /* Semantic surface / text / border tokens (used by dark-mode page overrides) */
+  --surface-base:   247 248 250;
+  --surface-card:   255 255 255;
+  --surface-blob:   231 248 252;
+  --surface-subtle: 223 248 255;
+  --text-primary:   45 24 56;
+  --text-secondary: 119 114 127;
+  --text-heading:   64 54 69;
+  --text-link:      133 203 216;
+  --border-default: 207 211 217;
+  --border-divider: 223 226 231;
+
   /* Palette A — Oxblood + Bone */
   --paper:     oklch(0.965 0.008 85);
   --paper-2:   oklch(0.945 0.012 82);
@@ -77,6 +97,141 @@
   --primary-2: oklch(0.16 0.04 260);
   --accent:    oklch(0.75 0.16 75);
 }
+
+/* ── Dark mode overrides ── */
+.dark {
+  --hai-plum:     196 181 212;
+  --hai-mint:     20 50 60;
+  --hai-teal:     93 168 181;
+  --hai-offwhite: 15 15 25;
+  --hai-lime:     184 224 0;
+  --hai-cream:    40 37 32;
+
+  --surface-base:   15 15 25;
+  --surface-card:   22 22 35;
+  --surface-blob:   18 35 50;
+  --surface-subtle: 15 45 60;
+  --text-primary:   230 220 240;
+  --text-secondary: 155 145 165;
+  --text-heading:   210 200 220;
+  --text-link:      93 168 181;
+  --border-default: 45 40 55;
+  --border-divider: 38 33 48;
+
+  color-scheme: dark;
+}
+
+/* ── Dark mode: intercept hardcoded Tailwind values ── */
+
+/* Page-level backgrounds */
+.dark body { background-color: rgb(var(--surface-base)); }
+.dark .bg-\[\#f7f8fa\],
+.dark .bg-\[\#f8f9fb\],
+.dark .bg-\[\#f5f6f8\],
+.dark .bg-\[\#f6f7f9\],
+.dark .bg-\[\#f3f4f8\] {
+  background-color: rgb(var(--surface-base)) !important;
+}
+
+/* White card surfaces */
+.dark .bg-white { background-color: rgb(var(--surface-card)) !important; }
+.dark .bg-white\/90 { background-color: rgba(19, 16, 30, 0.92) !important; }
+.dark .bg-white\/55 { background-color: rgba(22, 22, 35, 0.6) !important; }
+.dark .bg-white\/60 { background-color: rgba(22, 22, 35, 0.6) !important; }
+.dark .bg-white\/88,
+.dark .bg-white\/92 { background-color: rgba(22, 22, 35, 0.9) !important; }
+.dark .bg-white\/25 { background-color: rgba(22, 22, 35, 0.25) !important; }
+
+/* Primary text */
+.dark .text-\[\#2d1838\],
+.dark .text-\[\#25172f\],
+.dark .text-\[\#26162f\],
+.dark .text-\[\#16121b\],
+.dark .text-\[\#111111\],
+.dark .text-\[\#393041\],
+.dark .text-\[\#3a3043\],
+.dark .text-\[\#44364f\],
+.dark .text-\[\#403645\],
+.dark .text-\[\#18203a\] {
+  color: rgb(var(--text-primary)) !important;
+}
+
+/* Muted / secondary text */
+.dark .text-\[\#77727f\],
+.dark .text-\[\#7b7682\],
+.dark .text-\[\#7c7682\],
+.dark .text-\[\#6f6a76\],
+.dark .text-\[\#6f8792\],
+.dark .text-\[\#86a8b4\],
+.dark .text-\[\#85cbd8\],
+.dark .text-\[\#5d5668\],
+.dark .text-\[\#6b7280\],
+.dark .text-\[\#9ca3af\],
+.dark .text-\[\#b0b7c3\] {
+  color: rgb(var(--text-secondary)) !important;
+}
+
+/* Tailwind neutral palette text */
+.dark .text-neutral-900 { color: rgb(var(--text-primary)) !important; }
+.dark .text-neutral-800 { color: rgb(var(--text-primary)) !important; }
+.dark .text-neutral-700 { color: rgb(var(--text-secondary)) !important; }
+.dark .text-neutral-600 { color: rgb(var(--text-secondary)) !important; }
+.dark .text-neutral-500 { color: rgb(155, 145, 165) !important; }
+
+/* Borders */
+.dark .border-\[\#e8e8ee\],
+.dark .border-\[\#eaecf0\],
+.dark .border-\[\#cfd3d9\],
+.dark .border-\[\#dfe2e7\],
+.dark .border-\[\#c5cbd2\],
+.dark .border-\[\#e7e7ec\],
+.dark .border-\[\#edf0f4\] {
+  border-color: rgb(var(--border-default)) !important;
+}
+.dark .border-neutral-200,
+.dark .border-neutral-300 { border-color: rgb(var(--border-default)) !important; }
+.dark .border-neutral-100 { border-color: rgb(var(--border-divider)) !important; }
+
+/* Skeleton shimmer dark variant */
+.dark .skeleton-shimmer {
+  background-color: rgb(var(--surface-card));
+  background-image: linear-gradient(
+    90deg,
+    rgba(22, 22, 35, 0) 0%,
+    rgba(var(--hai-teal), 0.15) 50%,
+    rgba(22, 22, 35, 0) 100%
+  );
+}
+
+/* Light teal / cyan surfaces (Dashboard blob, meeting rings, accent-soft chips) */
+.dark .bg-\[\#eaf8fb\]\/75 { background-color: rgba(18, 35, 50, 0.85) !important; }
+.dark .bg-\[\#e7f8fc\]     { background-color: rgb(var(--surface-blob)) !important; }
+.dark .bg-\[\#dff8ff\]     { background-color: rgb(18, 48, 62) !important; }
+.dark .bg-\[\#c7edf5\]     { background-color: rgb(25, 58, 75) !important; }
+.dark .bg-\[\#e8f9fc\]     { background-color: rgb(12, 42, 58) !important; }
+.dark .bg-\[\#f0f1f4\]     { background-color: rgb(28, 28, 48) !important; }
+/* Blockquote / divider borders */
+.dark .border-\[\#b7c1ca\] { border-color: rgb(var(--border-default)) !important; }
+
+/* Inline-var pages: PostListPage + MeetingsPage set colors as inline CSS
+   variables (--bg, --text, etc.) which can't be overridden via the cascade.
+   Override the actual rendered properties on the outermost element and on
+   all child class selectors that reference those variables. */
+.dark .bg-\[var\(--bg\)\] {
+  background-color: rgb(var(--surface-base)) !important;
+  color: rgb(var(--text-primary)) !important;
+}
+.dark .bg-\[var\(--bg\)\] .text-\[var\(--text\)\]     { color: rgb(var(--text-primary))   !important; }
+.dark .bg-\[var\(--bg\)\] .text-\[var\(--muted\)\]    { color: rgb(var(--text-secondary)) !important; }
+.dark .bg-\[var\(--bg\)\] .text-\[var\(--primary\)\]  { color: rgb(var(--text-primary))   !important; }
+.dark .bg-\[var\(--bg\)\] .bg-\[var\(--surface\)\]    { background-color: rgb(var(--surface-card))  !important; }
+.dark .bg-\[var\(--bg\)\] .border-\[var\(--border\)\] { border-color:      rgb(var(--border-default)) !important; }
+.dark .bg-\[var\(--bg\)\] .bg-\[var\(--accent-soft\)\]  { background-color: rgb(12, 42, 58)  !important; }
+.dark .bg-\[var\(--bg\)\] .bg-\[var\(--tag-bg\)\]       { background-color: rgb(30, 28, 50)  !important; }
+.dark .bg-\[var\(--bg\)\] .text-\[var\(--tag-text\)\]   { color: rgb(var(--text-secondary))  !important; }
+.dark .bg-\[var\(--bg\)\] .bg-\[var\(--pending-bg\)\]   { background-color: rgb(18, 40, 58)  !important; }
+.dark .bg-\[var\(--bg\)\] .bg-\[var\(--success-bg\)\]   { background-color: rgb(12, 38, 24)  !important; }
+.dark .bg-\[var\(--bg\)\] .bg-\[var\(--cancelled-bg\)\] { background-color: rgb(42, 18, 22)  !important; }
 
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
@@ -196,6 +351,14 @@ a { color: inherit; text-decoration: none; }
   content: "";
   width: 4px; height: 4px;
   background: var(--primary);
+}
+
+@keyframes institutionMarquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.institution-marquee {
+  animation: institutionMarquee 54s linear infinite;
 }
 
 /* hero title reveal */
@@ -332,6 +495,7 @@ a { color: inherit; text-decoration: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer { animation: none; background-image: none; }
+  .institution-marquee { animation: none; }
 }
 
 @media (max-width: 1100px) { .scroll-ind { display: none !important; } }
@@ -366,6 +530,34 @@ a { color: inherit; text-decoration: none; }
   margin-top: 18px;
 }
 
+.profile-page-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 64px;
+  align-items: start;
+}
+.profile-profile-rail {
+  position: sticky;
+  top: 96px;
+  min-height: calc(100vh - 8rem);
+}
+.profile-help-card {
+  margin-top: 40px;
+}
+
+@media (min-width: 1024px) {
+  .profile-profile-rail {
+    padding-bottom: 172px;
+  }
+  .profile-help-card {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 16px;
+    margin-top: 0;
+  }
+}
+
 @media (max-width: 1280px) {
   .directory-header-grid,
   .directory-body-grid {
@@ -379,6 +571,18 @@ a { color: inherit; text-decoration: none; }
     align-items: flex-start !important;
     gap: 18px;
     margin-top: 18px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .profile-page-layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .profile-profile-rail {
+    position: relative;
+    top: auto;
+    min-height: auto;
   }
 }
 

@@ -424,17 +424,19 @@ export default function AdminPage() {
   const [logAction, setLogAction] = useState('')
   const [logResult, setLogResult] = useState('')
 
-  const { posts, remove: removePost } = usePostStore()
+  const { posts, remove: removePost, fetchPosts } = usePostStore()
   const { push } = useNotificationStore()
   const { meetings, fetchByUser: fetchMeetings } = useMeetingStore()
 
   useEffect(() => {
-    api.get<{ success: boolean; data: { users: (User & { _id?: string })[]; total: number } }>('/auth/users', { params: { limit: 200 } })
+    api.get<{ success: boolean; data: { users: (User & { _id?: string })[]; total: number } }>('/auth/users', { params: { limit: 500 } })
       .then(({ data }) => setUsers(data.data.users.map(u => ({ ...u, id: u._id ?? u.id }))))
       .catch(() => {})
   }, [])
 
   useEffect(() => { fetchMeetings() }, [fetchMeetings])
+
+  useEffect(() => { fetchPosts({ limit: 100 }) }, [fetchPosts])
 
   useEffect(() => {
     if (view !== 'logs' && view !== 'overview') return
@@ -461,9 +463,13 @@ export default function AdminPage() {
     const target = users.find(u => u.id === userId)
     if (!target) return
     const next = !target.isSuspended
-    try { await api.put(`/auth/users/${userId}/suspend`, { isSuspended: next }) } catch {}
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, isSuspended: next } : u))
-    if (next) push({ userId, type: 'post_closed', title: 'Account suspended', body: 'Your account has been suspended.', isRead: false })
+    try {
+      await api.put(`/auth/users/${userId}/suspend`, { isSuspended: next })
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, isSuspended: next } : u))
+      if (next) push({ userId, type: 'post_closed', title: 'Account suspended', body: 'Your account has been suspended.', isRead: false })
+    } catch (err: unknown) {
+      alert((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Could not update suspension status.')
+    }
   }
 
   const handleDeleteUser = async (userId: string, userName: string) => {

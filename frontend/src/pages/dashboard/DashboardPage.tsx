@@ -32,7 +32,7 @@ export default function DashboardPage() {
     <main className="min-h-screen bg-[#f7f8fa] text-[#2d1838]">
       <div className="mx-auto w-full max-w-[1640px] px-8 pb-24 pt-[94px]">
         <section className="grid min-h-[500px] grid-cols-[420px_minmax(0,1fr)] items-start gap-28">
-          <WelcomePanel />
+          <WelcomePanel user={user} />
           <WeeklyBlob postCount={posts.length} meetingCount={myMeetings.length} activeListings={activeListings} />
         </section>
 
@@ -45,20 +45,42 @@ export default function DashboardPage() {
   )
 }
 
-function WelcomePanel() {
+const ROLE_LABEL: Record<string, string> = {
+  engineer: 'Engineer',
+  healthcare_professional: 'Healthcare Professional',
+  admin: 'Administrator',
+}
+
+function weekRange() {
+  const now = new Date()
+  const day = now.getDay()
+  const monday = new Date(now)
+  monday.setDate(now.getDate() - ((day + 6) % 7))
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+  const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  return `${fmt(monday)} - ${fmt(sunday)}, ${sunday.getFullYear()}`
+}
+
+function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>['user'] }) {
+  const firstName = user?.name?.split(' ')[0] ?? 'there'
   return (
     <div className="pt-6">
       <h1 className="font-headline text-[54px] font-black leading-[1.05] tracking-normal text-[#2d1838]">
         Welcome back,
       </h1>
       <h2 className="font-headline text-[54px] font-black leading-[1.05] tracking-normal text-[#8bddea]">
-        Ahmet<span className="text-[#2d1838]">.</span>
+        {firstName}<span className="text-[#2d1838]">.</span>
       </h2>
 
       <p className="mt-5 text-[16px] font-semibold text-[#77727f]">
-        Signed in as <span className="font-black text-[#3a3043]">Engineer</span>
-        <span className="px-1.5">·</span>
-        <span className="font-black text-[#3a3043]">METU</span>
+        Signed in as <span className="font-black text-[#3a3043]">{ROLE_LABEL[user?.role ?? ''] ?? user?.role}</span>
+        {user?.institution && (
+          <>
+            <span className="px-1.5">·</span>
+            <span className="font-black text-[#3a3043]">{user.institution}</span>
+          </>
+        )}
       </p>
 
       <div className="mt-10 border-l-2 border-[#b7c1ca] py-1 pl-6 text-[17px] font-semibold leading-8 text-[#77727f]">
@@ -105,14 +127,14 @@ function WeeklyBlob({
   return (
     <div className="relative h-[455px]">
       <div
-        className="absolute inset-x-0 top-0 h-[430px] bg-[#e7f8fc]"
+        className="absolute left-[-86px] right-[-42px] top-[-28px] h-[505px] bg-[#eaf8fb]/75"
         style={{
-          borderRadius: '42% 58% 34% 66% / 42% 36% 64% 58%',
-          transform: 'rotate(1deg)',
+          borderRadius: '46% 54% 41% 59% / 44% 39% 61% 56%',
+          transform: 'rotate(1.2deg)',
         }}
       />
       <div
-        className="absolute right-10 top-[250px] h-[82px] w-[120px] opacity-60"
+        className="absolute right-2 top-[240px] h-[96px] w-[150px] opacity-45"
         style={{
           backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.95) 1.4px, transparent 1.4px)',
           backgroundSize: '18px 18px',
@@ -122,7 +144,7 @@ function WeeklyBlob({
       <div className="relative z-10 mx-auto max-w-[790px] px-4 pt-[115px]">
         <div className="mb-10 flex items-center justify-between">
           <div className="text-[15px] font-black text-[#44364f]">Weekly overview</div>
-          <div className="text-[14px] font-bold text-[#86a8b4]">May 12 - May 18, 2026</div>
+          <div className="text-[14px] font-bold text-[#86a8b4]">{weekRange()}</div>
         </div>
 
         <div className="grid grid-cols-3 gap-16">

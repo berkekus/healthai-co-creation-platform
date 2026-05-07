@@ -1,16 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        // Landing / app palette (Faz 0 · co-creation refresh)
-        'hai-teal':     '#8AC6D0',
-        'hai-mint':     '#B8F3FF',
-        'hai-plum':     '#36213E',
-        'hai-offwhite': '#F3F4F6',
-        'hai-lime':     '#D2FF74',
-        'hai-cream':    '#E3DCD2',
+        // Landing / app palette — values driven by CSS variables so dark mode
+        // overrides in globals.css (.dark { --hai-* }) take effect automatically.
+        'hai-teal':     'rgb(var(--hai-teal))',
+        'hai-mint':     'rgb(var(--hai-mint))',
+        'hai-plum':     'rgb(var(--hai-plum))',
+        'hai-offwhite': 'rgb(var(--hai-offwhite))',
+        'hai-lime':     'rgb(var(--hai-lime))',
+        'hai-cream':    'rgb(var(--hai-cream))',
       },
       /**
        * Typography system — only two live families:
