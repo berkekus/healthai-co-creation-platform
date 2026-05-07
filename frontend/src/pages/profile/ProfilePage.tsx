@@ -124,7 +124,7 @@ function TagAutocomplete({
               key={s}
               type="button"
               onMouseDown={() => add(s)}
-              className="w-full px-4 py-2.5 text-left text-[13px] font-semibold text-hai-plum hover:bg-[#E8F4F7]"
+              className="w-full px-4 py-2.5 text-left text-sm font-semibold text-hai-plum hover:bg-[#E8F4F7]"
             >
               {s}
             </button>
@@ -152,10 +152,10 @@ function Section({
     <section id={id} className="border-b border-[#D5DAE0] py-9 last:border-b-0">
       <div className="mb-7 flex items-start justify-between gap-6">
         <div className="flex items-center gap-4">
-          <span className="material-symbols-outlined text-[21px] text-hai-plum">{icon}</span>
-          <h2 className="font-headline text-[20px] font-black leading-tight text-hai-plum">{title}</h2>
+          <span className="material-symbols-outlined text-xl text-hai-plum">{icon}</span>
+          <h2 className="font-headline text-xl font-black leading-tight text-hai-plum">{title}</h2>
         </div>
-        {subtitle && <p className="max-w-[380px] text-right text-[13px] font-semibold leading-5 text-[#6F6878]">{subtitle}</p>}
+        {subtitle && <p className="max-w-[380px] text-right text-sm font-semibold leading-5 text-[#6F6878]">{subtitle}</p>}
       </div>
       {children}
     </section>
@@ -165,8 +165,8 @@ function Section({
 function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[180px_minmax(0,1fr)] gap-8 py-2">
-      <div className="text-[14px] font-semibold text-[#6F6878]">{label}</div>
-      <div className="min-w-0 text-[15px] font-black leading-snug text-hai-plum">{children}</div>
+      <div className="text-sm font-semibold text-[#6F6878]">{label}</div>
+      <div className="min-w-0 text-base font-black leading-snug text-hai-plum">{children}</div>
     </div>
   )
 }
@@ -203,12 +203,12 @@ function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm:
       onClick={e => { if (e.target === e.currentTarget && !submitting) onCancel() }}
     >
       <form onSubmit={handleSubmit} className="w-full max-w-[480px] rounded-[2rem] bg-white px-7 pb-6 pt-7 shadow-[0_40px_120px_-20px_rgba(54,33,62,0.5)]">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-red-600">
-          <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>warning</span>
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-red-600">
+          <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>warning</span>
           Danger zone
         </div>
-        <h2 className="mb-3 font-headline text-[24px] font-black text-hai-plum">Delete your account?</h2>
-        <p className="mb-5 text-[14px] font-semibold leading-6 text-neutral-600">
+        <h2 className="mb-3 font-headline text-2xl font-black text-hai-plum">Delete your account?</h2>
+        <p className="mb-5 text-sm font-semibold leading-6 text-neutral-600">
           This action cannot be undone. Your profile, posts, and notifications will be permanently deleted. Audit logs are kept for 24 months per our privacy policy.
         </p>
         <input
@@ -219,14 +219,14 @@ function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm:
           autoFocus
           autoComplete="current-password"
           disabled={submitting}
-          className="mb-4 w-full rounded-xl border border-neutral-200 bg-hai-offwhite px-4 py-3 text-[14px] font-semibold text-hai-plum outline-none transition-all focus:border-red-400 focus:bg-white focus:shadow-[0_0_0_3px_rgba(220,38,38,0.18)] disabled:opacity-60"
+          className="mb-4 w-full rounded-xl border border-neutral-200 bg-hai-offwhite px-4 py-3 text-sm font-semibold text-hai-plum outline-none transition-all focus:border-red-400 focus:bg-white focus:shadow-[0_0_0_3px_rgba(220,38,38,0.18)] disabled:opacity-60"
         />
-        {error && <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-[13px] font-semibold text-red-700">{error}</div>}
+        {error && <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">{error}</div>}
         <div className="flex gap-3">
-          <button type="button" onClick={onCancel} disabled={submitting} className="flex-1 rounded-full border border-neutral-200 bg-white px-5 py-3 text-[13px] font-black text-hai-plum hover:bg-neutral-100 disabled:opacity-60">
+          <button type="button" onClick={onCancel} disabled={submitting} className="flex-1 rounded-full border border-neutral-200 bg-white px-5 py-3 text-sm font-black text-hai-plum hover:bg-neutral-100 disabled:opacity-60">
             Cancel
           </button>
-          <button type="submit" disabled={!password || submitting} className="flex-1 rounded-full bg-red-600 px-5 py-3 text-[13px] font-black text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-500">
+          <button type="submit" disabled={!password || submitting} className="flex-1 rounded-full bg-red-600 px-5 py-3 text-sm font-black text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-500">
             {submitting ? 'Deleting...' : 'Delete account'}
           </button>
         </div>
@@ -338,28 +338,28 @@ export default function ProfilePage() {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={avatarUploading}
-              className="relative h-16 w-16 overflow-hidden rounded-full bg-hai-plum text-[20px] font-black tracking-[0.06em] text-hai-mint"
+              className="relative h-16 w-16 overflow-hidden rounded-full bg-hai-plum text-xl font-black tracking-normal text-hai-mint"
               aria-label="Upload profile photo"
             >
               {avatarSrc ? <img src={avatarSrc} alt={user.name} className="h-full w-full object-cover" /> : <span className="flex h-full w-full items-center justify-center">{initials}</span>}
               {avatarUploading && <span className="absolute inset-0 flex items-center justify-center bg-hai-plum/60 text-white">...</span>}
             </button>
             <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarChange} />
-            <h2 className="mt-5 text-[17px] font-black leading-tight text-hai-plum">{user.name}</h2>
-            <p className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#6F6878]">
-              <span className="material-symbols-outlined text-[15px]">{ROLE_ICON[user.role] ?? 'person'}</span>
+            <h2 className="mt-5 text-lg font-black leading-tight text-hai-plum">{user.name}</h2>
+            <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[#6F6878]">
+              <span className="material-symbols-outlined text-base">{ROLE_ICON[user.role] ?? 'person'}</span>
               {ROLE_LABEL[user.role]}
             </p>
             {user.isVerified && (
-              <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#E8F4F7] px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-hai-plum">
-                <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: '"FILL" 1' }}>verified</span>
+              <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#E8F4F7] px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-hai-plum">
+                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>verified</span>
                 Verified
               </span>
             )}
-            {avatarError && <p className="mt-3 text-[11px] font-semibold text-red-500">{avatarError}</p>}
+            {avatarError && <p className="mt-3 text-xs font-semibold text-red-500">{avatarError}</p>}
           </div>
 
-          <nav className="mt-12 space-y-3 text-[14px] font-black text-hai-plum">
+          <nav className="mt-12 space-y-3 text-sm font-black text-hai-plum">
             {[
               ['person', 'Overview', '#identity'],
               ['badge', 'Identity', '#identity'],
@@ -369,17 +369,17 @@ export default function ProfilePage() {
               ['lock', 'Privacy & Data', '#data-account'],
             ].map(([icon, label, href], index) => (
               <a key={label} href={href} className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-[#E8F4F7] ${index === 0 ? 'bg-[#E8F4F7] text-[#6FB8C4]' : ''}`}>
-                <span className="material-symbols-outlined text-[18px]">{icon}</span>
+                <span className="material-symbols-outlined text-lg">{icon}</span>
                 {label}
               </a>
             ))}
           </nav>
 
           <div className="profile-help-card rounded-2xl bg-[#EEF0F3] p-4">
-            <div className="text-[12px] font-black text-hai-plum">Need help?</div>
-            <p className="mt-3 text-[11px] font-semibold leading-5 text-[#6F6878]">If you have any questions or need support, we're here to help.</p>
-            <button className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-[#D5DAE0] bg-white text-[12px] font-black text-hai-plum">
-              <span className="material-symbols-outlined text-[16px]">support_agent</span>
+            <div className="text-xs font-black text-hai-plum">Need help?</div>
+            <p className="mt-3 text-xs font-semibold leading-5 text-[#6F6878]">If you have any questions or need support, we're here to help.</p>
+            <button className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-[#D5DAE0] bg-white text-xs font-black text-hai-plum">
+              <span className="material-symbols-outlined text-base">support_agent</span>
               Contact support
             </button>
           </div>
@@ -388,37 +388,37 @@ export default function ProfilePage() {
         <div className="min-w-0">
           <div className="flex items-start justify-between gap-8 pt-10">
             <div>
-              <h1 className="font-headline text-[46px] font-black leading-none tracking-[-0.035em] text-hai-plum">
+              <h1 className="font-headline text-5xl font-black leading-none tracking-normal text-hai-plum">
                 Your profile<span className="text-hai-teal">.</span>
               </h1>
-              <p className="mt-5 text-[15px] font-semibold text-[#6F6878]">Manage your information and preferences.</p>
+              <p className="mt-5 text-base font-semibold text-[#6F6878]">Manage your information and preferences.</p>
             </div>
             {!isEditing ? (
-              <button onClick={() => setIsEditing(true)} className="mt-1 inline-flex items-center gap-2 rounded-full bg-hai-plum px-7 py-3 text-[13px] font-black text-white shadow-[0_18px_36px_-22px_rgba(54,33,62,0.7)]">
-                <span className="material-symbols-outlined text-[16px]">edit</span>
+              <button onClick={() => setIsEditing(true)} className="mt-1 inline-flex items-center gap-2 rounded-full bg-hai-plum px-7 py-3 text-sm font-black text-white shadow-[0_18px_36px_-22px_rgba(54,33,62,0.7)]">
+                <span className="material-symbols-outlined text-base">edit</span>
                 Edit profile
               </button>
             ) : (
               <div className="flex gap-2">
-                <button type="button" onClick={handleCancel} className="rounded-full border border-[#D5DAE0] bg-white px-5 py-3 text-[13px] font-black text-hai-plum">Cancel</button>
-                <button form="profile-form" type="submit" className="rounded-full bg-hai-plum px-6 py-3 text-[13px] font-black text-white">Save changes</button>
+                <button type="button" onClick={handleCancel} className="rounded-full border border-[#D5DAE0] bg-white px-5 py-3 text-sm font-black text-hai-plum">Cancel</button>
+                <button form="profile-form" type="submit" className="rounded-full bg-hai-plum px-6 py-3 text-sm font-black text-white">Save changes</button>
               </div>
             )}
           </div>
 
-          {saved && <div className="mt-7 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 px-5 py-4 text-[14px] font-bold text-hai-plum">Profile updated successfully.</div>}
+          {saved && <div className="mt-7 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 px-5 py-4 text-sm font-bold text-hai-plum">Profile updated successfully.</div>}
 
           <div className="mt-10 flex items-center justify-between gap-6 rounded-[22px] bg-[#E8F4F7] px-7 py-8">
             <div className="flex items-center gap-5">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#D7EEF2] text-[#6FB8C4]">
-                <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: '"FILL" 1' }}>verified_user</span>
+                <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: '"FILL" 1' }}>verified_user</span>
               </div>
               <div>
-                <h2 className="text-[18px] font-black text-hai-plum">Verified {ROLE_LABEL[user.role]}</h2>
-                <p className="mt-2 text-[13px] font-semibold text-[#6F6878]">Your profile has been verified. You can now connect and collaborate with others.</p>
+                <h2 className="text-lg font-black text-hai-plum">Verified {ROLE_LABEL[user.role]}</h2>
+                <p className="mt-2 text-sm font-semibold text-[#6F6878]">Your profile has been verified. You can now connect and collaborate with others.</p>
               </div>
             </div>
-            <button className="rounded-full border border-[#D5DAE0] px-6 py-3 text-[13px] font-black text-hai-plum">Learn more</button>
+            <button className="rounded-full border border-[#D5DAE0] px-6 py-3 text-sm font-black text-hai-plum">Learn more</button>
           </div>
 
           <form id="profile-form" onSubmit={handleSubmit(onSubmit)} noValidate className="mt-9">
@@ -439,7 +439,7 @@ export default function ProfilePage() {
                   <FieldRow label="Professional email">
                     <span className="inline-flex flex-wrap items-center gap-2">
                       {user.email}
-                      <span className="rounded-full bg-[#E8F4F7] px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.12em] text-[#6F6878]">.edu only</span>
+                      <span className="rounded-full bg-[#E8F4F7] px-2 py-0.5 text-xs font-black uppercase tracking-[0.12em] text-[#6F6878]">.edu only</span>
                     </span>
                   </FieldRow>
                   <FieldRow label="Member since">{memberSince}</FieldRow>
@@ -461,7 +461,7 @@ export default function ProfilePage() {
                 <div className="grid gap-3">
                   <FieldRow label="City">{user.city || <span className="text-neutral-400">Not set</span>}</FieldRow>
                   <FieldRow label="Country">{user.country || <span className="text-neutral-400">Not set</span>}</FieldRow>
-                  <FieldRow label="Region visibility">Visible to members <span className="material-symbols-outlined ml-1 align-middle text-[15px]">visibility</span></FieldRow>
+                  <FieldRow label="Region visibility">Visible to members <span className="material-symbols-outlined ml-1 align-middle text-base">visibility</span></FieldRow>
                 </div>
               )}
             </Section>
@@ -472,7 +472,7 @@ export default function ProfilePage() {
                   <textarea {...register('bio')} rows={5} placeholder="Briefly describe your background and interests..." style={{ ...inputStyle(errors.bio?.message), resize: 'vertical', lineHeight: 1.6 }} onFocus={onInputFocus(!!errors.bio)} onBlur={onInputBlur(!!errors.bio)} />
                 </FormField>
               ) : (
-                <p className="max-w-[650px] text-[15px] font-semibold leading-7 text-hai-plum">{user.bio || 'No bio added yet.'}</p>
+                <p className="max-w-[650px] text-base font-semibold leading-7 text-hai-plum">{user.bio || 'No bio added yet.'}</p>
               )}
             </Section>
 
@@ -489,35 +489,35 @@ export default function ProfilePage() {
               )}
               <div className="flex flex-wrap gap-3">
                 {tags.length > 0 ? tags.map(tag => (
-                  <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-[#EEF0F3] px-4 py-1.5 text-[12px] font-bold text-hai-plum">
+                  <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-[#EEF0F3] px-4 py-1.5 text-xs font-bold text-hai-plum">
                     {tag}
-                    {isEditing && <button type="button" onClick={() => setTags(prev => prev.filter(item => item !== tag))} className="text-[14px]">x</button>}
+                    {isEditing && <button type="button" onClick={() => setTags(prev => prev.filter(item => item !== tag))} className="text-sm">x</button>}
                   </span>
-                )) : <span className="text-[13px] font-semibold italic text-neutral-400">No expertise tags added yet.</span>}
+                )) : <span className="text-sm font-semibold italic text-neutral-400">No expertise tags added yet.</span>}
               </div>
             </Section>
           </form>
 
           <section id="data-account" className="py-9">
             <div className="mb-5 flex items-center gap-4">
-              <span className="material-symbols-outlined text-[21px] text-hai-plum">lock</span>
-              <h2 className="font-headline text-[20px] font-black text-hai-plum">Data & Account</h2>
+              <span className="material-symbols-outlined text-xl text-hai-plum">lock</span>
+              <h2 className="font-headline text-xl font-black text-hai-plum">Data & Account</h2>
             </div>
 
-            {exportSuccess && <div className="mb-4 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 p-3.5 text-[13.5px] font-bold text-hai-plum">Your data export has started. Check your downloads.</div>}
+            {exportSuccess && <div className="mb-4 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 p-3.5 text-sm font-bold text-hai-plum">Your data export has started. Check your downloads.</div>}
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div className="rounded-[22px] bg-white/82 p-6 shadow-[0_28px_74px_-60px_rgba(54,33,62,0.36)]">
                 <div className="flex items-start gap-5">
                   <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-hai-lime text-hai-plum">
-                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: '"FILL" 1' }}>download</span>
+                    <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>download</span>
                   </div>
                   <div>
-                    <div className="mb-2 font-headline text-[17px] font-bold leading-tight text-hai-plum">Export my data</div>
-                    <p className="mb-4 text-[13px] leading-relaxed text-neutral-600">Download your profile, posts and meetings as a portable JSON file.</p>
-                    <div className="mb-4 text-[11px] font-semibold text-neutral-400">GDPR Art. 20 - Right to data portability</div>
-                    <button type="button" onClick={handleExport} className="inline-flex items-center gap-2 rounded-full bg-hai-plum px-5 py-2.5 text-[12px] font-black text-white hover:bg-black">
-                      <span className="material-symbols-outlined text-[15px]">file_download</span>
+                    <div className="mb-2 font-headline text-lg font-bold leading-tight text-hai-plum">Export my data</div>
+                    <p className="mb-4 text-sm leading-relaxed text-neutral-600">Download your profile, posts and meetings as a portable JSON file.</p>
+                    <div className="mb-4 text-xs font-semibold text-neutral-400">GDPR Art. 20 - Right to data portability</div>
+                    <button type="button" onClick={handleExport} className="inline-flex items-center gap-2 rounded-full bg-hai-plum px-5 py-2.5 text-xs font-black text-white hover:bg-black">
+                      <span className="material-symbols-outlined text-base">file_download</span>
                       Export JSON
                     </button>
                   </div>
@@ -527,14 +527,14 @@ export default function ProfilePage() {
               <div className="rounded-[22px] bg-white/82 p-6 shadow-[0_28px_74px_-60px_rgba(54,33,62,0.36)]">
                 <div className="flex items-start gap-5">
                   <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
-                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: '"FILL" 1' }}>delete_forever</span>
+                    <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>delete_forever</span>
                   </div>
                   <div>
-                    <div className="mb-2 font-headline text-[17px] font-bold leading-tight text-red-600">Delete account</div>
-                    <p className="mb-4 text-[13px] leading-relaxed text-neutral-600">Permanently remove your account and all associated data. This action cannot be undone.</p>
-                    <div className="mb-4 text-[11px] font-semibold text-neutral-400">GDPR Art. 17 - Right to erasure</div>
-                    <button type="button" onClick={() => setShowDelete(true)} className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white px-5 py-2.5 text-[12px] font-black text-red-600 hover:bg-red-50">
-                      <span className="material-symbols-outlined text-[15px]">warning</span>
+                    <div className="mb-2 font-headline text-lg font-bold leading-tight text-red-600">Delete account</div>
+                    <p className="mb-4 text-sm leading-relaxed text-neutral-600">Permanently remove your account and all associated data. This action cannot be undone.</p>
+                    <div className="mb-4 text-xs font-semibold text-neutral-400">GDPR Art. 17 - Right to erasure</div>
+                    <button type="button" onClick={() => setShowDelete(true)} className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white px-5 py-2.5 text-xs font-black text-red-600 hover:bg-red-50">
+                      <span className="material-symbols-outlined text-base">warning</span>
                       Delete account
                     </button>
                   </div>
@@ -542,8 +542,8 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <p className="mt-6 flex items-start gap-4 rounded-2xl border border-[#D5DAE0] bg-white/36 px-6 py-5 text-[12px] font-semibold leading-relaxed text-neutral-500">
-              <span className="material-symbols-outlined mt-0.5 shrink-0 text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
+            <p className="mt-6 flex items-start gap-4 rounded-2xl border border-[#D5DAE0] bg-white/36 px-6 py-5 text-xs font-semibold leading-relaxed text-neutral-500">
+              <span className="material-symbols-outlined mt-0.5 shrink-0 text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
               All data is stored encrypted at rest. Audit logs related to your account are retained for 24 months per our privacy policy, even after account deletion.
             </p>
           </section>

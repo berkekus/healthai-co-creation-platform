@@ -58,9 +58,9 @@ export default function PostCard({ post, matchReasons, featured = false }: Props
           {matchReasons.map(r => (
             <span
               key={`${r.tone}-${r.label}`}
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono tracking-[0.1em] uppercase font-bold ${MATCH_TONE_STYLE[r.tone]}`}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono tracking-[0.12em] uppercase font-bold ${MATCH_TONE_STYLE[r.tone]}`}
             >
-              <span className="material-symbols-outlined text-[11px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+              <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: '"FILL" 1' }}>
                 {r.icon}
               </span>
               {r.label}
@@ -71,7 +71,7 @@ export default function PostCard({ post, matchReasons, featured = false }: Props
 
       {/* Top: domain pill + status */}
       <div className="flex items-center justify-between gap-3">
-        <span className="inline-flex items-center gap-1.5 bg-hai-mint/70 text-hai-plum px-2.5 py-1 rounded-full text-[10px] font-mono tracking-[0.14em] uppercase font-bold">
+        <span className="inline-flex items-center gap-1.5 bg-hai-mint/70 text-hai-plum px-2.5 py-1 rounded-full text-xs font-mono tracking-[0.12em] uppercase font-bold">
           <span className="w-1 h-1 rounded-full bg-hai-teal" />
           {post.domain}
         </span>
@@ -79,21 +79,21 @@ export default function PostCard({ post, matchReasons, featured = false }: Props
       </div>
 
       {/* Title */}
-      <h3 className="font-headline font-bold text-[19px] leading-[1.2] tracking-[-0.02em] text-hai-plum line-clamp-2 break-words overflow-hidden group-hover:text-hai-plum transition-colors">
+      <h3 className="font-headline font-bold text-xl leading-snug tracking-normal text-hai-plum line-clamp-2 break-words overflow-hidden group-hover:text-hai-plum transition-colors">
         {post.title}
       </h3>
 
       {/* Description */}
-      <p className="text-[13.5px] text-neutral-600 leading-[1.55] line-clamp-2 flex-1 break-words overflow-hidden">
+      <p className="text-sm text-neutral-600 leading-relaxed line-clamp-2 flex-1 break-words overflow-hidden">
         {post.description}
       </p>
 
       {/* Tags */}
       <div className="flex gap-2 flex-wrap">
-        <span className="inline-flex items-center gap-1 text-[10px] font-mono tracking-[0.12em] uppercase text-neutral-500 border border-neutral-200 px-2 py-0.5 rounded-full font-bold">
+        <span className="inline-flex items-center gap-1 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 border border-neutral-200 px-2 py-0.5 rounded-full font-bold">
           {STAGE_LABELS[post.projectStage]}
         </span>
-        <span className="inline-flex items-center gap-1 text-[10px] font-mono tracking-[0.12em] uppercase text-neutral-500 border border-neutral-200 px-2 py-0.5 rounded-full font-bold">
+        <span className="inline-flex items-center gap-1 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 border border-neutral-200 px-2 py-0.5 rounded-full font-bold">
           {COLLAB_LABELS[post.collaborationType]}
         </span>
       </div>
@@ -101,15 +101,15 @@ export default function PostCard({ post, matchReasons, featured = false }: Props
       {/* Bottom: author + meta */}
       <div className="flex items-center justify-between gap-3 pt-4 border-t border-neutral-100">
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          <div className="w-7 h-7 rounded-full bg-hai-mint border border-hai-teal/40 flex items-center justify-center text-[10px] font-mono font-bold text-hai-plum shrink-0">
+          <div className="w-7 h-7 rounded-full bg-hai-mint border border-hai-teal/40 flex items-center justify-center text-xs font-mono font-bold text-hai-plum shrink-0">
             {authorInitials}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-[12px] font-bold text-hai-plum truncate leading-tight">
+            <div className="text-xs font-bold text-hai-plum truncate leading-tight">
               {post.authorName}
             </div>
-            <div className="flex items-center gap-1 text-[10px] font-mono tracking-[0.08em] uppercase text-neutral-500 mt-0.5">
-              <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+            <div className="flex items-center gap-1 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 mt-0.5">
+              <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: '"FILL" 1' }}>
                 {ROLE_ICON[post.authorRole] ?? 'person'}
               </span>
               <span className="truncate">{post.city}</span>
@@ -119,13 +119,13 @@ export default function PostCard({ post, matchReasons, featured = false }: Props
 
         <div className="flex flex-col items-end gap-0.5 shrink-0">
           {post.interestCount > 0 && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-mono tracking-[0.08em] uppercase text-hai-plum font-bold">
-              <span className="material-symbols-outlined text-[11px]" style={{ fontVariationSettings: '"FILL" 1' }}>bolt</span>
+            <span className="inline-flex items-center gap-1 text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold">
+              <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: '"FILL" 1' }}>bolt</span>
               {post.interestCount} interested
             </span>
           )}
           {daysLeft > 0 && post.status === 'active' && (
-            <span className={`text-[10px] font-mono tracking-[0.08em] uppercase font-bold ${daysLeft < 14 ? 'text-hai-plum' : 'text-neutral-500'}`}>
+            <span className={`text-xs font-mono tracking-[0.12em] uppercase font-bold ${daysLeft < 14 ? 'text-hai-plum' : 'text-neutral-500'}`}>
               {daysLeft}d left
             </span>
           )}

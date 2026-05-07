@@ -87,7 +87,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
       >
         <span className="block truncate pr-2">{value || placeholder}</span>
         <span
-          className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-neutral-400 pointer-events-none transition-transform"
+          className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-lg text-neutral-400 pointer-events-none transition-transform"
           style={{ transform: `translateY(-50%) rotate(${open ? '180deg' : '0deg'})` }}
         >
           expand_more
@@ -98,7 +98,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
         <div className="absolute z-50 top-full mt-1.5 w-full bg-white rounded-2xl border border-neutral-200 shadow-[0_16px_48px_-12px_rgba(54,33,62,0.18)] overflow-hidden">
           <div className="p-2 border-b border-neutral-100">
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-neutral-400 pointer-events-none">
+              <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-base text-neutral-400 pointer-events-none">
                 search
               </span>
               <input
@@ -110,7 +110,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
                   if (e.key === 'Escape') setOpen(false)
                 }}
                 placeholder="Search…"
-                className="w-full pl-8 pr-3 py-2 text-[13.5px] font-body text-hai-plum placeholder:text-neutral-400 bg-hai-offwhite rounded-xl border border-neutral-200 outline-none focus:border-hai-teal"
+                className="w-full pl-8 pr-3 py-2 text-sm font-body text-hai-plum placeholder:text-neutral-400 bg-hai-offwhite rounded-xl border border-neutral-200 outline-none focus:border-hai-teal"
               />
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
             className="max-h-56 overflow-y-auto py-1 overscroll-contain"
           >
             {filtered.length === 0 ? (
-              <li className="px-4 py-3 text-[13.5px] text-neutral-400 font-body">
+              <li className="px-4 py-3 text-sm text-neutral-400 font-body">
                 No results for "{query}"
               </li>
             ) : (
@@ -129,7 +129,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
                   key={opt}
                   onMouseDown={e => e.preventDefault()}
                   onClick={() => { onChange(opt); setOpen(false) }}
-                  className={`px-4 py-2.5 cursor-pointer text-[14px] font-body transition-colors ${
+                  className={`px-4 py-2.5 cursor-pointer text-sm font-body transition-colors ${
                     opt === value
                       ? 'bg-hai-mint/60 text-hai-plum font-bold'
                       : 'text-neutral-700 hover:bg-hai-offwhite hover:text-hai-plum'

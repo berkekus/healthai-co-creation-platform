@@ -29,18 +29,18 @@ function SlotChip({ slot, onAccept, active }: { slot: TimeSlot; onAccept?: () =>
         : 'bg-hai-offwhite border-neutral-200'
     }`}>
       <div className="flex items-center gap-2.5 min-w-0">
-        <span className="material-symbols-outlined text-hai-plum text-[18px] shrink-0" style={{ fontVariationSettings: '"FILL" 1' }}>
+        <span className="material-symbols-outlined text-hai-plum text-lg shrink-0" style={{ fontVariationSettings: '"FILL" 1' }}>
           {active ? 'event_available' : 'event'}
         </span>
         <div className="min-w-0">
-          <div className="text-[13px] font-body font-bold text-hai-plum truncate">{date}</div>
-          <div className="text-[11px] font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold">at {time}</div>
+          <div className="text-sm font-body font-bold text-hai-plum truncate">{date}</div>
+          <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold">at {time}</div>
         </div>
       </div>
       {onAccept && (
         <button
           onClick={onAccept}
-          className="shrink-0 px-3.5 py-1.5 rounded-full bg-hai-plum text-white text-[10.5px] font-mono tracking-[0.12em] uppercase font-bold hover:bg-black transition-colors inline-flex items-center gap-1"
+          className="shrink-0 px-3.5 py-1.5 rounded-full bg-hai-plum text-white text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-black transition-colors inline-flex items-center gap-1"
         >
           Accept <span aria-hidden="true">→</span>
         </button>
@@ -80,26 +80,26 @@ export default function MeetingCard({ meeting }: Props) {
       {/* Header */}
       <div className="px-5 md:px-6 pt-5 pb-4 flex items-start justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="shrink-0 w-10 h-10 rounded-full bg-hai-plum text-hai-mint flex items-center justify-center font-mono font-bold text-[12px] tracking-[0.08em]">
+          <div className="shrink-0 w-10 h-10 rounded-full bg-hai-plum text-hai-mint flex items-center justify-center font-mono font-bold text-xs tracking-[0.12em]">
             {partnerInitials}
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5 text-[10px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold mb-0.5">
-              <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+            <div className="flex items-center gap-1.5 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold mb-0.5">
+              <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: '"FILL" 1' }}>
                 {isOwner ? 'call_received' : 'call_made'}
               </span>
               {isOwner ? 'Incoming from' : 'Outgoing to'} · <span className="text-hai-plum">{partnerName}</span>
             </div>
             <button
               onClick={() => navigate(postDetail(meeting.postId))}
-              className="block text-left font-headline font-bold text-[17px] md:text-[18px] leading-[1.2] tracking-[-0.015em] text-hai-plum hover:text-black transition-colors truncate max-w-full"
+              className="block text-left font-headline font-bold text-lg md:text-lg leading-snug tracking-normal text-hai-plum hover:text-black transition-colors truncate max-w-full"
               title={meeting.postTitle}
             >
               {meeting.postTitle}
             </button>
           </div>
         </div>
-        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10.5px] font-mono tracking-[0.14em] uppercase font-bold whitespace-nowrap shrink-0 ${cfg.bg} ${cfg.text}`}>
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase font-bold whitespace-nowrap shrink-0 ${cfg.bg} ${cfg.text}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
           {cfg.label}
         </span>
@@ -108,18 +108,18 @@ export default function MeetingCard({ meeting }: Props) {
       {/* Message */}
       <div className="px-5 md:px-6 pb-4">
         <div className="bg-hai-offwhite rounded-2xl p-4">
-          <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2">
+          <div className="text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2">
             Message from {meeting.requesterName}
           </div>
-          <p className="text-[13.5px] text-hai-plum leading-relaxed">{meeting.message}</p>
+          <p className="text-sm text-hai-plum leading-relaxed">{meeting.message}</p>
         </div>
       </div>
 
       {/* Confirmed slot */}
       {(meeting.status === 'confirmed' || meeting.status === 'completed') && meeting.confirmedSlot && (
         <div className="px-5 md:px-6 pb-4">
-          <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-hai-plum font-bold mb-2 flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>event_available</span>
+          <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold mb-2 flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>event_available</span>
             Confirmed slot
           </div>
           <SlotChip slot={meeting.confirmedSlot} active />
@@ -127,12 +127,12 @@ export default function MeetingCard({ meeting }: Props) {
           {/* Partner contact */}
           {partnerEmail && (
             <div className="mt-3 flex items-center gap-2 p-3 bg-hai-mint/30 border border-hai-teal/30 rounded-2xl">
-              <span className="material-symbols-outlined text-hai-plum text-[16px] shrink-0" style={{ fontVariationSettings: '"FILL" 1' }}>mail</span>
+              <span className="material-symbols-outlined text-hai-plum text-base shrink-0" style={{ fontVariationSettings: '"FILL" 1' }}>mail</span>
               <div className="min-w-0">
-                <div className="text-[9.5px] font-mono tracking-[0.14em] uppercase text-hai-plum/60 font-bold mb-0.5">Contact</div>
+                <div className="text-xs font-mono tracking-[0.12em] uppercase text-hai-plum/60 font-bold mb-0.5">Contact</div>
                 <a
                   href={`mailto:${partnerEmail}`}
-                  className="text-[13px] font-mono font-bold text-hai-plum hover:text-hai-teal transition-colors truncate block"
+                  className="text-sm font-mono font-bold text-hai-plum hover:text-hai-teal transition-colors truncate block"
                 >
                   {partnerEmail}
                 </a>
@@ -147,9 +147,9 @@ export default function MeetingCard({ meeting }: Props) {
         <div className="px-5 md:px-6 py-3 border-t border-neutral-100 bg-hai-offwhite/50 flex items-center justify-end">
           <button
             onClick={() => complete(meeting.id)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-hai-teal text-hai-plum text-[11px] font-mono tracking-[0.12em] uppercase font-bold hover:bg-hai-mint transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-hai-teal text-hai-plum text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-hai-mint transition-colors"
           >
-            <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>task_alt</span>
+            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>task_alt</span>
             Görüşme yapıldı
           </button>
         </div>
@@ -158,8 +158,8 @@ export default function MeetingCard({ meeting }: Props) {
       {/* Proposed slots */}
       {canAct && (
         <div className="px-5 md:px-6 pb-4">
-          <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2 flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[14px]">schedule</span>
+          <div className="text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2 flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-sm">schedule</span>
             Proposed time slots · {meeting.proposedSlots.length}
           </div>
           <div className="flex flex-col gap-2">
@@ -172,8 +172,8 @@ export default function MeetingCard({ meeting }: Props) {
             ))}
           </div>
           {!isOwner && (
-            <p className="mt-3 text-[11.5px] font-mono tracking-[0.08em] text-neutral-500 leading-relaxed flex items-start gap-1.5">
-              <span className="material-symbols-outlined text-[14px] mt-px">hourglass_top</span>
+            <p className="mt-3 text-xs font-mono tracking-[0.12em] text-neutral-500 leading-relaxed flex items-start gap-1.5">
+              <span className="material-symbols-outlined text-sm mt-px">hourglass_top</span>
               Waiting for {meeting.ownerName} to confirm one of your proposed slots.
             </p>
           )}
@@ -186,18 +186,18 @@ export default function MeetingCard({ meeting }: Props) {
           {isOwner && (
             <button
               onClick={handleDecline}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-red-200 text-red-600 text-[11px] font-mono tracking-[0.12em] uppercase font-bold hover:bg-red-50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-red-200 text-red-600 text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-red-50 transition-colors"
             >
-              <span className="material-symbols-outlined text-[14px]">block</span>
+              <span className="material-symbols-outlined text-sm">block</span>
               Decline
             </button>
           )}
           {isRequester && meeting.status === 'pending' && (
             <button
               onClick={handleCancel}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-neutral-200 text-neutral-500 text-[11px] font-mono tracking-[0.12em] uppercase font-bold hover:bg-neutral-100 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-neutral-200 text-neutral-500 text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-neutral-100 transition-colors"
             >
-              <span className="material-symbols-outlined text-[14px]">cancel</span>
+              <span className="material-symbols-outlined text-sm">cancel</span>
               Cancel request
             </button>
           )}

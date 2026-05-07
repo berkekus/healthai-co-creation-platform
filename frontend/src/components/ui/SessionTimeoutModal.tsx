@@ -71,21 +71,21 @@ export default function SessionTimeoutModal() {
           <div className="absolute top-0 right-0 w-56 h-56 pointer-events-none opacity-60" style={{ background: 'radial-gradient(circle, #B8F3FF 0%, transparent 70%)' }} />
 
           <div className="relative">
-            <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 mb-4 text-[10.5px] font-mono tracking-[0.16em] uppercase font-bold transition-colors ${
+            <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 mb-4 text-xs font-mono tracking-[0.16em] uppercase font-bold transition-colors ${
               isCritical ? 'bg-red-50 text-red-600' : 'bg-hai-lime text-hai-plum'
             }`}>
-              <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: '"FILL" 1' }}>
+              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>
                 {isCritical ? 'warning' : 'schedule'}
               </span>
               Session · Timeout warning
             </div>
 
-            <h2 id="session-timeout-title" className="font-headline font-bold text-[26px] leading-tight tracking-[-0.02em] text-hai-plum mb-3">
+            <h2 id="session-timeout-title" className="font-headline font-bold text-2xl leading-tight tracking-normal text-hai-plum mb-3">
               Still there<span className="text-hai-teal">?</span>
             </h2>
-            <p id="session-timeout-desc" className="text-[14px] text-neutral-600 leading-relaxed mb-5">
+            <p id="session-timeout-desc" className="text-sm text-neutral-600 leading-relaxed mb-5">
               You'll be signed out in{' '}
-              <span className={`font-headline font-bold text-[20px] inline-block min-w-[2ch] text-center align-baseline ${
+              <span className={`font-headline font-bold text-xl inline-block min-w-[2ch] text-center align-baseline ${
                 isCritical ? 'text-red-600' : 'text-hai-plum'
               }`}>
                 {countdown}
@@ -110,15 +110,15 @@ export default function SessionTimeoutModal() {
             <div className="flex items-center gap-2.5">
               <button
                 onClick={() => { logout(); navigate(ROUTES.LOGIN) }}
-                className="px-5 py-3 rounded-full bg-white border border-neutral-200 text-hai-plum text-[13px] font-bold hover:bg-neutral-100 transition-colors"
+                className="px-5 py-3 rounded-full bg-white border border-neutral-200 text-hai-plum text-sm font-bold hover:bg-neutral-100 transition-colors"
               >
                 Sign out
               </button>
               <button
                 onClick={reset}
-                className="flex-1 px-5 py-3 rounded-full bg-hai-plum text-white text-[13px] font-bold hover:bg-black transition-colors inline-flex items-center justify-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]"
+                className="flex-1 px-5 py-3 rounded-full bg-hai-plum text-white text-sm font-bold hover:bg-black transition-colors inline-flex items-center justify-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]"
               >
-                <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: '"FILL" 1' }}>refresh</span>
+                <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: '"FILL" 1' }}>refresh</span>
                 Stay signed in
               </button>
             </div>

@@ -38,11 +38,11 @@ export default function PostEditPage() {
       <main className="min-h-screen bg-[#f6f7f9] text-[#2d1838]">
         <div className="mx-auto flex min-h-screen max-w-[640px] items-center justify-center px-8">
           <div className="w-full rounded-[16px] border border-[#e1e4ea] bg-white p-10 text-center shadow-[0_24px_70px_-58px_rgba(45,24,56,0.55)]">
-            <h1 className="font-headline text-[28px] font-black text-[#2d1838]">Post not found</h1>
-            <p className="mt-3 text-[14px] font-semibold text-[#6f6a76]">This post doesn't exist or you don't have access.</p>
+            <h1 className="font-headline text-3xl font-black text-[#2d1838]">Post not found</h1>
+            <p className="mt-3 text-sm font-semibold text-[#6f6a76]">This post doesn't exist or you don't have access.</p>
             <button
               onClick={() => navigate(ROUTES.POSTS)}
-              className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-[#2d1838] px-7 text-[13px] font-black text-white transition hover:bg-[#1c1024]"
+              className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-[#2d1838] px-7 text-sm font-black text-white transition hover:bg-[#1c1024]"
             >
               <ArrowLeft size={15} />
               Back to directory
@@ -72,7 +72,7 @@ export default function PostEditPage() {
       <div className="mx-auto w-full max-w-[900px] px-4 pb-20 pt-16 sm:px-8">
         <button
           onClick={() => navigate(postDetail(id!))}
-          className="mb-9 inline-flex items-center gap-3 text-[14px] font-bold text-[#6f6a76] transition hover:text-[#2d1838]"
+          className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-[#6f6a76] transition hover:text-[#2d1838]"
         >
           <ArrowLeft size={16} />
           Back to post
@@ -80,15 +80,15 @@ export default function PostEditPage() {
 
         <div className="mb-12">
           <div className="mb-5 flex items-center gap-4">
-            <div className="inline-flex rounded-full border border-[#cfd3dc] bg-white px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#6f6a76]">
+            <div className="inline-flex rounded-full border border-[#cfd3dc] bg-white px-4 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-[#6f6a76]">
               08&nbsp;&nbsp;Edit Post
             </div>
             <PostStatusBadge status={post.status} size="sm" />
           </div>
-          <h1 className="font-headline text-[40px] font-black leading-[1.02] tracking-normal text-[#2d1838] sm:text-[52px]">
+          <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#2d1838] sm:text-6xl">
             Edit collaboration <span className="text-[#55bde0]">post.</span>
           </h1>
-          <p className="mt-5 text-[16px] font-semibold leading-8 text-[#4f4a58] sm:text-[17px]">
+          <p className="mt-5 text-base font-semibold leading-8 text-[#4f4a58] sm:text-lg">
             Update the details below to keep your post accurate and relevant.<br />
             Changes go live immediately for active posts.
           </p>
@@ -101,14 +101,14 @@ export default function PostEditPage() {
             <button
               type="button"
               onClick={() => navigate(postDetail(id!))}
-              className="h-14 rounded-full border border-[#2d1838] bg-white px-9 text-[14px] font-black text-[#2d1838] transition hover:bg-[#2d1838] hover:text-white"
+              className="h-14 rounded-full border border-[#2d1838] bg-white px-9 text-sm font-black text-[#2d1838] transition hover:bg-[#2d1838] hover:text-white"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex h-14 min-w-[250px] items-center justify-center gap-3 rounded-full bg-[#2d1838] px-9 text-[14px] font-black text-white shadow-[0_18px_42px_-28px_rgba(45,24,56,0.9)] transition hover:bg-[#1c1024] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-14 min-w-[250px] items-center justify-center gap-3 rounded-full bg-[#2d1838] px-9 text-sm font-black text-white shadow-[0_18px_42px_-28px_rgba(45,24,56,0.9)] transition hover:bg-[#1c1024] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? 'Saving...' : 'Save changes'}
               {!isSubmitting && <ArrowRight size={17} />}

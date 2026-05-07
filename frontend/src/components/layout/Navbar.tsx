@@ -65,11 +65,11 @@ function NotifDropdown({
     <div className="absolute right-0 top-[calc(100%+10px)] w-[340px] rounded-2xl border border-[#E3E7EC] bg-white shadow-[0_20px_60px_-20px_rgba(45,24,56,0.22)] z-[60] overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E7EC]">
-        <span className="text-[14px] font-black text-[#36213E]">Notifications</span>
+        <span className="text-sm font-black text-[#36213E]">Notifications</span>
         {unread > 0 && (
           <button
             onClick={onMarkAllRead}
-            className="text-[12px] font-bold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
+            className="text-xs font-bold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
           >
             Mark all as read
           </button>
@@ -82,7 +82,7 @@ function NotifDropdown({
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF0F3]">
             <Bell size={18} className="text-[#6F6878]" />
           </span>
-          <p className="text-[13px] font-semibold text-[#6F6878]">No notifications yet</p>
+          <p className="text-sm font-semibold text-[#6F6878]">No notifications yet</p>
         </div>
       ) : (
         <ul>
@@ -94,13 +94,13 @@ function NotifDropdown({
               >
                 <NotifIcon type={n.type} />
                 <div className="min-w-0 flex-1">
-                  <p className={`text-[13px] leading-[1.35] ${n.isRead ? 'font-semibold text-[#6F6878]' : 'font-black text-[#36213E]'}`}>
+                  <p className={`text-sm leading-snug ${n.isRead ? 'font-semibold text-[#6F6878]' : 'font-black text-[#36213E]'}`}>
                     {n.title}
                   </p>
-                  <p className="mt-0.5 truncate text-[12px] font-medium text-[#6F6878]">{n.body}</p>
+                  <p className="mt-0.5 truncate text-xs font-semibold text-[#6F6878]">{n.body}</p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2 pt-0.5">
-                  <span className="whitespace-nowrap text-[11px] font-semibold text-[#6F6878]">{timeAgo(n.createdAt)}</span>
+                  <span className="whitespace-nowrap text-xs font-semibold text-[#6F6878]">{timeAgo(n.createdAt)}</span>
                   {!n.isRead && <span className="h-2 w-2 rounded-full bg-[#8AC6D0]" />}
                 </div>
               </button>
@@ -113,10 +113,10 @@ function NotifDropdown({
       <div className="border-t border-[#E3E7EC] px-5 py-3.5">
         <button
           onClick={onViewAll}
-          className="flex items-center gap-1.5 text-[13px] font-bold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
+          className="flex items-center gap-1.5 text-sm font-bold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
         >
           View all notifications
-          <span className="text-[16px] leading-none">→</span>
+          <span className="text-base leading-none">→</span>
         </button>
       </div>
     </div>
@@ -190,7 +190,7 @@ export default function Navbar() {
         {/* Brand */}
         <Link to={ROUTES.HOME} className="flex items-center gap-2 shrink-0">
           <img src="/images/healthailogo.svg" alt="HealthAI logo" className="h-8 w-auto" />
-          <span className="text-[18px] font-extrabold tracking-tight font-headline text-[#36213E]">
+          <span className="text-lg font-black tracking-normal font-headline text-[#36213E]">
             HealthAI
           </span>
         </Link>
@@ -237,7 +237,7 @@ export default function Navbar() {
               >
                 <MessageSquare size={17} />
                 {msgUnread > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-hai-plum text-hai-mint rounded-full flex items-center justify-center text-[10px] font-mono font-bold border-2 border-white">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-hai-plum text-hai-mint rounded-full flex items-center justify-center text-xs font-mono font-bold border-2 border-white">
                     {msgUnread > 9 ? '9+' : msgUnread}
                   </span>
                 )}
@@ -257,7 +257,7 @@ export default function Navbar() {
                 >
                   <Bell size={17} />
                   {unread > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-hai-plum text-hai-mint rounded-full flex items-center justify-center text-[10px] font-mono font-bold border-2 border-white">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-hai-plum text-hai-mint rounded-full flex items-center justify-center text-xs font-mono font-bold border-2 border-white">
                       {unread > 9 ? '9+' : unread}
                     </span>
                   )}
@@ -293,8 +293,8 @@ export default function Navbar() {
                   <div className="absolute right-0 top-12 w-64 bg-white rounded-2xl border border-neutral-200 shadow-[0_20px_50px_-20px_rgba(54,33,62,0.25)] overflow-hidden z-[60]">
                     <div className="px-4 py-4 bg-hai-offwhite border-b border-neutral-200">
                       <div className="font-bold text-sm text-hai-plum truncate">{user.name}</div>
-                      <div className="text-[11px] font-mono text-neutral-500 mt-0.5 truncate">{user.email}</div>
-                      <div className="mt-2 inline-flex items-center gap-1.5 bg-white border border-hai-teal/40 px-2 py-0.5 rounded-full text-[10px] font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
+                      <div className="text-xs font-mono text-neutral-500 mt-0.5 truncate">{user.email}</div>
+                      <div className="mt-2 inline-flex items-center gap-1.5 bg-white border border-hai-teal/40 px-2 py-0.5 rounded-full text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
                         <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
                         {user.role}
                       </div>
@@ -352,7 +352,7 @@ export default function Navbar() {
                 key={to}
                 to={to}
                 onClick={() => setMenuOpen(false)}
-                className={`block px-6 py-3 text-[15px] font-semibold border-l-4 ${
+                className={`block px-6 py-3 text-base font-semibold border-l-4 ${
                   active
                     ? 'border-hai-plum bg-hai-mint/40 text-hai-plum'
                     : 'border-transparent text-neutral-700 hover:bg-neutral-50'
