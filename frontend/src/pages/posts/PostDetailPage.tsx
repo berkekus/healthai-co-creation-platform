@@ -54,7 +54,10 @@ export default function PostDetailPage() {
   const { posts, getById, fetchPosts, publish, markPartnerFound } = usePostStore()
   const { getByPost, fetchByUser } = useMeetingStore()
   const [showInterest, setShowInterest] = useState(false)
-  const [saved, setSaved] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [saved, setSaved] = useState(() =>
+    id ? localStorage.getItem(`saved_post_${id}`) === 'true' : false
+  )
   const [fetchedPost, setFetchedPost] = useState<Post | undefined>(undefined)
   const [isFetching, setIsFetching] = useState(false)
   const [fetchError, setFetchError] = useState(false)
@@ -151,17 +154,29 @@ export default function PostDetailPage() {
 
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigator.clipboard?.writeText(window.location.href).catch(() => {})}
+              onClick={() => {
+                navigator.clipboard?.writeText(window.location.href).catch(() => {})
+                setCopied(true)
+                setTimeout(() => setCopied(false), 2000)
+              }}
               className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
             >
               <LinkIcon size={18} />
-              Share
+              {copied ? 'Copied!' : 'Share'}
             </button>
             <button
-              onClick={() => setSaved(value => !value)}
-              className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              onClick={() => {
+                const next = !saved
+                setSaved(next)
+                if (id) localStorage.setItem(`saved_post_${id}`, String(next))
+              }}
+              className={`inline-flex h-[44px] items-center gap-3 rounded-[12px] border px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition ${
+                saved
+                  ? 'border-[#2d1838] bg-[#2d1838] text-white'
+                  : 'border-[#D5DAE0] bg-white hover:border-[#8bddea]'
+              }`}
             >
-              <Bookmark size={18} fill={saved ? '#36213E' : 'none'} />
+              <Bookmark size={18} fill={saved ? 'white' : 'none'} />
               {saved ? 'Saved' : 'Save'}
             </button>
           </div>
@@ -282,7 +297,12 @@ export default function PostDetailPage() {
                     </div>
                   </div>
                 </div>
-                <button className="h-[48px] rounded-full border border-[#D5DAE0] bg-white px-8 text-sm font-black transition hover:border-[#8AC6D0]">View profile</button>
+                <button
+                  onClick={() => navigate(`/profile/${post.authorId}`)}
+                  className="h-[48px] rounded-full border border-[#D5DAE0] bg-white px-8 text-sm font-black transition hover:border-[#8AC6D0]"
+                >
+                  View profile
+                </button>
               </div>
             </DetailSection>
           </div>

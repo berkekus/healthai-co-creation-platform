@@ -21,6 +21,7 @@ const PostCreatePage     = lazy(() => import('../pages/posts/PostCreatePage'))
 const PostEditPage       = lazy(() => import('../pages/posts/PostEditPage'))
 const MeetingsPage       = lazy(() => import('../pages/meetings/MeetingsPage'))
 const ProfilePage        = lazy(() => import('../pages/profile/ProfilePage'))
+const PublicProfilePage  = lazy(() => import('../pages/profile/PublicProfilePage'))
 const NotificationsPage  = lazy(() => import('../pages/notifications/NotificationsPage'))
 const ConversationsPage  = lazy(() => import('../pages/messages/ConversationsPage'))
 const ConversationPage   = lazy(() => import('../pages/messages/ConversationPage'))
@@ -65,7 +66,8 @@ export default function AppRouter() {
             <Route path={ROUTES.POST_CREATE}  element={<ProtectedRoute><PostCreatePage /></ProtectedRoute>} />
             <Route path={ROUTES.POST_EDIT}    element={<ProtectedRoute><PostEditPage /></ProtectedRoute>} />
             <Route path={ROUTES.MEETINGS}     element={<ProtectedRoute><MeetingsPage /></ProtectedRoute>} />
-            <Route path={ROUTES.PROFILE}      element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path={ROUTES.PROFILE}         element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path={ROUTES.PUBLIC_PROFILE}  element={<ProtectedRoute><PublicProfilePage /></ProtectedRoute>} />
             <Route path={ROUTES.NOTIFICATIONS} element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
             <Route path={ROUTES.MESSAGES}      element={<ProtectedRoute><ConversationsPage /></ProtectedRoute>} />
             <Route path={ROUTES.CONVERSATION}  element={<ProtectedRoute><ConversationPage /></ProtectedRoute>} />

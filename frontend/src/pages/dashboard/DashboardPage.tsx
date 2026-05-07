@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, CalendarDays, Eye, FileText, Handshake, Plus, Search, Sparkles, User } from 'lucide-react'
+import { ArrowRight, Bookmark, CalendarDays, Eye, FileText, Handshake, Plus, Search, Sparkles, User } from 'lucide-react'
 import type { ReactNode } from 'react'
+import api from '../../lib/api'
 import { ROUTES } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
@@ -45,6 +46,7 @@ export default function DashboardPage() {
             <UpcomingMeetings meetings={upcomingMeetings} userId={user?.id ?? ''} />
           </section>
         )}
+        <SavedPosts storePosts={posts} />
       </div>
     </main>
   )
@@ -289,6 +291,81 @@ function RecentPosts({ posts }: { posts: Post[] }) {
         )}
       </div>
     </div>
+  )
+}
+
+function SavedPosts({ storePosts }: { storePosts: Post[] }) {
+  const [savedPosts, setSavedPosts] = useState<Post[]>([])
+
+  useEffect(() => {
+    const ids = Object.keys(localStorage)
+      .filter(k => k.startsWith('saved_post_') && localStorage.getItem(k) === 'true')
+      .map(k => k.replace('saved_post_', ''))
+
+    if (ids.length === 0) { setSavedPosts([]); return }
+
+    const fromStore = ids.map(id => storePosts.find(p => p.id === id)).filter(Boolean) as Post[]
+    const missingIds = ids.filter(id => !storePosts.find(p => p.id === id))
+
+    Promise.all(
+      missingIds.map(id =>
+        api.get<{ success: boolean; data: Post & { _id?: string } }>(`/posts/${id}`)
+          .then(({ data }) => ({ ...data.data, id: data.data._id ?? data.data.id }))
+          .catch(() => null)
+      )
+    ).then(fetched => {
+      setSavedPosts([...fromStore, ...(fetched.filter(Boolean) as Post[])])
+    })
+  }, [storePosts])
+
+  if (savedPosts.length === 0) return null
+
+  const unsave = (id: string) => {
+    localStorage.removeItem(`saved_post_${id}`)
+    setSavedPosts(prev => prev.filter(p => p.id !== id))
+  }
+
+  return (
+    <section className="mt-14">
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#36213E] text-[#E8F4F7]">
+            <Bookmark size={16} fill="white" />
+          </div>
+          <h3 className="text-base font-black text-[#36213E]">Saved posts</h3>
+          <span className="rounded-full bg-[#e8f4f7] px-2.5 py-0.5 text-xs font-black text-[#36213E]">
+            {savedPosts.length}
+          </span>
+        </div>
+        <Link to={ROUTES.POSTS} className="flex items-center gap-2 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
+          Browse all <ArrowRight size={14} />
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {savedPosts.map(post => (
+          <div key={post.id} className="group relative rounded-[20px] border border-[#E3E7EC] bg-white p-5 shadow-[0_12px_40px_-28px_rgba(45,24,56,0.25)] transition hover:border-[#8AC6D0] hover:shadow-[0_16px_48px_-28px_rgba(45,24,56,0.35)]">
+            <button
+              onClick={() => unsave(post.id)}
+              className="absolute right-4 top-4 text-[#8AC6D0] opacity-0 group-hover:opacity-100 transition hover:text-[#36213E]"
+              title="Remove from saved"
+            >
+              <Bookmark size={15} fill="#8AC6D0" />
+            </button>
+            <Link to={`/posts/${post.id}`} className="block">
+              <div className="mb-2 line-clamp-2 text-[14.5px] font-black text-[#36213E] leading-snug pr-6">
+                {post.title}
+              </div>
+              <div className="text-[12.5px] font-semibold text-[#6F6878] mb-3">{post.domain}</div>
+              <div className="flex items-center justify-between">
+                <span className="text-[11.5px] font-semibold text-[#9f9aaa]">{post.authorName}</span>
+                <StatusPill status={post.status} />
+              </div>
+            </Link>
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }
 

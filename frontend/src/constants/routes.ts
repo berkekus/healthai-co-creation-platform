@@ -12,6 +12,7 @@ export const ROUTES = {
   POST_EDIT:        '/posts/:id/edit',
   MEETINGS:         '/meetings',
   PROFILE:          '/profile',
+  PUBLIC_PROFILE:   '/profile/:userId',
   NOTIFICATIONS:    '/notifications',
   ADMIN:            '/admin',
   MESSAGES:         '/messages',
