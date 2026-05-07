@@ -7,15 +7,17 @@ import {
 } from '../controllers/authController'
 import { protect, adminOnly } from '../middleware/authMiddleware'
 import { avatarUpload } from '../middleware/uploadMiddleware'
+import { authLimiter } from '../middleware/rateLimiter'
 
 const router = Router()
 
-router.post('/register', register)
+// Rate-limited only on unauthenticated mutation endpoints
+router.post('/register',            authLimiter, register)
+router.post('/login',               authLimiter, login)
+router.post('/forgot-password',     authLimiter, forgotPassword)
+router.post('/resend-verification', authLimiter, resendVerification)
+router.post('/reset-password',      authLimiter, resetPassword)
 router.post('/verify-email', verifyEmail)
-router.post('/resend-verification', resendVerification)
-router.post('/forgot-password', forgotPassword)
-router.post('/reset-password', resetPassword)
-router.post('/login', login)
 router.post('/logout', protect, logout)
 router.get('/me', protect, getMe)
 router.put('/me/profile', protect, updateProfile)

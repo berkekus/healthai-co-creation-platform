@@ -12,7 +12,6 @@ import notificationRoutes from '../routes/notificationRoutes'
 import logRoutes from '../routes/logRoutes'
 import aiRoutes from '../routes/aiRoutes'
 import { errorHandler, notFound } from '../middleware/errorHandler'
-import { authLimiter } from '../middleware/rateLimiter'
 
 const app = express()
 
@@ -43,7 +42,7 @@ app.get('/health', (_req, res) => {
   res.status(dbReady ? 200 : 503).json({ status, db: dbReady ? 'connected' : 'disconnected', timestamp: new Date().toISOString() })
 })
 
-app.use('/api/auth', authLimiter, authRoutes)
+app.use('/api/auth', authRoutes)
 app.use('/api/posts', postRoutes)
 app.use('/api/meetings', meetingRoutes)
 app.use('/api/conversations', conversationRoutes)
