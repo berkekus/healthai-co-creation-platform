@@ -46,12 +46,12 @@ export const useAuthStore = create<AuthState>()((set) => ({
     }
   },
 
-  login: async ({ email, password }) => {
+  login: async ({ email, password, captchaToken }) => {
     set({ isLoading: true, error: null })
     try {
       const { data } = await api.post<{ success: boolean; data: { user: User; token: string } }>(
         '/auth/login',
-        { email, password }
+        { email, password, captchaToken }
       )
       localStorage.setItem('token', data.data.token)
       set({ user: data.data.user, isAuthenticated: true, isLoading: false })
@@ -69,7 +69,16 @@ export const useAuthStore = create<AuthState>()((set) => ({
   register: async (data: RegisterData) => {
     set({ isLoading: true, error: null })
     try {
-      await api.post<{ success: boolean; data: { user: User; requiresVerification: boolean } }>('/auth/register', data)
+      await api.post<{ success: boolean; data: { user: User; requiresVerification: boolean } }>('/auth/register', {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: data.role,
+        institution: data.institution,
+        city: data.city,
+        country: data.country,
+        captchaToken: data.captchaToken,
+      })
       set({ isLoading: false, pendingVerificationEmail: data.email })
       return { requiresVerification: true }
     } catch (err) {

@@ -20,6 +20,7 @@ export interface User {
 export interface LoginCredentials {
   email: string
   password: string
+  captchaToken?: string
 }
 
 export interface RegisterData {
@@ -30,4 +31,5 @@ export interface RegisterData {
   institution: string
   city: string
   country: string
+  captchaToken?: string
 }
