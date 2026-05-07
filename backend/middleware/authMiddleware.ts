@@ -6,6 +6,7 @@ export interface AuthRequest extends Request {
   userId?: string
   userRole?: string
   userEmail?: string
+  userName?: string
 }
 
 /** Narrowed version — safe to use in handlers that are always behind `protect` */
@@ -13,6 +14,7 @@ export interface AuthenticatedRequest extends Request {
   userId: string
   userRole: string
   userEmail: string
+  userName: string
 }
 
 interface JwtPayload {
@@ -37,7 +39,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload
 
-    const user = await User.findById(decoded.id).select('isSuspended role email')
+    const user = await User.findById(decoded.id).select('isSuspended role email name')
     if (!user) {
       res.status(401).json({ success: false, message: 'User not found' })
       return
@@ -50,6 +52,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     req.userId = decoded.id
     req.userRole = user.role
     req.userEmail = user.email
+    req.userName = user.name
 
     const now = Date.now()
     const lastUpdate = lastActiveThrottle.get(decoded.id) ?? 0

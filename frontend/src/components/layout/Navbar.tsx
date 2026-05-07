@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Bell, Menu, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
+import { Bell, Menu, MessageSquare, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
+import { useConversationStore } from '../../store/conversationStore'
 import { ROUTES } from '../../constants/routes'
 
 const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
@@ -21,6 +22,7 @@ const resolveAvatar = (url?: string) => {
 export default function Navbar() {
   const { user, logout } = useAuthStore()
   const unreadCount = useNotificationStore(s => s.unreadCount)
+  const { unreadCount: msgUnread, fetchUnreadCount } = useConversationStore()
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -28,6 +30,13 @@ export default function Navbar() {
   const profileRef = useRef<HTMLDivElement>(null)
 
   const unread = user ? unreadCount(user.id) : 0
+
+  useEffect(() => {
+    if (!user) return
+    fetchUnreadCount()
+    const interval = setInterval(fetchUnreadCount, 30000)
+    return () => clearInterval(interval)
+  }, [user, fetchUnreadCount])
 
   const navLinks: { to: string; label: string }[] = [
     { to: ROUTES.DASHBOARD, label: 'Dashboard' },
@@ -106,6 +115,20 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
           {user ? (
             <>
+              {/* Messages */}
+              <Link
+                to={ROUTES.MESSAGES}
+                aria-label={`Messages${msgUnread > 0 ? ` (${msgUnread} unread)` : ''}`}
+                className="relative w-12 h-12 rounded-full border border-[#e8e8ee] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
+              >
+                <MessageSquare size={17} />
+                {msgUnread > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-hai-plum text-hai-mint rounded-full flex items-center justify-center text-[10px] font-mono font-bold border-2 border-white">
+                    {msgUnread > 9 ? '9+' : msgUnread}
+                  </span>
+                )}
+              </Link>
+
               {/* Notifications */}
               <Link
                 to={ROUTES.NOTIFICATIONS}

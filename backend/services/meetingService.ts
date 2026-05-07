@@ -2,6 +2,7 @@ import Meeting, { IMeeting, ITimeSlot } from '../models/Meeting'
 import User from '../models/User'
 import { incrementMeetingCount, markPartnerFound, recomputePostStatus } from './postService'
 import { pushNotification } from './notificationService'
+import { createConversation } from './conversationService'
 import { makeError } from '../utils/AppError'
 
 async function withEmails(meetings: IMeeting[]) {
@@ -93,6 +94,22 @@ export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot
   if (!meeting) await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
 
   recomputePostStatus(meeting!.postId.toString()).catch(() => {})
+
+  const requesterUser = await User.findById(meeting!.requesterId).select('role').lean()
+  const ownerUser     = await User.findById(meeting!.ownerId).select('role').lean()
+
+  createConversation({
+    meetingId:     meeting!.id,
+    postId:        meeting!.postId.toString(),
+    postTitle:     meeting!.postTitle,
+    requesterId:   meeting!.requesterId.toString(),
+    requesterName: meeting!.requesterName,
+    requesterRole: requesterUser?.role ?? 'engineer',
+    ownerId:       meeting!.ownerId.toString(),
+    ownerName:     meeting!.ownerName,
+    ownerRole:     ownerUser?.role ?? 'healthcare_professional',
+  }).catch(() => {})
+
   pushNotification({
     userId: meeting!.requesterId.toString(),
     type: 'meeting_accepted',
