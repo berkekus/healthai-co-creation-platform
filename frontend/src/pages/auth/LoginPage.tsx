@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Eye, EyeOff, Lock, Mail, Shield, Users, Stethoscope, Wrench, ShieldCheck } from 'lucide-react'
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { useAuthStore } from '../../store/authStore'
 import { loginSchema, type LoginFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
@@ -26,8 +27,10 @@ export default function LoginPage() {
   const [cooldown, setCooldown] = useState(0)
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const quickLoginRef = useRef(false)
+  const captchaRef = useRef<TurnstileInstance>(null)
 
   const { register, handleSubmit, formState: { errors }, setFocus } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -52,9 +55,11 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     if (cooldown > 0) return
-    await login(data)
+    await login({ ...data, captchaToken: captchaToken ?? undefined })
     const newFails = failedAttempts + 1
     if (useAuthStore.getState().error) {
+      captchaRef.current?.reset()
+      setCaptchaToken(null)
       if (newFails >= RATE_LIMIT_AFTER) startCooldown()
       else setFailedAttempts(newFails)
     } else {
@@ -284,10 +289,22 @@ export default function LoginPage() {
                 </Link>
               </div>
 
+              {/* Turnstile */}
+              <div className="flex justify-center">
+                <Turnstile
+                  ref={captchaRef}
+                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                  onSuccess={setCaptchaToken}
+                  onExpire={() => setCaptchaToken(null)}
+                  onError={() => setCaptchaToken(null)}
+                  options={{ theme: 'light', size: 'normal' }}
+                />
+              </div>
+
               {/* Sign in button */}
               <button
                 type="submit"
-                disabled={isLoading || cooldown > 0}
+                disabled={isLoading || cooldown > 0 || !captchaToken}
                 className="mt-2 w-full flex items-center justify-center gap-2 py-[15px] rounded-full bg-[#1c1230] text-white text-[15px] font-black tracking-[-0.01em] font-headline hover:bg-[#110b1e] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)]"
               >
                 {isLoading ? (

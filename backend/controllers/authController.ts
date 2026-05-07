@@ -5,12 +5,19 @@ import { createLog } from '../services/logService'
 import { LOG } from '../constants/logActions'
 import { asyncHandler } from '../utils/asyncHandler'
 import { deleteAvatarFile } from '../middleware/uploadMiddleware'
+import { verifyTurnstile } from '../utils/verifyTurnstile'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const VALID_ROLES = ['engineer', 'healthcare_professional', 'admin'] as const
 
 export const register = asyncHandler(async (req, res) => {
-  const { name, email, password, role, institution, city, country } = req.body
+  const { name, email, password, role, institution, city, country, captchaToken } = req.body
+
+  const captchaOk = await verifyTurnstile(captchaToken, req.ip)
+  if (!captchaOk) {
+    res.status(400).json({ success: false, message: 'Human verification failed. Please try again.' })
+    return
+  }
 
   if (!name || !email || !password || !role || !institution || !city || !country) {
     res.status(400).json({ success: false, message: 'All fields are required' })
@@ -61,9 +68,15 @@ export const register = asyncHandler(async (req, res) => {
 })
 
 export const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body
+  const { email, password, captchaToken } = req.body
   if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
     res.status(400).json({ success: false, message: 'Email and password are required' })
+    return
+  }
+
+  const captchaOk = await verifyTurnstile(captchaToken, req.ip)
+  if (!captchaOk) {
+    res.status(400).json({ success: false, message: 'Human verification failed. Please try again.' })
     return
   }
 
@@ -200,9 +213,15 @@ export const resendVerification = asyncHandler(async (req, res) => {
 })
 
 export const forgotPassword = asyncHandler(async (req, res) => {
-  const { email } = req.body
+  const { email, captchaToken } = req.body
   if (!email || typeof email !== 'string') {
     res.status(400).json({ success: false, message: 'Email is required' })
+    return
+  }
+
+  const captchaOk = await verifyTurnstile(captchaToken, req.ip)
+  if (!captchaOk) {
+    res.status(400).json({ success: false, message: 'Human verification failed. Please try again.' })
     return
   }
   await authService.forgotPassword(email)

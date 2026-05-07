@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { ROUTES } from '../../constants/routes'
 import PageWrapper from '../../components/layout/PageWrapper'
 import api from '../../lib/api'
@@ -12,6 +13,8 @@ export default function ForgotPasswordPage() {
   const [email, setEmail]   = useState('')
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError]   = useState<string | null>(null)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const captchaRef = useRef<TurnstileInstance>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,9 +22,11 @@ export default function ForgotPasswordPage() {
     setStatus('loading')
     setError(null)
     try {
-      await api.post('/auth/forgot-password', { email: email.trim() })
+      await api.post('/auth/forgot-password', { email: email.trim(), captchaToken: captchaToken ?? undefined })
       setStatus('sent')
     } catch (err) {
+      captchaRef.current?.reset()
+      setCaptchaToken(null)
       setStatus('error')
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     }
@@ -91,9 +96,20 @@ export default function ForgotPasswordPage() {
             />
           </div>
 
+          <div className="flex justify-center">
+            <Turnstile
+              ref={captchaRef}
+              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+              onSuccess={setCaptchaToken}
+              onExpire={() => setCaptchaToken(null)}
+              onError={() => setCaptchaToken(null)}
+              options={{ theme: 'light', size: 'normal' }}
+            />
+          </div>
+
           <button
             type="submit"
-            disabled={status === 'loading' || !email.trim()}
+            disabled={status === 'loading' || !email.trim() || !captchaToken}
             className="mt-2 w-full py-3.5 rounded-full bg-hai-plum text-white font-bold text-[15px] hover:bg-black disabled:bg-neutral-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2.5"
           >
             {status === 'loading' ? (

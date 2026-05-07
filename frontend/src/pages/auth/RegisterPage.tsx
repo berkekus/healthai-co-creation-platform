@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router-dom'
 import { Building2, ChevronDown, Eye, EyeOff, Lock, Mail, MapPin, Shield, User, Users } from 'lucide-react'
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { useAuthStore } from '../../store/authStore'
 import { registerSchema, type RegisterFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
@@ -18,6 +19,8 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [gdprAccepted, setGdprAccepted] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const captchaRef = useRef<TurnstileInstance>(null)
 
   const { register, handleSubmit, formState: { errors }, trigger, watch, setValue } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -47,8 +50,12 @@ export default function RegisterPage() {
       institution: data.institution,
       city: data.city,
       country: data.country,
+      captchaToken: captchaToken ?? undefined,
     })
-    if (!useAuthStore.getState().error) {
+    if (useAuthStore.getState().error) {
+      captchaRef.current?.reset()
+      setCaptchaToken(null)
+    } else {
       navigate(ROUTES.VERIFY_EMAIL)
     }
   }
@@ -403,13 +410,25 @@ export default function RegisterPage() {
                     </span>
                   </label>
 
+                  {/* Turnstile */}
+                  <div className="flex justify-center">
+                    <Turnstile
+                      ref={captchaRef}
+                      siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                      onSuccess={setCaptchaToken}
+                      onExpire={() => setCaptchaToken(null)}
+                      onError={() => setCaptchaToken(null)}
+                      options={{ theme: 'light', size: 'normal' }}
+                    />
+                  </div>
+
                   <div className="flex gap-3 mt-2">
                     <button type="button" onClick={() => setStep(1)} className="flex-1 py-[15px] rounded-full border border-[#dde2ea] bg-white text-[#18203a] font-bold text-[15px] hover:border-[#3db8d8] transition-colors font-headline">
                       ← Back
                     </button>
                     <button
                       type="submit"
-                      disabled={isLoading || !gdprAccepted}
+                      disabled={isLoading || !gdprAccepted || !captchaToken}
                       className="flex-[2] py-[15px] rounded-full bg-[#1c1230] text-white font-black text-[15px] hover:bg-[#110b1e] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)] font-headline flex items-center justify-center gap-2"
                     >
                       {isLoading ? (
