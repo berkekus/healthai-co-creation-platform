@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  MessageSquare,
   PieChart,
   Plus,
   X,
@@ -15,6 +16,7 @@ import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
+import { useConversationStore } from '../../store/conversationStore'
 import type { Meeting, MeetingStatus, TimeSlot } from '../../types/meeting.types'
 
 type TabId = 'all' | 'incoming' | 'outgoing' | 'pending' | 'confirmed' | 'cancelled'
@@ -39,14 +41,16 @@ const STATUS_CLASS: Record<MeetingStatus, string> = {
 export default function MeetingsPage() {
   const { user } = useAuthStore()
   const { meetings, fetchByUser, accept, decline, cancel, complete } = useMeetingStore()
+  const { fetchConversations } = useConversationStore()
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<TabId>('all')
   const [sortMode, setSortMode] = useState<SortMode>('recent')
   const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (user) fetchByUser()
-  }, [fetchByUser, user])
+    if (user) { fetchByUser(); fetchConversations() }
+  }, [fetchByUser, fetchConversations, user])
 
   const scopedMeetings = useMemo(
     () => user ? meetings.filter(meeting => meeting.requesterId === user.id || meeting.ownerId === user.id) : [],
@@ -144,6 +148,7 @@ export default function MeetingsPage() {
               onCancel={meeting => runAction(meeting.id, () => cancel(meeting.id))}
               onComplete={meeting => runAction(meeting.id, () => complete(meeting.id))}
               onViewAll={() => setActiveTab('all')}
+              onOpenChat={meeting => navigate(`/messages?meetingId=${meeting.id}`)}
             />
             <aside>
               <WidgetArea meetings={scopedMeetings} />
@@ -259,6 +264,7 @@ function MeetingList({
   onCancel,
   onComplete,
   onViewAll,
+  onOpenChat,
 }: {
   meetings: Meeting[]
   userId: string
@@ -270,6 +276,7 @@ function MeetingList({
   onCancel: (meeting: Meeting) => void
   onComplete: (meeting: Meeting) => void
   onViewAll: () => void
+  onOpenChat: (meeting: Meeting) => void
 }) {
   return (
     <section className="overflow-hidden rounded-[28px] border border-[var(--border)] bg-white shadow-[0_24px_70px_-54px_rgba(45,24,56,0.5)]">
@@ -289,6 +296,7 @@ function MeetingList({
             onDecline={() => onDecline(meeting)}
             onCancel={() => onCancel(meeting)}
             onComplete={() => onComplete(meeting)}
+            onOpenChat={() => onOpenChat(meeting)}
           />
         ))
       ) : (
@@ -315,6 +323,7 @@ function MeetingRow({
   onDecline,
   onCancel,
   onComplete,
+  onOpenChat,
 }: {
   meeting: Meeting
   userId: string
@@ -324,6 +333,7 @@ function MeetingRow({
   onDecline: () => void
   onCancel: () => void
   onComplete: () => void
+  onOpenChat: () => void
 }) {
   const isOwner = meeting.ownerId === userId
   const direction = isOwner ? 'Incoming' : 'Outgoing'
@@ -394,7 +404,12 @@ function MeetingRow({
         )}
         {meeting.status === 'confirmed' && (
           <>
+            <ActionButton disabled={busy} onClick={onOpenChat} tone="chat">
+              <MessageSquare size={14} />
+              Open Chat
+            </ActionButton>
             <ActionButton disabled={busy} onClick={onComplete} tone="primary">
+              <Check size={14} />
               Complete
             </ActionButton>
             <ActionButton disabled={busy} onClick={onCancel} tone="quiet">
@@ -421,17 +436,19 @@ function ActionButton({
   children: ReactNode
   disabled: boolean
   onClick: () => void
-  tone: 'primary' | 'quiet'
+  tone: 'primary' | 'quiet' | 'chat'
 }) {
+  const cls = {
+    primary: 'bg-[var(--primary)] text-white hover:bg-[#1b1022]',
+    quiet:   'border border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--primary)]',
+    chat:    'bg-[#dff8ff] text-[var(--primary)] border border-[var(--accent)] hover:bg-[var(--success-bg)]',
+  }[tone]
+
   return (
     <button
       disabled={disabled}
       onClick={onClick}
-      className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-[11px] font-black uppercase tracking-[0.1em] transition disabled:cursor-not-allowed disabled:opacity-50 ${
-        tone === 'primary'
-          ? 'bg-[var(--primary)] text-white hover:bg-[#1b1022]'
-          : 'border border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--primary)]'
-      }`}
+      className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-[11px] font-black uppercase tracking-[0.1em] transition disabled:cursor-not-allowed disabled:opacity-50 ${cls}`}
     >
       {children}
     </button>

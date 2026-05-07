@@ -7,6 +7,7 @@ import mongoSanitize from 'express-mongo-sanitize'
 import authRoutes from '../routes/authRoutes'
 import postRoutes from '../routes/postRoutes'
 import meetingRoutes from '../routes/meetingRoutes'
+import conversationRoutes from '../routes/conversationRoutes'
 import notificationRoutes from '../routes/notificationRoutes'
 import logRoutes from '../routes/logRoutes'
 import aiRoutes from '../routes/aiRoutes'
@@ -45,6 +46,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/auth', authLimiter, authRoutes)
 app.use('/api/posts', postRoutes)
 app.use('/api/meetings', meetingRoutes)
+app.use('/api/conversations', conversationRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/logs', logRoutes)
 app.use('/api/ai', aiRoutes)
