@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
@@ -57,7 +57,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#e8f0f7] flex items-center justify-center p-4 sm:p-8 font-body">
       <div className="w-full max-w-[1180px] flex rounded-[28px] overflow-hidden shadow-[0_32px_80px_-20px_rgba(14,30,66,0.22),0_0_0_1px_rgba(255,255,255,0.6)]">
 
-        {/* ── LEFT PANEL ── */}
+        {/* LEFT PANEL */}
         <div
           className="hidden lg:flex w-[42%] flex-col relative overflow-hidden"
           style={{ background: 'linear-gradient(155deg, #ddeef8 0%, #c8e2f4 45%, #b8d6ee 100%)' }}
@@ -97,7 +97,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Hero image — 3D logo with screen blend to hide dark bg */}
+          {/* Hero image - 3D logo with screen blend to hide dark bg */}
           <div className="relative z-10 flex-1 flex items-end justify-center pb-16 px-6">
             <img
               src="/images/healthailogo3d.png"
@@ -130,7 +130,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* ── RIGHT PANEL ── */}
+        {/* RIGHT PANEL */}
         <div className="flex-1 bg-white flex items-center justify-center px-8 sm:px-12 py-12">
           <div className="w-full max-w-[380px]">
 
@@ -148,7 +148,7 @@ export default function LoginPage() {
             {cooldown > 0 && (
               <div role="alert" className="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
                 <div className="flex items-start gap-3">
-                  <span className="text-amber-600 text-lg leading-none mt-0.5">⏱</span>
+                  <span className="text-amber-600 text-lg leading-none mt-0.5">{'\u23f1'}</span>
                   <div className="flex-1">
                     <div className="text-[13px] font-bold text-amber-900 mb-1">Too many failed attempts</div>
                     <div className="text-[12.5px] text-amber-800">
@@ -168,25 +168,16 @@ export default function LoginPage() {
                 {' '}attempt{RATE_LIMIT_AFTER - failedAttempts !== 1 ? 's' : ''} remaining before lockout.
               </div>
             )}
-      {/* Footer links */}
-      <div className="mt-6 flex items-center justify-between text-[11px] font-mono tracking-[0.14em] uppercase text-neutral-500 font-bold px-2">
-        <Link to={ROUTES.FORGOT_PASSWORD} className="text-neutral-500 hover:text-hai-plum transition-colors">
-          Forgot password?
-        </Link>
-        <Link to={ROUTES.REGISTER} className="text-hai-plum hover:text-hai-teal transition-colors">
-          Request access →
-        </Link>
-      </div>
 
             {error && cooldown === 0 && (
               <div role="alert" className="mb-5 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3">
-                <span className="text-red-400 text-lg leading-none mt-0.5 shrink-0">✕</span>
+                <span className="text-red-400 text-lg leading-none mt-0.5 shrink-0">{'\u00d7'}</span>
                 <div className="text-[13px] text-red-700 font-medium flex-1">
                   {error}
                   {error.toLowerCase().includes('not verified') && (
                     <div className="mt-1.5">
                       <Link to={ROUTES.VERIFY_EMAIL} className="text-[#18203a] font-bold hover:underline text-[12.5px]">
-                        Resend verification email →
+                        Resend verification email {'\u2192'}
                       </Link>
                     </div>
                   )}
@@ -233,7 +224,7 @@ export default function LoginPage() {
                   <input
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
+                    placeholder={'\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022'}
                     autoComplete="current-password"
                     className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-[14.5px] font-body text-[#18203a] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
                       errors.password
@@ -287,10 +278,10 @@ export default function LoginPage() {
                 {isLoading ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Signing in…
+                    Signing in...
                   </>
                 ) : (
-                  <>Sign in <span className="ml-1" aria-hidden>→</span></>
+                  <>Sign in <span className="ml-1" aria-hidden>{'\u2192'}</span></>
                 )}
               </button>
             </form>
@@ -299,7 +290,7 @@ export default function LoginPage() {
             <p className="mt-7 text-center text-[14px] text-[#9ca3b0] font-body">
               No account?{' '}
               <Link to={ROUTES.REGISTER} className="font-black text-[#18203a] hover:text-[#3db8d8] transition-colors">
-                Request Access →
+                Request Access {'\u2192'}
               </Link>
             </p>
           </div>

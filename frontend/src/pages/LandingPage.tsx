@@ -677,12 +677,12 @@ export default function LandingPage() {
               </div>
               <h1
                 id="hero-headline"
-                className="font-headline font-bold text-hai-plum leading-[1.0] tracking-[-0.03em] text-[36px] sm:text-[52px] md:text-[64px] lg:text-[72px]"
+                className="font-headline font-bold text-hai-plum leading-[1.0] tracking-[-0.03em] text-[42px] sm:text-[60px] md:text-[72px] lg:text-[84px]"
               >
                 Healthcare co-creation,<br />
                 <span className="opacity-25">without the silos.</span>
               </h1>
-              <p className="mt-5 max-w-xl mx-auto text-[15px] md:text-[16px] leading-relaxed text-hai-plum/65 font-medium">
+              <p className="mt-6 max-w-2xl mx-auto text-[17px] md:text-[19px] leading-relaxed text-hai-plum/65 font-medium">
                 A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional <span className="font-bold text-hai-plum">.edu</span> verification and an immutable audit trail.
               </p>
             </motion.div>
@@ -739,17 +739,17 @@ export default function LandingPage() {
 
             <section
               id="directory"
-              className="max-w-[1540px] mx-auto px-6 md:px-10 pt-6 md:pt-10 pb-20 md:pb-24 relative"
+              className="max-w-[1420px] mx-auto px-6 md:px-10 pt-6 md:pt-10 pb-20 md:pb-24 relative"
             >
 
             {/* ── Pathway cards ─────────────────────────────── */}
             <div className="relative mb-12">
-              <div className="relative rounded-[40px] bg-white px-7 pb-8 pt-7 shadow-[0_34px_96px_-70px_rgba(45,24,56,0.55),0_-14px_50px_-18px_rgba(255,255,255,0.9)] md:px-9 md:pb-10 md:pt-9">
-                <div className="mb-8 flex items-center justify-between px-1">
+              <div className="relative rounded-[36px] bg-white px-6 pb-7 pt-6 shadow-[0_30px_86px_-66px_rgba(45,24,56,0.55),0_-14px_50px_-18px_rgba(255,255,255,0.9)] md:px-8 md:pb-8 md:pt-8">
+                <div className="mb-7 flex items-center justify-between px-1">
                   <p className="text-[12px] font-mono tracking-[0.32em] uppercase text-[#77728f] font-black">Join the Directory</p>
                 </div>
 
-                <div className="relative grid gap-6 md:grid-cols-2">
+                <div className="relative grid gap-5 md:grid-cols-2">
 
                   {/* ───── Engineer card (LEFT) ───── */}
                   <motion.div
