@@ -16,7 +16,7 @@ A full-stack, GDPR-aware matchmaking platform that connects **healthcare profess
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square&logo=docker&logoColor=white)](#quick-start)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4?style=flat-square)](#contributing)
 
-[**Quick start**](#quick-start) &middot; [**API docs**](backend/API.md) &middot; [**Architecture**](#architecture) &middot; [**Roadmap**](backend/ROADMAP.md) &middot; [**Report a bug**](https://github.com/berkekus/healthai-co-creation-platform/issues)
+[**Quick start**](#quick-start) &middot; [**API docs**](backend/API.md) &middot; [**Architecture**](#architecture) &middot; [**Roadmap**](#roadmap) &middot; [**Report a bug**](https://github.com/berkekus/healthai-co-creation-platform/issues)
 
 </div>
 
@@ -63,15 +63,15 @@ Building useful medical AI is hard &mdash; not because the models are missing, b
 
 ## Project status
 
-| Area              | State                                                                         |
-| ----------------- | ----------------------------------------------------------------------------- |
-| Core product      | **Stable** &mdash; auth, posts, meetings, notifications, admin all delivered  |
-| API surface       | **Stable** &mdash; documented in [`backend/API.md`](backend/API.md)           |
-| Test coverage     | **Active** &mdash; Vitest + Supertest backend, Vitest + Testing Library front |
-| Production deploy | **Ready** &mdash; one-command Docker stack with MongoDB, Node and nginx       |
-| AI features       | **Experimental** &mdash; Gemini-powered drafting behind a feature flag        |
-
-The platform is actively maintained on the `main` and `backend` branches. The latest tracked work and gaps are listed in [`INTEGRATION_REVIEW.md`](INTEGRATION_REVIEW.md) and [`backend/CODE_REVIEW.md`](backend/CODE_REVIEW.md).
+| Area                  | State                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------- |
+| Core product          | **Stable** &mdash; auth, posts, meetings, messaging, notifications, admin all live |
+| In-app messaging      | **Stable** &mdash; conversation channel opens automatically on meeting confirmation|
+| API surface           | **Stable** &mdash; documented in [`backend/API.md`](backend/API.md)               |
+| Test coverage         | **Active** &mdash; Vitest + Supertest backend, Vitest + Testing Library front      |
+| Production deploy     | **Ready** &mdash; one-command Docker stack with MongoDB, Node and nginx            |
+| AI features           | **Experimental** &mdash; Gemini-powered drafting behind a feature flag             |
+| Dark mode             | **Stable** &mdash; system-wide dark/light toggle, persisted to localStorage        |
 
 ---
 
@@ -81,18 +81,23 @@ The platform is actively maintained on the `main` and `backend` branches. The la
 <tr><td valign="top" width="50%">
 
 ### Core product
-- **Authentication** &mdash; email + password, `.edu` verification, 30-minute idle session timeout with countdown, rate limiting after 3 failed attempts.
+- **Authentication** &mdash; email + password, `.edu` verification, Cloudflare Turnstile CAPTCHA, 30-minute idle session timeout with countdown.
 - **Post lifecycle** &mdash; `draft` &rarr; `published` &rarr; `partner_found` (or `expired` / `closed`), with confidentiality flags (public pitch vs. meeting-only).
 - **Smart matching** &mdash; per-card match chips (city, country, cross-role, expertise overlap) plus a *Best matches for you* featured row.
-- **Meeting workflow** &mdash; 3-step interest flow (message &rarr; NDA &rarr; 3 proposed slots), owner accept / counter-propose / decline, tabbed inbox.
-- **Real-time notifications** &mdash; push-style notifications with polling, unread count, mark-as-read, bulk actions.
-- **Admin panel** &mdash; user suspension, post moderation, audit log with filters and CSV export.
+- **Meeting workflow** &mdash; 3-step interest flow (message &rarr; NDA &rarr; 3 proposed slots), owner accept / counter-propose / decline, tabbed inbox with calendar view.
+- **In-app messaging** &mdash; private conversation channel opens automatically when a meeting is confirmed; persistent message history, 8-second polling, read receipts, conversation deletion.
+- **Saved posts** &mdash; bookmark any post from its detail page; saved posts appear in a dedicated dashboard section, persisted across sessions.
+- **Public profiles** &mdash; view any user's public profile (name, role, institution, bio, expertise tags) directly from a post's author card.
+- **Real-time notifications** &mdash; push-style notifications with polling, unread count, mark-as-read, bulk actions. Separate unread badge for messages.
+- **Dark mode** &mdash; system-wide dark / light toggle in the navbar, persisted to localStorage. All pages fully themed.
+- **Admin panel** &mdash; user suspension, post moderation, audit log with filters and CSV export, user CSV export, working date-range and chart filters.
 
 </td><td valign="top" width="50%">
 
 ### Compliance & quality
 - **GDPR-ready** &mdash; Art. 6 legal basis, Art. 15 / 17 / 20 / 21 user rights, JSON data export, account deletion, cookie consent banner.
-- **Security** &mdash; JWT auth, bcrypt password hashing, `helmet`, rate limiting, `express-mongo-sanitize`, CORS allowlist.
+- **Bot protection** &mdash; Cloudflare Turnstile CAPTCHA on login, register and forgot-password (test keys for dev, real keys for production).
+- **Security** &mdash; JWT auth, bcrypt password hashing, `helmet`, targeted rate limiting on mutation endpoints only, `express-mongo-sanitize`, CORS allowlist.
 - **Tamper-evident audit log** &mdash; every privileged action is logged with `userId`, `userEmail`, `role`, `action`, `ipAddress`, `result`.
 - **Accessibility** &mdash; semantic landmarks, keyboard-reachable cards, ARIA on every modal, WCAG AA color pairings, `prefers-reduced-motion` support.
 - **Testing** &mdash; Vitest + Supertest on the backend (in-memory MongoDB), Vitest + Testing Library on the frontend.
@@ -105,15 +110,15 @@ The platform is actively maintained on the `main` and `backend` branches. The la
 
 ## Tech stack
 
-| Layer        | Technologies                                                                                                                  |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| **Frontend** | React 18, TypeScript 5, Vite 6, Tailwind CSS 3, React Router 6, Zustand, React Hook Form + Zod, Framer Motion, Lucide         |
-| **Backend**  | Node.js 20, Express 4, TypeScript 5, Mongoose 8, Pino, `node-cron`                                                            |
-| **Database** | MongoDB 7                                                                                                                     |
-| **Security** | JWT, bcryptjs, Helmet, `express-rate-limit`, `express-mongo-sanitize`, CORS allowlist                                         |
-| **Email**    | Nodemailer (SMTP &mdash; Gmail, SES, Mailgun&hellip;)                                                                         |
-| **AI**       | Google Generative AI (Gemini) &mdash; optional, behind `VITE_GEMINI_API_KEY`                                                  |
-| **Tooling**  | Docker, Docker Compose, Vitest, Supertest, `mongodb-memory-server`, Testing Library, ESLint, ts-node-dev                      |
+| Layer        | Technologies                                                                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend** | React 18, TypeScript 5, Vite 6, Tailwind CSS 3, React Router 6, Zustand, React Hook Form + Zod, Lucide, `@marsidev/react-turnstile` |
+| **Backend**  | Node.js 20, Express 4, TypeScript 5, Mongoose 8, Pino, `node-cron`                                                                   |
+| **Database** | MongoDB 7                                                                                                                             |
+| **Security** | JWT, bcryptjs, Helmet, `express-rate-limit`, `express-mongo-sanitize`, CORS allowlist, Cloudflare Turnstile                          |
+| **Email**    | Nodemailer (SMTP &mdash; Gmail, SES, Resend&hellip;)                                                                                  |
+| **AI**       | Google Generative AI (Gemini) &mdash; optional, behind `VITE_GEMINI_API_KEY`                                                         |
+| **Tooling**  | Docker, Docker Compose, Vitest, Supertest, `mongodb-memory-server`, Testing Library, ESLint, ts-node-dev                             |
 
 ---
 
@@ -122,44 +127,41 @@ The platform is actively maintained on the `main` and `backend` branches. The la
 ```mermaid
 flowchart LR
     subgraph Client["Browser"]
-        UI["React 18 + Vite<br/>Zustand &middot; React Router<br/>Tailwind &middot; Framer Motion"]
+        UI["React 18 + Vite<br/>Zustand · React Router<br/>Tailwind · Dark mode"]
     end
 
     subgraph Edge["Edge / Reverse proxy"]
         NGINX["nginx<br/>static assets + /api proxy"]
     end
 
-    subgraph API["Backend (Node.js &middot; Express)"]
-        AUTH["Auth & RBAC<br/>JWT &middot; bcrypt"]
+    subgraph API["Backend (Node.js · Express)"]
+        AUTH["Auth & RBAC<br/>JWT · bcrypt · Turnstile"]
         POSTS["Posts service"]
         MEET["Meetings service"]
+        CONV["Conversations &<br/>Messages service"]
         NOTIF["Notifications service"]
         LOGS["Audit log service"]
         AI["AI assist (Gemini)"]
     end
 
     subgraph Data["Persistence"]
-        MONGO[("MongoDB 7<br/>users &middot; posts &middot; meetings<br/>notifications &middot; logs")]
+        MONGO[("MongoDB 7<br/>users · posts · meetings<br/>conversations · messages<br/>notifications · logs")]
     end
 
     SMTP["SMTP<br/>Nodemailer"]
+    CF["Cloudflare<br/>Turnstile"]
 
     UI -->|HTTPS| NGINX
-    NGINX -->|/api| AUTH
-    NGINX --> POSTS
-    NGINX --> MEET
-    NGINX --> NOTIF
-    NGINX --> LOGS
-    NGINX --> AI
-
+    NGINX -->|/api| AUTH & POSTS & MEET & CONV & NOTIF & LOGS & AI
     AUTH --> MONGO
     POSTS --> MONGO
     MEET --> MONGO
+    CONV --> MONGO
     NOTIF --> MONGO
     LOGS --> MONGO
-
     AUTH -. verification mails .-> SMTP
     MEET  -. invitations .-> SMTP
+    AUTH -. captcha verify .-> CF
 ```
 
 **Key design principles**
@@ -167,7 +169,8 @@ flowchart LR
 - **One contract, two sides.** The TypeScript types in `frontend/src/types` and `backend/models` describe exactly the same entities &mdash; adding a field is a single PR.
 - **Stateless API + JWT.** No server-side sessions; horizontal scaling is just *add another container*.
 - **Audit log as a first-class citizen.** Every privileged write goes through `services/logService` so the admin tab and CSV export work without extra wiring.
-- **Role-aware UI.** Route guards in `router/AppRouter.tsx` send unauthorised visitors to a designed `403` page, not a silent redirect &mdash; so it is always obvious *why* something is blocked.
+- **Role-aware UI.** Route guards in `router/AppRouter.tsx` send unauthorised visitors to a designed `403` page, not a silent redirect.
+- **Conversation channels are meeting-scoped.** A private messaging channel is created automatically when a meeting request is accepted &mdash; no separate setup required.
 
 ---
 
@@ -208,6 +211,14 @@ npm install
 npm run dev                # http://localhost:5173
 ```
 
+After starting both servers, seed realistic data:
+
+```bash
+cd backend
+npm run seed:realistic-posts    # creates 5 users + 10 posts
+npm run seed:demo-messages      # creates a confirmed meeting + sample conversation
+```
+
 ### Option 3 &mdash; Production build with Docker
 
 ```bash
@@ -224,23 +235,28 @@ This brings up `mongodb` + a compiled Node.js backend + a static `nginx` fronten
 
 ### Backend (`backend/.env`)
 
-| Variable          | Required | Default                              | Description                                            |
-| ----------------- | :------: | ------------------------------------ | ------------------------------------------------------ |
-| `PORT`            |          | `5000`                               | HTTP port                                              |
-| `MONGO_URI`       | yes      | `mongodb://localhost:27017/healthai` | MongoDB connection string                              |
-| `JWT_SECRET`      | yes      | &mdash;                              | Use a long random string in production                 |
-| `JWT_EXPIRES_IN`  |          | `7d`                                 | Token lifetime                                         |
-| `NODE_ENV`        |          | `development`                        | `development` &#124; `production`                      |
-| `CLIENT_ORIGIN`   |          | `http://localhost:5173`              | CORS allowlist                                         |
-| `SMTP_HOST` &hellip; |       | empty                                | When unset, e-mails are logged to the console         |
-| `APP_BASE_URL`    |          | `http://localhost:5173`              | Used in e-mail links                                   |
+| Variable               | Required | Default                              | Description                                            |
+| ---------------------- | :------: | ------------------------------------ | ------------------------------------------------------ |
+| `PORT`                 |          | `5000`                               | HTTP port                                              |
+| `MONGO_URI`            | yes      | `mongodb://localhost:27017/healthai` | MongoDB connection string                              |
+| `JWT_SECRET`           | yes      | &mdash;                              | Use a long random string in production                 |
+| `JWT_EXPIRES_IN`       |          | `7d`                                 | Token lifetime                                         |
+| `NODE_ENV`             |          | `development`                        | `development` &#124; `production`                      |
+| `CLIENT_ORIGIN`        |          | `http://localhost:5173`              | CORS allowlist                                         |
+| `SMTP_HOST` &hellip;   |          | empty                                | When unset, e-mails are logged to the console          |
+| `APP_BASE_URL`         |          | `http://localhost:5173`              | Used in e-mail links                                   |
+| `TURNSTILE_SECRET_KEY` |          | test key (always passes)             | Cloudflare Turnstile secret — required in production   |
+| `GEMINI_API_KEY`       |          | &mdash;                              | Optional — enables AI drafting features                |
 
 ### Frontend (`frontend/.env`)
 
-| Variable                | Required | Default                       | Description                                            |
-| ----------------------- | :------: | ----------------------------- | ------------------------------------------------------ |
-| `VITE_API_URL`          | yes      | `http://localhost:5000/api`   | Backend base URL                                       |
-| `VITE_GEMINI_API_KEY`   |          | &mdash;                       | Optional &mdash; enables the AI assistant features     |
+| Variable                  | Required | Default                       | Description                                              |
+| ------------------------- | :------: | ----------------------------- | -------------------------------------------------------- |
+| `VITE_API_URL`            | yes      | `http://localhost:5000/api`   | Backend base URL                                         |
+| `VITE_TURNSTILE_SITE_KEY` |          | test key (always passes)      | Cloudflare Turnstile site key — required in production   |
+| `VITE_GEMINI_API_KEY`     |          | &mdash;                       | Optional — enables the AI assistant features             |
+
+> **Cloudflare Turnstile:** In development the bundled test keys (`1x00000000000000000000AA` / `1x0000000000000000000000000000000AA`) are used — they always pass automatically. For production, get free keys at [dash.cloudflare.com/turnstile](https://dash.cloudflare.com/turnstile).
 
 ---
 
@@ -249,30 +265,44 @@ This brings up `mongodb` + a compiled Node.js backend + a static `nginx` fronten
 ```
 healthai-co-creation-platform/
 ├── backend/
-│   ├── src/                # app.ts, index.ts, cron.ts, logger.ts (entry points)
-│   ├── routes/             # auth, posts, meetings, notifications, logs, AI
-│   ├── controllers/        # request handlers
-│   ├── services/           # business logic (logService, mailService, ...)
-│   ├── models/             # Mongoose schemas: User, Post, Meeting, Notification, Log
-│   ├── middleware/         # auth, admin, rate limiters, error handler
-│   ├── scripts/            # smoke test, seed scripts, admin password reset
-│   ├── tests/              # Vitest + Supertest + mongodb-memory-server
-│   ├── API.md              # full REST reference
-│   └── ROADMAP.md          # backend delivery plan
+│   ├── src/                    # app.ts, index.ts, cron.ts, logger.ts
+│   ├── routes/                 # auth, posts, meetings, conversations, notifications, logs, AI
+│   ├── controllers/            # request handlers
+│   ├── services/               # authService, postService, meetingService,
+│   │                           #   conversationService, notificationService, logService, mailService
+│   ├── models/                 # User, Post, Meeting, Conversation, Message, Notification, Log
+│   ├── middleware/             # authMiddleware (userName added), rateLimiter, errorHandler, upload
+│   ├── utils/                  # asyncHandler, AppError, verifyTurnstile
+│   ├── scripts/                # smoke-test, seed-realistic-posts, seed-realistic-meetings,
+│   │                           #   seed-demo-messages, reset-admin-password
+│   ├── tests/                  # Vitest + Supertest + mongodb-memory-server
+│   ├── API.md                  # full REST reference
+│   └── ROADMAP.md              # backend delivery plan
 ├── frontend/
 │   ├── src/
-│   │   ├── pages/          # auth, dashboard, posts, meetings, admin, profile, errors
-│   │   ├── components/     # layout, posts, meetings, ui primitives
-│   │   ├── store/          # Zustand slices: auth, post, meeting, notification
-│   │   ├── router/         # AppRouter with protected & role-guarded routes
-│   │   ├── utils/          # matchPosts, formatters, validation
-│   │   ├── types/          # shared TS contract types
-│   │   └── data/           # seed users, posts, meetings, logs
-│   └── README.md           # frontend-only deep dive
-├── requirements/           # SRS, SDD and user-guide source documents
-├── docker-compose.yml      # local development stack
-├── docker-compose.prod.yml # production stack (mongo + backend + nginx)
-└── README.md               # you are here
+│   │   ├── pages/
+│   │   │   ├── auth/           # Login (dev-access buttons + Turnstile), Register, ForgotPassword
+│   │   │   ├── dashboard/      # DashboardPage with SavedPosts section
+│   │   │   ├── posts/          # PostListPage, PostDetailPage (Share/Save), PostCreate, PostEdit
+│   │   │   ├── meetings/       # MeetingsPage with Open Chat button
+│   │   │   ├── messages/       # ConversationsPage, ConversationPage (polling chat)
+│   │   │   ├── profile/        # ProfilePage (own), PublicProfilePage (/profile/:userId)
+│   │   │   ├── admin/          # AdminPage (overview, users, posts, logs — all buttons working)
+│   │   │   ├── notifications/  # NotificationsPage
+│   │   │   └── errors/         # 404, 403, Privacy
+│   │   ├── components/
+│   │   │   ├── layout/         # AppLayout, Navbar (ThemeToggle + msg badge), Footer
+│   │   │   └── ui/             # ThemeToggle, Skeleton, SessionTimeoutModal, CookieConsent
+│   │   ├── store/              # authStore, postStore, meetingStore, conversationStore,
+│   │   │                       #   notificationStore, themeStore
+│   │   ├── router/             # AppRouter with protected, role-guarded & public-profile routes
+│   │   ├── types/              # auth, post, meeting, conversation, common
+│   │   └── styles/             # globals.css (design tokens + dark mode overrides)
+│   └── README.md               # frontend-only deep dive
+├── requirements/               # SRS, SDD and user-guide source documents
+├── docker-compose.yml          # local development stack
+├── docker-compose.prod.yml     # production stack (mongo + backend + nginx)
+└── README.md                   # you are here
 ```
 
 ---
@@ -281,32 +311,18 @@ healthai-co-creation-platform/
 
 The full REST contract &mdash; request bodies, response envelopes, error codes &mdash; lives in **[`backend/API.md`](backend/API.md)**.
 
-A quick taste:
+Key endpoint groups:
 
-```http
-POST /api/auth/register
-Content-Type: application/json
-
-{
-  "name": "Dr. Jane Smith",
-  "email": "jane@university.edu",
-  "password": "password123",
-  "role": "healthcare_professional",
-  "institution": "Charite Berlin",
-  "city": "Berlin",
-  "country": "Germany"
-}
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "user": { "id": "664f...", "role": "healthcare_professional", "isVerified": true },
-    "token": "eyJhbGciOi..."
-  }
-}
-```
+| Prefix                     | Description                                                              |
+| -------------------------- | ------------------------------------------------------------------------ |
+| `POST /api/auth/login`     | Login with Turnstile token verification                                  |
+| `POST /api/auth/register`  | Register with `.edu` email and Turnstile verification                    |
+| `GET  /api/posts`          | Browse / filter posts with smart matching                                |
+| `POST /api/meetings`       | Request a meeting (NDA + 3 time slots)                                   |
+| `PUT  /api/meetings/:id/accept` | Accept meeting → automatically opens a conversation channel        |
+| `GET  /api/conversations`  | List the current user's conversation channels                            |
+| `POST /api/conversations/:id/messages` | Send a message in a conversation                           |
+| `GET  /api/auth/users/:id` | Get a user's public profile                                              |
 
 All responses follow the same envelope:
 
@@ -319,29 +335,27 @@ All responses follow the same envelope:
 
 ## Demo accounts
 
-The frontend ships with realistic seed data (5 users, 10 posts, 7 meetings, 20 audit log entries). Sign in via `/login`.
+Run `npm run seed:realistic-posts` followed by `npm run seed:demo-messages` to populate the database. The login page also exposes **Dev Access** quick-login buttons for the three accounts below.
 
-| Email                    | Role                    | City      | Highlights                                                 |
-| ------------------------ | ----------------------- | --------- | ---------------------------------------------------------- |
-| `e.muller@charite.edu`   | Healthcare professional | Berlin    | 2 active posts, 1 confirmed meeting, GDPR data-export      |
-| `m.rossi@polimi.edu`     | Engineer                | Barcelona | FL framework post, incoming stroke-unit collab request     |
-| `i.larsson@ki.edu`       | Healthcare professional | Stockholm | Oncology + ophthalmology posts, 3 pending meetings         |
-| `k.nakamura@tum.edu`     | Engineer                | Berlin    | Wearable fall-detector, mental-health NLP post             |
-| `admin@healthai.edu`     | Admin                   | Amsterdam | Full admin panel, users / posts / logs, CSV export         |
+| Email                            | Password        | Role                    | Notes                                               |
+| -------------------------------- | --------------- | ----------------------- | --------------------------------------------------- |
+| `elif.kaya@istanbul.edu.tr`      | `HealthAI2026!` | Healthcare Professional | Cardiology posts, confirmed meeting, sample chat    |
+| `mert.aydin@metu.edu.tr`         | `HealthAI2026!` | Engineer                | ML / federated learning posts, sample conversation  |
+| `admin@healthai.edu`             | `Admin1234!`    | Admin                   | Full admin panel, user management, audit log, CSV   |
 
-> Default password is `password123` for users and `admin123` for admin.
+> **Dev Access buttons** on the login page let you sign in as any of these accounts with a single click — no typing required.
 
 ---
 
 ## Testing
 
 ```bash
-# Backend - Vitest + Supertest, in-memory MongoDB
+# Backend — Vitest + Supertest, in-memory MongoDB
 cd backend
 npm test
 npm run test:coverage
 
-# Frontend - Vitest + Testing Library
+# Frontend — Vitest + Testing Library
 cd frontend
 npm test
 ```
@@ -357,14 +371,15 @@ npm run smoke
 
 ## Seeding & utility scripts
 
-The backend exposes a small set of CLI scripts (run from `backend/`):
+All scripts are run from `backend/`:
 
-| Script                              | Purpose                                                                  |
-| ----------------------------------- | ------------------------------------------------------------------------ |
-| `npm run smoke`                     | End-to-end smoke test against an in-memory MongoDB                       |
-| `npm run seed:realistic-posts`      | Insert a realistic set of healthcare and engineer posts                  |
-| `npm run seed:realistic-meetings`   | Insert paired meeting requests across the seeded posts                   |
-| `npx ts-node scripts/reset-admin-password.ts` | Reset the admin account password (interactive)                 |
+| Script                                            | Purpose                                                           |
+| ------------------------------------------------- | ----------------------------------------------------------------- |
+| `npm run smoke`                                   | End-to-end smoke test against a live MongoDB                      |
+| `npm run seed:realistic-posts`                    | Insert 5 seeded users + 10 realistic healthcare posts             |
+| `npm run seed:realistic-meetings`                 | Insert paired meeting requests across the seeded posts            |
+| `npm run seed:demo-messages`                      | Create a confirmed meeting + 10-message sample conversation       |
+| `npx ts-node scripts/reset-admin-password.ts`     | Reset the admin account password                                  |
 
 ---
 
@@ -380,6 +395,7 @@ The repository ships with two Compose files:
 - [ ] Set a strong `JWT_SECRET` (`openssl rand -hex 32`).
 - [ ] Point `CLIENT_ORIGIN` to your real domain.
 - [ ] Configure SMTP (`SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`) so verification e-mails are sent.
+- [ ] Replace Turnstile test keys with real keys from [dash.cloudflare.com/turnstile](https://dash.cloudflare.com/turnstile).
 - [ ] Put the stack behind HTTPS (Caddy / Traefik / nginx with Let's Encrypt).
 - [ ] Schedule MongoDB backups for the `mongo_data` volume.
 - [ ] Rotate the admin password after the first deploy.
@@ -390,10 +406,11 @@ The repository ships with two Compose files:
 
 The platform is hardened against common web threats:
 
+- **Bot protection** &mdash; Cloudflare Turnstile CAPTCHA on login, register and forgot-password; skipped in dev, enforced in production.
 - **Transport** &mdash; CORS allowlist, `helmet` security headers, expected behind HTTPS in production.
-- **Authentication** &mdash; bcrypt password hashing, JWTs with configurable expiry, 30-minute idle timeout in the client, lockout after 3 failed attempts.
+- **Authentication** &mdash; bcrypt password hashing, JWTs with configurable expiry, 30-minute idle timeout in the client.
+- **Rate limiting** &mdash; `express-rate-limit` applied only to auth mutation endpoints (`/login`, `/register`, `/forgot-password`, `/resend-verification`, `/reset-password`) — not to session-read or authenticated endpoints.
 - **Input safety** &mdash; `express-mongo-sanitize` strips `$`/`.` operators, request validators on every mutation, multipart upload size limits via `multer`.
-- **Rate limiting** &mdash; `express-rate-limit` on auth and write endpoints.
 - **Auditability** &mdash; every privileged action is appended to the audit log; admin export is CSV-only and read-only.
 
 > Found a security issue? **Please do not open a public GitHub issue.** E-mail the maintainers directly so we can ship a fix before disclosure.
@@ -411,7 +428,6 @@ Living documentation lives next to the code:
 | [`backend/CODE_REVIEW.md`](backend/CODE_REVIEW.md)      | Internal code-review notes and known follow-ups                |
 | [`INTEGRATION_REVIEW.md`](INTEGRATION_REVIEW.md)        | End-to-end integration notes between frontend and backend      |
 | [`requirements/`](requirements)                         | Source SRS, SDD and user-guide drafts                          |
-| [`frontend/README.md`](frontend/README.md)              | Frontend-only deep dive                                        |
 
 ---
 
@@ -420,16 +436,19 @@ Living documentation lives next to the code:
 - [x] Authentication, role-based access, account suspension
 - [x] Post lifecycle (`draft` &rarr; `published` &rarr; `partner_found`)
 - [x] Meeting workflow with NDA and slot proposals
+- [x] In-app private messaging (conversation channel per confirmed meeting)
 - [x] Notification service with polling and unread count
-- [x] Admin panel with audit log and CSV export
+- [x] Admin panel with audit log, CSV export and user management
 - [x] GDPR data export and account deletion
 - [x] AI-assisted post drafting (Gemini, behind feature flag)
+- [x] Cloudflare Turnstile CAPTCHA on all public auth forms
+- [x] Dark mode — system-wide, persisted, all pages covered
+- [x] Public profile pages (`/profile/:userId`)
+- [x] Saved posts with dashboard section
 - [ ] Real-time notifications via WebSocket / Server-Sent Events
-- [ ] Public profile pages with portfolio uploads
 - [ ] i18n (EN, TR, DE) and RTL support
 - [ ] OpenAPI 3.1 schema and auto-generated client
-
-A more detailed, phase-by-phase plan lives in **[`backend/ROADMAP.md`](backend/ROADMAP.md)**.
+- [ ] File / document attachments in conversations
 
 ---
 
@@ -454,9 +473,10 @@ Distributed under the **MIT License**. A `LICENSE` file will be added to the rep
 
 ## Acknowledgements
 
-- Built with React, Vite, Tailwind, Express and MongoDB &mdash; and the open-source ecosystems around them.
+- Built with React, Vite, Tailwind CSS, Express and MongoDB &mdash; and the open-source ecosystems around them.
 - Typography: **Plus Jakarta Sans** (headlines) and **Source Sans 3** (body) via Google Fonts.
-- Icons: **Material Symbols Outlined** and **Lucide**.
+- Icons: **Lucide**.
+- Bot protection: **Cloudflare Turnstile**.
 - Originally created as a SENG 384 capstone project (Spring 2026).
 
 <div align="center">
