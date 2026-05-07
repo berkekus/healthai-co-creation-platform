@@ -152,8 +152,7 @@ function StatCard({ label, value, icon, iconBg, iconColor, change, up }: {
 }
 
 // ── USER GROWTH CHART ─────────────────────────────────────
-function UserGrowthChart({ users }: { users: User[] }) {
-  const days = 8
+function UserGrowthChart({ users, days }: { users: User[]; days: number }) {
   const today = new Date()
   const pts = Array.from({ length: days }, (_, i) => {
     const d = new Date(today)
@@ -236,6 +235,10 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigat
   navigateTo: (path: string) => void
 }) {
   const [overviewPage, setOverviewPage] = useState(1)
+  const [chartDays, setChartDays] = useState(7)
+  const [showChartMenu, setShowChartMenu] = useState(false)
+  const [dateRangeDays, setDateRangeDays] = useState(7)
+  const [showDateMenu, setShowDateMenu] = useState(false)
   const PAGE_SIZE = 5
   const totalUsers = users.filter(u => u.role !== 'admin').length
   const activePosts = posts.filter(p => p.status === 'active').length
@@ -245,7 +248,9 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigat
   const recentLogs = logs.slice(0, 4)
 
   const today = new Date()
-  const dateRange = `${new Date(today.getTime() - 6 * 86400000).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} – ${today.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}`
+  const dateRange = `${new Date(today.getTime() - (dateRangeDays - 1) * 86400000).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} – ${today.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}`
+  const RANGE_OPTIONS = [7, 14, 30, 90]
+  const CHART_OPTIONS = [7, 14, 30]
 
   const logIcon = (action: string) => {
     if (action.startsWith('login') || action.startsWith('register')) return { bg: '#fef3c7', emoji: '🔐' }
@@ -269,10 +274,30 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigat
           <h1 className="text-[22px] font-black text-[#18203a]">Welcome back, Admin 👋</h1>
           <p className="text-[13.5px] text-[#9ca3af] mt-0.5">Here's what's happening on HealthAI today.</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-[#eaecf0] text-[13px] font-semibold text-[#374151] cursor-pointer hover:border-[#4f46e5] transition-colors">
-          <Calendar size={14} className="text-[#9ca3af]" />
-          {dateRange}
-          <ChevronDown size={13} className="text-[#9ca3af]" />
+        <div className="relative">
+          <button
+            onClick={() => setShowDateMenu(v => !v)}
+            className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-[#eaecf0] text-[13px] font-semibold text-[#374151] hover:border-[#4f46e5] transition-colors"
+          >
+            <Calendar size={14} className="text-[#9ca3af]" />
+            {dateRange}
+            <ChevronDown size={13} className="text-[#9ca3af]" />
+          </button>
+          {showDateMenu && (
+            <div className="absolute right-0 top-10 z-20 bg-white rounded-xl border border-[#eaecf0] shadow-lg overflow-hidden min-w-[130px]">
+              {RANGE_OPTIONS.map(d => (
+                <button
+                  key={d}
+                  onClick={() => { setDateRangeDays(d); setShowDateMenu(false) }}
+                  className={`w-full text-left px-4 py-2.5 text-[13px] font-semibold transition-colors ${
+                    d === dateRangeDays ? 'bg-[#eeecff] text-[#4f46e5]' : 'text-[#374151] hover:bg-[#f5f5ff]'
+                  }`}
+                >
+                  Last {d} days
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -292,11 +317,31 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigat
           <div className="bg-white rounded-2xl border border-[#eaecf0] p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-[15px] font-black text-[#18203a]">User growth</h3>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#eaecf0] text-[12px] font-semibold text-[#6b7280] cursor-pointer hover:border-[#4f46e5] transition-colors">
-                Last 7 days <ChevronDown size={12} />
+              <div className="relative">
+                <button
+                  onClick={() => setShowChartMenu(v => !v)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#eaecf0] text-[12px] font-semibold text-[#6b7280] hover:border-[#4f46e5] transition-colors"
+                >
+                  Last {chartDays} days <ChevronDown size={12} />
+                </button>
+                {showChartMenu && (
+                  <div className="absolute right-0 top-9 z-20 bg-white rounded-xl border border-[#eaecf0] shadow-lg overflow-hidden min-w-[120px]">
+                    {CHART_OPTIONS.map(d => (
+                      <button
+                        key={d}
+                        onClick={() => { setChartDays(d); setShowChartMenu(false) }}
+                        className={`w-full text-left px-4 py-2 text-[12px] font-semibold transition-colors ${
+                          d === chartDays ? 'bg-[#eeecff] text-[#4f46e5]' : 'text-[#374151] hover:bg-[#f5f5ff]'
+                        }`}
+                      >
+                        Last {d} days
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-            <UserGrowthChart users={users} />
+            <UserGrowthChart users={users} days={chartDays} />
           </div>
 
           {/* Recent Users */}
