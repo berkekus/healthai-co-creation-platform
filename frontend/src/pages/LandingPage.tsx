@@ -732,28 +732,70 @@ export default function LandingPage() {
                 slab) is enough to dissolve the seam completely while
                 preserving the calm teal-to-off-white journey below.
               */
-              background: 'linear-gradient(180deg, rgba(232,244,247,0) 0%, #E8F4F7 3%, #E8F4F7 14%, #F3F4F6 57%, #F3F4F6 100%)',
+              background: 'linear-gradient(180deg, rgba(232,244,247,0) 0%, rgba(232,244,247,0.55) 5%, #E8F4F7 10%, #E8F4F7 17%, #F3F4F6 57%, #F3F4F6 100%)',
               y: prefersReducedMotion ? 0 : slabY,
             }}
           >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 z-0 h-48 bg-gradient-to-b from-transparent via-[#E8F4F7]/70 to-[#E8F4F7]"
+            />
 
             <section
               id="directory"
-              className="max-w-[1420px] mx-auto px-6 md:px-10 pt-6 md:pt-10 pb-20 md:pb-24 relative"
+              className="relative z-10 max-w-[1420px] mx-auto px-6 md:px-10 pt-6 md:pt-10 pb-20 md:pb-24"
             >
 
             {/* ── Pathway cards ─────────────────────────────── */}
+            <div className="relative mb-10 overflow-hidden py-3">
+              <div className="mb-5 flex items-center justify-center gap-3">
+                <Icon name="verified_user" className="text-[20px] text-[#5A6FD6]" filled />
+                <p className="font-mono text-[11px] font-black uppercase tracking-[0.34em] text-[#77728f]">
+                  Verified Institutional Network
+                </p>
+              </div>
+              <div className="relative overflow-hidden">
+                <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-[#E8F4F7] to-transparent" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-[#E8F4F7] to-transparent" />
+                <div className="institution-marquee flex w-max items-center">
+                  {[...Array(2)].map((_, groupIndex) => (
+                    <div key={groupIndex} className="flex shrink-0 items-center gap-8 px-4">
+                      {[
+                        'Cankaya University',
+                        'METU',
+                        'ITU',
+                        'Bogazici University',
+                        'Ege University Hospital',
+                        'Hacettepe University Hospital',
+                        'Charite Berlin',
+                        'KU Leuven',
+                        'TU Delft',
+                        'ETH Zurich',
+                        'University of Helsinki',
+                        'Karolinska Institutet',
+                      ].map((name) => (
+                        <span key={`${groupIndex}-${name}`} className="flex items-center gap-8 font-mono text-[11px] font-black uppercase tracking-[0.12em] text-[#77728f]">
+                          {name}
+                          <span className="h-1 w-1 rounded-full bg-[#6B6FEA]" />
+                        </span>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <div className="relative mb-12">
-              <div className="relative rounded-[36px] bg-white px-6 pb-7 pt-6 shadow-[0_30px_86px_-66px_rgba(45,24,56,0.55),0_-14px_50px_-18px_rgba(255,255,255,0.9)] md:px-8 md:pb-8 md:pt-8">
-                <div className="mb-7 flex items-center justify-between px-1">
+              <div className="relative rounded-[32px] bg-white px-5 pb-6 pt-5 shadow-[0_30px_86px_-66px_rgba(45,24,56,0.55),0_-14px_50px_-18px_rgba(255,255,255,0.9)] md:px-7 md:pb-7 md:pt-7">
+                <div className="mb-5 flex items-center justify-between px-1">
                   <p className="text-[12px] font-mono tracking-[0.32em] uppercase text-[#77728f] font-black">Join the Directory</p>
                 </div>
 
-                <div className="relative grid gap-5 md:grid-cols-2">
+                <div className="relative grid gap-4 md:grid-cols-2">
 
                   {/* ───── Engineer card (LEFT) ───── */}
                   <motion.div
-                    className="relative min-h-[430px] overflow-hidden rounded-[28px] bg-[#f8f9fb] text-neutral-900 will-change-transform"
+                    className="relative min-h-[390px] overflow-hidden rounded-[24px] bg-[#f8f9fb] text-neutral-900 will-change-transform"
                     variants={cardOverlapVariants}
                     initial="rest"
                     animate={engineerOuterState}
@@ -761,15 +803,15 @@ export default function LandingPage() {
                     onHoverEnd={() => canHover && setEngineerHovered(false)}
                   >
                     {/* Content — stacks naturally from top, no h-full stretch */}
-                    <div className="relative z-10 flex min-h-[430px] flex-col p-7 pb-8 sm:p-10 md:w-[56%] lg:p-11">
-                      <span className="mb-10 inline-flex items-center gap-3 text-[12px] font-mono font-black uppercase tracking-[0.24em] text-[#2d2844]">
+                    <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
+                      <span className="mb-8 inline-flex items-center gap-3 text-[12px] font-mono font-black uppercase tracking-[0.24em] text-[#2d2844]">
                         <span className="h-4 w-1 bg-[#4933a3]" />
                         FOR ENGINEERS
                       </span>
-                      <h2 className="font-headline text-[2.35rem] font-black leading-[1.12] tracking-[-0.035em] text-hai-plum sm:text-[2.75rem] lg:text-[3.05rem]">
+                      <h2 className="font-headline text-[2.15rem] font-black leading-[1.12] tracking-[-0.035em] text-hai-plum sm:text-[2.45rem] lg:text-[2.75rem]">
                         Build with clinical insight.
                       </h2>
-                      <p className="mt-7 max-w-[330px] font-body text-[17px] font-semibold leading-[1.55] text-[#514d62]">
+                      <p className="mt-6 max-w-[320px] font-body text-[16px] font-semibold leading-[1.55] text-[#514d62]">
                         Share your idea or look for the right healthcare partner to co-create solutions.
                       </p>
                       <Link
@@ -797,7 +839,7 @@ export default function LandingPage() {
 
                   {/* ───── Healthcare Professional card (RIGHT) ───── */}
                   <motion.div
-                    className="relative min-h-[430px] overflow-hidden rounded-[28px] bg-[#f8fbfc] text-neutral-900 will-change-transform"
+                    className="relative min-h-[390px] overflow-hidden rounded-[24px] bg-[#f8fbfc] text-neutral-900 will-change-transform"
                     variants={cardOverlapVariants}
                     initial="rest"
                     animate={clinicianOuterState}
@@ -805,15 +847,15 @@ export default function LandingPage() {
                     onHoverEnd={() => canHover && setClinicianHovered(false)}
                   >
                     {/* Content — stacks naturally from top */}
-                    <div className="relative z-10 flex min-h-[430px] flex-col p-7 pb-8 sm:p-10 md:w-[56%] lg:p-11">
-                      <span className="mb-10 inline-flex items-center gap-3 text-[12px] font-mono font-black uppercase tracking-[0.24em] text-[#2d2844]">
+                    <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
+                      <span className="mb-8 inline-flex items-center gap-3 text-[12px] font-mono font-black uppercase tracking-[0.24em] text-[#2d2844]">
                         <span className="h-4 w-1 bg-[#72d6dd]" />
                         FOR HEALTHCARE PROFESSIONALS
                       </span>
-                      <h2 className="font-headline text-[2.35rem] font-black leading-[1.12] tracking-[-0.035em] text-hai-plum sm:text-[2.75rem] lg:text-[3.05rem]">
+                      <h2 className="font-headline text-[2.15rem] font-black leading-[1.12] tracking-[-0.035em] text-hai-plum sm:text-[2.45rem] lg:text-[2.75rem]">
                         Shape technology that matters.
                       </h2>
-                      <p className="mt-7 max-w-[340px] font-body text-[17px] font-semibold leading-[1.55] text-[#514d62]">
+                      <p className="mt-6 max-w-[330px] font-body text-[16px] font-semibold leading-[1.55] text-[#514d62]">
                         Collaborate with engineers on real clinical needs and innovations.
                       </p>
                       <Link
@@ -874,8 +916,8 @@ export default function LandingPage() {
             </div>
 
             {/* Giant "Platform" wordmark — on off-white, uses ghost tone */}
-            <div className="text-center">
-              <h2 className="text-[5.5rem] sm:text-[8rem] md:text-[10rem] font-headline font-bold leading-none tracking-[-0.04em]"
+            <div className="mt-16 text-center md:mt-24">
+              <h2 className="text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-[-0.04em]"
                 style={{ color: '#36213E', opacity: 0.08 }}>
                 Platform
               </h2>
@@ -883,8 +925,86 @@ export default function LandingPage() {
           </section>
 
           {/* ── PLATFORM · 4 cards ─────────────────────────── */}
-          <section id="platform" className="max-w-7xl mx-auto px-6 md:px-8 pb-20 md:pb-24 text-neutral-900">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <section id="platform" className="max-w-[1500px] mx-auto px-6 md:px-8 pb-20 md:pb-24 text-neutral-900">
+            <div className="relative overflow-hidden px-0 py-10 md:px-2 md:py-14 lg:px-4">
+              <div className="grid min-h-[640px] grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.45fr] lg:items-center">
+                <div className="relative z-10 max-w-[500px]">
+                  <p className="font-mono text-[12px] font-black uppercase tracking-[0.28em] text-[#008EA2]">Built for Europe.</p>
+                  <div className="mt-6 h-0.5 w-10 bg-[#008EA2]" />
+                  <h2 className="mt-10 font-headline text-[2.65rem] font-black leading-[1.12] tracking-[-0.025em] text-hai-plum sm:text-[3.2rem] lg:text-[3.55rem]">
+                    Designed for European institutions.<br />
+                    <span className="text-[#008EA2]">Trusted across borders.</span>
+                  </h2>
+                  <p className="mt-8 max-w-[430px] font-body text-[18px] font-semibold leading-[1.65] text-[#596079]">
+                    HealthAI is built with a European-first approach to privacy, compliance, and collaboration. One platform. Many countries. Shared standards.
+                  </p>
+
+                  <div className="mt-10 space-y-7">
+                    {[
+                      ['security', 'GDPR-native by design', 'Privacy, security and data sovereignty at the core.'],
+                      ['account_balance', 'Built for European institutions', 'Aligned with EU regulations, ethics and research standards.'],
+                      ['groups', 'Cross-border collaboration', 'Connect with verified professionals and institutions across Europe.'],
+                    ].map(([icon, title, desc]) => (
+                      <div key={title} className="flex items-start gap-4">
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#F0F4FF] text-[#5A6FD6]">
+                          <Icon name={icon} className="text-[28px]" filled />
+                        </div>
+                        <div>
+                          <h3 className="font-headline text-[16px] font-black leading-tight text-hai-plum">{title}</h3>
+                          <p className="mt-1 max-w-[300px] font-body text-[14px] font-semibold leading-[1.5] text-[#596079]">{desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="relative min-h-[420px] lg:min-h-[620px]">
+                  <img
+                    src="/images/europe.png"
+                    alt="European collaboration network map"
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-[-58px_-120px_-20px_-120px] h-[calc(100%+78px)] w-[calc(100%+240px)] object-contain object-center opacity-95"
+                  />
+
+                  <div className="relative z-10 ml-auto mt-8 max-w-[270px] rounded-[14px] border border-[#E3EAF0] bg-white/88 p-6 shadow-[0_28px_72px_-50px_rgba(54,33,62,0.38)] backdrop-blur-md lg:mt-28">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#008EA2] text-white">
+                        <Icon name="stars" className="text-[22px]" filled />
+                      </div>
+                      <div>
+                        <h3 className="font-headline text-[15px] font-black leading-snug text-hai-plum">European standards.<br />Global impact.</h3>
+                        <p className="mt-5 font-body text-[13px] font-semibold leading-[1.65] text-[#596079]">
+                          Supporting innovation in healthcare through secure, ethical and compliant collaboration.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative z-10 mt-8 grid gap-0 overflow-hidden rounded-[18px] border border-[#E7EDF1] bg-white/92 shadow-[0_28px_80px_-58px_rgba(54,33,62,0.36)] md:grid-cols-2 lg:grid-cols-4">
+                {[
+                  ['public', '30+', 'Countries', 'Across the European research landscape'],
+                  ['account_balance', '1000+', 'Institutions', 'Hospitals, universities and research centers'],
+                  ['groups', 'One', 'Shared Language', 'Strict terminology for clear, effective collaboration'],
+                  ['verified_user', 'Complete', 'Compliance', 'GDPR-aligned, secure and audit-ready'],
+                ].map(([icon, value, label, desc], index) => (
+                  <div key={label} className={`flex min-h-[150px] items-start gap-5 p-7 ${index > 0 ? 'lg:border-l lg:border-[#E4EAF0]' : ''}`}>
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F0F4FF] text-[#5A6FD6]">
+                      <Icon name={icon} className="text-[28px]" filled />
+                    </div>
+                    <div>
+                      <div className="font-headline text-[22px] font-black leading-none text-[#008EA2]">{value}</div>
+                      <h3 className="mt-3 font-headline text-[15px] font-black leading-tight text-hai-plum">{label}</h3>
+                      <p className="mt-4 font-body text-[13px] font-semibold leading-[1.55] text-[#596079]">{desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="hidden">
 
               {/* Card 1 — Structured Directory */}
               <div className="bg-white rounded-3xl p-7 shadow-sm border border-neutral-100 flex flex-col h-full">

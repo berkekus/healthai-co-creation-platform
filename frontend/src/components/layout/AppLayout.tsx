@@ -3,6 +3,7 @@ import Navbar from './Navbar'
 import Footer from './Footer'
 import SessionTimeoutModal from '../ui/SessionTimeoutModal'
 import CookieConsentBanner from '../ui/CookieConsentBanner'
+import ThemeToggle from '../ui/ThemeToggle'
 
 /**
  * Shell for all authenticated-app pages (Faz 1 refresh).
@@ -18,6 +19,7 @@ export default function AppLayout() {
       <Footer />
       <SessionTimeoutModal />
       <CookieConsentBanner />
+      <ThemeToggle />
     </div>
   )
 }

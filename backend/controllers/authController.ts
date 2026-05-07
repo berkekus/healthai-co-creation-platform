@@ -118,7 +118,7 @@ export const getUserById = asyncHandler<Request>(async (req, res) => {
 
 export const getAllUsers = asyncHandler<Request>(async (req, res) => {
   const page  = Math.max(1, parseInt(req.query.page  as string) || 1)
-  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20))
+  const limit = Math.min(500, Math.max(1, parseInt(req.query.limit as string) || 20))
   const role   = typeof req.query.role   === 'string' ? req.query.role   : undefined
   const search = typeof req.query.search === 'string' ? req.query.search : undefined
 

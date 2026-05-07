@@ -162,7 +162,7 @@ export default function PostListPage() {
   const [stage, setStage] = useState('')
   const [status, setStatus] = useState('')
   const [postedBy, setPostedBy] = useState<PostedBy>('Anyone')
-  const [location, setLocation] = useState('Ankara')
+  const [location, setLocation] = useState('')
   const [sort, setSort] = useState<SortMode>('best')
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [page, setPage] = useState(1)
