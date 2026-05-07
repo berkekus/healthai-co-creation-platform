@@ -227,19 +227,19 @@ function setPostededBySafe(setter: (value: PostedBy) => void) {
 function PageHeader({ search, onSearch }: { search: string; onSearch: (value: string) => void }) {
   return (
     <header className="mb-[52px]">
-      <div className="mb-5 inline-flex items-center gap-3 text-[12px] font-black uppercase tracking-[0.22em] text-[var(--muted)]">
+      <div className="mb-5 inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--muted)]">
         <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
         05 Directory
       </div>
 
       <div className="directory-header-grid grid grid-cols-1 gap-10 xl:items-end">
         <div>
-          <h1 className="font-headline text-[58px] font-black leading-[0.98] tracking-normal md:text-[72px]">
+          <h1 className="font-headline text-6xl font-black leading-tight tracking-normal md:text-7xl">
             <span className="text-[var(--primary)]">Collaboration </span>
             <span className="text-[#8AC6D0]">opportunities</span>
             <span className="text-[var(--primary)]">.</span>
           </h1>
-          <p className="mt-5 text-[18px] font-semibold leading-8 text-[var(--muted)]">
+          <p className="mt-5 text-lg font-semibold leading-8 text-[var(--muted)]">
             Browse & connect with clinicians and engineers working on real healthcare solutions.
           </p>
         </div>
@@ -304,7 +304,7 @@ function FilterSidebar({
   return (
     <aside className="rounded-[28px] border border-[var(--border)] bg-white px-6 py-6 shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)] lg:self-start">
       <div className="mb-9 flex items-center justify-between">
-        <div className="flex items-center gap-3 text-[12px] font-black uppercase tracking-[0.16em] text-[var(--primary)]">
+        <div className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--primary)]">
           <SlidersHorizontal size={15} />
           Filters
         </div>
@@ -335,10 +335,10 @@ function FilterSidebar({
               <div className="border-b border-[var(--border)] px-4 py-2.5">
                 <button
                   onClick={() => onLocation('')}
-                  className="inline-flex items-center gap-2 rounded-full bg-[var(--tag-bg)] px-3 py-1 text-[12px] font-black text-[var(--tag-text)] transition hover:text-[var(--primary)]"
+                  className="inline-flex items-center gap-2 rounded-full bg-[var(--tag-bg)] px-3 py-1 text-xs font-black text-[var(--tag-text)] transition hover:text-[var(--primary)]"
                 >
                   Near me · {location}
-                  <span className="text-[13px]">×</span>
+                  <span className="text-sm">×</span>
                 </button>
               </div>
             )}
@@ -347,7 +347,7 @@ function FilterSidebar({
                 value={location}
                 onChange={event => onLocation(event.target.value)}
                 placeholder="Search city or country..."
-                className="h-12 w-full bg-white px-4 pr-10 text-[13px] font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878]"
+                className="h-12 w-full bg-white px-4 pr-10 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878]"
               />
               <LocateFixed size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
             </div>
@@ -356,7 +356,7 @@ function FilterSidebar({
       </div>
 
       <div className="mt-10 border-t border-[var(--border)] pt-7">
-        <button onClick={onClear} className="inline-flex items-center gap-3 rounded-full px-2 py-2 text-[14px] font-black text-[var(--muted)] transition hover:text-[var(--primary)]">
+        <button onClick={onClear} className="inline-flex items-center gap-3 rounded-full px-2 py-2 text-sm font-black text-[var(--muted)] transition hover:text-[var(--primary)]">
           <RotateCcw size={17} />
           Clear filters
         </button>
@@ -385,7 +385,7 @@ function FilterSelect({
         <select
           value={value}
           onChange={event => onChange(event.target.value)}
-          className="h-[46px] w-full appearance-none rounded-[14px] border border-[var(--border)] bg-white px-4 pr-10 text-[13px] font-black text-[var(--text)] outline-none transition hover:border-[var(--accent)] focus:border-[var(--accent)]"
+          className="h-[46px] w-full appearance-none rounded-[14px] border border-[var(--border)] bg-white px-4 pr-10 text-sm font-black text-[var(--text)] outline-none transition hover:border-[var(--accent)] focus:border-[var(--accent)]"
         >
           <option value="">{placeholder}</option>
           {children}
@@ -397,7 +397,7 @@ function FilterSelect({
 }
 
 function FilterLabel({ children }: { children: ReactNode }) {
-  return <div className="mb-3 text-[11px] font-black uppercase tracking-[0.18em] text-[var(--muted)]">{children}</div>
+  return <div className="mb-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--muted)]">{children}</div>
 }
 
 function SegmentedControl({ active, onChange }: { active: PostedBy; onChange: (value: PostedBy) => void }) {
@@ -409,7 +409,7 @@ function SegmentedControl({ active, onChange }: { active: PostedBy; onChange: (v
           <button
             key={item}
             onClick={() => onChange(item)}
-            className={`rounded-[11px] text-[12px] font-black transition ${
+            className={`rounded-[11px] text-xs font-black transition ${
               active === item
                 ? 'bg-[var(--primary)] text-white shadow-[0_10px_24px_-16px_rgba(45,24,56,0.8)]'
                 : 'text-[var(--text)] hover:bg-[var(--tag-bg)]'
@@ -459,17 +459,17 @@ function PostList({
       <div className="border-b border-[var(--border)] px-7 py-5">
         <div className="flex items-center justify-between gap-6">
           <div>
-            <div className="text-[15px] font-black text-[var(--muted)]">
+            <div className="text-base font-black text-[var(--muted)]">
               {isLoading ? 'Loading opportunities…' : `${totalPosts} opportunities found`}
             </div>
-            <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#36213E] px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-white shadow-[0_12px_28px_-20px_rgba(45,24,56,0.8)]">
+            <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#36213E] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-white shadow-[0_12px_28px_-20px_rgba(45,24,56,0.8)]">
               <Sparkles size={14} />
               {isMatching ? 'AI matching in progress' : aiError ? 'AI fallback ranking active' : 'AI-ranked for your profile'}
             </div>
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3 text-[13px] font-black text-[var(--muted)]">
+            <div className="flex items-center gap-3 text-sm font-black text-[var(--muted)]">
               <span>Sort by</span>
               <div className="relative">
                 <select
@@ -511,10 +511,10 @@ function PostList({
         <EmptyState />
       ) : totalPosts === 0 ? (
         <div className="flex flex-col items-center gap-4 px-7 py-16 text-center">
-          <p className="text-[15px] font-semibold text-[var(--muted)]">No opportunities match your filters.</p>
+          <p className="text-base font-semibold text-[var(--muted)]">No opportunities match your filters.</p>
           <button
             onClick={onClear}
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-5 py-2 text-[13px] font-black text-[var(--primary)] transition hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-5 py-2 text-sm font-black text-[var(--primary)] transition hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
           >
             <RotateCcw size={14} />
             Reset filters
@@ -589,14 +589,14 @@ function EmptyState() {
         <FileText size={28} className="text-[var(--primary)]" strokeWidth={1.5} />
       </div>
       <div>
-        <p className="text-[17px] font-black text-[var(--primary)]">No opportunities yet</p>
-        <p className="mt-2 text-[14px] font-semibold text-[var(--muted)]">
+        <p className="text-lg font-black text-[var(--primary)]">No opportunities yet</p>
+        <p className="mt-2 text-sm font-semibold text-[var(--muted)]">
           Be the first to post a collaboration opportunity.
         </p>
       </div>
       <Link
         to={ROUTES.POST_CREATE}
-        className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-6 py-3 text-[13px] font-black text-white transition hover:bg-[#24162B]"
+        className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-6 py-3 text-sm font-black text-white transition hover:bg-[#24162B]"
       >
         <Plus size={16} strokeWidth={2.6} />
         Post an opportunity
@@ -614,7 +614,7 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
     >
       <div style={{ paddingTop: compact ? 0 : 54 }}>
         <div
-          className="flex shrink-0 items-center justify-center rounded-full bg-[#E8F4F7] text-xs font-black tracking-[0.08em] text-[var(--primary)]"
+          className="flex shrink-0 items-center justify-center rounded-full bg-[#E8F4F7] text-xs font-black tracking-[0.12em] text-[var(--primary)]"
           style={{ width: 42, height: 42 }}
         >
           {post.initials}
@@ -624,14 +624,14 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
       <div className="min-w-0 pt-1">
         {post.matchScore > 0 && (
           <div className="mb-4 flex flex-wrap items-center gap-3">
-            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] ${
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] ${
               post.hasAI ? 'bg-[#36213E] text-white' : 'bg-[#D8EFF2] text-[#36213E]'
             }`}>
               <Sparkles size={14} />
               {post.hasAI ? 'AI match' : 'Profile match'} · {post.matchScore}%
             </div>
             {post.aiReason && (
-              <div className="rounded-full bg-[#E8F4F7] px-4 py-2 text-[12px] font-black text-[#36213E]">
+              <div className="rounded-full bg-[#E8F4F7] px-4 py-2 text-xs font-black text-[#36213E]">
                 {post.aiReason}
               </div>
             )}
@@ -639,9 +639,9 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
         )}
 
         <h2 className="truncate font-headline text-2xl font-black leading-tight text-[var(--primary)]">{post.title}</h2>
-        <p className="mt-4 max-w-[900px] break-words text-[15px] font-semibold leading-6 text-[var(--muted)]">{post.description}</p>
+        <p className="mt-4 max-w-[900px] break-words text-base font-semibold leading-6 text-[var(--muted)]">{post.description}</p>
 
-        <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] font-black text-[var(--muted)]">
+        <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-black text-[var(--muted)]">
           <span className="text-[var(--primary)]">{post.author}</span>
           <span className="inline-flex items-center gap-1.5">
             <MapPin size={13} />
@@ -679,7 +679,7 @@ function Tag({ label }: { label: string }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 text-[10px] font-black uppercase tracking-[0.12em] ${
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 text-xs font-black uppercase tracking-[0.12em] ${
         primary
           ? 'bg-[var(--primary)] text-white'
           : cyan
@@ -696,7 +696,7 @@ function Tag({ label }: { label: string }) {
 
 function StatusPill({ label }: { label: string }) {
   return (
-    <span className="inline-flex min-w-24 items-center justify-center rounded-full border border-[var(--border)] bg-white px-4 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--tag-text)]" style={{ height: 32 }}>
+    <span className="inline-flex min-w-24 items-center justify-center rounded-full border border-[var(--border)] bg-white px-4 text-xs font-black uppercase tracking-[0.12em] text-[var(--tag-text)]" style={{ height: 32 }}>
       {label}
     </span>
   )
@@ -720,7 +720,7 @@ function Pagination({
 
   return (
     <div className="flex flex-col gap-4 border-t border-[var(--border)] px-7 py-5 sm:flex-row sm:items-center sm:justify-between">
-      <div className="text-[13px] font-bold text-[var(--muted)]">
+      <div className="text-sm font-bold text-[var(--muted)]">
         Showing {start}-{end} of {totalPosts}
       </div>
       <div className="flex items-center gap-2">
@@ -736,7 +736,7 @@ function Pagination({
           <button
             key={item}
             onClick={() => onPage(item)}
-            className={`flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-[13px] font-black transition ${
+            className={`flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-sm font-black transition ${
               item === page
                 ? 'bg-[var(--primary)] text-white'
                 : 'border border-[var(--border)] bg-white text-[var(--primary)] hover:border-[var(--accent)]'

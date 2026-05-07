@@ -99,19 +99,19 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="relative z-10 flex items-center gap-2.5 px-9 pt-9">
             <img src="/images/healthailogo.svg" alt="HealthAI logo" className="h-6 w-auto" />
-            <span className="font-headline font-extrabold text-[17px] tracking-tight text-[#1a3463]">healthai.</span>
+            <span className="font-headline font-black text-lg tracking-normal text-[#1a3463]">healthai.</span>
           </div>
 
           {/* Copy block */}
           <div className="relative z-10 px-9 pt-10">
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-[#4ca8cc] mb-5 font-headline">
+            <p className="text-xs font-bold tracking-[0.16em] uppercase text-[#4ca8cc] mb-5 font-headline">
               Co-Creation Platform
             </p>
-            <h2 className="font-headline font-black text-[30px] xl:text-[36px] leading-[1.14] text-[#152d5a]">
+            <h2 className="font-headline font-black text-3xl xl:text-4xl leading-tight text-[#152d5a]">
               Building the future<br />of healthcare,<br />
               <span className="text-[#8AC6D0]">together.</span>
             </h2>
-            <p className="mt-4 text-[14px] text-[#5a88a4] leading-relaxed font-body max-w-[260px]">
+            <p className="mt-4 text-sm text-[#5a88a4] leading-relaxed font-body max-w-[260px]">
               Connect with clinicians and engineers<br />to create real-world impact.
             </p>
           </div>
@@ -131,7 +131,7 @@ export default function LoginPage() {
           </div>
 
           {/* Trust badges */}
-          <div className="relative z-10 flex items-center justify-center gap-4 px-6 pb-8 text-[11px] font-semibold text-[#5a88a4]">
+          <div className="relative z-10 flex items-center justify-center gap-4 px-6 pb-8 text-xs font-semibold text-[#5a88a4]">
             <div className="flex items-center gap-1.5">
               <Shield size={11} strokeWidth={2} />
               Secure &amp; Compliant
@@ -154,10 +154,10 @@ export default function LoginPage() {
           <div className="w-full max-w-[380px]">
 
             {/* Heading */}
-            <h1 className="font-headline font-black text-[36px] sm:text-[42px] leading-[1.05] tracking-[-0.02em] text-[#36213E] mb-2">
+            <h1 className="font-headline font-black text-4xl sm:text-5xl leading-tight tracking-normal text-[#36213E] mb-2">
               Welcome back<span className="text-[#8AC6D0]">.</span>
             </h1>
-            <p className="text-[14.5px] text-[#6F6878] mb-8 font-body">
+            <p className="text-sm text-[#6F6878] mb-8 font-body">
               Sign in with your institutional{' '}
               <span className="text-[#8AC6D0] font-bold">.edu</span>
               {' '}account.
@@ -169,8 +169,8 @@ export default function LoginPage() {
                 <div className="flex items-start gap-3">
                   <span className="text-hai-plum text-lg leading-none mt-0.5">{'\u23f1'}</span>
                   <div className="flex-1">
-                    <div className="text-[13px] font-bold text-hai-plum mb-1">Too many failed attempts</div>
-                    <div className="text-[12.5px] text-hai-plum/70">
+                    <div className="text-sm font-bold text-hai-plum mb-1">Too many failed attempts</div>
+                    <div className="text-xs text-hai-plum/70">
                       Please wait <span className="font-mono font-bold">{cooldown}s</span> before trying again.
                     </div>
                     <div className="mt-2 h-1 bg-hai-cream rounded-full overflow-hidden">
@@ -182,7 +182,7 @@ export default function LoginPage() {
             )}
 
             {failedAttempts > 0 && failedAttempts < RATE_LIMIT_AFTER && cooldown === 0 && (
-              <div role="alert" className="mb-5 p-3 bg-hai-cream/40 border border-hai-cream rounded-xl text-[12.5px] text-hai-plum/75 font-medium">
+              <div role="alert" className="mb-5 p-3 bg-hai-cream/40 border border-hai-cream rounded-xl text-xs text-hai-plum/75 font-semibold">
                 <span className="font-bold">{RATE_LIMIT_AFTER - failedAttempts}</span>
                 {' '}attempt{RATE_LIMIT_AFTER - failedAttempts !== 1 ? 's' : ''} remaining before lockout.
               </div>
@@ -191,11 +191,11 @@ export default function LoginPage() {
             {error && cooldown === 0 && (
               <div role="alert" className="mb-5 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3">
                 <span className="text-red-400 text-lg leading-none mt-0.5 shrink-0">{'\u00d7'}</span>
-                <div className="text-[13px] text-red-700 font-medium flex-1">
+                <div className="text-sm text-red-700 font-semibold flex-1">
                   {error}
                   {error.toLowerCase().includes('not verified') && (
                     <div className="mt-1.5">
-                      <Link to={ROUTES.VERIFY_EMAIL} className="text-[#36213E] font-bold hover:underline text-[12.5px]">
+                      <Link to={ROUTES.VERIFY_EMAIL} className="text-[#36213E] font-bold hover:underline text-xs">
                         Resend verification email {'\u2192'}
                       </Link>
                     </div>
@@ -209,7 +209,7 @@ export default function LoginPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-[13.5px] font-bold text-[#36213E] mb-2">
+                <label className="block text-sm font-bold text-[#36213E] mb-2">
                   Institutional email
                 </label>
                 <div className="relative">
@@ -221,19 +221,19 @@ export default function LoginPage() {
                     type="email"
                     placeholder="you@university.edu"
                     autoComplete="email"
-                    className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-[14.5px] font-body text-[#36213E] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
+                    className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
                       errors.email
                         ? 'border-red-400 ring-2 ring-red-100'
                         : 'border-[#D5DAE0] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
                     }`}
                   />
                 </div>
-                {errors.email && <p className="mt-1.5 text-[11.5px] text-red-600 font-medium">{errors.email.message}</p>}
+                {errors.email && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.email.message}</p>}
               </div>
 
               {/* Password */}
               <div>
-                <label className="block text-[13.5px] font-bold text-[#36213E] mb-2">
+                <label className="block text-sm font-bold text-[#36213E] mb-2">
                   Password
                 </label>
                 <div className="relative">
@@ -245,7 +245,7 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder={'\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022'}
                     autoComplete="current-password"
-                    className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-[14.5px] font-body text-[#36213E] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
+                    className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
                       errors.password
                         ? 'border-red-400 ring-2 ring-red-100'
                         : 'border-[#D5DAE0] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
@@ -260,7 +260,7 @@ export default function LoginPage() {
                     {showPassword ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
                   </button>
                 </div>
-                {errors.password && <p className="mt-1.5 text-[11.5px] text-red-600 font-medium">{errors.password.message}</p>}
+                {errors.password && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.password.message}</p>}
               </div>
 
               {/* Remember me + Forgot password */}
@@ -278,11 +278,11 @@ export default function LoginPage() {
                       </svg>
                     )}
                   </div>
-                  <span className="text-[13.5px] text-[#6a7590] font-body">Remember me</span>
+                  <span className="text-sm text-[#6a7590] font-body">Remember me</span>
                 </label>
                 <Link
                   to={ROUTES.REGISTER}
-                  className="text-[13.5px] font-semibold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
+                  className="text-sm font-semibold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -304,7 +304,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading || cooldown > 0 || !captchaToken}
-                className="mt-2 w-full flex items-center justify-center gap-2 py-[15px] rounded-full bg-[#1c1230] text-white text-[15px] font-black tracking-[-0.01em] font-headline hover:bg-[#110b1e] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)]"
+                className="mt-2 w-full flex items-center justify-center gap-2 py-[15px] rounded-full bg-[#1c1230] text-white text-base font-black tracking-normal font-headline hover:bg-[#110b1e] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)]"
               >
                 {isLoading ? (
                   <>
@@ -318,7 +318,7 @@ export default function LoginPage() {
             </form>
 
             {/* Footer */}
-            <p className="mt-7 text-center text-[14px] text-[#9ca3b0] font-body">
+            <p className="mt-7 text-center text-sm text-[#9ca3b0] font-body">
               No account?{' '}
               <Link to={ROUTES.REGISTER} className="font-black text-[#36213E] hover:text-[#8AC6D0] transition-colors">
                 Request Access {'\u2192'}
@@ -329,7 +329,7 @@ export default function LoginPage() {
             <div className="mt-8">
               <div className="flex items-center gap-3 mb-3">
                 <div className="flex-1 h-px bg-[#eef0f5]" />
-                <span className="text-[10.5px] font-bold tracking-widest uppercase text-[#c5cad6] font-headline">Dev Access</span>
+                <span className="text-xs font-bold tracking-[0.12em]st uppercase text-[#c5cad6] font-headline">Dev Access</span>
                 <div className="flex-1 h-px bg-[#eef0f5]" />
               </div>
               <div className="flex gap-2">
@@ -347,7 +347,7 @@ export default function LoginPage() {
                     >
                       <Icon size={14} strokeWidth={2} style={{ color }} />
                     </div>
-                    <span className="text-[11px] font-bold text-[#4a5270] font-headline">{label}</span>
+                    <span className="text-xs font-bold text-[#4a5270] font-headline">{label}</span>
                   </button>
                 ))}
               </div>

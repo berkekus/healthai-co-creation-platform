@@ -98,12 +98,12 @@ export default function ConversationPage() {
 
         {partner ? (
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-[#2d1838] text-[#8fdff0] font-black text-[12px] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-[#2d1838] text-[#8fdff0] font-black text-xs flex items-center justify-center shrink-0">
               {partner.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="font-headline font-extrabold text-[15px] text-[#2d1838] truncate">{partner.name}</p>
-              <p className="text-[11px] text-[#9f9aaa] font-semibold capitalize">{partner.role.replace('_', ' ')}</p>
+              <p className="font-headline font-black text-base text-[#2d1838] truncate">{partner.name}</p>
+              <p className="text-xs text-[#9f9aaa] font-semibold capitalize">{partner.role.replace('_', ' ')}</p>
             </div>
           </div>
         ) : (
@@ -111,7 +111,7 @@ export default function ConversationPage() {
         )}
 
         {conv && (
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#9f9aaa] hidden sm:block truncate max-w-[200px]">
+          <p className="text-xs font-black uppercase tracking-[0.12em] text-[#9f9aaa] hidden sm:block truncate max-w-[200px]">
             {conv.postTitle}
           </p>
         )}
@@ -127,17 +127,17 @@ export default function ConversationPage() {
           </button>
         ) : (
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[12px] font-bold text-[#6f6a76] hidden sm:inline">Delete conversation?</span>
+            <span className="text-xs font-bold text-[#6f6a76] hidden sm:inline">Delete conversation?</span>
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="h-8 px-3 rounded-full bg-red-500 text-white text-[12px] font-bold hover:bg-red-600 disabled:opacity-50 transition-colors"
+              className="h-8 px-3 rounded-full bg-red-500 text-white text-xs font-bold hover:bg-red-600 disabled:opacity-50 transition-colors"
             >
               {deleting ? 'Deleting…' : 'Yes, delete'}
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
-              className="h-8 px-3 rounded-full border border-[#e8e8ee] text-[12px] font-bold text-[#6f6a76] hover:bg-[#f5f6f8] transition-colors"
+              className="h-8 px-3 rounded-full border border-[#e8e8ee] text-xs font-bold text-[#6f6a76] hover:bg-[#f5f6f8] transition-colors"
             >
               Cancel
             </button>
@@ -149,8 +149,8 @@ export default function ConversationPage() {
       <div className="flex-1 overflow-y-auto px-6 md:px-10 py-8 mx-auto w-full max-w-[860px]">
         {msgs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <p className="font-headline text-[18px] font-extrabold text-[#2d1838]">No messages yet</p>
-            <p className="mt-2 text-[14px] text-[#6f6a76]">Start the conversation. Say hello!</p>
+            <p className="font-headline text-lg font-black text-[#2d1838]">No messages yet</p>
+            <p className="mt-2 text-sm text-[#6f6a76]">Start the conversation. Say hello!</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -171,7 +171,7 @@ export default function ConversationPage() {
       <div className="sticky bottom-0 bg-white border-t border-[#e8e8ee] px-6 md:px-10 py-4">
         <div className="mx-auto w-full max-w-[860px]">
           {error && (
-            <p className="mb-2 text-[12px] text-red-600 font-semibold">{error}</p>
+            <p className="mb-2 text-xs text-red-600 font-semibold">{error}</p>
           )}
           <div className="flex items-end gap-3">
             <textarea
@@ -181,7 +181,7 @@ export default function ConversationPage() {
               onKeyDown={handleKeyDown}
               rows={1}
               placeholder="Write a message… (Enter to send, Shift+Enter for newline)"
-              className="flex-1 resize-none rounded-[16px] border border-[#e8e8ee] bg-[#f8f7fa] px-4 py-3 text-[14px] font-body text-[#2d1838] placeholder:text-[#b5b0be] outline-none focus:border-[#55c7df] focus:ring-2 focus:ring-[#55c7df]/20 transition-all max-h-[160px] overflow-y-auto"
+              className="flex-1 resize-none rounded-[16px] border border-[#e8e8ee] bg-[#f8f7fa] px-4 py-3 text-sm font-body text-[#2d1838] placeholder:text-[#b5b0be] outline-none focus:border-[#55c7df] focus:ring-2 focus:ring-[#55c7df]/20 transition-all max-h-[160px] overflow-y-auto"
               onInput={e => {
                 const t = e.currentTarget
                 t.style.height = 'auto'
@@ -223,10 +223,10 @@ function MessageBubble({
   return (
     <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
       {showName && !isMine && (
-        <span className="text-[11px] font-bold text-[#9f9aaa] mb-1 px-1">{msg.senderName}</span>
+        <span className="text-xs font-bold text-[#9f9aaa] mb-1 px-1">{msg.senderName}</span>
       )}
       <div
-        className={`max-w-[70%] px-4 py-3 rounded-[18px] text-[14px] leading-relaxed whitespace-pre-wrap break-words shadow-sm ${
+        className={`max-w-[70%] px-4 py-3 rounded-[18px] text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm ${
           isMine
             ? 'bg-[#dff8ff] text-[#1a2535] border border-[#8fdff0] rounded-br-[4px]'
             : 'bg-white text-[#2d1838] border border-[#e8e8ee] rounded-bl-[4px]'
@@ -234,7 +234,7 @@ function MessageBubble({
       >
         {msg.content}
       </div>
-      <span className="text-[10px] text-[#b5b0be] mt-1 px-1">{time}</span>
+      <span className="text-xs text-[#b5b0be] mt-1 px-1">{time}</span>
     </div>
   )
 }

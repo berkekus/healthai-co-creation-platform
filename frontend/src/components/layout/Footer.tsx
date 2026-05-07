@@ -12,13 +12,13 @@ export default function Footer() {
               <rect x="5" y="16.5" width="30" height="7" rx="1.5" fill="#8fdff0" />
             </svg>
           </div>
-          <div className="text-[11px] font-mono tracking-[0.16em] uppercase leading-snug text-[#dff8ff]/75">
+          <div className="text-xs font-mono tracking-[0.16em] uppercase leading-snug text-[#dff8ff]/75">
             <span className="font-bold text-white">HealthAI</span> · Co-Creation Platform<br />
             Built in Europe · zero patient data
           </div>
         </div>
 
-        <div className="flex items-center flex-wrap gap-x-6 gap-y-2 text-[11px] font-mono tracking-[0.14em] uppercase text-[#dff8ff]/70">
+        <div className="flex items-center flex-wrap gap-x-6 gap-y-2 text-xs font-mono tracking-[0.12em] uppercase text-[#dff8ff]/70">
           <Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Privacy Policy</Link>
           <Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">GDPR Rights</Link>
           <span>SENG 384</span>

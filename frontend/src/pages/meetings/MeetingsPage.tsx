@@ -128,7 +128,7 @@ export default function MeetingsPage() {
           </div>
 
           {error && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-[13px] font-bold text-red-700">
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700">
               {error}
             </div>
           )}
@@ -161,17 +161,17 @@ function Hero({ total }: { total: number }) {
   return (
     <div>
       <div>
-        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-[var(--primary)] shadow-[0_10px_30px_-24px_rgba(45,24,56,0.5)]">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-[var(--primary)] shadow-[0_10px_30px_-24px_rgba(45,24,56,0.5)]">
           <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
           {total} meetings
         </div>
 
-        <h1 className="mt-5 font-headline text-[58px] font-black leading-[0.98] tracking-normal text-[var(--primary)] md:text-[78px]">
+        <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-[var(--primary)] md:text-8xl">
           Your <span className="text-[var(--accent-strong)]">meetings</span>
           <span className="text-[var(--primary)]">.</span>
         </h1>
 
-        <p className="mt-5 max-w-[650px] text-[18px] leading-8 text-[var(--muted)]">
+        <p className="mt-5 max-w-[650px] text-lg leading-8 text-[var(--muted)]">
           Review requests, confirm time slots, and keep your collaboration pipeline in motion.
         </p>
       </div>
@@ -196,7 +196,7 @@ function FilterTabs({
           <button
             key={tab.id}
             onClick={() => onChange(tab.id)}
-            className={`inline-flex h-12 items-center gap-2.5 rounded-full border px-5 text-[14px] font-extrabold transition ${
+            className={`inline-flex h-12 items-center gap-2.5 rounded-full border px-5 text-sm font-black transition ${
               active
                 ? 'border-[var(--primary)] bg-[var(--primary)] text-white shadow-[0_12px_28px_-22px_rgba(45,24,56,0.9)]'
                 : 'border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--accent)] hover:bg-white'
@@ -204,7 +204,7 @@ function FilterTabs({
           >
             {tab.label}
             <span
-              className={`flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-[11px] font-black ${
+              className={`flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-xs font-black ${
                 active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-[#EEF0F3] text-[var(--muted)]'
               }`}
             >
@@ -219,13 +219,13 @@ function FilterTabs({
 
 function SortControl({ value, onChange }: { value: SortMode; onChange: (value: SortMode) => void }) {
   return (
-    <div className="flex items-center gap-3 text-[13px] font-bold text-[var(--muted)]">
+    <div className="flex items-center gap-3 text-sm font-bold text-[var(--muted)]">
       <span>Sort by</span>
       <label className="relative">
         <select
           value={value}
           onChange={event => onChange(event.target.value as SortMode)}
-          className="h-11 appearance-none rounded-full border border-[var(--border)] bg-white px-4 pr-9 text-[13px] font-extrabold text-[var(--text)] outline-none transition hover:border-[var(--accent)]"
+          className="h-11 appearance-none rounded-full border border-[var(--border)] bg-white px-4 pr-9 text-sm font-black text-[var(--text)] outline-none transition hover:border-[var(--accent)]"
         >
           <option value="recent">Most recent</option>
           <option value="oldest">Oldest first</option>
@@ -283,13 +283,13 @@ function MeetingList({
           />
         ))
       ) : (
-        <div className="px-7 py-16 text-center text-[15px] font-bold text-[var(--muted)]">
+        <div className="px-7 py-16 text-center text-base font-bold text-[var(--muted)]">
           No meetings match this filter.
         </div>
       )}
 
       <div className="flex h-[76px] items-center justify-center border-t border-[var(--border)]">
-        <button onClick={onViewAll} className="text-[14px] font-extrabold text-[var(--primary)] transition hover:text-[var(--accent-strong)]">
+        <button onClick={onViewAll} className="text-sm font-black text-[var(--primary)] transition hover:text-[var(--accent-strong)]">
           View all meetings →
         </button>
       </div>
@@ -344,18 +344,18 @@ function MeetingRow({
         isLast ? '' : 'border-b border-[var(--border)]'
       }`}
     >
-      <div className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-[var(--primary)] text-[12px] font-black tracking-[0.08em] text-[var(--accent)]">
+      <div className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-[var(--primary)] text-xs font-black tracking-[0.12em] text-[var(--accent)]">
         {initials(partner)}
       </div>
 
       <div className="min-w-0">
         <div className="flex min-w-0 flex-wrap items-center gap-3">
-          <h2 className="truncate font-headline text-[17px] font-extrabold text-[var(--text)]">{meeting.postTitle}</h2>
-          <span className={`rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.08em] ${STATUS_CLASS[meeting.status]}`}>
+          <h2 className="truncate font-headline text-lg font-black text-[var(--text)]">{meeting.postTitle}</h2>
+          <span className={`rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] ${STATUS_CLASS[meeting.status]}`}>
             {STATUS_LABELS[meeting.status]}
           </span>
         </div>
-        <p className="mt-2 truncate text-[14px] font-semibold text-[var(--muted)]">
+        <p className="mt-2 truncate text-sm font-semibold text-[var(--muted)]">
           {direction} <span className="px-1.5 text-[#D5DAE0]">•</span> {partner}
           {partnerEmail && (
             <>
@@ -364,23 +364,23 @@ function MeetingRow({
           )}
         </p>
         {meeting.status === 'pending' && meeting.proposedSlots.length > 0 && (
-          <p className="mt-2 text-[12px] font-bold text-[var(--muted)]">
+          <p className="mt-2 text-xs font-bold text-[var(--muted)]">
             {meeting.proposedSlots.length} proposed slots
           </p>
         )}
         {(meeting.status === 'declined' && meeting.declineReason) && (
-          <p className="mt-2 text-[12px] font-semibold text-[#a33a3a]">
+          <p className="mt-2 text-xs font-semibold text-[#a33a3a]">
             Reason: {meeting.declineReason}
           </p>
         )}
         {(meeting.status === 'cancelled' && meeting.cancelReason) && (
-          <p className="mt-2 text-[12px] font-semibold text-[var(--muted)]">
+          <p className="mt-2 text-xs font-semibold text-[var(--muted)]">
             Reason: {meeting.cancelReason}
           </p>
         )}
       </div>
 
-      <div className="space-y-2 text-[14px] font-bold text-[var(--muted)] max-lg:col-start-2">
+      <div className="space-y-2 text-sm font-bold text-[var(--muted)] max-lg:col-start-2">
         <div className="flex items-center gap-2">
           <Calendar size={16} className="text-[var(--primary)]" />
           {slot ? formatSlotDate(slot) : formatDate(meeting.createdAt)}
@@ -400,7 +400,7 @@ function MeetingRow({
               placeholder={`Optional reason for ${confirmMode === 'decline' ? 'declining' : 'cancelling'}…`}
               rows={2}
               maxLength={300}
-              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-[13px] font-semibold text-[var(--text)] outline-none placeholder:text-[#D5DAE0] focus:border-[var(--accent-strong)]"
+              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#D5DAE0] focus:border-[var(--accent-strong)]"
             />
             <div className="flex justify-end gap-2">
               <ActionButton disabled={false} onClick={handleAbort} tone="quiet">
@@ -445,7 +445,7 @@ function MeetingRow({
               </>
             )}
             {(meeting.status === 'completed' || meeting.status === 'cancelled' || meeting.status === 'declined') && (
-              <span className="text-[12px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+              <span className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">
                 No actions
               </span>
             )}
@@ -477,7 +477,7 @@ function ActionButton({
     <button
       disabled={disabled}
       onClick={onClick}
-      className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-[11px] font-black uppercase tracking-[0.1em] transition disabled:cursor-not-allowed disabled:opacity-50 ${cls}`}
+      className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-black uppercase tracking-[0.12em] transition disabled:cursor-not-allowed disabled:opacity-50 ${cls}`}
     >
       {children}
     </button>
@@ -534,7 +534,7 @@ function CalendarPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
   return (
     <section className="rounded-[28px] border border-[var(--border)] bg-white p-6 shadow-[0_28px_70px_-54px_rgba(45,24,56,0.6)]">
       <div className="mb-5 flex items-center justify-between">
-        <h2 className="font-headline text-[18px] font-extrabold text-[var(--primary)]">
+        <h2 className="font-headline text-lg font-black text-[var(--primary)]">
           {monthCursor.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
         </h2>
         <div className="flex items-center gap-1.5">
@@ -552,7 +552,7 @@ function CalendarPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
 
       <div className="grid grid-cols-7 gap-y-2">
         {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-          <div key={`${day}-${index}`} className="text-center text-[11px] font-black uppercase text-[#6F6878]">
+          <div key={`${day}-${index}`} className="text-center text-xs font-black uppercase text-[#6F6878]">
             {day}
           </div>
         ))}
@@ -564,7 +564,7 @@ function CalendarPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
           return (
             <div key={day} className="flex h-10 items-center justify-center">
               <div
-                className={`relative flex h-9 w-9 items-center justify-center rounded-full text-[13px] font-extrabold ${
+                className={`relative flex h-9 w-9 items-center justify-center rounded-full text-sm font-black ${
                   hasMeeting ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted)]'
                 }`}
               >
@@ -592,13 +592,13 @@ function OverviewPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
   return (
     <section className="rounded-[28px] border border-[var(--border)] bg-white p-6 shadow-[0_28px_70px_-54px_rgba(45,24,56,0.6)]">
       <div className="mb-6 flex items-center justify-between gap-4">
-        <h2 className="font-headline text-[18px] font-extrabold text-[var(--primary)]">Meetings overview</h2>
+        <h2 className="font-headline text-lg font-black text-[var(--primary)]">Meetings overview</h2>
         <div className="flex items-center gap-2">
           <label className="relative">
             <select
               value={range}
               onChange={event => setRange(event.target.value)}
-              className="h-9 appearance-none rounded-full border border-[var(--border)] bg-white px-3 pr-8 text-[12px] font-extrabold text-[var(--text)] outline-none"
+              className="h-9 appearance-none rounded-full border border-[var(--border)] bg-white px-3 pr-8 text-xs font-black text-[var(--text)] outline-none"
             >
               <option value="month">This month</option>
               <option value="all">All time</option>
@@ -615,13 +615,13 @@ function OverviewPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
         <DonutChart total={total} legend={legend} />
         <div className="mt-5 w-full space-y-3.5">
           {legend.map(item => (
-            <div key={item.label} className="flex items-center justify-between gap-4 text-[14px]">
+            <div key={item.label} className="flex items-center justify-between gap-4 text-sm">
               <div className="flex items-center gap-2.5 font-bold text-[var(--muted)]">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
                 {item.label}
               </div>
               <div className="font-black text-[var(--primary)]">
-                {item.value} <span className="text-[12px] text-[var(--muted)]">({percent(item.value, total)})</span>
+                {item.value} <span className="text-xs text-[var(--muted)]">({percent(item.value, total)})</span>
               </div>
             </div>
           ))}
@@ -659,8 +659,8 @@ function DonutChart({ total, legend }: { total: number; legend: { value: number;
         })}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="font-headline text-[32px] font-black leading-none text-[var(--primary)]">{total}</span>
-        <span className="mt-1 text-[13px] font-extrabold text-[var(--muted)]">Total</span>
+        <span className="font-headline text-3xl font-black leading-none text-[var(--primary)]">{total}</span>
+        <span className="mt-1 text-sm font-black text-[var(--muted)]">Total</span>
       </div>
     </div>
   )

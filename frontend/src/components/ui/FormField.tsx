@@ -14,19 +14,19 @@ export default function FormField({ label, error, required, hint, children }: Fo
   return (
     <div className="flex flex-col gap-1.5">
       <label className="flex items-baseline justify-between font-body">
-        <span className={`text-[13px] font-bold ${error ? 'text-red-600' : 'text-hai-plum'}`}>
+        <span className={`text-sm font-bold ${error ? 'text-red-600' : 'text-hai-plum'}`}>
           {label}
           {required && <span className="text-red-600 ml-0.5">*</span>}
         </span>
         {hint && (
-          <span className="text-[11px] font-mono tracking-wider uppercase text-neutral-400">
+          <span className="text-xs font-mono tracking-[0.12em]r uppercase text-neutral-400">
             {hint}
           </span>
         )}
       </label>
       {children}
       {error && (
-        <span role="alert" className="text-[12px] text-red-600 font-body font-medium">
+        <span role="alert" className="text-xs text-red-600 font-body font-semibold">
           {error}
         </span>
       )}

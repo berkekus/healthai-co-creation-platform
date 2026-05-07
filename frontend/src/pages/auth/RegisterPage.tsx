@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Building2, ChevronDown, Eye, EyeOff, Lock, Mail, MapPin, Shield, User, Users } from 'lucide-react'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { useAuthStore } from '../../store/authStore'
@@ -9,12 +9,14 @@ import { registerSchema, type RegisterFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
 import { EU_COUNTRIES } from '../../constants/config'
 
-const STEPS = ['Account', 'Role', 'Institution'] as const
 type Step = 0 | 1 | 2
+type PreselectedRole = 'engineer' | 'healthcare_professional'
 
 export default function RegisterPage() {
   const { register: registerUser, isLoading, error, clearError } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
+  const preselectedRole = (location.state as { role?: PreselectedRole } | null)?.role
   const [step, setStep] = useState<Step>(0)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -31,6 +33,10 @@ export default function RegisterPage() {
 
   useEffect(() => () => { clearError() }, [clearError])
 
+  useEffect(() => {
+    if (preselectedRole) setValue('role', preselectedRole)
+  }, [preselectedRole, setValue])
+
   const nextStep = async () => {
     const fields: (keyof RegisterFormData)[][] = [
       ['name', 'email', 'password', 'confirm'],
@@ -38,8 +44,17 @@ export default function RegisterPage() {
       ['institution', 'city', 'country'],
     ]
     const ok = await trigger(fields[step])
-    if (ok) setStep(s => (s + 1) as Step)
+    if (!ok) return
+    if (step === 0 && preselectedRole) {
+      setStep(2)
+    } else {
+      setStep(s => (s + 1) as Step)
+    }
   }
+
+  const displaySteps = preselectedRole ? ['Account', 'Institution'] : ['Account', 'Role', 'Institution']
+  const displayStep = preselectedRole ? (step === 0 ? 0 : 1) : step
+  const roleLabel = preselectedRole === 'engineer' ? 'Engineer' : 'Healthcare Professional'
 
   const onSubmit = async (data: RegisterFormData) => {
     await registerUser({
@@ -61,7 +76,7 @@ export default function RegisterPage() {
   }
 
   const inputCls = (hasError: boolean) =>
-    `w-full py-3.5 rounded-[14px] border text-[14.5px] font-body text-[#18203a] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
+    `w-full py-3.5 rounded-[14px] border text-sm font-body text-[#18203a] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
       hasError
         ? 'border-red-400 ring-2 ring-red-100'
         : 'border-[#dde2ea] focus:border-[#3db8d8] focus:ring-2 focus:ring-[#3db8d8]/15'
@@ -86,18 +101,18 @@ export default function RegisterPage() {
 
           <div className="relative z-10 flex items-center gap-2.5 px-9 pt-9">
             <img src="/images/healthailogo.svg" alt="HealthAI logo" className="h-6 w-auto" />
-            <span className="font-headline font-extrabold text-[17px] tracking-tight text-[#1a3463]">healthai.</span>
+            <span className="font-headline font-black text-lg tracking-normal text-[#1a3463]">healthai.</span>
           </div>
 
           <div className="relative z-10 px-9 pt-10">
-            <p className="text-[10px] font-bold tracking-[0.22em] uppercase text-[#4ca8cc] mb-5 font-headline">
+            <p className="text-xs font-bold tracking-[0.16em] uppercase text-[#4ca8cc] mb-5 font-headline">
               Co-Creation Platform
             </p>
-            <h2 className="font-headline font-black text-[30px] xl:text-[36px] leading-[1.14] text-[#152d5a]">
+            <h2 className="font-headline font-black text-3xl xl:text-4xl leading-tight text-[#152d5a]">
               Building the future<br />of healthcare,<br />
               <span className="text-[#3db8d8]">together.</span>
             </h2>
-            <p className="mt-4 text-[14px] text-[#5a88a4] leading-relaxed font-body max-w-[260px]">
+            <p className="mt-4 text-sm text-[#5a88a4] leading-relaxed font-body max-w-[260px]">
               Connect with clinicians and engineers<br />to create real-world impact.
             </p>
           </div>
@@ -112,7 +127,7 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div className="relative z-10 flex items-center justify-center gap-4 px-6 pb-8 text-[11px] font-semibold text-[#5a88a4]">
+          <div className="relative z-10 flex items-center justify-center gap-4 px-6 pb-8 text-xs font-semibold text-[#5a88a4]">
             <div className="flex items-center gap-1.5"><Shield size={11} strokeWidth={2} />Secure &amp; Compliant</div>
             <div className="w-px h-3 bg-[#9ac0d8]/50" />
             <div className="flex items-center gap-1.5"><Lock size={11} strokeWidth={2} />Built in Europe</div>
@@ -126,10 +141,10 @@ export default function RegisterPage() {
 
           {/* Top bar */}
           <div className="flex items-center justify-end mb-8 shrink-0">
-            <span className="text-[13px] text-[#9ca3b0] mr-3">Already have an account?</span>
+            <span className="text-sm text-[#9ca3b0] mr-3">Already have an account?</span>
             <Link
               to={ROUTES.LOGIN}
-              className="px-4 py-2 rounded-full border border-[#dde2ea] text-[13px] font-bold text-[#18203a] hover:border-[#3db8d8] hover:text-[#3db8d8] transition-colors"
+              className="px-4 py-2 rounded-full border border-[#dde2ea] text-sm font-bold text-[#18203a] hover:border-[#3db8d8] hover:text-[#3db8d8] transition-colors"
             >
               Sign in →
             </Link>
@@ -138,35 +153,35 @@ export default function RegisterPage() {
           <div className="w-full max-w-[420px] mx-auto">
 
             {/* Heading */}
-            <h1 className="font-headline font-black text-[36px] sm:text-[40px] leading-[1.05] tracking-[-0.02em] text-[#18203a] mb-2">
+            <h1 className="font-headline font-black text-4xl sm:text-4xl leading-tight tracking-normal text-[#18203a] mb-2">
               Create your account<span className="text-[#3db8d8]">.</span>
             </h1>
-            <p className="text-[14.5px] text-[#7a8399] mb-8 font-body">
+            <p className="text-sm text-[#7a8399] mb-8 font-body">
               Join the directory and start collaborating.
             </p>
 
             {/* Step indicator */}
             <div className="flex items-center gap-2 mb-8">
-              {STEPS.map((label, i) => {
-                const done = i < step
-                const active = i === step
+              {displaySteps.map((label, i) => {
+                const done = i < displayStep
+                const active = i === displayStep
                 return (
                   <div key={label} className="flex items-center gap-2 flex-1 last:flex-none">
-                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all whitespace-nowrap ${
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
                       active ? 'bg-[#1c1230] text-white'
                       : done  ? 'bg-[#3db8d8]/15 text-[#3db8d8]'
                       : 'bg-[#f4f5f7] text-[#a0a8ba]'
                     }`}>
-                      <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black shrink-0 ${
+                      <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
                         active ? 'bg-white text-[#1c1230]'
                         : done  ? 'bg-[#3db8d8] text-white'
                         : 'border border-[#d0d5df] text-[#a0a8ba]'
                       }`}>
                         {done ? '✓' : i + 1}
                       </span>
-                      <span className="tracking-[0.1em] uppercase">{label}</span>
+                      <span className="tracking-[0.12em] uppercase">{label}</span>
                     </div>
-                    {i < STEPS.length - 1 && (
+                    {i < displaySteps.length - 1 && (
                       <div className={`flex-1 h-px ${done ? 'bg-[#3db8d8]' : 'bg-[#e8ecf0]'}`} />
                     )}
                   </div>
@@ -178,7 +193,7 @@ export default function RegisterPage() {
             {error && (
               <div role="alert" className="mb-5 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3">
                 <span className="text-red-400 text-lg leading-none mt-0.5 shrink-0">✕</span>
-                <div className="text-[13px] text-red-700 font-medium">{error}</div>
+                <div className="text-sm text-red-700 font-semibold">{error}</div>
               </div>
             )}
 
@@ -189,7 +204,7 @@ export default function RegisterPage() {
                 <div className="flex flex-col gap-4">
 
                   <div>
-                    <label className="block text-[13.5px] font-bold text-[#18203a] mb-2">
+                    <label className="block text-sm font-bold text-[#18203a] mb-2">
                       Full name <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -204,13 +219,13 @@ export default function RegisterPage() {
                         className={`${inputCls(!!errors.name)} pl-11 pr-4`}
                       />
                     </div>
-                    {errors.name && <p className="mt-1.5 text-[11.5px] text-red-600 font-medium">{errors.name.message}</p>}
+                    {errors.name && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.name.message}</p>}
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-[13.5px] font-bold text-[#18203a]">Institutional email <span className="text-red-500">*</span></label>
-                      <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-[#a0a8ba]">.edu only</span>
+                      <label className="text-sm font-bold text-[#18203a]">Institutional email <span className="text-red-500">*</span></label>
+                      <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#a0a8ba]">.edu only</span>
                     </div>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
@@ -224,13 +239,13 @@ export default function RegisterPage() {
                         className={`${inputCls(!!errors.email)} pl-11 pr-4`}
                       />
                     </div>
-                    {errors.email && <p className="mt-1.5 text-[11.5px] text-red-600 font-medium">{errors.email.message}</p>}
+                    {errors.email && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.email.message}</p>}
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-[13.5px] font-bold text-[#18203a]">Password <span className="text-red-500">*</span></label>
-                      <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-[#a0a8ba]">min. 8 characters</span>
+                      <label className="text-sm font-bold text-[#18203a]">Password <span className="text-red-500">*</span></label>
+                      <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#a0a8ba]">min. 8 characters</span>
                     </div>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
@@ -247,11 +262,11 @@ export default function RegisterPage() {
                         {showPassword ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
                       </button>
                     </div>
-                    {errors.password && <p className="mt-1.5 text-[11.5px] text-red-600 font-medium">{errors.password.message}</p>}
+                    {errors.password && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.password.message}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-[13.5px] font-bold text-[#18203a] mb-2">
+                    <label className="block text-sm font-bold text-[#18203a] mb-2">
                       Confirm password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -269,13 +284,22 @@ export default function RegisterPage() {
                         {showConfirm ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
                       </button>
                     </div>
-                    {errors.confirm && <p className="mt-1.5 text-[11.5px] text-red-600 font-medium">{errors.confirm.message}</p>}
+                    {errors.confirm && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.confirm.message}</p>}
                   </div>
+
+                  {preselectedRole && (
+                    <div className="flex items-center gap-2.5 rounded-[14px] border border-[#3db8d8]/30 bg-[#edf9fc] px-4 py-3">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#3db8d8] text-xs font-black text-white">✓</span>
+                      <span className="text-sm font-semibold text-[#1c6278]">
+                        Registering as: <span className="font-black">{roleLabel}</span>
+                      </span>
+                    </div>
+                  )}
 
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="mt-2 w-full py-[15px] rounded-full bg-[#1c1230] text-white text-[15px] font-black tracking-[-0.01em] font-headline hover:bg-[#110b1e] transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)]"
+                    className="mt-2 w-full py-[15px] rounded-full bg-[#1c1230] text-white text-base font-black tracking-normal font-headline hover:bg-[#110b1e] transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)]"
                   >
                     Continue →
                   </button>
@@ -286,7 +310,7 @@ export default function RegisterPage() {
               {step === 1 && (
                 <div className="flex flex-col gap-5">
                   <div>
-                    <label className="block text-[13.5px] font-bold text-[#18203a] mb-3">
+                    <label className="block text-sm font-bold text-[#18203a] mb-3">
                       I am a… <span className="text-red-500">*</span>
                     </label>
                     <div className="flex flex-col gap-3">
@@ -305,24 +329,24 @@ export default function RegisterPage() {
                             }`}
                           >
                             <div className="flex items-center justify-between">
-                              <span className={`font-headline font-bold text-[16px] ${selected ? 'text-[#1c1230]' : 'text-[#18203a]'}`}>{title}</span>
+                              <span className={`font-headline font-bold text-base ${selected ? 'text-[#1c1230]' : 'text-[#18203a]'}`}>{title}</span>
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${selected ? 'border-[#1c1230] bg-[#1c1230]' : 'border-[#c8cedd]'}`}>
                                 {selected && <div className="w-2 h-2 rounded-full bg-white" />}
                               </div>
                             </div>
-                            <p className="mt-1 text-[12.5px] text-[#7a8399] leading-relaxed">{desc}</p>
+                            <p className="mt-1 text-xs text-[#7a8399] leading-relaxed">{desc}</p>
                           </button>
                         )
                       })}
                     </div>
-                    {errors.role && <p className="mt-2 text-[11.5px] text-red-600 font-medium">{errors.role.message}</p>}
+                    {errors.role && <p className="mt-2 text-xs text-red-600 font-semibold">{errors.role.message}</p>}
                   </div>
 
                   <div className="flex gap-3">
-                    <button type="button" onClick={() => setStep(0)} className="flex-1 py-[15px] rounded-full border border-[#dde2ea] bg-white text-[#18203a] font-bold text-[15px] hover:border-[#3db8d8] transition-colors font-headline">
+                    <button type="button" onClick={() => setStep(0)} className="flex-1 py-[15px] rounded-full border border-[#dde2ea] bg-white text-[#18203a] font-bold text-base hover:border-[#3db8d8] transition-colors font-headline">
                       ← Back
                     </button>
-                    <button type="button" onClick={nextStep} className="flex-[2] py-[15px] rounded-full bg-[#1c1230] text-white font-black text-[15px] hover:bg-[#110b1e] transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)] font-headline">
+                    <button type="button" onClick={nextStep} className="flex-[2] py-[15px] rounded-full bg-[#1c1230] text-white font-black text-base hover:bg-[#110b1e] transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)] font-headline">
                       Continue →
                     </button>
                   </div>
@@ -334,7 +358,7 @@ export default function RegisterPage() {
                 <div className="flex flex-col gap-4">
 
                   <div>
-                    <label className="block text-[13.5px] font-bold text-[#18203a] mb-2">
+                    <label className="block text-sm font-bold text-[#18203a] mb-2">
                       Institution <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -348,12 +372,12 @@ export default function RegisterPage() {
                         className={`${inputCls(!!errors.institution)} pl-11 pr-4`}
                       />
                     </div>
-                    {errors.institution && <p className="mt-1.5 text-[11.5px] text-red-600 font-medium">{errors.institution.message}</p>}
+                    {errors.institution && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.institution.message}</p>}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[13.5px] font-bold text-[#18203a] mb-2">City <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-bold text-[#18203a] mb-2">City <span className="text-red-500">*</span></label>
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
                           <MapPin size={15} strokeWidth={1.8} />
@@ -365,10 +389,10 @@ export default function RegisterPage() {
                           className={`${inputCls(!!errors.city)} pl-11 pr-4`}
                         />
                       </div>
-                      {errors.city && <p className="mt-1.5 text-[11.5px] text-red-600 font-medium">{errors.city.message}</p>}
+                      {errors.city && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.city.message}</p>}
                     </div>
                     <div>
-                      <label className="block text-[13.5px] font-bold text-[#18203a] mb-2">Country <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-bold text-[#18203a] mb-2">Country <span className="text-red-500">*</span></label>
                       <div className="relative">
                         <select
                           {...register('country')}
@@ -381,7 +405,7 @@ export default function RegisterPage() {
                           <ChevronDown size={15} strokeWidth={1.8} />
                         </span>
                       </div>
-                      {errors.country && <p className="mt-1.5 text-[11.5px] text-red-600 font-medium">{errors.country.message}</p>}
+                      {errors.country && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.country.message}</p>}
                     </div>
                   </div>
 
@@ -396,7 +420,7 @@ export default function RegisterPage() {
                         </svg>
                       )}
                     </div>
-                    <span className="text-[13.5px] text-[#6a7590] leading-relaxed font-body">
+                    <span className="text-sm text-[#6a7590] leading-relaxed font-body">
                       I have read and agree to the{' '}
                       <Link
                         to={ROUTES.PRIVACY}
@@ -422,13 +446,13 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="flex gap-3 mt-2">
-                    <button type="button" onClick={() => setStep(1)} className="flex-1 py-[15px] rounded-full border border-[#dde2ea] bg-white text-[#18203a] font-bold text-[15px] hover:border-[#3db8d8] transition-colors font-headline">
+                    <button type="button" onClick={() => setStep(preselectedRole ? 0 : 1)} className="flex-1 py-[15px] rounded-full border border-[#dde2ea] bg-white text-[#18203a] font-bold text-base hover:border-[#3db8d8] transition-colors font-headline">
                       ← Back
                     </button>
                     <button
                       type="submit"
                       disabled={isLoading || !gdprAccepted || !captchaToken}
-                      className="flex-[2] py-[15px] rounded-full bg-[#1c1230] text-white font-black text-[15px] hover:bg-[#110b1e] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)] font-headline flex items-center justify-center gap-2"
+                      className="flex-[2] py-[15px] rounded-full bg-[#1c1230] text-white font-black text-base hover:bg-[#110b1e] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)] font-headline flex items-center justify-center gap-2"
                     >
                       {isLoading ? (
                         <>

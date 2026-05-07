@@ -17,7 +17,7 @@ const MEDICAL_DOMAINS = [
 ]
 
 const baseInput =
-  'h-14 w-full rounded-[10px] border border-[#d7dbe3] bg-white px-4 text-[14px] font-semibold text-[#2d1838] outline-none transition placeholder:text-[#9a95a1] focus:border-[#66c8e7] focus:ring-4 focus:ring-[#66c8e7]/20'
+  'h-14 w-full rounded-[10px] border border-[#d7dbe3] bg-white px-4 text-sm font-semibold text-[#2d1838] outline-none transition placeholder:text-[#9a95a1] focus:border-[#66c8e7] focus:ring-4 focus:ring-[#66c8e7]/20'
 const baseSelect =
   `${baseInput} appearance-none pr-10`
 
@@ -127,8 +127,8 @@ export default function PostFormFields({ register, control, setValue, errors, mi
                   <Lock size={18} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[14px] font-black text-[#2d1838]">{option.title}</span>
-                  <span className="mt-1 block text-[12px] font-semibold leading-5 text-[#6f6a76]">{option.desc}</span>
+                  <span className="block text-sm font-black text-[#2d1838]">{option.title}</span>
+                  <span className="mt-1 block text-xs font-semibold leading-5 text-[#6f6a76]">{option.desc}</span>
                 </span>
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[#cfd3dc] peer-checked:border-[#2d1838] peer-checked:bg-[#2d1838]">
                   <span className="h-2 w-2 rounded-full bg-white opacity-0 peer-checked:opacity-100" />
@@ -175,8 +175,8 @@ export default function PostFormFields({ register, control, setValue, errors, mi
             <ShieldCheck size={20} />
           </span>
           <div>
-            <div className="text-[14px] font-black text-[#2d1838]">GDPR Notice</div>
-            <p className="mt-1 text-[13px] font-semibold leading-5 text-[#4f4a58]">
+            <div className="text-sm font-black text-[#2d1838]">GDPR Notice</div>
+            <p className="mt-1 text-sm font-semibold leading-5 text-[#4f4a58]">
               Do not include patient data, identifiable clinical records, or proprietary IP.
               <br />
               File uploads are not permitted on this platform - technical details belong in meetings under NDA.
@@ -192,12 +192,12 @@ function FormSection({ number, title, subtitle, children }: { number: string; ti
   return (
     <section className="rounded-[18px] bg-white p-7 shadow-[0_24px_80px_-68px_rgba(45,24,56,0.75)]">
       <header className="mb-7 flex items-start gap-4">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#66c8e7] text-[12px] font-black text-white">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#66c8e7] text-xs font-black text-white">
           {number}
         </span>
         <div>
-          <h2 className="text-[22px] font-black leading-tight text-[#2d1838]">{title}</h2>
-          <p className="mt-1 text-[13px] font-semibold text-[#6f6a76]">{subtitle}</p>
+          <h2 className="text-xl font-black leading-tight text-[#2d1838]">{title}</h2>
+          <p className="mt-1 text-sm font-semibold text-[#6f6a76]">{subtitle}</p>
         </div>
       </header>
       <div className="space-y-6">{children}</div>
@@ -208,18 +208,18 @@ function FormSection({ number, title, subtitle, children }: { number: string; ti
 function Field({ label, error, required, children }: { label: string; error?: string; required?: boolean; children: ReactNode }) {
   return (
     <div className="block">
-      <span className={`mb-2 block text-[12px] font-black ${error ? 'text-red-600' : 'text-[#2d1838]'}`}>
+      <span className={`mb-2 block text-xs font-black ${error ? 'text-red-600' : 'text-[#2d1838]'}`}>
         {label} {required && <span className="text-red-600">*</span>}
       </span>
       {children}
-      {error && <span className="mt-2 block text-[12px] font-semibold text-red-600">{error}</span>}
+      {error && <span className="mt-2 block text-xs font-semibold text-red-600">{error}</span>}
     </div>
   )
 }
 
 function Hint({ children }: { children: ReactNode }) {
   return (
-    <div className="flex items-center text-[13px] font-semibold leading-5 text-[#6f6a76] lg:pt-7">
+    <div className="flex items-center text-sm font-semibold leading-5 text-[#6f6a76] lg:pt-7">
       {children}
     </div>
   )

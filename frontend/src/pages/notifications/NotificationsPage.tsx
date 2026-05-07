@@ -87,7 +87,7 @@ export default function NotificationsPage() {
         {/* ── SIDEBAR ── */}
         <aside className="w-[256px] shrink-0 bg-white rounded-2xl border border-[#E3E7EC] overflow-hidden">
           <div className="px-5 pt-5 pb-4 border-b border-[#E3E7EC]">
-            <div className="flex items-center gap-2.5 text-[15px] font-black text-[#36213E]">
+            <div className="flex items-center gap-2.5 text-base font-black text-[#36213E]">
               <Bell size={17} strokeWidth={2} />
               Notifications
             </div>
@@ -101,7 +101,7 @@ export default function NotificationsPage() {
                 <button
                   key={t.key}
                   onClick={() => setActiveTab(t.key)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                     active
                       ? 'bg-[#E8F4F7] text-[#8AC6D0]'
                       : 'text-[#6F6878] hover:bg-[#EEF0F3] hover:text-[#36213E]'
@@ -112,7 +112,7 @@ export default function NotificationsPage() {
                     {t.label}
                   </div>
                   {count > 0 && (
-                    <span className={`text-[11.5px] font-bold px-2 py-0.5 rounded-full ${
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                       active ? 'bg-[#8AC6D0]/10 text-[#8AC6D0]' : 'bg-[#EEF0F3] text-[#6F6878]'
                     }`}>
                       {count}
@@ -128,13 +128,13 @@ export default function NotificationsPage() {
             <div className="w-12 h-12 rounded-full bg-[#D7EEF2] flex items-center justify-center mx-auto mb-3">
               <Bell size={20} strokeWidth={1.8} className="text-[#8AC6D0]" />
             </div>
-            <div className="text-[13px] font-black text-[#36213E] mb-1">Stay in the loop</div>
-            <p className="text-[12px] text-[#6F6878] leading-relaxed mb-3">
+            <div className="text-sm font-black text-[#36213E] mb-1">Stay in the loop</div>
+            <p className="text-xs text-[#6F6878] leading-relaxed mb-3">
               Enable browser notifications to never miss important updates.
             </p>
             <button
               onClick={() => Notification.requestPermission()}
-              className="w-full py-2 rounded-full border border-[#8AC6D0] text-[#8AC6D0] text-[12px] font-bold hover:bg-[#8AC6D0] hover:text-white transition-colors"
+              className="w-full py-2 rounded-full border border-[#8AC6D0] text-[#8AC6D0] text-xs font-bold hover:bg-[#8AC6D0] hover:text-white transition-colors"
             >
               Enable Notifications
             </button>
@@ -146,8 +146,8 @@ export default function NotificationsPage() {
           {/* Header */}
           <div className="px-7 pt-6 pb-5 border-b border-[#E3E7EC] flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-[21px] font-black text-[#36213E]">{activeLabel}</h1>
-              <p className="text-[13px] text-[#6F6878] mt-0.5">
+              <h1 className="text-xl font-black text-[#36213E]">{activeLabel}</h1>
+              <p className="text-sm text-[#6F6878] mt-0.5">
                 {filtered.length === 0
                   ? "You're all caught up! No new notifications."
                   : `${filtered.length} notification${filtered.length !== 1 ? 's' : ''}`}
@@ -157,7 +157,7 @@ export default function NotificationsPage() {
               {counts.unread > 0 && (
                 <button
                   onClick={() => user && markAllRead(user.id)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[#E3E7EC] text-[13px] font-bold text-[#36213E] hover:border-[#8AC6D0] hover:text-[#8AC6D0] transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[#E3E7EC] text-sm font-bold text-[#36213E] hover:border-[#8AC6D0] hover:text-[#8AC6D0] transition-colors"
                 >
                   <Check size={14} strokeWidth={2.5} />
                   Mark all as read
@@ -176,7 +176,7 @@ export default function NotificationsPage() {
                 <div className="w-12 h-12 rounded-full bg-[#EEF0F3] flex items-center justify-center mx-auto mb-3">
                   <Bell size={20} className="text-[#D5DAE0]" />
                 </div>
-                <p className="text-[14px] font-semibold text-[#6F6878]">No notifications here</p>
+                <p className="text-sm font-semibold text-[#6F6878]">No notifications here</p>
               </div>
             ) : (
               filtered.map(n => {
@@ -204,17 +204,17 @@ export default function NotificationsPage() {
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <div className={`text-[14.5px] leading-snug ${
+                      <div className={`text-sm leading-snug ${
                         n.isRead ? 'text-[#36213E] font-semibold' : 'text-[#36213E] font-bold'
                       }`}>
                         {n.title}
                       </div>
-                      <div className="text-[13px] text-[#6F6878] mt-0.5 truncate">{n.body}</div>
+                      <div className="text-sm text-[#6F6878] mt-0.5 truncate">{n.body}</div>
                     </div>
 
                     {/* Time + dot */}
                     <div className="flex items-center gap-2.5 shrink-0 mt-1">
-                      <span className="text-[12.5px] text-[#6F6878] font-medium whitespace-nowrap">
+                      <span className="text-xs text-[#6F6878] font-semibold whitespace-nowrap">
                         {timeAgo(n.createdAt)}
                       </span>
                       {!n.isRead && (
@@ -228,7 +228,7 @@ export default function NotificationsPage() {
           </div>
 
           {filtered.length > 0 && (
-            <div className="py-5 text-center text-[12.5px] text-[#6F6878] font-medium border-t border-[#F3F4F6]">
+            <div className="py-5 text-center text-xs text-[#6F6878] font-semibold border-t border-[#F3F4F6]">
               No more notifications
             </div>
           )}
