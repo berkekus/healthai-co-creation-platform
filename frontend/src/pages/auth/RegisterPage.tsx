@@ -122,7 +122,7 @@ export default function RegisterPage() {
               src="/images/healthailogo3d.png"
               alt=""
               aria-hidden="true"
-              className="w-[200px] xl:w-[240px]"
+              className="w-[240px] xl:w-[290px]"
               style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 20px 40px rgba(20,70,160,0.22))' }}
             />
           </div>
