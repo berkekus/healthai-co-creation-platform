@@ -138,8 +138,8 @@ export default function PostDetailPage() {
   const active = post.status === 'active'
 
   return (
-    <main className="bg-[#f6f7f9] text-[#36213E]">
-      <div className="mx-auto w-full max-w-[1120px] px-5 pb-10 pt-[46px] sm:px-8 xl:px-0">
+    <main className="min-h-screen bg-[#f6f7f9] text-[#36213E]">
+      <div className="mx-auto w-full max-w-[1120px] px-5 pb-14 pt-[42px] sm:px-8 xl:px-0">
         <div className="mb-[22px] flex items-center justify-between gap-4">
           <button
             onClick={() => navigate(ROUTES.POSTS)}
@@ -167,23 +167,24 @@ export default function PostDetailPage() {
           </div>
         </div>
 
-        <section className="overflow-hidden rounded-[20px] border border-[#E3E7EC] bg-white px-[32px] pb-[30px] pt-[30px] shadow-[0_34px_95px_-78px_rgba(45,24,56,0.8)] sm:px-[34px]">
-          <div className="grid grid-cols-1 gap-9 lg:grid-cols-[minmax(0,1fr)_154px]">
+        <section className="rounded-[28px] bg-white px-6 py-8 shadow-[0_34px_100px_-86px_rgba(45,24,56,0.72)] sm:px-9 sm:py-10">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start">
             <div>
               <div className="flex flex-wrap gap-4">
                 <Pill tone="blue">{post.domain}</Pill>
                 <Pill tone={active ? 'green' : 'gray'}>{statusLabel(post.status)}</Pill>
               </div>
 
-              <h1 className="mt-[30px] max-w-[760px] break-words font-headline text-[34px] font-black leading-[1.08] text-[#36213E] sm:text-[38px]">
+              <h1 className="mt-7 max-w-[780px] break-words font-headline text-[34px] font-black leading-[1.08] text-[#36213E] sm:text-[42px]">
                 {post.title}
               </h1>
 
-              <div className="mt-[28px] flex items-center gap-5">
+              <div className="mt-7 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 items-center gap-5">
                 <div className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-[#dceeff] text-[15px] font-black text-[#36213E]">
                   {initials}
                 </div>
-                <div>
+                  <div className="min-w-0">
                   <div className="text-[18px] font-black">{post.authorName}</div>
                   <div className="mt-2 flex items-center gap-2 text-[13px] font-semibold text-[#6F6878]">
                     {ROLE_LABELS[post.authorRole] ?? post.authorRole}
@@ -191,70 +192,82 @@ export default function PostDetailPage() {
                   </div>
                 </div>
               </div>
+
+                <div className="flex flex-wrap gap-3">
+                  {alreadyRequested && !isOwner ? (
+                    <button onClick={() => navigate(ROUTES.MEETINGS)} className="h-[46px] rounded-full bg-[#36213E] px-7 text-[14px] font-black text-white transition hover:bg-[#4b3055]">
+                      Manage interest
+                    </button>
+                  ) : canExpressInterest ? (
+                    <button onClick={() => setShowInterest(true)} className="h-[46px] rounded-full bg-[#36213E] px-7 text-[14px] font-black text-white transition hover:bg-[#4b3055]">
+                      Express interest
+                    </button>
+                  ) : isOwner ? (
+                    <>
+                      {canPublish && <button onClick={() => publish(post.id)} className="h-[46px] rounded-full bg-[#36213E] px-7 text-[14px] font-black text-white">Publish</button>}
+                      {canMarkFound && <button onClick={() => markPartnerFound(post.id)} className="h-[46px] rounded-full bg-[#D8EFF2] px-7 text-[14px] font-black text-[#36213E]">Mark partner found</button>}
+                      {canEdit && <button onClick={() => navigate(postEdit(post.id))} className="h-[46px] rounded-full border border-[#D5DAE0] bg-white px-7 text-[14px] font-black">Edit post</button>}
+                    </>
+                  ) : null}
+                </div>
+              </div>
             </div>
 
-            <div className="self-start rounded-[9px] border border-[#dfe3ea] bg-white px-6 py-6 text-center">
-              <CalendarDays className="mx-auto text-[#36213E]" size={25} />
-              <div className="mt-5 text-[31px] font-black leading-none">{daysLeft}</div>
-              <div className="mt-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#6F6878]">Days left</div>
-              <div className="mt-5 h-[6px] overflow-hidden rounded-full bg-[#e8eef4]">
+            <div className="rounded-[22px] bg-[#E8F4F7] px-6 py-6">
+              <div className="flex items-center gap-4">
+                <CalendarDays className="text-[#36213E]" size={25} />
+                <div>
+                  <div className="text-[31px] font-black leading-none">{daysLeft}</div>
+                  <div className="mt-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#6F6878]">Days left</div>
+                </div>
+              </div>
+              <div className="mt-5 h-[6px] overflow-hidden rounded-full bg-white/70">
                 <div className="h-full rounded-full bg-[#8AC6D0]" style={{ width: `${Math.min(100, Math.max(8, 100 - daysLeft / 4))}%` }} />
               </div>
+              <p className="mt-5 text-[13px] font-semibold leading-6 text-[#6F6878]">
+                {alreadyRequested && !isOwner
+                  ? "You've already expressed interest. We'll keep you updated."
+                  : canExpressInterest
+                    ? 'Send a short note to start the collaboration conversation.'
+                    : isOwner
+                      ? 'Manage this opportunity from the actions beside your profile.'
+                      : 'This opportunity is not currently accepting interest.'}
+              </p>
             </div>
           </div>
 
-          <div className="mt-[34px] border-t border-[#e1e4e9] pt-[27px]">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6 lg:gap-0">
+          <div className="mt-8 border-t border-[#E3E7EC] pt-7">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6">
               {meta.map(item => (
-                <div key={item.label} className="lg:min-h-[58px] lg:border-r lg:border-[#e1e4e9] lg:px-[22px] lg:first:pl-0 lg:last:border-r-0">
-                  <div className="flex items-start gap-4">
-                    <span className="mt-1 shrink-0 text-[#36213E]">{item.icon}</span>
-                    <span>
-                      <span className="block text-[11px] font-black uppercase tracking-[0.12em] text-[#6F6878]">{item.label}</span>
-                      <span className="mt-2 block break-words text-[13px] font-black leading-5 text-[#36213E]">{item.value}</span>
+                <div key={item.label} className="flex items-start gap-4">
+                  <span className="mt-1 shrink-0 text-[#6FB8C4]">{item.icon}</span>
+                  <span>
+                    <span className="block text-[11px] font-black uppercase tracking-[0.12em] text-[#6F6878]">{item.label}</span>
+                    <span className="mt-2 block break-words text-[13px] font-black leading-5 text-[#36213E]">{item.value}</span>
                     </span>
-                  </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {alreadyRequested && !isOwner && (
-          <section className="mt-[28px] flex items-center justify-between gap-6 rounded-[16px] border border-[#bfeafa] bg-[#eefaff] px-6 py-6">
-            <div className="flex items-center gap-5">
-              <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-[#36213E] text-white">
-                <Users size={24} />
-              </div>
-              <div>
-                <div className="text-[16px] font-black">You've already expressed interest</div>
-                <div className="mt-2 text-[13px] font-semibold text-[#6F6878]">We'll notify you about any updates or changes to this opportunity.</div>
-              </div>
-            </div>
-            <button onClick={() => navigate(ROUTES.MEETINGS)} className="h-[46px] rounded-[13px] border border-[#D5DAE0] bg-white px-8 text-[14px] font-black">
-              Manage interest
-            </button>
-          </section>
-        )}
-
-        <div className="mt-[28px] grid grid-cols-1 gap-7 lg:grid-cols-[620px_1fr]">
-          <div className="space-y-6">
-            <InfoCard title="Expertise required" className="min-h-[142px]">
-              <div className="flex items-end justify-between gap-6">
-                <span className="inline-flex max-w-[340px] break-words rounded-full bg-[#e8f9fc] px-5 py-3 text-[14px] font-black">{post.expertiseRequired}</span>
-                <StairIllustration />
-              </div>
-            </InfoCard>
-
-            <InfoCard title="Project description" className="min-h-[240px]">
+        <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,690px)_1fr]">
+          <div className="rounded-[28px] bg-white px-6 py-8 shadow-[0_30px_90px_-84px_rgba(45,24,56,0.7)] sm:px-9">
+            <DetailSection title="Project description">
               {post.confidentiality === 'public_pitch' ? (
-                <p className="whitespace-pre-wrap break-words text-[14px] font-semibold leading-7 text-[#4f4a58]">{post.description}</p>
+                <p className="whitespace-pre-wrap break-words text-[15px] font-semibold leading-8 text-[#4f4a58]">{post.description}</p>
               ) : (
-                <p className="text-[14px] font-semibold leading-7 text-[#4f4a58]">Full details are shared in a meeting under NDA.</p>
+                <p className="text-[15px] font-semibold leading-8 text-[#4f4a58]">Full details are shared in a meeting under NDA.</p>
               )}
-            </InfoCard>
+            </DetailSection>
 
-            <InfoCard title="About the author" className="min-h-[198px]">
+            <DetailSection title="Expertise required">
+              <div className="flex flex-wrap gap-3">
+                <span className="inline-flex max-w-full break-words rounded-full bg-[#E8F4F7] px-5 py-3 text-[14px] font-black text-[#36213E]">{post.expertiseRequired}</span>
+              </div>
+            </DetailSection>
+
+            <DetailSection title="About the author" isLast>
               <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-5">
                   <div className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-[#dfefff] text-[15px] font-black">{initials}</div>
@@ -269,14 +282,15 @@ export default function PostDetailPage() {
                     </div>
                   </div>
                 </div>
-                <button className="h-[48px] rounded-[13px] border border-[#D5DAE0] bg-white px-8 text-[14px] font-black">View profile</button>
+                <button className="h-[48px] rounded-full border border-[#D5DAE0] bg-white px-8 text-[14px] font-black transition hover:border-[#8AC6D0]">View profile</button>
               </div>
-            </InfoCard>
+            </DetailSection>
           </div>
 
-          <aside className="space-y-6">
-            <InfoCard title="About this opportunity" className="min-h-[408px]">
-              <div className="space-y-[18px]">
+          <aside className="lg:pt-2">
+            <div className="sticky top-6 rounded-[28px] bg-white px-6 py-7 shadow-[0_30px_90px_-84px_rgba(45,24,56,0.7)]">
+              <h2 className="text-[20px] font-black leading-tight text-[#36213E]">Opportunity details</h2>
+              <div className="mt-6 space-y-[18px]">
                 {[
                   ['Domain', post.domain, <Wrench size={18} />],
                   ['Posted', new Date(post.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), <FileText size={18} />],
@@ -296,33 +310,7 @@ export default function PostDetailPage() {
                   </div>
                 ))}
               </div>
-            </InfoCard>
-
-            <InfoCard title="Interested in this opportunity?" className="min-h-[198px]">
-              {alreadyRequested ? (
-                <>
-                  <p className="text-[14px] font-semibold leading-7 text-[#6F6878]">You've already expressed interest. We'll keep you updated.</p>
-                  <button onClick={() => navigate(ROUTES.MEETINGS)} className="mt-6 h-[46px] rounded-[12px] bg-[#36213E] px-7 text-[14px] font-black text-white">
-                    Manage interest
-                  </button>
-                </>
-              ) : canExpressInterest ? (
-                <>
-                  <p className="text-[14px] font-semibold leading-7 text-[#6F6878]">Send a short message, accept the NDA, and propose meeting times.</p>
-                  <button onClick={() => setShowInterest(true)} className="mt-6 h-[46px] rounded-[12px] bg-[#36213E] px-7 text-[14px] font-black text-white">
-                    Express interest
-                  </button>
-                </>
-              ) : isOwner ? (
-                <div className="flex flex-wrap gap-3">
-                  {canPublish && <button onClick={() => publish(post.id)} className="h-12 rounded-[14px] bg-[#36213E] px-6 text-sm font-black text-white">Publish</button>}
-                  {canMarkFound && <button onClick={() => markPartnerFound(post.id)} className="h-12 rounded-[14px] bg-[#D8EFF2] px-6 text-sm font-black text-[#36213E]">Mark partner found</button>}
-                  {canEdit && <button onClick={() => navigate(postEdit(post.id))} className="h-12 rounded-[14px] border border-[#D5DAE0] bg-white px-6 text-sm font-black">Edit post</button>}
-                </div>
-              ) : (
-                <p className="text-[15px] font-semibold leading-7 text-[#6F6878]">This opportunity is not currently accepting interest.</p>
-              )}
-            </InfoCard>
+            </div>
           </aside>
         </div>
       </div>
@@ -343,29 +331,12 @@ function Pill({ children, tone }: { children: string; tone: 'blue' | 'green' | '
   return <span className={`rounded-full px-5 py-2 text-[12px] font-black uppercase tracking-[0.02em] ${cls}`}>{children}</span>
 }
 
-function InfoCard({ title, children, className = '' }: { title: string; children: React.ReactNode; className?: string }) {
+function DetailSection({ title, children, isLast = false }: { title: string; children: React.ReactNode; isLast?: boolean }) {
   return (
-    <section className={`rounded-[16px] border border-[#E3E7EC] bg-white px-7 py-7 shadow-[0_32px_90px_-78px_rgba(45,24,56,0.8)] ${className}`}>
-      <h2 className="border-l-[3px] border-[#8AC6D0] pl-5 text-[20px] font-black leading-tight text-[#36213E]">{title}</h2>
-      <div className="mt-7">{children}</div>
+    <section className={`${isLast ? '' : 'border-b border-[#E3E7EC] pb-8'} ${isLast ? 'pt-8' : 'py-8'} first:pt-0`}>
+      <h2 className="text-[20px] font-black leading-tight text-[#36213E]">{title}</h2>
+      <div className="mt-5">{children}</div>
     </section>
-  )
-}
-
-function StairIllustration() {
-  return (
-    <div className="relative hidden h-[78px] w-[150px] shrink-0 sm:block" aria-hidden="true">
-      <div className="absolute bottom-[10px] left-[18px] h-[32px] w-[74px] border-b border-l border-[#b8c5d8]" />
-      <div className="absolute bottom-[22px] left-[42px] h-[28px] w-[74px] border-b border-l border-[#b8c5d8]" />
-      <div className="absolute bottom-[34px] left-[66px] h-[24px] w-[62px] border-b border-l border-[#b8c5d8]" />
-      <div className="absolute bottom-[18px] left-[24px] h-5 w-5 rounded-full bg-[#25172f]" />
-      <div className="absolute bottom-[30px] left-[67px] h-5 w-5 rounded-full bg-[#4f74b8]" />
-      <div className="absolute bottom-[50px] left-[108px] h-5 w-5 rounded-full bg-[#7ba4e0]" />
-      <div className="absolute bottom-[14px] left-[28px] h-[26px] w-[2px] rotate-[-24deg] bg-[#25172f]" />
-      <div className="absolute bottom-[28px] left-[72px] h-[30px] w-[2px] rotate-[-18deg] bg-[#4f74b8]" />
-      <div className="absolute bottom-[48px] left-[112px] h-[31px] w-[2px] rotate-[-16deg] bg-[#7ba4e0]" />
-      <div className="absolute right-0 top-3 h-2 w-6 rounded-full bg-[#dfeeff]" />
-    </div>
   )
 }
 
