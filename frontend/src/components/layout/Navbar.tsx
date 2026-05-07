@@ -4,6 +4,7 @@ import { Bell, Menu, MessageSquare, X, LogOut, User, Settings, LayoutDashboard }
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import { useConversationStore } from '../../store/conversationStore'
+import ThemeToggle from '../ui/ThemeToggle'
 import { ROUTES } from '../../constants/routes'
 
 const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
@@ -115,6 +116,8 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
           {user ? (
             <>
+              <ThemeToggle />
+
               {/* Messages */}
               <Link
                 to={ROUTES.MESSAGES}
