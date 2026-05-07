@@ -3,11 +3,8 @@ import Navbar from './Navbar'
 import Footer from './Footer'
 import SessionTimeoutModal from '../ui/SessionTimeoutModal'
 import CookieConsentBanner from '../ui/CookieConsentBanner'
-import ThemeToggle from '../ui/ThemeToggle'
-
 /**
- * Shell for all authenticated-app pages (Faz 1 refresh).
- * Uses the hai-offwhite surface + Source Sans 3 body font to match the landing.
+ * Shell for all authenticated-app pages.
  */
 export default function AppLayout() {
   return (
@@ -19,7 +16,6 @@ export default function AppLayout() {
       <Footer />
       <SessionTimeoutModal />
       <CookieConsentBanner />
-      <ThemeToggle />
     </div>
   )
 }

@@ -73,8 +73,7 @@ export default function RegisterPage() {
 
         {/* ── LEFT PANEL ── */}
         <div
-          className="hidden lg:flex w-[42%] flex-col relative overflow-hidden"
-          style={{ background: 'linear-gradient(155deg, #ddeef8 0%, #c8e2f4 45%, #b8d6ee 100%)' }}
+          className="login-left-panel hidden lg:flex w-[42%] flex-col relative overflow-hidden"
         >
           <div
             className="absolute inset-0 pointer-events-none opacity-20"

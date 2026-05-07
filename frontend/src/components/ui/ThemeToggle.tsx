@@ -3,18 +3,20 @@ import { useThemeStore } from '../../store/themeStore'
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useThemeStore()
+  const isDark = theme === 'dark'
 
   return (
     <button
       onClick={toggleTheme}
-      aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-      className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-[#2d1838] text-white shadow-[0_8px_24px_-6px_rgba(45,24,56,0.5)] transition-all duration-200 hover:scale-110 hover:shadow-[0_12px_28px_-8px_rgba(45,24,56,0.6)] dark:bg-[rgb(var(--hai-offwhite))] dark:text-[rgb(var(--hai-plum))] dark:shadow-[0_8px_24px_-6px_rgba(0,0,0,0.5)]"
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      style={{
+        backgroundColor: isDark ? '#1e1a2e' : '#ffffff',
+        borderColor:     isDark ? '#2d2840' : '#e8e8ee',
+        color:           isDark ? '#c4b5d8' : '#374151',
+      }}
+      className="w-12 h-12 rounded-full border transition-colors flex items-center justify-center hover:opacity-80"
     >
-      {theme === 'light' ? (
-        <Moon size={19} strokeWidth={2} />
-      ) : (
-        <Sun size={19} strokeWidth={2} />
-      )}
+      {isDark ? <Sun size={17} /> : <Moon size={17} />}
     </button>
   )
 }

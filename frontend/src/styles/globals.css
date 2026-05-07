@@ -100,23 +100,23 @@
 
 /* ── Dark mode overrides ── */
 .dark {
-  --hai-plum:     196 181 212;
-  --hai-mint:     20 50 60;
-  --hai-teal:     93 168 181;
-  --hai-offwhite: 15 15 25;
-  --hai-lime:     184 224 0;
-  --hai-cream:    40 37 32;
+  --hai-plum:     210 195 230;
+  --hai-mint:     18 45 58;
+  --hai-teal:     85 195 215;
+  --hai-offwhite: 6 8 18;
+  --hai-lime:     190 230 0;
+  --hai-cream:    35 32 28;
 
-  --surface-base:   15 15 25;
-  --surface-card:   22 22 35;
-  --surface-blob:   18 35 50;
-  --surface-subtle: 15 45 60;
-  --text-primary:   230 220 240;
-  --text-secondary: 155 145 165;
-  --text-heading:   210 200 220;
-  --text-link:      93 168 181;
-  --border-default: 45 40 55;
-  --border-divider: 38 33 48;
+  --surface-base:   6 8 18;
+  --surface-card:   12 14 30;
+  --surface-blob:   16 26 48;
+  --surface-subtle: 14 42 58;
+  --text-primary:   248 244 255;
+  --text-secondary: 148 138 168;
+  --text-heading:   255 252 255;
+  --text-link:      85 195 215;
+  --border-default: 36 32 58;
+  --border-divider: 26 24 44;
 
   color-scheme: dark;
 }
@@ -212,6 +212,135 @@
 .dark .bg-\[\#f0f1f4\]     { background-color: rgb(28, 28, 48) !important; }
 /* Blockquote / divider borders */
 .dark .border-\[\#b7c1ca\] { border-color: rgb(var(--border-default)) !important; }
+
+/* Login / Register left panel (inline style can't be overridden, use class) */
+.login-left-panel {
+  background: linear-gradient(155deg, #ddeef8 0%, #c8e2f4 45%, #b8d6ee 100%);
+}
+.dark .login-left-panel {
+  background: linear-gradient(155deg, #0e1428 0%, #0a1020 48%, #070d1c 100%) !important;
+}
+
+/* Missing near-white backgrounds (login bg, table rows, inputs) */
+.dark .bg-\[\#e8f0f7\],
+.dark .bg-\[\#e8ecf0\] { background-color: rgb(var(--surface-base)) !important; }
+
+.dark .bg-\[\#f8f7fa\],
+.dark .bg-\[\#fafbfc\],
+.dark .bg-\[\#fafafa\],
+.dark .bg-\[\#f9fafb\],
+.dark .bg-\[\#f8f9fb\] { background-color: rgb(28, 26, 42) !important; }
+
+/* Additional muted/secondary text shades */
+.dark .text-\[\#374151\] { color: rgb(var(--text-primary)) !important; }
+.dark .text-\[\#9f9aaa\],
+.dark .text-\[\#b5b0be\],
+.dark .text-\[\#c5c0cc\],
+.dark .text-\[\#d0ccd8\] { color: rgb(var(--text-secondary)) !important; }
+.dark .text-\[\#4a5270\],
+.dark .text-\[\#1a2535\] { color: rgb(var(--text-primary)) !important; }
+
+/* Additional borders */
+.dark .border-\[\#f3f4f6\],
+.dark .border-\[\#f0f1f3\] { border-color: rgb(var(--border-divider)) !important; }
+
+/* Admin page — indigo accent surfaces adapt to dark */
+.dark .bg-\[\#eeecff\],
+.dark .bg-\[\#f5f5ff\],
+.dark .bg-\[\#f0f0ff\],
+.dark .bg-\[\#f8f8ff\],
+.dark .bg-\[\#eeeeff\] { background-color: rgb(32, 28, 58) !important; }
+.dark .bg-\[\#e0e7ff\] { background-color: rgb(38, 34, 68) !important; }
+.dark .bg-\[\#fafafa\] { background-color: rgb(22, 20, 36) !important; }
+
+/* Admin page — status badge backgrounds (keep them readable) */
+.dark .bg-\[\#dbeafe\] { background-color: rgb(15, 28, 58) !important; }
+.dark .bg-\[\#d1fae5\] { background-color: rgb(12, 38, 28) !important; }
+.dark .bg-\[\#fef3c7\] { background-color: rgb(40, 30, 10) !important; }
+.dark .bg-\[\#fee2e2\] { background-color: rgb(48, 18, 18) !important; }
+.dark .bg-\[\#ede9fe\] { background-color: rgb(35, 26, 60) !important; }
+
+/* Native form elements (input, textarea, select) */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.dark textarea,
+.dark select {
+  background-color: rgb(28, 26, 42) !important;
+  color: rgb(var(--text-primary)) !important;
+  border-color: rgb(var(--border-default)) !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder { color: rgb(var(--text-secondary)) !important; opacity: 0.7; }
+
+/* Navbar & dropdown surfaces */
+.dark .bg-hai-offwhite { background-color: rgb(var(--surface-card)) !important; }
+
+/* Message bubbles */
+.dark .border-\[\#8fdff0\] { border-color: rgb(35, 75, 92) !important; }
+
+/* ── Extra comprehensive page overrides ── */
+
+/* Auth pages main bg */
+.dark .bg-\[\#e8f0f7\] { background-color: rgb(var(--surface-base)) !important; }
+
+/* Dot-grid / radial overlays on login panels */
+.dark .bg-\[\#80b0cc\] { background-color: rgb(40, 80, 120) !important; }
+
+/* Post list, profile, messages — near-offwhite page shells */
+.dark .bg-\[\#f7f8fa\] { background-color: rgb(var(--surface-base)) !important; }
+.dark .bg-\[\#f6f7f9\] { background-color: rgb(var(--surface-base)) !important; }
+
+/* Card shadows & surfaces */
+.dark .shadow-\[0_32px_80px_-20px_rgba\(14\,30\,66\,0\.22\)\,0_0_0_1px_rgba\(255\,255\,255\,0\.6\)\] {
+  box-shadow: 0 32px 80px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06) !important;
+}
+.dark .shadow-\[0_24px_70px_-54px_rgba\(45\,24\,56\,0\.5\)\] {
+  box-shadow: 0 24px 70px -54px rgba(0,0,0,0.9) !important;
+}
+
+/* Hover row backgrounds */
+.dark .hover\:bg-\[\#fbfcfd\]:hover,
+.dark .hover\:bg-\[\#fafafa\]:hover,
+.dark .hover\:bg-\[\#f8f7fa\]:hover { background-color: rgb(20, 18, 40) !important; }
+
+/* Selected / active states in admin (indigo) */
+.dark .bg-\[\#eeecff\] { background-color: rgb(30, 26, 60) !important; }
+.dark .hover\:bg-\[\#f5f5ff\]:hover { background-color: rgb(24, 20, 50) !important; }
+
+/* Profile page bg */
+.dark .bg-\[\#f5f5f5\] { background-color: rgb(var(--surface-base)) !important; }
+
+/* Text on dark: specific accents that must stay readable */
+.dark .text-\[\#4f46e5\] { color: rgb(140, 130, 230) !important; }
+.dark .text-\[\#2563eb\] { color: rgb(100, 150, 240) !important; }
+.dark .text-\[\#7c3aed\] { color: rgb(170, 130, 240) !important; }
+.dark .text-\[\#059669\] { color: rgb(60, 200, 140) !important; }
+.dark .text-\[\#dc2626\] { color: rgb(240, 100, 100) !important; }
+.dark .text-\[\#d97706\] { color: rgb(240, 180, 60) !important; }
+
+/* Text: additional light shades that appear in messages/meetings */
+.dark .text-\[\#1a2535\] { color: rgb(var(--text-primary)) !important; }
+.dark .text-\[\#2d1838\] { color: rgb(var(--text-primary)) !important; }
+
+/* Borders on bright-colored chips/badges — keep them subtle in dark */
+.dark .border-\[\#dde2ea\] { border-color: rgb(var(--border-default)) !important; }
+.dark .border-\[\#eef0f5\] { border-color: rgb(var(--border-divider)) !important; }
+
+/* Focus rings */
+.dark .focus\:ring-2:focus { --tw-ring-color: rgba(85, 195, 215, 0.2) !important; }
+.dark .focus\:border-\[\#3db8d8\]:focus { border-color: rgb(85, 195, 215) !important; }
+.dark .focus\:border-\[\#55c7df\]:focus { border-color: rgb(85, 195, 215) !important; }
+
+/* Post/meeting status chips — keep text legible */
+.dark .bg-\[\#d8ff8f\] { background-color: rgb(32, 55, 15) !important; color: rgb(180, 230, 100) !important; }
+.dark .bg-\[\#ffe8e8\] { background-color: rgb(50, 15, 15) !important; color: rgb(240, 120, 120) !important; }
+.dark .bg-\[\#dff8ff\] { background-color: rgb(14, 42, 55) !important; color: rgb(100, 210, 230) !important; }
+.dark .bg-\[\#eeeeee\] { background-color: rgb(30, 28, 45) !important; color: rgb(148, 138, 168) !important; }
+
+/* Gradient teal accent (login page dot-grid, dashboard blob) */
+.dark .bg-\[\#4ca8cc\] { color: rgb(85, 195, 215) !important; }
+
+/* App layout base bg */
+.dark .min-h-screen.bg-hai-offwhite { background-color: rgb(var(--surface-base)) !important; }
 
 /* Inline-var pages: PostListPage + MeetingsPage set colors as inline CSS
    variables (--bg, --text, etc.) which can't be overridden via the cascade.

@@ -79,8 +79,7 @@ export default function LoginPage() {
 
         {/* LEFT PANEL */}
         <div
-          className="hidden lg:flex w-[42%] flex-col relative overflow-hidden"
-          style={{ background: 'linear-gradient(155deg, #ddeef8 0%, #c8e2f4 45%, #b8d6ee 100%)' }}
+          className="login-left-panel hidden lg:flex w-[42%] flex-col relative overflow-hidden"
         >
           {/* Dot-grid texture */}
           <div
