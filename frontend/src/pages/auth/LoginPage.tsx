@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
@@ -109,7 +109,7 @@ export default function LoginPage() {
             </p>
             <h2 className="font-headline font-black text-[30px] xl:text-[36px] leading-[1.14] text-[#152d5a]">
               Building the future<br />of healthcare,<br />
-              <span className="text-[#3db8d8]">together.</span>
+              <span className="text-[#8AC6D0]">together.</span>
             </h2>
             <p className="mt-4 text-[14px] text-[#5a88a4] leading-relaxed font-body max-w-[260px]">
               Connect with clinicians and engineers<br />to create real-world impact.
@@ -154,27 +154,27 @@ export default function LoginPage() {
           <div className="w-full max-w-[380px]">
 
             {/* Heading */}
-            <h1 className="font-headline font-black text-[36px] sm:text-[42px] leading-[1.05] tracking-[-0.02em] text-[#18203a] mb-2">
-              Welcome back<span className="text-[#3db8d8]">.</span>
+            <h1 className="font-headline font-black text-[36px] sm:text-[42px] leading-[1.05] tracking-[-0.02em] text-[#36213E] mb-2">
+              Welcome back<span className="text-[#8AC6D0]">.</span>
             </h1>
-            <p className="text-[14.5px] text-[#7a8399] mb-8 font-body">
+            <p className="text-[14.5px] text-[#6F6878] mb-8 font-body">
               Sign in with your institutional{' '}
-              <span className="text-[#3db8d8] font-bold">.edu</span>
+              <span className="text-[#8AC6D0] font-bold">.edu</span>
               {' '}account.
             </p>
 
             {/* Rate-limit banner */}
             {cooldown > 0 && (
-              <div role="alert" className="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+              <div role="alert" className="mb-5 p-4 bg-hai-cream/40 border border-hai-cream rounded-2xl">
                 <div className="flex items-start gap-3">
-                  <span className="text-amber-600 text-lg leading-none mt-0.5">{'\u23f1'}</span>
+                  <span className="text-hai-plum text-lg leading-none mt-0.5">{'\u23f1'}</span>
                   <div className="flex-1">
-                    <div className="text-[13px] font-bold text-amber-900 mb-1">Too many failed attempts</div>
-                    <div className="text-[12.5px] text-amber-800">
+                    <div className="text-[13px] font-bold text-hai-plum mb-1">Too many failed attempts</div>
+                    <div className="text-[12.5px] text-hai-plum/70">
                       Please wait <span className="font-mono font-bold">{cooldown}s</span> before trying again.
                     </div>
-                    <div className="mt-2 h-1 bg-amber-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-amber-500 transition-[width] duration-1000 ease-linear" style={{ width: `${(cooldown / COOLDOWN_SEC) * 100}%` }} />
+                    <div className="mt-2 h-1 bg-hai-cream rounded-full overflow-hidden">
+                      <div className="h-full bg-hai-plum transition-[width] duration-1000 ease-linear" style={{ width: `${(cooldown / COOLDOWN_SEC) * 100}%` }} />
                     </div>
                   </div>
                 </div>
@@ -182,7 +182,7 @@ export default function LoginPage() {
             )}
 
             {failedAttempts > 0 && failedAttempts < RATE_LIMIT_AFTER && cooldown === 0 && (
-              <div role="alert" className="mb-5 p-3 bg-amber-50 border border-amber-200 rounded-xl text-[12.5px] text-amber-800 font-medium">
+              <div role="alert" className="mb-5 p-3 bg-hai-cream/40 border border-hai-cream rounded-xl text-[12.5px] text-hai-plum/75 font-medium">
                 <span className="font-bold">{RATE_LIMIT_AFTER - failedAttempts}</span>
                 {' '}attempt{RATE_LIMIT_AFTER - failedAttempts !== 1 ? 's' : ''} remaining before lockout.
               </div>
@@ -195,7 +195,7 @@ export default function LoginPage() {
                   {error}
                   {error.toLowerCase().includes('not verified') && (
                     <div className="mt-1.5">
-                      <Link to={ROUTES.VERIFY_EMAIL} className="text-[#18203a] font-bold hover:underline text-[12.5px]">
+                      <Link to={ROUTES.VERIFY_EMAIL} className="text-[#36213E] font-bold hover:underline text-[12.5px]">
                         Resend verification email {'\u2192'}
                       </Link>
                     </div>
@@ -209,7 +209,7 @@ export default function LoginPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-[13.5px] font-bold text-[#18203a] mb-2">
+                <label className="block text-[13.5px] font-bold text-[#36213E] mb-2">
                   Institutional email
                 </label>
                 <div className="relative">
@@ -221,10 +221,10 @@ export default function LoginPage() {
                     type="email"
                     placeholder="you@university.edu"
                     autoComplete="email"
-                    className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-[14.5px] font-body text-[#18203a] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
+                    className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-[14.5px] font-body text-[#36213E] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
                       errors.email
                         ? 'border-red-400 ring-2 ring-red-100'
-                        : 'border-[#dde2ea] focus:border-[#3db8d8] focus:ring-2 focus:ring-[#3db8d8]/15'
+                        : 'border-[#D5DAE0] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
                     }`}
                   />
                 </div>
@@ -233,7 +233,7 @@ export default function LoginPage() {
 
               {/* Password */}
               <div>
-                <label className="block text-[13.5px] font-bold text-[#18203a] mb-2">
+                <label className="block text-[13.5px] font-bold text-[#36213E] mb-2">
                   Password
                 </label>
                 <div className="relative">
@@ -245,10 +245,10 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder={'\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022'}
                     autoComplete="current-password"
-                    className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-[14.5px] font-body text-[#18203a] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
+                    className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-[14.5px] font-body text-[#36213E] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
                       errors.password
                         ? 'border-red-400 ring-2 ring-red-100'
-                        : 'border-[#dde2ea] focus:border-[#3db8d8] focus:ring-2 focus:ring-[#3db8d8]/15'
+                        : 'border-[#D5DAE0] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
                     }`}
                   />
                   <button
@@ -270,7 +270,7 @@ export default function LoginPage() {
                   onClick={() => setRememberMe(r => !r)}
                 >
                   <div className={`w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center transition-all ${
-                    rememberMe ? 'bg-[#3db8d8] border-[#3db8d8]' : 'bg-white border-[#c8cedd] hover:border-[#3db8d8]'
+                    rememberMe ? 'bg-[#8AC6D0] border-[#8AC6D0]' : 'bg-white border-[#c8cedd] hover:border-[#8AC6D0]'
                   }`}>
                     {rememberMe && (
                       <svg width="10" height="7" viewBox="0 0 10 7" fill="none">
@@ -282,7 +282,7 @@ export default function LoginPage() {
                 </label>
                 <Link
                   to={ROUTES.REGISTER}
-                  className="text-[13.5px] font-semibold text-[#3db8d8] hover:text-[#18203a] transition-colors"
+                  className="text-[13.5px] font-semibold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -320,7 +320,7 @@ export default function LoginPage() {
             {/* Footer */}
             <p className="mt-7 text-center text-[14px] text-[#9ca3b0] font-body">
               No account?{' '}
-              <Link to={ROUTES.REGISTER} className="font-black text-[#18203a] hover:text-[#3db8d8] transition-colors">
+              <Link to={ROUTES.REGISTER} className="font-black text-[#36213E] hover:text-[#8AC6D0] transition-colors">
                 Request Access {'\u2192'}
               </Link>
             </p>
@@ -339,7 +339,7 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => quickLogin(email, password)}
                     disabled={isLoading}
-                    className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] bg-[#fafbfc] hover:bg-white hover:border-[#dde2ea] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                    className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] bg-[#fafbfc] hover:bg-white hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                   >
                     <div
                       className="w-7 h-7 rounded-full flex items-center justify-center"

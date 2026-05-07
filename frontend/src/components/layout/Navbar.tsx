@@ -35,16 +35,16 @@ function NotifIcon({ type }: { type: NotificationType }) {
     case 'meeting_declined':
     case 'meeting_cancelled':
     case 'meeting_completed':
-      return <span className={`${base} bg-[#eefaff]`}><Calendar size={15} className="text-[#55bde0]" /></span>
+      return <span className={`${base} bg-[#E8F4F7]`}><Calendar size={15} className="text-[#8AC6D0]" /></span>
     case 'post_closed':
     case 'post_status_changed':
-      return <span className={`${base} bg-[#f3eeff]`}><FileText size={15} className="text-[#7c4dcc]" /></span>
+      return <span className={`${base} bg-[#E8F4F7]`}><FileText size={15} className="text-[#6FB8C4]" /></span>
     case 'partner_found':
-      return <span className={`${base} bg-[#eefff5]`}><Users size={15} className="text-[#22c55e]" /></span>
+      return <span className={`${base} bg-[#E8F4F7]`}><Users size={15} className="text-[#8AC6D0]" /></span>
     case 'interest_received':
-      return <span className={`${base} bg-[#fff0f5]`}><Star size={15} className="text-[#f43f8e]" /></span>
+      return <span className={`${base} bg-[#E8F4F7]`}><Star size={15} className="text-[#8AC6D0]" /></span>
     default:
-      return <span className={`${base} bg-[#f4f4f5]`}><Bell size={15} className="text-[#6f6a76]" /></span>
+      return <span className={`${base} bg-[#EEF0F3]`}><Bell size={15} className="text-[#6F6878]" /></span>
   }
 }
 
@@ -62,14 +62,14 @@ function NotifDropdown({
   onNavigate: (linkTo?: string) => void
 }) {
   return (
-    <div className="absolute right-0 top-[calc(100%+10px)] w-[340px] rounded-2xl border border-[#e8e8ee] bg-white shadow-[0_20px_60px_-20px_rgba(45,24,56,0.22)] z-[60] overflow-hidden">
+    <div className="absolute right-0 top-[calc(100%+10px)] w-[340px] rounded-2xl border border-[#E3E7EC] bg-white shadow-[0_20px_60px_-20px_rgba(45,24,56,0.22)] z-[60] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#f0f0f5]">
-        <span className="text-[14px] font-black text-[#2d1838]">Notifications</span>
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E7EC]">
+        <span className="text-[14px] font-black text-[#36213E]">Notifications</span>
         {unread > 0 && (
           <button
             onClick={onMarkAllRead}
-            className="text-[12px] font-bold text-[#55bde0] hover:text-[#2d1838] transition-colors"
+            className="text-[12px] font-bold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
           >
             Mark all as read
           </button>
@@ -79,10 +79,10 @@ function NotifDropdown({
       {/* Items */}
       {items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f4f4f5]">
-            <Bell size={18} className="text-[#6f6a76]" />
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF0F3]">
+            <Bell size={18} className="text-[#6F6878]" />
           </span>
-          <p className="text-[13px] font-semibold text-[#6f6a76]">No notifications yet</p>
+          <p className="text-[13px] font-semibold text-[#6F6878]">No notifications yet</p>
         </div>
       ) : (
         <ul>
@@ -90,18 +90,18 @@ function NotifDropdown({
             <li key={n.id}>
               <button
                 onClick={() => onNavigate(n.linkTo)}
-                className="flex w-full items-start gap-3 px-5 py-3.5 text-left transition-colors hover:bg-[#f8f8fc]"
+                className="flex w-full items-start gap-3 px-5 py-3.5 text-left transition-colors hover:bg-[#F3F4F6]"
               >
                 <NotifIcon type={n.type} />
                 <div className="min-w-0 flex-1">
-                  <p className={`text-[13px] leading-[1.35] ${n.isRead ? 'font-semibold text-[#4f4a58]' : 'font-black text-[#2d1838]'}`}>
+                  <p className={`text-[13px] leading-[1.35] ${n.isRead ? 'font-semibold text-[#6F6878]' : 'font-black text-[#36213E]'}`}>
                     {n.title}
                   </p>
-                  <p className="mt-0.5 truncate text-[12px] font-medium text-[#8a8593]">{n.body}</p>
+                  <p className="mt-0.5 truncate text-[12px] font-medium text-[#6F6878]">{n.body}</p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2 pt-0.5">
-                  <span className="whitespace-nowrap text-[11px] font-semibold text-[#a0a0aa]">{timeAgo(n.createdAt)}</span>
-                  {!n.isRead && <span className="h-2 w-2 rounded-full bg-[#55bde0]" />}
+                  <span className="whitespace-nowrap text-[11px] font-semibold text-[#6F6878]">{timeAgo(n.createdAt)}</span>
+                  {!n.isRead && <span className="h-2 w-2 rounded-full bg-[#8AC6D0]" />}
                 </div>
               </button>
             </li>
@@ -110,10 +110,10 @@ function NotifDropdown({
       )}
 
       {/* Footer */}
-      <div className="border-t border-[#f0f0f5] px-5 py-3.5">
+      <div className="border-t border-[#E3E7EC] px-5 py-3.5">
         <button
           onClick={onViewAll}
-          className="flex items-center gap-1.5 text-[13px] font-bold text-[#55bde0] hover:text-[#2d1838] transition-colors"
+          className="flex items-center gap-1.5 text-[13px] font-bold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
         >
           View all notifications
           <span className="text-[16px] leading-none">→</span>
@@ -184,13 +184,13 @@ export default function Navbar() {
       : location.pathname === to || location.pathname.startsWith(to + '/')
 
   return (
-    <header className="sticky top-0 z-50 h-[76px] bg-white/90 backdrop-blur-md border-b border-[#e8e8ee] font-body">
+    <header className="sticky top-0 z-50 h-[76px] bg-white/90 backdrop-blur-md border-b border-[#E3E7EC] font-body">
       <div className="max-w-[1640px] mx-auto h-full px-6 md:px-10 2xl:px-0 flex items-center justify-between gap-8">
 
         {/* Brand */}
         <Link to={ROUTES.HOME} className="flex items-center gap-2 shrink-0">
           <img src="/images/healthailogo.svg" alt="HealthAI logo" className="h-8 w-auto" />
-          <span className="text-[18px] font-extrabold tracking-tight font-headline text-[#111111]">
+          <span className="text-[18px] font-extrabold tracking-tight font-headline text-[#36213E]">
             HealthAI
           </span>
         </Link>
@@ -233,7 +233,7 @@ export default function Navbar() {
               <Link
                 to={ROUTES.MESSAGES}
                 aria-label={`Messages${msgUnread > 0 ? ` (${msgUnread} unread)` : ''}`}
-                className="relative w-12 h-12 rounded-full border border-[#e8e8ee] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
+                className="relative w-12 h-12 rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
               >
                 <MessageSquare size={17} />
                 {msgUnread > 0 && (
@@ -253,7 +253,7 @@ export default function Navbar() {
                 <button
                   onClick={() => navigate(ROUTES.NOTIFICATIONS)}
                   aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
-                  className="relative w-12 h-12 rounded-full border border-[#e8e8ee] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
+                  className="relative w-12 h-12 rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
                 >
                   <Bell size={17} />
                   {unread > 0 && (

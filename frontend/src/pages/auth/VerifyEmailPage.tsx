@@ -47,9 +47,9 @@ export default function VerifyEmailPage() {
     return (
       <PageShell>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <div className="w-14 h-14 rounded-full border-4 border-[#c4c4e0] border-t-[#3a3563] animate-spin mb-6" />
-          <h1 className="font-headline font-black text-[32px] text-[#1c1a3c] mb-2">Verifying your email…</h1>
-          <p className="text-[14px] text-[#7a7a9a]">Please wait a moment.</p>
+          <div className="w-14 h-14 rounded-full border-4 border-[#c4c4e0] border-t-[#36213E] animate-spin mb-6" />
+          <h1 className="font-headline font-black text-[32px] text-[#36213E] mb-2">Verifying your email…</h1>
+          <p className="text-[14px] text-[#6F6878]">Please wait a moment.</p>
         </div>
       </PageShell>
     )
@@ -61,13 +61,13 @@ export default function VerifyEmailPage() {
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <div className="w-20 h-20 rounded-full bg-[#e8ffe8] flex items-center justify-center mb-6 shadow-[0_16px_40px_-16px_rgba(34,197,94,0.4)]">
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-              <circle cx="18" cy="18" r="18" fill="#22c55e" />
+              <circle cx="18" cy="18" r="18" fill="#6FB8C4" />
               <path d="M10 18l6 6 10-10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h1 className="font-headline font-black text-[40px] text-[#1c1a3c] mb-3">Email verified!</h1>
-          <p className="text-[14.5px] text-[#7a7a9a] mb-7 max-w-sm">Welcome aboard. Redirecting you to your dashboard…</p>
-          <Link to={ROUTES.DASHBOARD} className="inline-flex items-center gap-2 bg-[#1c1a3c] text-white px-6 py-3 rounded-full font-bold text-[14px] hover:bg-black transition-colors">
+          <h1 className="font-headline font-black text-[40px] text-[#36213E] mb-3">Email verified!</h1>
+          <p className="text-[14.5px] text-[#6F6878] mb-7 max-w-sm">Welcome aboard. Redirecting you to your dashboard…</p>
+          <Link to={ROUTES.DASHBOARD} className="inline-flex items-center gap-2 bg-[#36213E] text-white px-6 py-3 rounded-full font-bold text-[14px] hover:bg-black transition-colors">
             Go to dashboard →
           </Link>
         </div>
@@ -86,12 +86,12 @@ export default function VerifyEmailPage() {
               <path d="M14 8v7M14 19v1" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" />
             </svg>
           </div>
-          <h1 className="font-headline font-black text-[40px] leading-[1.05] text-[#1c1a3c] mb-3">
-            Verification<br />failed<span className="text-[#7c6fcd]">.</span>
+          <h1 className="font-headline font-black text-[40px] leading-[1.05] text-[#36213E] mb-3">
+            Verification<br />failed<span className="text-[#8AC6D0]">.</span>
           </h1>
-          <p className="text-[15px] text-[#7a7a9a] mb-8">{errorMsg ?? 'The link is invalid or has expired.'}</p>
+          <p className="text-[15px] text-[#6F6878] mb-8">{errorMsg ?? 'The link is invalid or has expired.'}</p>
           <ResendForm email={resendEmail} onChange={setResendEmail} onSubmit={handleResend} loading={resending} sent={resendSent} />
-          <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-1.5 text-[#7c6fcd] font-bold text-[14px] hover:text-[#1c1a3c] transition-colors mt-6">
+          <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-1.5 text-[#8AC6D0] font-bold text-[14px] hover:text-[#36213E] transition-colors mt-6">
             Already verified? Sign in →
           </Link>
         </div>
@@ -109,32 +109,32 @@ export default function VerifyEmailPage() {
 
           {/* Mail icon with check */}
           <div className="relative w-[68px] h-[68px] mt-8 mb-8">
-            <div className="w-[68px] h-[68px] rounded-full bg-[#e8e8f8] flex items-center justify-center">
+            <div className="w-[68px] h-[68px] rounded-full bg-[#E8F4F7] flex items-center justify-center">
               <svg width="30" height="26" viewBox="0 0 30 26" fill="none">
-                <rect x="1" y="1" width="28" height="24" rx="3" stroke="#5c5a8c" strokeWidth="1.8" />
-                <path d="M1 5l14 10L29 5" stroke="#5c5a8c" strokeWidth="1.8" strokeLinecap="round" />
+                <rect x="1" y="1" width="28" height="24" rx="3" stroke="#6F6878" strokeWidth="1.8" />
+                <path d="M1 5l14 10L29 5" stroke="#6F6878" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
             </div>
-            <div className="absolute -bottom-1 -right-1 w-[22px] h-[22px] rounded-full bg-[#3db8d8] border-2 border-white flex items-center justify-center">
+            <div className="absolute -bottom-1 -right-1 w-[22px] h-[22px] rounded-full bg-[#8AC6D0] border-2 border-white flex items-center justify-center">
               <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                 <path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
           </div>
 
-          <h1 className="font-headline font-black text-[44px] md:text-[54px] leading-[1.05] tracking-[-0.02em] text-[#1c1a3c] mb-5">
-            Check your<br />inbox<span className="text-[#7c6fcd]">.</span>
+          <h1 className="font-headline font-black text-[44px] md:text-[54px] leading-[1.05] tracking-[-0.02em] text-[#36213E] mb-5">
+            Check your<br />inbox<span className="text-[#8AC6D0]">.</span>
           </h1>
 
-          <p className="text-[15px] text-[#6a6a8a] leading-relaxed mb-1">
+          <p className="text-[15px] text-[#6F6878] leading-relaxed mb-1">
             We've sent a verification link to
           </p>
           {pendingVerificationEmail && (
-            <span className="inline-block bg-white border border-[#dde2ea] rounded-lg px-3 py-1.5 text-[13.5px] font-mono text-[#3a3563] font-semibold mb-4">
+            <span className="inline-block bg-white border border-[#D5DAE0] rounded-lg px-3 py-1.5 text-[13.5px] font-mono text-[#36213E] font-semibold mb-4">
               {pendingVerificationEmail}
             </span>
           )}
-          <p className="text-[15px] text-[#6a6a8a] leading-relaxed mb-8">
+          <p className="text-[15px] text-[#6F6878] leading-relaxed mb-8">
             Click the link to activate your account before signing in.<br />
             The link expires in 24 hours.
           </p>
@@ -149,7 +149,7 @@ export default function VerifyEmailPage() {
 
           <Link
             to={ROUTES.LOGIN}
-            className="inline-flex items-center gap-1.5 text-[#7c6fcd] font-bold text-[14px] hover:text-[#1c1a3c] transition-colors mt-6"
+            className="inline-flex items-center gap-1.5 text-[#8AC6D0] font-bold text-[14px] hover:text-[#36213E] transition-colors mt-6"
           >
             Already verified? Sign in →
           </Link>
@@ -166,7 +166,7 @@ export default function VerifyEmailPage() {
 
 function PageShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#f0f0f8] font-body px-8 pt-14 pb-20">
+    <div className="min-h-screen bg-[#F3F4F6] font-body px-8 pt-14 pb-20">
       {children}
     </div>
   )
@@ -175,9 +175,9 @@ function PageShell({ children }: { children: React.ReactNode }) {
 function StepBadge() {
   return (
     <div className="inline-flex items-center gap-2 bg-white border border-neutral-200 rounded-full px-4 py-1.5">
-      <span className="w-2 h-2 rounded-full bg-[#3db8d8]" />
-      <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#a0a8ba]">03</span>
-      <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#3a3563]">Verify Email</span>
+      <span className="w-2 h-2 rounded-full bg-[#8AC6D0]" />
+      <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#6F6878]">03</span>
+      <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#36213E]">Verify Email</span>
     </div>
   )
 }
@@ -191,7 +191,7 @@ function ResendForm({ email, onChange, onSubmit, loading, sent }: {
 }) {
   return (
     <form onSubmit={onSubmit} className="bg-white rounded-[18px] border border-neutral-200 p-5 max-w-[460px]">
-      <span className="block text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#a0a8ba] mb-3">
+      <span className="block text-[10.5px] font-bold tracking-[0.2em] uppercase text-[#6F6878] mb-3">
         Didn't get the email?
       </span>
       <input
@@ -200,13 +200,13 @@ function ResendForm({ email, onChange, onSubmit, loading, sent }: {
         onChange={e => onChange(e.target.value)}
         placeholder="your.email@university.edu"
         required
-        className="w-full bg-[#f8f8fc] border border-[#e8e8f0] rounded-xl px-4 py-3 text-[14px] font-mono text-[#3a3563] outline-none focus:border-[#7c6fcd] focus:bg-white transition-all mb-3"
+        className="w-full bg-[#F3F4F6] border border-[#E3E7EC] rounded-xl px-4 py-3 text-[14px] font-mono text-[#36213E] outline-none focus:border-[#8AC6D0] focus:bg-white transition-all mb-3"
       />
       <div className="flex items-center gap-3 flex-wrap">
         <button
           type="submit"
           disabled={loading || !email.trim()}
-          className="inline-flex items-center gap-2.5 bg-[#1c1a3c] text-white px-5 py-2.5 rounded-full font-bold text-[13.5px] hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center gap-2.5 bg-[#36213E] text-white px-5 py-2.5 rounded-full font-bold text-[13.5px] hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <path d="M1 7h12M7 1l6 6-6 6" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -214,7 +214,7 @@ function ResendForm({ email, onChange, onSubmit, loading, sent }: {
           {loading ? 'Sending…' : 'Resend verification'}
         </button>
         {sent && (
-          <span className="text-[12.5px] text-[#22c55e] font-semibold">
+          <span className="text-[12.5px] text-[#6FB8C4] font-semibold">
             ✓ Link sent — check your inbox.
           </span>
         )}
@@ -255,8 +255,8 @@ function EnvelopeIllustration() {
         {/* Letter (paper) sticking out */}
         <rect x="56" y="20" width="108" height="110" rx="8" fill="white" />
         <rect x="72" y="40" width="76" height="7" rx="3.5" fill="#e0e0f0" />
-        <rect x="72" y="55" width="76" height="5" rx="2.5" fill="#e8e8f8" />
-        <rect x="72" y="67" width="56" height="5" rx="2.5" fill="#e8e8f8" />
+        <rect x="72" y="55" width="76" height="5" rx="2.5" fill="#E8F4F7" />
+        <rect x="72" y="67" width="56" height="5" rx="2.5" fill="#E8F4F7" />
 
         {/* Envelope front left flap */}
         <path d="M16 62 L110 130 L16 182" fill="#cccce8" />
@@ -266,7 +266,7 @@ function EnvelopeIllustration() {
         <path d="M16 182 L110 130 L204 182 Q204 182 204 182 L204 182 Q204 190 196 190 L24 190 Q16 190 16 182Z" fill="#c8c8e8" />
 
         {/* Green check circle */}
-        <circle cx="130" cy="148" r="28" fill="#22c55e" />
+        <circle cx="130" cy="148" r="28" fill="#6FB8C4" />
         <path d="M119 148l8 8 14-14" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>

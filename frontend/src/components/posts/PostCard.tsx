@@ -125,7 +125,7 @@ export default function PostCard({ post, matchReasons, featured = false }: Props
             </span>
           )}
           {daysLeft > 0 && post.status === 'active' && (
-            <span className={`text-[10px] font-mono tracking-[0.08em] uppercase font-bold ${daysLeft < 14 ? 'text-amber-600' : 'text-neutral-500'}`}>
+            <span className={`text-[10px] font-mono tracking-[0.08em] uppercase font-bold ${daysLeft < 14 ? 'text-hai-plum' : 'text-neutral-500'}`}>
               {daysLeft}d left
             </span>
           )}
