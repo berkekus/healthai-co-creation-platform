@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   BarChart2, Calendar, CheckCircle, ChevronRight, Clock,
   Download, FileText, Headphones, LayoutDashboard, Plus,
@@ -23,6 +23,18 @@ const ROLE_LABEL: Record<string, string> = {
 }
 
 const CRITICAL_ACTIONS = new Set(['login_failed', 'register_failed', 'user_suspend', 'post_delete'])
+
+function downloadUsersCSV(users: User[]) {
+  const headers = ['name', 'email', 'role', 'institution', 'city', 'country', 'isVerified', 'isSuspended', 'createdAt']
+  const rows = users
+    .filter(u => u.role !== 'admin')
+    .map(u => headers.map(h => `"${String((u as unknown as Record<string, unknown>)[h] ?? '').replace(/"/g, '""')}"`).join(','))
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([[headers.join(','), ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' })),
+    download: `healthai-users-${new Date().toISOString().split('T')[0]}.csv`,
+  })
+  a.click()
+}
 
 function downloadCSV(logs: ActivityLog[]) {
   const headers = ['timestamp', 'userId', 'userEmail', 'role', 'action', 'targetEntityId', 'result', 'ipAddress']
@@ -106,9 +118,12 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
         <p className="text-[11px] text-[#9ca3af] leading-relaxed whitespace-nowrap overflow-hidden opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 mb-2">
           Our support team is here to help you.
         </p>
-        <button className="flex items-center gap-1 text-[11.5px] font-bold text-[#4f46e5] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75">
+        <a
+          href="mailto:support@healthai.edu"
+          className="flex items-center gap-1 text-[11.5px] font-bold text-[#4f46e5] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 hover:underline"
+        >
           Contact Support <ChevronRight size={12} />
-        </button>
+        </a>
       </div>
     </aside>
   )
@@ -212,15 +227,21 @@ function MiniSparkline() {
 }
 
 // ── OVERVIEW ──────────────────────────────────────────────
-function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigate }: {
+function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigate, onExportUsers, navigateTo }: {
   users: User[]
   posts: { domain: string; status: string; title: string; authorName: string; createdAt: string; id: string; authorId: string }[]
   meetingCount: number; failedLogins: number; logs: ActivityLog[]
   onNavigate: (v: AdminView) => void
+  onExportUsers: () => void
+  navigateTo: (path: string) => void
 }) {
+  const [overviewPage, setOverviewPage] = useState(1)
+  const PAGE_SIZE = 5
   const totalUsers = users.filter(u => u.role !== 'admin').length
   const activePosts = posts.filter(p => p.status === 'active').length
-  const recentUsers = [...users].filter(u => u.role !== 'admin').sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5)
+  const nonAdminUsers = [...users].filter(u => u.role !== 'admin').sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  const totalPages = Math.max(1, Math.ceil(nonAdminUsers.length / PAGE_SIZE))
+  const recentUsers = nonAdminUsers.slice((overviewPage - 1) * PAGE_SIZE, overviewPage * PAGE_SIZE)
   const recentLogs = logs.slice(0, 4)
 
   const today = new Date()
@@ -236,8 +257,8 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigat
   const quickActions: { label: string; icon: React.ReactNode; onClick: () => void }[] = [
     { label: 'Add new user',       icon: <UserPlus size={16} strokeWidth={1.8} />,  onClick: () => onNavigate('users') },
     { label: 'Create new listing', icon: <Plus size={16} strokeWidth={1.8} />,      onClick: () => onNavigate('posts') },
-    { label: 'Schedule meeting',   icon: <Calendar size={16} strokeWidth={1.8} />,  onClick: () => {} },
-    { label: 'Export report',      icon: <Download size={16} strokeWidth={1.8} />,  onClick: () => {} },
+    { label: 'Schedule meeting',   icon: <Calendar size={16} strokeWidth={1.8} />,  onClick: () => navigateTo(ROUTES.MEETINGS) },
+    { label: 'Export users CSV',   icon: <Download size={16} strokeWidth={1.8} />,  onClick: onExportUsers },
   ]
 
   return (
@@ -322,7 +343,11 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigat
                         {new Date(u.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </td>
                       <td className="px-6 py-3.5">
-                        <button className="p-1.5 rounded-lg hover:bg-[#f3f4f6] text-[#9ca3af] transition-colors">
+                        <button
+                          onClick={() => onNavigate('users')}
+                          className="p-1.5 rounded-lg hover:bg-[#f3f4f6] text-[#9ca3af] hover:text-[#4f46e5] transition-colors"
+                          title="Manage user"
+                        >
                           <span className="text-[18px] leading-none">⋯</span>
                         </button>
                       </td>
@@ -332,13 +357,31 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigat
               </tbody>
             </table>
             <div className="px-6 py-3.5 border-t border-[#f3f4f6] flex items-center justify-between text-[12.5px] text-[#9ca3af]">
-              <span>Showing 1 to {recentUsers.length} of {users.filter(u => u.role !== 'admin').length} users</span>
+              <span>
+                Showing {Math.min((overviewPage - 1) * PAGE_SIZE + 1, totalUsers)}–{Math.min(overviewPage * PAGE_SIZE, totalUsers)} of {totalUsers} users
+              </span>
               <div className="flex items-center gap-1">
-                {['‹', '1', '2', '›'].map((v, i) => (
-                  <button key={i} className={`w-7 h-7 rounded border flex items-center justify-center text-[12px] transition-colors ${
-                    v === '1' ? 'bg-[#18203a] text-white border-[#18203a] font-bold' : 'border-[#eaecf0] text-[#374151] hover:border-[#4f46e5]'
-                  }`}>{v}</button>
+                <button
+                  onClick={() => setOverviewPage(p => Math.max(1, p - 1))}
+                  disabled={overviewPage === 1}
+                  className="w-7 h-7 rounded border border-[#eaecf0] flex items-center justify-center text-[12px] hover:border-[#4f46e5] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >‹</button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => setOverviewPage(page)}
+                    className={`w-7 h-7 rounded border flex items-center justify-center text-[12px] transition-colors ${
+                      page === overviewPage
+                        ? 'bg-[#18203a] text-white border-[#18203a] font-bold'
+                        : 'border-[#eaecf0] text-[#374151] hover:border-[#4f46e5]'
+                    }`}
+                  >{page}</button>
                 ))}
+                <button
+                  onClick={() => setOverviewPage(p => Math.min(totalPages, p + 1))}
+                  disabled={overviewPage === totalPages}
+                  className="w-7 h-7 rounded border border-[#eaecf0] flex items-center justify-center text-[12px] hover:border-[#4f46e5] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >›</button>
               </div>
             </div>
           </div>
@@ -416,6 +459,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigat
 
 // ── MAIN ──────────────────────────────────────────────────
 export default function AdminPage() {
+  const navigate = useNavigate()
   const [view, setView] = useState<AdminView>('overview')
   const [users, setUsers] = useState<User[]>([])
   const [userQuery, setUserQuery] = useState('')
@@ -424,7 +468,7 @@ export default function AdminPage() {
   const [logAction, setLogAction] = useState('')
   const [logResult, setLogResult] = useState('')
 
-  const { posts, remove: removePost } = usePostStore()
+  const { posts, fetchPosts, remove: removePost } = usePostStore()
   const { push } = useNotificationStore()
   const { meetings, fetchByUser: fetchMeetings } = useMeetingStore()
 
@@ -435,6 +479,7 @@ export default function AdminPage() {
   }, [])
 
   useEffect(() => { fetchMeetings() }, [fetchMeetings])
+  useEffect(() => { fetchPosts({ limit: 200 }) }, [fetchPosts])
 
   useEffect(() => {
     if (view !== 'logs' && view !== 'overview') return
@@ -493,8 +538,12 @@ export default function AdminPage() {
 
         {/* ── OVERVIEW ── */}
         {view === 'overview' && (
-          <OverviewTab users={users} posts={posts} meetingCount={meetings.length}
-            failedLogins={failedLogins} logs={logs} onNavigate={setView} />
+          <OverviewTab
+            users={users} posts={posts} meetingCount={meetings.length}
+            failedLogins={failedLogins} logs={logs} onNavigate={setView}
+            onExportUsers={() => downloadUsersCSV(users)}
+            navigateTo={navigate}
+          />
         )}
 
         {/* ── USERS ── */}
