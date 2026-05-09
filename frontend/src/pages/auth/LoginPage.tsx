@@ -74,8 +74,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#e8f0f7] flex items-center justify-center p-4 sm:p-8 font-body">
-      <div className="w-full max-w-[1180px] flex rounded-[28px] overflow-hidden shadow-[0_32px_80px_-20px_rgba(14,30,66,0.22),0_0_0_1px_rgba(255,255,255,0.6)]">
+    <div className="min-h-screen bg-[#e8f0f7] dark:bg-hai-offwhite flex items-center justify-center p-4 sm:p-8 font-body">
+      <div className="w-full max-w-[1180px] flex rounded-[28px] overflow-hidden shadow-[0_32px_80px_-20px_rgba(14,30,66,0.22),0_0_0_1px_rgba(255,255,255,0.6)] dark:shadow-[0_32px_80px_-20px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.06)]">
 
         {/* LEFT PANEL */}
         <div
@@ -150,14 +150,14 @@ export default function LoginPage() {
         </div>
 
         {/* RIGHT PANEL */}
-        <div className="flex-1 bg-white flex items-center justify-center px-8 sm:px-12 py-12">
+        <div className="flex-1 bg-white dark:bg-[rgb(var(--surface-card))] flex items-center justify-center px-8 sm:px-12 py-12">
           <div className="w-full max-w-[380px]">
 
             {/* Heading */}
-            <h1 className="font-headline font-black text-4xl sm:text-5xl leading-tight tracking-normal text-[#36213E] mb-2">
+            <h1 className="font-headline font-black text-4xl sm:text-5xl leading-tight tracking-normal text-[#36213E] dark:text-hai-plum mb-2">
               Welcome back<span className="text-[#8AC6D0]">.</span>
             </h1>
-            <p className="text-sm text-[#6F6878] mb-8 font-body">
+            <p className="text-sm text-[#6F6878] dark:text-[rgb(var(--text-secondary))] mb-8 font-body">
               Sign in with your institutional{' '}
               <span className="text-[#8AC6D0] font-bold">.edu</span>
               {' '}account.
@@ -209,7 +209,7 @@ export default function LoginPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-bold text-[#36213E] mb-2">
+                <label className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
                   Institutional email
                 </label>
                 <div className="relative">
@@ -221,10 +221,10 @@ export default function LoginPage() {
                     type="email"
                     placeholder="you@university.edu"
                     autoComplete="email"
-                    className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
+                    className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] dark:text-hai-plum placeholder:text-[#c5cad6] bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
                       errors.email
                         ? 'border-red-400 ring-2 ring-red-100'
-                        : 'border-[#D5DAE0] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
+                        : 'border-[#D5DAE0] dark:border-[rgb(var(--border-default))] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
                     }`}
                   />
                 </div>
@@ -233,7 +233,7 @@ export default function LoginPage() {
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-bold text-[#36213E] mb-2">
+                <label className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
                   Password
                 </label>
                 <div className="relative">
@@ -245,10 +245,10 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder={'\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022'}
                     autoComplete="current-password"
-                    className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
+                    className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] dark:text-hai-plum placeholder:text-[#c5cad6] bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
                       errors.password
                         ? 'border-red-400 ring-2 ring-red-100'
-                        : 'border-[#D5DAE0] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
+                        : 'border-[#D5DAE0] dark:border-[rgb(var(--border-default))] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
                     }`}
                   />
                   <button
@@ -278,7 +278,7 @@ export default function LoginPage() {
                       </svg>
                     )}
                   </div>
-                  <span className="text-sm text-[#6a7590] font-body">Remember me</span>
+                  <span className="text-sm text-[#6a7590] dark:text-[rgb(var(--text-secondary))] font-body">Remember me</span>
                 </label>
                 <Link
                   to={ROUTES.FORGOT_PASSWORD}
@@ -318,9 +318,9 @@ export default function LoginPage() {
             </form>
 
             {/* Footer */}
-            <p className="mt-7 text-center text-sm text-[#9ca3b0] font-body">
+            <p className="mt-7 text-center text-sm text-[#9ca3b0] dark:text-[rgb(var(--text-secondary))] font-body">
               No account?{' '}
-              <Link to={ROUTES.REGISTER} className="font-black text-[#36213E] hover:text-[#8AC6D0] transition-colors">
+              <Link to={ROUTES.REGISTER} className="font-black text-[#36213E] dark:text-hai-plum hover:text-[#8AC6D0] transition-colors">
                 Create Account {'\u2192'}
               </Link>
             </p>
@@ -328,9 +328,9 @@ export default function LoginPage() {
             {/* Dev quick-login */}
             <div className="mt-8">
               <div className="flex items-center gap-3 mb-3">
-                <div className="flex-1 h-px bg-[#eef0f5]" />
-                <span className="text-xs font-bold tracking-[0.12em]st uppercase text-[#c5cad6] font-headline">Dev Access</span>
-                <div className="flex-1 h-px bg-[#eef0f5]" />
+                <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
+                <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#c5cad6] dark:text-[rgb(var(--text-secondary))] font-headline">Dev Access</span>
+                <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
               </div>
               <div className="flex gap-2">
                 {DEV_ACCOUNTS.map(({ label, email, password, icon: Icon, color }) => (
@@ -339,7 +339,7 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => quickLogin(email, password)}
                     disabled={isLoading}
-                    className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] bg-[#fafbfc] hover:bg-white hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                    className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                   >
                     <div
                       className="w-7 h-7 rounded-full flex items-center justify-center"
@@ -347,7 +347,7 @@ export default function LoginPage() {
                     >
                       <Icon size={14} strokeWidth={2} style={{ color }} />
                     </div>
-                    <span className="text-xs font-bold text-[#4a5270] font-headline">{label}</span>
+                    <span className="text-xs font-bold text-[#4a5270] dark:text-[rgb(var(--text-secondary))] font-headline">{label}</span>
                   </button>
                 ))}
               </div>

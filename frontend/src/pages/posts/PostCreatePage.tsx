@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useBlocker } from 'react-router-dom'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { usePostStore } from '../../store/postStore'
@@ -15,10 +15,16 @@ export default function PostCreatePage() {
   const navigate = useNavigate()
   const [submitAction, setSubmitAction] = useState<'draft' | 'publish'>('draft')
 
-  const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting } } = useForm<PostCreateFormData>({
+  const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<PostCreateFormData>({
     resolver: zodResolver(postCreateSchema),
     defaultValues: { confidentiality: 'public_pitch', projectStage: 'idea' },
   })
+
+  // Block navigation when the form has unsaved changes
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isDirty && !isSubmitting && currentLocation.pathname !== nextLocation.pathname,
+  )
 
   const onSubmit = async (data: PostCreateFormData) => {
     if (!user) return
@@ -36,6 +42,33 @@ export default function PostCreatePage() {
 
   return (
     <main className="min-h-screen bg-[#f6f7f9] text-[#2d1838]">
+
+      {/* Unsaved-changes confirmation dialog */}
+      {blocker.state === 'blocked' && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="w-full max-w-[400px] rounded-[24px] bg-white p-8 shadow-[0_32px_80px_-20px_rgba(45,24,56,0.35)]">
+            <h2 className="font-headline text-xl font-black text-[#2d1838]">Leave without saving?</h2>
+            <p className="mt-3 text-sm font-semibold text-[#6f6a76] leading-6">
+              You have unsaved changes. If you leave now, your progress will be lost.
+            </p>
+            <div className="mt-7 flex gap-3">
+              <button
+                onClick={() => blocker.reset()}
+                className="flex-1 h-12 rounded-full border border-[#d5dae0] bg-white text-sm font-black text-[#2d1838] transition hover:border-[#55bde0]"
+              >
+                Keep editing
+              </button>
+              <button
+                onClick={() => blocker.proceed()}
+                className="flex-1 h-12 rounded-full bg-[#2d1838] text-sm font-black text-white transition hover:bg-[#1c1024]"
+              >
+                Leave anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Progress bar — visible only during submission */}
       {isSubmitting && (
         <div className="fixed inset-x-0 top-0 z-[100] h-[3px] bg-[#2d1838]/10">
@@ -50,7 +83,7 @@ export default function PostCreatePage() {
         <button
           onClick={() => navigate(ROUTES.POSTS)}
           disabled={isSubmitting}
-          className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-[#6f6a76] transition hover:text-[#2d1838] disabled:pointer-events-none disabled:opacity-40"
+          className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-[#6f6a76] transition hover:text-[#2d1838] disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ArrowLeft size={16} />
           Back to directory
