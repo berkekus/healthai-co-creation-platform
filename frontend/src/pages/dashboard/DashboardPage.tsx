@@ -217,9 +217,9 @@ function WeeklyBlob({
         </div>
 
         <div className="grid grid-cols-3 gap-6 xl:gap-16">
-          <Metric icon={<FileText size={21} />} iconBg="#8AC6D0" value={postCount} label="My posts" change="↗ Synced with backend" />
-          <Metric icon={<Handshake size={21} />} iconBg="#D8EFF2" value={meetingCount} label="My meetings" change={meetingCount > 0 ? '↗ Review queue' : '— No change'} />
-          <Metric icon={<Eye size={21} />} iconBg="#E3DCD2" value={activeListings} label="Active listings" change={activeListings > 0 ? '↗ Open for interest' : '— No active listings'} />
+          <Metric icon={<FileText size={21} />} iconBg="#8AC6D0" value={postCount} label="My posts" sub={postCount === 0 ? 'No posts yet' : 'Total created'} />
+          <Metric icon={<Handshake size={21} />} iconBg="#D8EFF2" value={meetingCount} label="My meetings" sub={meetingCount === 0 ? 'None scheduled' : 'Pending & confirmed'} />
+          <Metric icon={<Eye size={21} />} iconBg="#E3DCD2" value={activeListings} label="Active listings" sub={activeListings === 0 ? 'None active' : 'Open for interest'} />
         </div>
       </div>
     </div>
@@ -231,13 +231,13 @@ function Metric({
   iconBg,
   value,
   label,
-  change,
+  sub,
 }: {
   icon: ReactNode
   iconBg: string
   value: number
   label: string
-  change: string
+  sub: string
 }) {
   return (
     <div>
@@ -246,7 +246,7 @@ function Metric({
       </div>
       <div className="font-headline text-5xl font-black leading-none text-[#36213E]">{value}</div>
       <div className="mt-3 text-lg font-semibold text-[#6F6878]">{label}</div>
-      <div className="mt-3 text-sm font-semibold text-[#6F6878]">{change}</div>
+      <div className="mt-3 text-sm font-semibold text-[#6F6878]">{sub}</div>
     </div>
   )
 }

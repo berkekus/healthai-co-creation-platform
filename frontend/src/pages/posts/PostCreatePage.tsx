@@ -36,10 +36,21 @@ export default function PostCreatePage() {
 
   return (
     <main className="min-h-screen bg-[#f6f7f9] text-[#2d1838]">
+      {/* Progress bar — visible only during submission */}
+      {isSubmitting && (
+        <div className="fixed inset-x-0 top-0 z-[100] h-[3px] bg-[#2d1838]/10">
+          <div className="h-full bg-[#55bde0] animate-[progress_1.6s_ease-in-out_infinite]"
+            style={{ animation: 'progress 1.6s ease-in-out infinite' }}
+          />
+          <style>{`@keyframes progress { 0%{width:0%;margin-left:0} 50%{width:70%;margin-left:15%} 100%{width:0%;margin-left:100%} }`}</style>
+        </div>
+      )}
+
       <div className="mx-auto w-full max-w-[900px] px-4 pb-20 pt-16 sm:px-8">
         <button
           onClick={() => navigate(ROUTES.POSTS)}
-          className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-[#6f6a76] transition hover:text-[#2d1838]"
+          disabled={isSubmitting}
+          className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-[#6f6a76] transition hover:text-[#2d1838] disabled:pointer-events-none disabled:opacity-40"
         >
           <ArrowLeft size={16} />
           Back to directory
@@ -59,7 +70,10 @@ export default function PostCreatePage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <PostFormFields register={register} control={control} setValue={setValue} errors={errors} minDateStr={minDateStr} />
+          {/* fieldset disabled freezes all inputs/selects/textareas during submit */}
+          <fieldset disabled={isSubmitting} className="min-w-0 border-0 p-0 m-0">
+            <PostFormFields register={register} control={control} setValue={setValue} errors={errors} minDateStr={minDateStr} />
+          </fieldset>
 
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <button
@@ -68,7 +82,7 @@ export default function PostCreatePage() {
               onClick={() => setSubmitAction('draft')}
               className="h-14 rounded-full border border-[#2d1838] bg-white px-9 text-sm font-black text-[#2d1838] transition hover:bg-[#2d1838] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Save as draft
+              {isSubmitting && submitAction === 'draft' ? 'Saving draft…' : 'Save as draft'}
             </button>
             <button
               type="submit"
@@ -76,8 +90,10 @@ export default function PostCreatePage() {
               onClick={() => setSubmitAction('publish')}
               className="inline-flex h-14 min-w-[250px] items-center justify-center gap-3 rounded-full bg-[#2d1838] px-9 text-sm font-black text-white shadow-[0_18px_42px_-28px_rgba(45,24,56,0.9)] transition hover:bg-[#1c1024] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? 'Publishing...' : 'Review & publish'}
-              {!isSubmitting && <ArrowRight size={17} />}
+              {isSubmitting && submitAction === 'publish'
+                ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Publishing…</>
+                : <>Review &amp; publish <ArrowRight size={17} /></>
+              }
             </button>
           </div>
         </form>
