@@ -126,11 +126,30 @@ export default function PostDetailPage() {
     return (
       <main className="min-h-screen bg-[#f6f7f9] px-8 py-20 text-[#36213E]">
         <div className="mx-auto max-w-[760px] rounded-[18px] bg-white p-12 text-center shadow-[0_24px_80px_-68px_rgba(45,24,56,0.75)]">
-          <h1 className="text-3xl font-black">Post not found</h1>
-          <p className="mt-3 text-[#6F6878]">This listing may have been removed or the link is broken.</p>
-          <button onClick={() => navigate(ROUTES.POSTS)} className="mt-8 rounded-full bg-[#36213E] px-6 py-3 text-sm font-black text-white">
-            Back to directory
-          </button>
+          <h1 className="text-3xl font-black">
+            {fetchError ? 'Could not load this post' : 'Post not found'}
+          </h1>
+          <p className="mt-3 text-[#6F6878]">
+            {fetchError
+              ? 'There was a problem loading this listing. Please check your connection and try again.'
+              : 'This listing may have been removed or the link is broken.'}
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
+            {fetchError && (
+              <button
+                onClick={() => window.location.reload()}
+                className="rounded-full border border-[#36213E] bg-white px-6 py-3 text-sm font-black text-[#36213E] hover:bg-[#36213E] hover:text-white transition-colors"
+              >
+                Try again
+              </button>
+            )}
+            <button
+              onClick={() => navigate(ROUTES.POSTS)}
+              className="rounded-full bg-[#36213E] px-6 py-3 text-sm font-black text-white hover:bg-[#24162B] transition-colors"
+            >
+              Back to directory
+            </button>
+          </div>
         </div>
       </main>
     )

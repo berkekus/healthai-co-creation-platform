@@ -489,10 +489,24 @@ function MeetingAvatar({
     ? new Date(`${slot.date}T${slot.time}`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : 'Slot pending'
 
+  const tooltipId = `meeting-tip-${meeting.id}`
+  const tooltipContent = `${partner} · ${meeting.postTitle} · ${statusLabel} · ${dateLabel}`
+
   return (
-    <div className={`group absolute flex h-[54px] w-[54px] items-center justify-center rounded-full bg-white shadow-[0_10px_28px_-18px_rgba(45,24,56,0.6)] ${className}`}>
+    <div
+      className={`group absolute flex h-[54px] w-[54px] items-center justify-center rounded-full bg-white shadow-[0_10px_28px_-18px_rgba(45,24,56,0.6)] ${className}`}
+      tabIndex={0}
+      role="button"
+      aria-describedby={tooltipId}
+      aria-label={`Meeting with ${partner}`}
+    >
       <img src={imageSrc} alt={partner} className="h-[38px] w-[38px] rounded-full object-cover" />
-      <div className="pointer-events-none absolute left-1/2 top-[62px] z-20 w-[230px] -translate-x-1/2 translate-y-2 rounded-2xl border border-[#E3E7EC] bg-white px-4 py-3 text-left opacity-0 shadow-[0_24px_60px_-28px_rgba(45,24,56,0.45)] transition group-hover:translate-y-0 group-hover:opacity-100">
+      <div
+        id={tooltipId}
+        role="tooltip"
+        aria-label={tooltipContent}
+        className="pointer-events-none absolute left-1/2 top-[62px] z-20 w-[230px] -translate-x-1/2 translate-y-2 rounded-2xl border border-[#E3E7EC] bg-white px-4 py-3 text-left opacity-0 shadow-[0_24px_60px_-28px_rgba(45,24,56,0.45)] transition group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"
+      >
         <div className="truncate text-sm font-black text-[#36213E]">{partner}</div>
         <div className="mt-1 line-clamp-2 text-xs font-semibold leading-4 text-[#6F6878]">{meeting.postTitle}</div>
         <div className="mt-3 flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.12em] text-[#6F6878]">

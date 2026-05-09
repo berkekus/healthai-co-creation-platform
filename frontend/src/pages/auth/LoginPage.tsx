@@ -28,6 +28,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const [captchaError, setCaptchaError] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const quickLoginRef = useRef(false)
   const captchaRef = useRef<TurnstileInstance>(null)
@@ -55,7 +56,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     if (cooldown > 0) return
-    await login({ ...data, captchaToken: captchaToken ?? undefined })
+    await login({ ...data, captchaToken: captchaToken ?? undefined, rememberMe })
     const newFails = failedAttempts + 1
     if (useAuthStore.getState().error) {
       captchaRef.current?.reset()
@@ -159,7 +160,12 @@ export default function LoginPage() {
             </h1>
             <p className="text-sm text-[#6F6878] dark:text-[rgb(var(--text-secondary))] mb-8 font-body">
               Sign in with your institutional{' '}
-              <span className="text-[#8AC6D0] font-bold">.edu</span>
+              <span
+                className="text-[#8AC6D0] font-bold cursor-help border-b border-dashed border-[#8AC6D0]/50"
+                title="HealthAI is open to verified academic and healthcare institutions. Only .edu addresses are accepted to ensure a trusted community."
+              >
+                .edu
+              </span>
               {' '}account.
             </p>
 
@@ -266,14 +272,21 @@ export default function LoginPage() {
               {/* Remember me + Forgot password */}
               <div className="flex items-center justify-between mt-0.5">
                 <label
+                  htmlFor="rememberMe"
                   className="flex items-center gap-2.5 cursor-pointer select-none"
-                  onClick={() => setRememberMe(r => !r)}
                 >
-                  <div className={`w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center transition-all ${
+                  <div className={`relative w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center transition-all ${
                     rememberMe ? 'bg-[#8AC6D0] border-[#8AC6D0]' : 'bg-white border-[#c8cedd] hover:border-[#8AC6D0]'
                   }`}>
+                    <input
+                      id="rememberMe"
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={e => setRememberMe(e.target.checked)}
+                      className="sr-only"
+                    />
                     {rememberMe && (
-                      <svg width="10" height="7" viewBox="0 0 10 7" fill="none">
+                      <svg width="10" height="7" viewBox="0 0 10 7" fill="none" aria-hidden>
                         <path d="M1 3.5L3.5 6L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     )}
@@ -289,15 +302,27 @@ export default function LoginPage() {
               </div>
 
               {/* Turnstile */}
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center gap-2">
                 <Turnstile
                   ref={captchaRef}
                   siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-                  onSuccess={setCaptchaToken}
+                  onSuccess={token => { setCaptchaToken(token); setCaptchaError(false) }}
                   onExpire={() => setCaptchaToken(null)}
-                  onError={() => setCaptchaToken(null)}
+                  onError={() => { setCaptchaToken(null); setCaptchaError(true) }}
                   options={{ theme: 'light', size: 'normal' }}
                 />
+                {captchaError && (
+                  <div role="alert" className="flex items-center gap-2 text-xs font-semibold text-red-600">
+                    <span>Security check failed.</span>
+                    <button
+                      type="button"
+                      onClick={() => { setCaptchaError(false); captchaRef.current?.reset() }}
+                      className="underline hover:no-underline"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Sign in button */}
@@ -325,33 +350,35 @@ export default function LoginPage() {
               </Link>
             </p>
 
-            {/* Dev quick-login */}
-            <div className="mt-8">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
-                <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#c5cad6] dark:text-[rgb(var(--text-secondary))] font-headline">Dev Access</span>
-                <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
-              </div>
-              <div className="flex gap-2">
-                {DEV_ACCOUNTS.map(({ label, email, password, icon: Icon, color }) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => quickLogin(email, password)}
-                    disabled={isLoading}
-                    className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-                  >
-                    <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: `${color}18` }}
+            {/* Dev quick-login — development only */}
+            {import.meta.env.DEV && (
+              <div className="mt-8">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
+                  <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#c5cad6] dark:text-[rgb(var(--text-secondary))] font-headline">Dev Access</span>
+                  <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
+                </div>
+                <div className="flex gap-2">
+                  {DEV_ACCOUNTS.map(({ label, email, password, icon: Icon, color }) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => quickLogin(email, password)}
+                      disabled={isLoading}
+                      className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                     >
-                      <Icon size={14} strokeWidth={2} style={{ color }} />
-                    </div>
-                    <span className="text-xs font-bold text-[#4a5270] dark:text-[rgb(var(--text-secondary))] font-headline">{label}</span>
-                  </button>
-                ))}
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: `${color}18` }}
+                      >
+                        <Icon size={14} strokeWidth={2} style={{ color }} />
+                      </div>
+                      <span className="text-xs font-bold text-[#4a5270] dark:text-[rgb(var(--text-secondary))] font-headline">{label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

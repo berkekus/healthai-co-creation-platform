@@ -32,7 +32,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   pendingVerificationEmail: null,
 
   hydrate: async () => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token') ?? sessionStorage.getItem('token')
     if (!token) {
       set({ isHydrating: false })
       return
@@ -42,18 +42,25 @@ export const useAuthStore = create<AuthState>()((set) => ({
       set({ user: data.data, isAuthenticated: true, isHydrating: false })
     } catch {
       localStorage.removeItem('token')
+      sessionStorage.removeItem('token')
       set({ isHydrating: false })
     }
   },
 
-  login: async ({ email, password, captchaToken }) => {
+  login: async ({ email, password, captchaToken, rememberMe = true }) => {
     set({ isLoading: true, error: null })
     try {
       const { data } = await api.post<{ success: boolean; data: { user: User; token: string } }>(
         '/auth/login',
         { email, password, captchaToken }
       )
-      localStorage.setItem('token', data.data.token)
+      if (rememberMe) {
+        localStorage.setItem('token', data.data.token)
+        sessionStorage.removeItem('token')
+      } else {
+        sessionStorage.setItem('token', data.data.token)
+        localStorage.removeItem('token')
+      }
       set({ user: data.data.user, isAuthenticated: true, isLoading: false })
     } catch (err) {
       set({ isLoading: false, error: (err as Error).message })
@@ -63,6 +70,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   logout: () => {
     api.post('/auth/logout').catch(() => {})
     localStorage.removeItem('token')
+    sessionStorage.removeItem('token')
     set({ user: null, isAuthenticated: false })
   },
 

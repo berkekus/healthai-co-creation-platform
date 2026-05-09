@@ -18,6 +18,7 @@ export default function PostCreatePage() {
   const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<PostCreateFormData>({
     resolver: zodResolver(postCreateSchema),
     defaultValues: { confidentiality: 'public_pitch', projectStage: 'idea' },
+    mode: 'onTouched',
   })
 
   // Block navigation when the form has unsaved changes

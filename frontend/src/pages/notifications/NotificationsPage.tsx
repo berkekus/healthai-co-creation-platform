@@ -101,23 +101,28 @@ export default function NotificationsPage() {
                 <button
                   key={t.key}
                   onClick={() => setActiveTab(t.key)}
+                  disabled={count === 0 && t.key !== 'all'}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                     active
                       ? 'bg-[#E8F4F7] text-[#8AC6D0]'
-                      : 'text-[#6F6878] hover:bg-[#EEF0F3] hover:text-[#36213E]'
+                      : count === 0 && t.key !== 'all'
+                        ? 'text-[#C5CAD6] cursor-not-allowed'
+                        : 'text-[#6F6878] hover:bg-[#EEF0F3] hover:text-[#36213E]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className={active ? 'text-[#8AC6D0]' : 'text-[#6F6878]'}>{t.icon}</span>
+                    <span className={active ? 'text-[#8AC6D0]' : count === 0 && t.key !== 'all' ? 'text-[#C5CAD6]' : 'text-[#6F6878]'}>
+                      {t.icon}
+                    </span>
                     {t.label}
                   </div>
-                  {count > 0 && (
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                      active ? 'bg-[#8AC6D0]/10 text-[#8AC6D0]' : 'bg-[#EEF0F3] text-[#6F6878]'
-                    }`}>
-                      {count}
-                    </span>
-                  )}
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                    active ? 'bg-[#8AC6D0]/10 text-[#8AC6D0]'
+                    : count === 0 ? 'text-[#C5CAD6]'
+                    : 'bg-[#EEF0F3] text-[#6F6878]'
+                  }`}>
+                    {count}
+                  </span>
                 </button>
               )
             })}
@@ -134,7 +139,7 @@ export default function NotificationsPage() {
             </p>
             <button
               onClick={() => Notification.requestPermission()}
-              className="w-full py-2 rounded-full border border-[#8AC6D0] text-[#8AC6D0] text-xs font-bold hover:bg-[#8AC6D0] hover:text-white transition-colors"
+              className="w-full py-2 rounded-full border border-[#8AC6D0] text-[#8AC6D0] text-xs font-bold hover:bg-[#36213E] hover:border-[#36213E] hover:text-white transition-colors"
             >
               Enable Notifications
             </button>
