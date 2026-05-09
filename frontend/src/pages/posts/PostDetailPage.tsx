@@ -215,7 +215,7 @@ export default function PostDetailPage() {
                     </button>
                   ) : canExpressInterest ? (
                     <button onClick={() => setShowInterest(true)} className="h-[46px] rounded-full bg-[#36213E] px-7 text-sm font-black text-white transition hover:bg-[#4b3055]">
-                      Express interest
+                      Schedule a Meeting
                     </button>
                   ) : isOwner ? (
                     <>
