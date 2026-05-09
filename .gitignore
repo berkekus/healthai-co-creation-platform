@@ -21,3 +21,12 @@ backend/dist/
 graphify-out/cache/
 graphify-out/manifest.json
 graphify-out/cost.json
+graphify-out/
+
+# Claude / planning artifacts
+.claude/
+.planning/
+
+# Project documentation (local only — not for public repo)
+*.md
+!README.md
