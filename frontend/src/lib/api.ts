@@ -6,7 +6,7 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem('token') ?? sessionStorage.getItem('token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
@@ -16,6 +16,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
+      sessionStorage.removeItem('token')
       // avoid circular import — navigate via window instead of router
       if (!window.location.pathname.includes('/login')) {
         window.location.href = '/login'
