@@ -157,27 +157,13 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
         of healthcare — together.
       </div>
 
-      <div className="mt-14 flex w-full max-w-[292px] flex-col gap-[13px]">
+      <div className="mt-14">
         <Link
           to={ROUTES.POST_CREATE}
-          className="flex h-[48px] items-center gap-5 rounded-full bg-[#36213E] px-7 text-sm font-black text-white shadow-[0_18px_30px_-18px_rgba(45,24,56,0.82)] transition hover:bg-[#24162B]"
+          className="flex h-[48px] w-full max-w-[292px] items-center gap-5 rounded-full bg-[#36213E] px-7 text-sm font-black text-white shadow-[0_18px_30px_-18px_rgba(45,24,56,0.82)] transition hover:bg-[#24162B]"
         >
           <Plus size={18} strokeWidth={2.5} />
           Post an opportunity
-        </Link>
-        <Link
-          to={ROUTES.POSTS}
-          className="flex h-[48px] items-center gap-5 rounded-full border border-[#D5DAE0] bg-white/55 px-7 text-sm font-black text-[#36213E] transition hover:border-[#8AC6D0] hover:bg-white"
-        >
-          <Search size={17} strokeWidth={2.4} />
-          Browse directory
-        </Link>
-        <Link
-          to={ROUTES.MEETINGS}
-          className="flex h-[48px] items-center gap-5 rounded-full border border-[#D5DAE0] bg-white/55 px-7 text-sm font-black text-[#36213E] transition hover:border-[#8AC6D0] hover:bg-white"
-        >
-          <CalendarDays size={17} strokeWidth={2.4} />
-          View meetings
         </Link>
       </div>
     </div>
