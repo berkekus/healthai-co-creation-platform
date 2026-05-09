@@ -321,7 +321,7 @@ export default function LoginPage() {
             <p className="mt-7 text-center text-sm text-[#9ca3b0] font-body">
               No account?{' '}
               <Link to={ROUTES.REGISTER} className="font-black text-[#36213E] hover:text-[#8AC6D0] transition-colors">
-                Request Access {'\u2192'}
+                Create Account {'\u2192'}
               </Link>
             </p>
 

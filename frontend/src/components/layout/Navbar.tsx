@@ -324,7 +324,7 @@ export default function Navbar() {
                 to={ROUTES.REGISTER}
                 className="inline-flex items-center bg-hai-plum text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-black transition-colors"
               >
-                Request Access
+                Sign Up
               </Link>
             </>
           )}
