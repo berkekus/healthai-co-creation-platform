@@ -9,7 +9,6 @@ import {
   Grid2X2,
   Sparkles,
   List,
-  LocateFixed,
   MapPin,
   Plus,
   RotateCcw,
@@ -208,6 +207,7 @@ export default function PostListPage() {
             postedBy={postedBy}
             location={location}
             locationSuggestions={locationSuggestions}
+            hasActiveFilters={hasActiveFilters}
             onDomain={setDomain}
             onStage={setStage}
             onStatus={setStatus}
@@ -300,6 +300,7 @@ function FilterSidebar({
   postedBy,
   location,
   locationSuggestions,
+  hasActiveFilters,
   onDomain,
   onStage,
   onStatus,
@@ -313,6 +314,7 @@ function FilterSidebar({
   postedBy: PostedBy
   location: string
   locationSuggestions: string[]
+  hasActiveFilters: boolean
   onDomain: (value: string) => void
   onStage: (value: string) => void
   onStatus: (value: string) => void
@@ -368,23 +370,24 @@ function FilterSidebar({
                 placeholder="Search city or country..."
                 list="location-suggestions"
                 autoComplete="off"
-                className="h-12 w-full bg-white px-4 pr-10 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878]"
+                className="h-12 w-full bg-white px-4 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878]"
               />
               <datalist id="location-suggestions">
                 {locationSuggestions.map(s => <option key={s} value={s} />)}
               </datalist>
-              <LocateFixed size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-10 border-t border-[var(--border)] pt-7">
-        <button onClick={onClear} className="inline-flex items-center gap-3 rounded-full px-2 py-2 text-sm font-black text-[var(--muted)] transition hover:text-[var(--primary)]">
-          <RotateCcw size={17} />
-          Clear filters
-        </button>
-      </div>
+      {hasActiveFilters && (
+        <div className="mt-10 border-t border-[var(--border)] pt-7">
+          <button onClick={onClear} className="inline-flex items-center gap-3 rounded-full px-2 py-2 text-sm font-black text-[var(--muted)] transition hover:text-[var(--primary)]">
+            <RotateCcw size={17} />
+            Clear filters
+          </button>
+        </div>
+      )}
     </aside>
   )
 }
@@ -713,7 +716,6 @@ function Tag({ label }: { label: string }) {
       }`}
       style={{ height: 22 }}
     >
-      <span className="h-1 w-1 rounded-full bg-current opacity-70" />
       {label}
     </span>
   )
