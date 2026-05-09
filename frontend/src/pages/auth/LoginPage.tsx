@@ -281,7 +281,7 @@ export default function LoginPage() {
                   <span className="text-sm text-[#6a7590] font-body">Remember me</span>
                 </label>
                 <Link
-                  to={ROUTES.REGISTER}
+                  to={ROUTES.FORGOT_PASSWORD}
                   className="text-sm font-semibold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
                 >
                   Forgot password?
