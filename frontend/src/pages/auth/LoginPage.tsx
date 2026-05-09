@@ -28,6 +28,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const [captchaError, setCaptchaError] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const quickLoginRef = useRef(false)
   const captchaRef = useRef<TurnstileInstance>(null)
@@ -55,7 +56,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     if (cooldown > 0) return
-    await login({ ...data, captchaToken: captchaToken ?? undefined })
+    await login({ ...data, captchaToken: captchaToken ?? undefined, rememberMe })
     const newFails = failedAttempts + 1
     if (useAuthStore.getState().error) {
       captchaRef.current?.reset()
@@ -74,8 +75,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#e8f0f7] flex items-center justify-center p-4 sm:p-8 font-body">
-      <div className="w-full max-w-[1180px] flex rounded-[28px] overflow-hidden shadow-[0_32px_80px_-20px_rgba(14,30,66,0.22),0_0_0_1px_rgba(255,255,255,0.6)]">
+    <div className="min-h-screen bg-[#e8f0f7] dark:bg-hai-offwhite flex items-center justify-center p-4 sm:p-8 font-body">
+      <div className="w-full max-w-[1180px] flex rounded-[28px] overflow-hidden shadow-[0_32px_80px_-20px_rgba(14,30,66,0.22),0_0_0_1px_rgba(255,255,255,0.6)] dark:shadow-[0_32px_80px_-20px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.06)]">
 
         {/* LEFT PANEL */}
         <div
@@ -150,16 +151,21 @@ export default function LoginPage() {
         </div>
 
         {/* RIGHT PANEL */}
-        <div className="flex-1 bg-white flex items-center justify-center px-8 sm:px-12 py-12">
+        <div className="flex-1 bg-white dark:bg-[rgb(var(--surface-card))] flex items-center justify-center px-8 sm:px-12 py-12">
           <div className="w-full max-w-[380px]">
 
             {/* Heading */}
-            <h1 className="font-headline font-black text-4xl sm:text-5xl leading-tight tracking-normal text-[#36213E] mb-2">
+            <h1 className="font-headline font-black text-4xl sm:text-5xl leading-tight tracking-normal text-[#36213E] dark:text-hai-plum mb-2">
               Welcome back<span className="text-[#8AC6D0]">.</span>
             </h1>
-            <p className="text-sm text-[#6F6878] mb-8 font-body">
+            <p className="text-sm text-[#6F6878] dark:text-[rgb(var(--text-secondary))] mb-8 font-body">
               Sign in with your institutional{' '}
-              <span className="text-[#8AC6D0] font-bold">.edu</span>
+              <span
+                className="text-[#1B7A88] font-bold cursor-help border-b border-dashed border-[#1B7A88]/50"
+                title="HealthAI is open to verified academic and healthcare institutions. Only .edu addresses are accepted to ensure a trusted community."
+              >
+                .edu
+              </span>
               {' '}account.
             </p>
 
@@ -209,7 +215,7 @@ export default function LoginPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-bold text-[#36213E] mb-2">
+                <label className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
                   Institutional email
                 </label>
                 <div className="relative">
@@ -221,10 +227,10 @@ export default function LoginPage() {
                     type="email"
                     placeholder="you@university.edu"
                     autoComplete="email"
-                    className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
+                    className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] dark:text-hai-plum placeholder:text-[#c5cad6] bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
                       errors.email
                         ? 'border-red-400 ring-2 ring-red-100'
-                        : 'border-[#D5DAE0] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
+                        : 'border-[#D5DAE0] dark:border-[rgb(var(--border-default))] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
                     }`}
                   />
                 </div>
@@ -233,7 +239,7 @@ export default function LoginPage() {
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-bold text-[#36213E] mb-2">
+                <label className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
                   Password
                 </label>
                 <div className="relative">
@@ -245,10 +251,10 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder={'\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022'}
                     autoComplete="current-password"
-                    className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
+                    className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] dark:text-hai-plum placeholder:text-[#c5cad6] bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
                       errors.password
                         ? 'border-red-400 ring-2 ring-red-100'
-                        : 'border-[#D5DAE0] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
+                        : 'border-[#D5DAE0] dark:border-[rgb(var(--border-default))] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
                     }`}
                   />
                   <button
@@ -266,38 +272,57 @@ export default function LoginPage() {
               {/* Remember me + Forgot password */}
               <div className="flex items-center justify-between mt-0.5">
                 <label
+                  htmlFor="rememberMe"
                   className="flex items-center gap-2.5 cursor-pointer select-none"
-                  onClick={() => setRememberMe(r => !r)}
                 >
-                  <div className={`w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center transition-all ${
+                  <div className={`relative w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center transition-all ${
                     rememberMe ? 'bg-[#8AC6D0] border-[#8AC6D0]' : 'bg-white border-[#c8cedd] hover:border-[#8AC6D0]'
                   }`}>
+                    <input
+                      id="rememberMe"
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={e => setRememberMe(e.target.checked)}
+                      className="sr-only"
+                    />
                     {rememberMe && (
-                      <svg width="10" height="7" viewBox="0 0 10 7" fill="none">
+                      <svg width="10" height="7" viewBox="0 0 10 7" fill="none" aria-hidden>
                         <path d="M1 3.5L3.5 6L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     )}
                   </div>
-                  <span className="text-sm text-[#6a7590] font-body">Remember me</span>
+                  <span className="text-sm text-[#6a7590] dark:text-[rgb(var(--text-secondary))] font-body">Remember me</span>
                 </label>
                 <Link
-                  to={ROUTES.REGISTER}
-                  className="text-sm font-semibold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
+                  to={ROUTES.FORGOT_PASSWORD}
+                  className="text-sm font-semibold text-[#1B7A88] hover:text-[#36213E] transition-colors"
                 >
                   Forgot password?
                 </Link>
               </div>
 
               {/* Turnstile */}
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center gap-2">
                 <Turnstile
                   ref={captchaRef}
                   siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-                  onSuccess={setCaptchaToken}
+                  onSuccess={token => { setCaptchaToken(token); setCaptchaError(false) }}
                   onExpire={() => setCaptchaToken(null)}
-                  onError={() => setCaptchaToken(null)}
+                  onError={() => { setCaptchaToken(null); setCaptchaError(true) }}
                   options={{ theme: 'light', size: 'normal' }}
                 />
+                {captchaError && (
+                  <div role="alert" className="flex items-center gap-2 text-xs font-semibold text-red-600">
+                    <span>Security check failed.</span>
+                    <button
+                      type="button"
+                      onClick={() => { setCaptchaError(false); captchaRef.current?.reset() }}
+                      className="underline hover:no-underline"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Sign in button */}
@@ -318,40 +343,42 @@ export default function LoginPage() {
             </form>
 
             {/* Footer */}
-            <p className="mt-7 text-center text-sm text-[#9ca3b0] font-body">
+            <p className="mt-7 text-center text-sm text-[#9ca3b0] dark:text-[rgb(var(--text-secondary))] font-body">
               No account?{' '}
-              <Link to={ROUTES.REGISTER} className="font-black text-[#36213E] hover:text-[#8AC6D0] transition-colors">
-                Request Access {'\u2192'}
+              <Link to={ROUTES.REGISTER} className="font-black text-[#36213E] dark:text-hai-plum hover:text-[#8AC6D0] transition-colors">
+                Create Account {'\u2192'}
               </Link>
             </p>
 
-            {/* Dev quick-login */}
-            <div className="mt-8">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex-1 h-px bg-[#eef0f5]" />
-                <span className="text-xs font-bold tracking-[0.12em]st uppercase text-[#c5cad6] font-headline">Dev Access</span>
-                <div className="flex-1 h-px bg-[#eef0f5]" />
-              </div>
-              <div className="flex gap-2">
-                {DEV_ACCOUNTS.map(({ label, email, password, icon: Icon, color }) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => quickLogin(email, password)}
-                    disabled={isLoading}
-                    className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] bg-[#fafbfc] hover:bg-white hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-                  >
-                    <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: `${color}18` }}
+            {/* Dev quick-login — development only */}
+            {import.meta.env.DEV && (
+              <div className="mt-8">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
+                  <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#c5cad6] dark:text-[rgb(var(--text-secondary))] font-headline">Dev Access</span>
+                  <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
+                </div>
+                <div className="flex gap-2">
+                  {DEV_ACCOUNTS.map(({ label, email, password, icon: Icon, color }) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => quickLogin(email, password)}
+                      disabled={isLoading}
+                      className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                     >
-                      <Icon size={14} strokeWidth={2} style={{ color }} />
-                    </div>
-                    <span className="text-xs font-bold text-[#4a5270] font-headline">{label}</span>
-                  </button>
-                ))}
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: `${color}18` }}
+                      >
+                        <Icon size={14} strokeWidth={2} style={{ color }} />
+                      </div>
+                      <span className="text-xs font-bold text-[#4a5270] dark:text-[rgb(var(--text-secondary))] font-headline">{label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

@@ -69,7 +69,7 @@ function NotifDropdown({
         {unread > 0 && (
           <button
             onClick={onMarkAllRead}
-            className="text-xs font-bold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
+            className="text-xs font-bold text-[#1B7A88] hover:text-[#36213E] transition-colors"
           >
             Mark all as read
           </button>
@@ -113,7 +113,7 @@ function NotifDropdown({
       <div className="border-t border-[#E3E7EC] px-5 py-3.5">
         <button
           onClick={onViewAll}
-          className="flex items-center gap-1.5 text-sm font-bold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
+          className="flex items-center gap-1.5 text-sm font-bold text-[#1B7A88] hover:text-[#36213E] transition-colors"
         >
           View all notifications
           <span className="text-base leading-none">→</span>
@@ -156,6 +156,11 @@ export default function Navbar() {
     notifTimer.current = setTimeout(() => setNotifOpen(false), 150)
   }
 
+  const closeNotif = () => {
+    if (notifTimer.current) clearTimeout(notifTimer.current)
+    setNotifOpen(false)
+  }
+
   const navLinks: { to: string; label: string }[] = [
     { to: ROUTES.DASHBOARD, label: 'Dashboard' },
     { to: ROUTES.POSTS,     label: 'Browse Posts' },
@@ -177,6 +182,28 @@ export default function Navbar() {
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
   }, [profileOpen])
+
+  // Close notification dropdown and profile menu on Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      if (notifOpen) closeNotif()
+      if (profileOpen) setProfileOpen(false)
+      if (menuOpen) setMenuOpen(false)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [notifOpen, profileOpen, menuOpen])
+
+  // Close notification dropdown on outside click
+  useEffect(() => {
+    if (!notifOpen) return
+    const onDoc = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) closeNotif()
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [notifOpen])
 
   const isActive = (to: string) =>
     to === ROUTES.DASHBOARD
@@ -252,7 +279,11 @@ export default function Navbar() {
               >
                 <button
                   onClick={() => navigate(ROUTES.NOTIFICATIONS)}
+                  onFocus={handleNotifEnter}
+                  onBlur={handleNotifLeave}
                   aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
+                  aria-expanded={notifOpen}
+                  aria-haspopup="true"
                   className="relative w-12 h-12 rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
                 >
                   <Bell size={17} />
@@ -324,7 +355,7 @@ export default function Navbar() {
                 to={ROUTES.REGISTER}
                 className="inline-flex items-center bg-hai-plum text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-black transition-colors"
               >
-                Request Access
+                Sign Up
               </Link>
             </>
           )}

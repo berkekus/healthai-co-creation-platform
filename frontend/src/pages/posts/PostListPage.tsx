@@ -9,7 +9,6 @@ import {
   Grid2X2,
   Sparkles,
   List,
-  LocateFixed,
   MapPin,
   Plus,
   RotateCcw,
@@ -24,7 +23,13 @@ import { useSmartSuggestions } from '../../lib/gemini'
 import { computeMatchReasons, getCombinedMatchScore } from '../../utils/matchPosts'
 import type { CollaborationType, Post, PostAuthorRole, PostStatus, ProjectStage } from '../../types/post.types'
 
-type PostedBy = 'Anyone' | 'Engineer' | 'Clinician'
+type PostedBy = 'Anyone' | 'Engineer' | 'Healthcare Professional'
+
+const POSTED_BY_SHORT: Record<PostedBy, string> = {
+  'Anyone': 'Anyone',
+  'Engineer': 'Engineer',
+  'Healthcare Professional': 'Clinician',
+}
 type SortMode = 'best' | 'recent' | 'oldest' | 'expiring'
 type ViewMode = 'list' | 'grid'
 const POSTS_PER_PAGE = 5
@@ -94,8 +99,8 @@ export default function PostListPage() {
   const [status, setStatus] = useState('')
   const [postedBy, setPostedBy] = useState<PostedBy>('Anyone')
   const [location, setLocation] = useState('')
-  const [sort, setSort] = useState<SortMode>('best')
-  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [sort, setSort] = useState<SortMode>(() => (localStorage.getItem('postList_sort') as SortMode) ?? 'best')
+  const [viewMode, setViewMode] = useState<ViewMode>(() => (localStorage.getItem('postList_view') as ViewMode) ?? 'list')
   const [page, setPage] = useState(1)
 
   useEffect(() => {
@@ -126,7 +131,7 @@ export default function PostListPage() {
         if (stage && post.projectStage !== stage) return false
         if (status && post.status !== status) return false
         if (postedBy === 'Engineer' && post.authorRole !== 'engineer') return false
-        if (postedBy === 'Clinician' && post.authorRole !== 'healthcare_professional') return false
+        if (postedBy === 'Healthcare Professional' && post.authorRole !== 'healthcare_professional') return false
         if (location.trim()) {
           const loc = location.trim().toLowerCase()
           if (!post.city.toLowerCase().includes(loc) && !post.country.toLowerCase().includes(loc)) return false
@@ -165,6 +170,16 @@ export default function PostListPage() {
     currentPage * POSTS_PER_PAGE,
   )
 
+  const locationSuggestions = useMemo(() => {
+    const seen = new Set<string>()
+    const result: string[] = []
+    for (const p of posts) {
+      if (p.city && !seen.has(p.city)) { seen.add(p.city); result.push(p.city) }
+      if (p.country && !seen.has(p.country)) { seen.add(p.country); result.push(p.country) }
+    }
+    return result
+  }, [posts])
+
   return (
     <main
       className="min-h-screen bg-[var(--bg)] text-[var(--text)]"
@@ -191,6 +206,8 @@ export default function PostListPage() {
             status={status}
             postedBy={postedBy}
             location={location}
+            locationSuggestions={locationSuggestions}
+            hasActiveFilters={hasActiveFilters}
             onDomain={setDomain}
             onStage={setStage}
             onStatus={setStatus}
@@ -207,8 +224,8 @@ export default function PostListPage() {
             hasActiveFilters={hasActiveFilters}
             sort={sort}
             viewMode={viewMode}
-            onSort={setSort}
-            onViewMode={setViewMode}
+            onSort={v => { setSort(v); localStorage.setItem('postList_sort', v) }}
+            onViewMode={v => { setViewMode(v); localStorage.setItem('postList_view', v) }}
             onClear={clearFilters}
             page={currentPage}
             totalPages={totalPages}
@@ -229,14 +246,14 @@ function PageHeader({ search, onSearch }: { search: string; onSearch: (value: st
     <header className="mb-[52px]">
       <div className="mb-5 inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--muted)]">
         <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
-        05 Directory
+        Browse Directory
       </div>
 
       <div className="directory-header-grid grid grid-cols-1 gap-10 xl:items-end">
         <div>
           <h1 className="font-headline text-6xl font-black leading-tight tracking-normal md:text-7xl">
             <span className="text-[var(--primary)]">Collaboration </span>
-            <span className="text-[#8AC6D0]">opportunities</span>
+            <span className="text-[#1B7A88]">opportunities</span>
             <span className="text-[var(--primary)]">.</span>
           </h1>
           <p className="mt-5 text-lg font-semibold leading-8 text-[var(--muted)]">
@@ -282,6 +299,8 @@ function FilterSidebar({
   status,
   postedBy,
   location,
+  locationSuggestions,
+  hasActiveFilters,
   onDomain,
   onStage,
   onStatus,
@@ -294,6 +313,8 @@ function FilterSidebar({
   status: string
   postedBy: PostedBy
   location: string
+  locationSuggestions: string[]
+  hasActiveFilters: boolean
   onDomain: (value: string) => void
   onStage: (value: string) => void
   onStatus: (value: string) => void
@@ -347,20 +368,26 @@ function FilterSidebar({
                 value={location}
                 onChange={event => onLocation(event.target.value)}
                 placeholder="Search city or country..."
-                className="h-12 w-full bg-white px-4 pr-10 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878]"
+                list="location-suggestions"
+                autoComplete="off"
+                className="h-12 w-full bg-white px-4 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878]"
               />
-              <LocateFixed size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
+              <datalist id="location-suggestions">
+                {locationSuggestions.map(s => <option key={s} value={s} />)}
+              </datalist>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-10 border-t border-[var(--border)] pt-7">
-        <button onClick={onClear} className="inline-flex items-center gap-3 rounded-full px-2 py-2 text-sm font-black text-[var(--muted)] transition hover:text-[var(--primary)]">
-          <RotateCcw size={17} />
-          Clear filters
-        </button>
-      </div>
+      {hasActiveFilters && (
+        <div className="mt-10 border-t border-[var(--border)] pt-7">
+          <button onClick={onClear} className="inline-flex items-center gap-3 rounded-full px-2 py-2 text-sm font-black text-[var(--muted)] transition hover:text-[var(--primary)]">
+            <RotateCcw size={17} />
+            Clear filters
+          </button>
+        </div>
+      )}
     </aside>
   )
 }
@@ -405,17 +432,18 @@ function SegmentedControl({ active, onChange }: { active: PostedBy; onChange: (v
     <div>
       <FilterLabel>Posted by</FilterLabel>
       <div className="grid grid-cols-3 rounded-[14px] border border-[var(--border)] bg-white p-1" style={{ height: 46 }}>
-        {(['Anyone', 'Engineer', 'Clinician'] as PostedBy[]).map(item => (
+        {(['Anyone', 'Engineer', 'Healthcare Professional'] as PostedBy[]).map(item => (
           <button
             key={item}
             onClick={() => onChange(item)}
+            title={item}
             className={`rounded-[11px] text-xs font-black transition ${
               active === item
                 ? 'bg-[var(--primary)] text-white shadow-[0_10px_24px_-16px_rgba(45,24,56,0.8)]'
                 : 'text-[var(--text)] hover:bg-[var(--tag-bg)]'
             }`}
           >
-            {item}
+            {POSTED_BY_SHORT[item]}
           </button>
         ))}
       </div>
@@ -688,7 +716,6 @@ function Tag({ label }: { label: string }) {
       }`}
       style={{ height: 22 }}
     >
-      <span className="h-1 w-1 rounded-full bg-current opacity-70" />
       {label}
     </span>
   )
@@ -732,19 +759,23 @@ function Pagination({
         >
           <ChevronLeft size={17} />
         </button>
-        {Array.from({ length: totalPages }, (_, index) => index + 1).map(item => (
-          <button
-            key={item}
-            onClick={() => onPage(item)}
-            className={`flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-sm font-black transition ${
-              item === page
-                ? 'bg-[var(--primary)] text-white'
-                : 'border border-[var(--border)] bg-white text-[var(--primary)] hover:border-[var(--accent)]'
-            }`}
-          >
-            {item}
-          </button>
-        ))}
+        {buildPageRange(page, totalPages).map((item, i) =>
+          item === '…' ? (
+            <span key={`ellipsis-${i}`} className="flex h-10 w-6 items-center justify-center text-sm text-[var(--muted)]">…</span>
+          ) : (
+            <button
+              key={item}
+              onClick={() => onPage(item as number)}
+              className={`flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-sm font-black transition ${
+                item === page
+                  ? 'bg-[var(--primary)] text-white'
+                  : 'border border-[var(--border)] bg-white text-[var(--primary)] hover:border-[var(--accent)]'
+              }`}
+            >
+              {item}
+            </button>
+          ),
+        )}
         <button
           onClick={() => onPage(Math.min(totalPages, page + 1))}
           disabled={page === totalPages}
@@ -811,6 +842,23 @@ function statusLabel(status: PostStatus) {
     expired: 'Expired',
   }
   return labels[status]
+}
+
+function buildPageRange(page: number, total: number): (number | '…')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+  const delta = 1
+  const left = page - delta
+  const right = page + delta
+  const pages: (number | '…')[] = []
+  let prev = 0
+  for (let p = 1; p <= total; p++) {
+    if (p === 1 || p === total || (p >= left && p <= right)) {
+      if (prev && p - prev > 1) pages.push('…')
+      pages.push(p)
+      prev = p
+    }
+  }
+  return pages
 }
 
 function formatCountry(country: string) {
