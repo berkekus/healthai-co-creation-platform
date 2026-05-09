@@ -161,7 +161,7 @@ export default function LoginPage() {
             <p className="text-sm text-[#6F6878] dark:text-[rgb(var(--text-secondary))] mb-8 font-body">
               Sign in with your institutional{' '}
               <span
-                className="text-[#8AC6D0] font-bold cursor-help border-b border-dashed border-[#8AC6D0]/50"
+                className="text-[#1B7A88] font-bold cursor-help border-b border-dashed border-[#1B7A88]/50"
                 title="HealthAI is open to verified academic and healthcare institutions. Only .edu addresses are accepted to ensure a trusted community."
               >
                 .edu
@@ -295,7 +295,7 @@ export default function LoginPage() {
                 </label>
                 <Link
                   to={ROUTES.FORGOT_PASSWORD}
-                  className="text-sm font-semibold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
+                  className="text-sm font-semibold text-[#1B7A88] hover:text-[#36213E] transition-colors"
                 >
                   Forgot password?
                 </Link>

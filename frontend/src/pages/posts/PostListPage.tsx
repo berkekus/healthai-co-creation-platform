@@ -253,7 +253,7 @@ function PageHeader({ search, onSearch }: { search: string; onSearch: (value: st
         <div>
           <h1 className="font-headline text-6xl font-black leading-tight tracking-normal md:text-7xl">
             <span className="text-[var(--primary)]">Collaboration </span>
-            <span className="text-[#8AC6D0]">opportunities</span>
+            <span className="text-[#1B7A88]">opportunities</span>
             <span className="text-[var(--primary)]">.</span>
           </h1>
           <p className="mt-5 text-lg font-semibold leading-8 text-[var(--muted)]">

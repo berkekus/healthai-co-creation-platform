@@ -102,7 +102,7 @@ function OnboardingPanel() {
             <p className="mb-7 text-sm font-semibold leading-6 text-[#6F6878]">{step.body}</p>
             <Link
               to={step.to}
-              className="inline-flex items-center gap-2 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]"
+              className="inline-flex items-center gap-2 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]"
             >
               {step.cta}
               <ArrowRight size={14} />
@@ -138,7 +138,7 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
       <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#36213E] sm:text-6xl">
         Welcome back,
       </h1>
-      <h2 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#8AC6D0] sm:text-6xl">
+      <h2 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#1B7A88] sm:text-6xl">
         {firstName}<span className="text-[#36213E]">.</span>
       </h2>
 
@@ -260,7 +260,7 @@ function RecentPosts({ posts }: { posts: Post[] }) {
     <div>
       <div className="mb-9 flex items-center justify-between">
         <h3 className="text-base font-black text-[#36213E]">Recent posts</h3>
-        <Link to={ROUTES.POSTS} className="flex items-center gap-6 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
+        <Link to={ROUTES.POSTS} className="flex items-center gap-6 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
           View all
           <ArrowRight size={16} />
         </Link>
@@ -337,7 +337,7 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
             {savedPosts.length}
           </span>
         </div>
-        <Link to={ROUTES.POSTS} className="flex items-center gap-2 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
+        <Link to={ROUTES.POSTS} className="flex items-center gap-2 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
           Browse all <ArrowRight size={14} />
         </Link>
       </div>
@@ -347,7 +347,7 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
           <div key={post.id} className="group relative rounded-[20px] border border-[#E3E7EC] bg-white p-5 shadow-[0_12px_40px_-28px_rgba(45,24,56,0.25)] transition hover:border-[#8AC6D0] hover:shadow-[0_16px_48px_-28px_rgba(45,24,56,0.35)]">
             <button
               onClick={() => unsave(post.id)}
-              className="absolute right-4 top-4 text-[#8AC6D0] opacity-0 group-hover:opacity-100 transition hover:text-[#36213E]"
+              className="absolute right-4 top-4 text-[#1B7A88] opacity-0 group-hover:opacity-100 transition hover:text-[#36213E]"
               title="Remove from saved"
             >
               <Bookmark size={15} fill="#8AC6D0" />
@@ -393,7 +393,7 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
     <div>
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-base font-black text-[#36213E]">Upcoming meetings</h3>
-        <Link to={ROUTES.MEETINGS} className="flex items-center gap-6 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
+        <Link to={ROUTES.MEETINGS} className="flex items-center gap-6 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
           View all
           <ArrowRight size={16} />
         </Link>

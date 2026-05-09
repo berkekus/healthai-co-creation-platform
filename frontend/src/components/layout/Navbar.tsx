@@ -69,7 +69,7 @@ function NotifDropdown({
         {unread > 0 && (
           <button
             onClick={onMarkAllRead}
-            className="text-xs font-bold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
+            className="text-xs font-bold text-[#1B7A88] hover:text-[#36213E] transition-colors"
           >
             Mark all as read
           </button>
@@ -113,7 +113,7 @@ function NotifDropdown({
       <div className="border-t border-[#E3E7EC] px-5 py-3.5">
         <button
           onClick={onViewAll}
-          className="flex items-center gap-1.5 text-sm font-bold text-[#8AC6D0] hover:text-[#36213E] transition-colors"
+          className="flex items-center gap-1.5 text-sm font-bold text-[#1B7A88] hover:text-[#36213E] transition-colors"
         >
           View all notifications
           <span className="text-base leading-none">→</span>
