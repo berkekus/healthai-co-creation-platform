@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   ChevronDown,
   ChevronLeft,
@@ -15,6 +15,7 @@ import {
   RotateCcw,
   Search,
   SlidersHorizontal,
+  Trash2,
 } from 'lucide-react'
 import { Skeleton, SkeletonLine, SkeletonPill } from '../../components/ui/Skeleton'
 import { ROUTES, postDetail } from '../../constants/routes'
@@ -86,8 +87,9 @@ const typeLabels: Record<CollaborationType, string> = {
 
 export default function PostListPage() {
   const { user } = useAuthStore()
-  const { posts, fetchPosts, isLoading } = usePostStore()
+  const { posts, fetchPosts, isLoading, remove } = usePostStore()
   const { suggestions, isLoading: isMatching, load: loadSmartSuggestions, reset: resetSmartSuggestions } = useSmartSuggestions()
+  const [searchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const [domain, setDomain] = useState('')
   const [stage, setStage] = useState('')
@@ -97,10 +99,12 @@ export default function PostListPage() {
   const [sort, setSort] = useState<SortMode>('best')
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [page, setPage] = useState(1)
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
+  const mineOnly = searchParams.get('mine') === 'true'
 
   useEffect(() => {
-    fetchPosts({ limit: 100, filters: {} })
-  }, [fetchPosts])
+    fetchPosts({ limit: 100, mine: mineOnly, filters: {} })
+  }, [fetchPosts, mineOnly])
 
   useEffect(() => {
     if (!user || posts.length === 0) {
@@ -165,6 +169,16 @@ export default function PostListPage() {
     currentPage * POSTS_PER_PAGE,
   )
 
+  const deletePost = async (postId: string) => {
+    if (!window.confirm('Delete this post? This action cannot be undone.')) return
+    setDeletingPostId(postId)
+    try {
+      await remove(postId)
+    } finally {
+      setDeletingPostId(null)
+    }
+  }
+
   return (
     <main
       className="min-h-screen bg-[var(--bg)] text-[var(--text)]"
@@ -182,7 +196,7 @@ export default function PostListPage() {
       } as CSSProperties}
     >
       <div className="mx-auto w-full px-8 pb-16 pt-[70px]" style={{ maxWidth: 1760 }}>
-        <PageHeader search={search} onSearch={setSearch} />
+        <PageHeader search={search} onSearch={setSearch} mineOnly={mineOnly} />
 
         <section className="directory-body-grid grid grid-cols-1 gap-8">
           <FilterSidebar
@@ -201,6 +215,7 @@ export default function PostListPage() {
           <PostList
             posts={paginatedPosts}
             totalPosts={directoryPosts.length}
+            mineOnly={mineOnly}
             isLoading={isLoading && posts.length === 0}
             isMatching={isMatching}
             aiError={Boolean(user && !isMatching && posts.length > 0 && suggestions.size === 0)}
@@ -213,6 +228,8 @@ export default function PostListPage() {
             page={currentPage}
             totalPages={totalPages}
             onPage={setPage}
+            onDelete={deletePost}
+            deletingPostId={deletingPostId}
           />
         </section>
       </div>
@@ -224,24 +241,41 @@ function setPostededBySafe(setter: (value: PostedBy) => void) {
   return (value: PostedBy) => setter(value)
 }
 
-function PageHeader({ search, onSearch }: { search: string; onSearch: (value: string) => void }) {
+function PageHeader({ search, onSearch, mineOnly }: { search: string; onSearch: (value: string) => void; mineOnly: boolean }) {
   return (
     <header className="mb-[52px]">
       <div className="mb-5 inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--muted)]">
         <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
-        05 Directory
+        {mineOnly ? '05 My Posts' : '05 Directory'}
       </div>
 
       <div className="directory-header-grid grid grid-cols-1 gap-10 xl:items-end">
         <div>
           <h1 className="font-headline text-6xl font-black leading-tight tracking-normal md:text-7xl">
-            <span className="text-[var(--primary)]">Collaboration </span>
-            <span className="text-[#8AC6D0]">opportunities</span>
+            {mineOnly ? (
+              <>
+                <span className="text-[var(--primary)]">Your </span>
+                <span className="text-[#8AC6D0]">posts</span>
+              </>
+            ) : (
+              <>
+                <span className="text-[var(--primary)]">Collaboration </span>
+                <span className="text-[#8AC6D0]">opportunities</span>
+              </>
+            )}
             <span className="text-[var(--primary)]">.</span>
           </h1>
           <p className="mt-5 text-lg font-semibold leading-8 text-[var(--muted)]">
-            Browse & connect with clinicians and engineers working on real healthcare solutions.
+            {mineOnly
+              ? 'Review, open, and manage the opportunities you have published.'
+              : 'Browse & connect with clinicians and engineers working on real healthcare solutions.'}
           </p>
+          {mineOnly && (
+            <Link to={ROUTES.POSTS} className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
+              View full directory
+              <ChevronRight size={15} />
+            </Link>
+          )}
         </div>
 
         <SearchAndAction value={search} onChange={onSearch} />
@@ -426,6 +460,7 @@ function SegmentedControl({ active, onChange }: { active: PostedBy; onChange: (v
 function PostList({
   posts,
   totalPosts,
+  mineOnly,
   isLoading,
   isMatching,
   aiError,
@@ -438,9 +473,12 @@ function PostList({
   page,
   totalPages,
   onPage,
+  onDelete,
+  deletingPostId,
 }: {
   posts: DirectoryPost[]
   totalPosts: number
+  mineOnly: boolean
   isLoading: boolean
   isMatching: boolean
   aiError: boolean
@@ -453,6 +491,8 @@ function PostList({
   page: number
   totalPages: number
   onPage: (page: number) => void
+  onDelete: (postId: string) => void
+  deletingPostId: string | null
 }) {
   return (
     <section className="overflow-hidden rounded-[28px] border border-[var(--border)] bg-white shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)]">
@@ -460,12 +500,19 @@ function PostList({
         <div className="flex items-center justify-between gap-6">
           <div>
             <div className="text-base font-black text-[var(--muted)]">
-              {isLoading ? 'Loading opportunities…' : `${totalPosts} opportunities found`}
+              {isLoading ? 'Loading opportunities...' : mineOnly ? `${totalPosts} posts found` : `${totalPosts} opportunities found`}
             </div>
-            <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#36213E] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-white shadow-[0_12px_28px_-20px_rgba(45,24,56,0.8)]">
-              <Sparkles size={14} />
-              {isMatching ? 'AI matching in progress' : aiError ? 'AI fallback ranking active' : 'AI-ranked for your profile'}
-            </div>
+            {mineOnly ? (
+              <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#E8F4F7] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#36213E]">
+                <FileText size={14} />
+                Your published and draft opportunities
+              </div>
+            ) : (
+              <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#36213E] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-white shadow-[0_12px_28px_-20px_rgba(45,24,56,0.8)]">
+                <Sparkles size={14} />
+                {isMatching ? 'AI matching in progress' : aiError ? 'AI fallback ranking active' : 'AI-ranked for your profile'}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-6">
@@ -508,7 +555,7 @@ function PostList({
       {isLoading ? (
         <PostListSkeleton />
       ) : totalPosts === 0 && !hasActiveFilters ? (
-        <EmptyState />
+        <EmptyState mineOnly={mineOnly} />
       ) : totalPosts === 0 ? (
         <div className="flex flex-col items-center gap-4 px-7 py-16 text-center">
           <p className="text-base font-semibold text-[var(--muted)]">No opportunities match your filters.</p>
@@ -529,6 +576,9 @@ function PostList({
                 post={post}
                 isLast={index === posts.length - 1}
                 compact={viewMode === 'grid'}
+                mineOnly={mineOnly}
+                onDelete={onDelete}
+                isDeleting={deletingPostId === post.id}
               />
             ))}
           </div>
@@ -582,16 +632,16 @@ function PostListSkeleton() {
   )
 }
 
-function EmptyState() {
+function EmptyState({ mineOnly }: { mineOnly: boolean }) {
   return (
     <div className="flex flex-col items-center gap-6 px-7 py-20 text-center">
       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
         <FileText size={28} className="text-[var(--primary)]" strokeWidth={1.5} />
       </div>
       <div>
-        <p className="text-lg font-black text-[var(--primary)]">No opportunities yet</p>
+        <p className="text-lg font-black text-[var(--primary)]">{mineOnly ? 'No posts yet' : 'No opportunities yet'}</p>
         <p className="mt-2 text-sm font-semibold text-[var(--muted)]">
-          Be the first to post a collaboration opportunity.
+          {mineOnly ? 'Your published and draft opportunities will appear here.' : 'Be the first to post a collaboration opportunity.'}
         </p>
       </div>
       <Link
@@ -605,10 +655,23 @@ function EmptyState() {
   )
 }
 
-function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boolean; compact: boolean }) {
+function PostRow({
+  post,
+  isLast,
+  compact,
+  mineOnly,
+  onDelete,
+  isDeleting,
+}: {
+  post: DirectoryPost
+  isLast: boolean
+  compact: boolean
+  mineOnly: boolean
+  onDelete: (postId: string) => void
+  isDeleting: boolean
+}) {
   return (
-    <Link
-      to={postDetail(post.id)}
+    <article
       className={`post-row block transition hover:bg-[#F3F4F6] ${compact ? 'post-row-compact' : ''} ${isLast ? '' : 'border-b border-[var(--border)]'}`}
       style={{ minHeight: compact ? 220 : 246, padding: '32px 28px' }}
     >
@@ -638,8 +701,10 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
           </div>
         )}
 
-        <h2 className="truncate font-headline text-2xl font-black leading-tight text-[var(--primary)]">{post.title}</h2>
-        <p className="mt-4 max-w-[900px] break-words text-base font-semibold leading-6 text-[var(--muted)]">{post.description}</p>
+        <Link to={postDetail(post.id)} className="group block">
+          <h2 className="truncate font-headline text-2xl font-black leading-tight text-[var(--primary)] transition group-hover:text-[#8AC6D0]">{post.title}</h2>
+          <p className="mt-4 max-w-[900px] break-words text-base font-semibold leading-6 text-[var(--muted)]">{post.description}</p>
+        </Link>
 
         <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-black text-[var(--muted)]">
           <span className="text-[var(--primary)]">{post.author}</span>
@@ -661,15 +726,24 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
           <StatusPill label={post.stage} />
           <StatusPill label={post.type} />
         </div>
-        {post.tags.length > 0 && (
-          <div className="flex max-w-[340px] flex-wrap justify-end gap-2 self-end">
-            {post.tags.map(tag => (
-              <Tag key={tag} label={tag} />
-            ))}
-          </div>
-        )}
+        <div className="flex max-w-[340px] flex-wrap justify-end gap-2 self-end">
+          {post.tags.map(tag => (
+            <Tag key={tag} label={tag} />
+          ))}
+          {mineOnly && (
+            <button
+              type="button"
+              onClick={() => onDelete(post.id)}
+              disabled={isDeleting}
+              className="inline-flex h-8 items-center justify-center gap-2 rounded-full border border-[#F0C8CC] bg-white px-4 text-xs font-black uppercase tracking-[0.12em] text-[#B64B55] transition hover:bg-[#F7EDEE] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Trash2 size={13} />
+              {isDeleting ? 'Deleting' : 'Delete'}
+            </button>
+          )}
+        </div>
       </div>
-    </Link>
+    </article>
   )
 }
 

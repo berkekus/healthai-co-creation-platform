@@ -326,7 +326,7 @@ function MeetingRow({
   const partner = isOwner ? meeting.requesterName : meeting.ownerName
   const partnerEmail = isOwner ? meeting.requesterEmail : meeting.ownerEmail
   const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
-  const acceptedSlot = meeting.proposedSlots[0]
+  const shouldChooseSlot = meeting.status === 'pending' && isOwner && meeting.proposedSlots.length > 0
 
   const handleConfirm = () => {
     const trimmed = reason.trim() || undefined
@@ -381,14 +381,29 @@ function MeetingRow({
       </div>
 
       <div className="space-y-2 text-sm font-bold text-[var(--muted)] max-lg:col-start-2">
-        <div className="flex items-center gap-2">
-          <Calendar size={16} className="text-[var(--primary)]" />
-          {slot ? formatSlotDate(slot) : formatDate(meeting.createdAt)}
-        </div>
-        <div className="flex items-center gap-2">
-          <Clock size={16} className="text-[var(--primary)]" />
-          {slot?.time ?? formatTime(meeting.createdAt)}
-        </div>
+        {shouldChooseSlot ? (
+          <>
+            <div className="flex items-center gap-2">
+              <Calendar size={16} className="text-[var(--primary)]" />
+              {meeting.proposedSlots.length} options
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock size={16} className="text-[var(--primary)]" />
+              Choose one slot
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-2">
+              <Calendar size={16} className="text-[var(--primary)]" />
+              {slot ? formatSlotDate(slot) : formatDate(meeting.createdAt)}
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock size={16} className="text-[var(--primary)]" />
+              {slot?.time ?? formatTime(meeting.createdAt)}
+            </div>
+          </>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-2 max-lg:col-span-2 max-lg:justify-start">
@@ -413,16 +428,23 @@ function MeetingRow({
           </div>
         ) : (
           <>
-            {meeting.status === 'pending' && isOwner && acceptedSlot && (
-              <>
-                <ActionButton disabled={busy} onClick={() => onAccept(acceptedSlot)} tone="primary">
-                  <Check size={14} />
-                  Accept
-                </ActionButton>
+            {shouldChooseSlot && (
+              <div className="flex w-full flex-col items-end gap-2">
+                <div className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+                  Choose a proposed slot
+                </div>
+                <div className="flex flex-wrap justify-end gap-2">
+                  {meeting.proposedSlots.map(slotOption => (
+                    <ActionButton key={`${slotOption.date}-${slotOption.time}`} disabled={busy} onClick={() => onAccept(slotOption)} tone="primary">
+                      <Check size={14} />
+                      {formatSlotChoice(slotOption)}
+                    </ActionButton>
+                  ))}
+                </div>
                 <ActionButton disabled={busy} onClick={() => setConfirmMode('decline')} tone="quiet">
                   Decline
                 </ActionButton>
-              </>
+              </div>
             )}
             {meeting.status === 'pending' && !isOwner && (
               <ActionButton disabled={busy} onClick={() => setConfirmMode('cancel')} tone="quiet">
@@ -682,6 +704,14 @@ function formatSlotDate(slot: TimeSlot) {
     month: 'short',
     year: 'numeric',
   })
+}
+
+function formatSlotChoice(slot: TimeSlot) {
+  const date = new Date(`${slot.date}T${slot.time}`).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+  })
+  return `${date} - ${slot.time}`
 }
 
 function formatDate(value: string) {

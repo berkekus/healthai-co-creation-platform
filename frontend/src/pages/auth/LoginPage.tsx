@@ -55,7 +55,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     if (cooldown > 0) return
-    await login({ ...data, captchaToken: captchaToken ?? undefined })
+    await login({ ...data, captchaToken: captchaToken ?? undefined, rememberMe })
     const newFails = failedAttempts + 1
     if (useAuthStore.getState().error) {
       captchaRef.current?.reset()
@@ -70,7 +70,7 @@ export default function LoginPage() {
   const quickLogin = (email: string, password: string) => {
     if (isLoading) return
     quickLoginRef.current = true
-    login({ email, password })
+    login({ email, password, rememberMe: true })
   }
 
   return (
