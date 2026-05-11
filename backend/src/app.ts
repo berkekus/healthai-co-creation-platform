@@ -36,7 +36,7 @@ app.use(mongoSanitize())
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
-app.get('/health', (_req, res) => {
+app.get('/api/health', (_req, res) => {
   const dbReady = mongoose.connection.readyState === 1
   const status = dbReady ? 'ok' : 'degraded'
   res.status(dbReady ? 200 : 503).json({ status, db: dbReady ? 'connected' : 'disconnected', timestamp: new Date().toISOString() })

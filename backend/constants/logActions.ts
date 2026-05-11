@@ -17,6 +17,7 @@ export const LOG = {
   USER_DELETE:      'user_delete',
   // Posts
   POST_CREATE:      'post_create',
+  POST_UPDATE:      'post_update',
   POST_PUBLISH:     'post_publish',
   POST_PARTNER_FOUND: 'post_partner_found',
   POST_DELETE:      'post_delete',
@@ -24,9 +25,12 @@ export const LOG = {
   // Meetings
   MEETING_REQUEST:  'meeting_request',
   MEETING_ACCEPT:   'meeting_accept',
+  MEETING_CONFIRM:  'meeting_confirm',
   MEETING_DECLINE:  'meeting_decline',
   MEETING_CANCEL:   'meeting_cancel',
   MEETING_COMPLETE: 'meeting_complete',
+  // GDPR
+  DATA_EXPORT:      'data_export',
 } as const
 
 export type LogAction = typeof LOG[keyof typeof LOG]

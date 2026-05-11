@@ -290,6 +290,14 @@ export const deleteUser = asyncHandler<AuthenticatedRequest>(async (req, res) =>
 
 export const exportMyData = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const data = await authService.exportUserData(req.userId)
+  createLog({
+    userId: req.userId,
+    userEmail: req.userEmail,
+    role: req.userRole,
+    action: LOG.DATA_EXPORT,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
   res.setHeader('Content-Disposition', `attachment; filename="healthai-export-${req.userId}-${new Date().toISOString().split('T')[0]}.json"`)
   res.setHeader('Content-Type', 'application/json')
   res.send(JSON.stringify(data, null, 2))

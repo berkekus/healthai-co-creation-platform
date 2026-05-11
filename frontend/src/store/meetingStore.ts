@@ -6,7 +6,8 @@ interface MeetingState {
   meetings: Meeting[]
   fetchByUser: (userId?: string) => Promise<void>
   request: (data: MeetingRequestData, requesterId: string, requesterName: string, ownerId: string, ownerName: string, postTitle: string) => Promise<Meeting>
-  accept: (id: string, slot: TimeSlot) => Promise<void>
+  accept: (id: string) => Promise<void>
+  confirm: (id: string, slot: TimeSlot) => Promise<void>
   decline: (id: string, reason?: string) => Promise<void>
   cancel: (id: string, reason?: string) => Promise<void>
   complete: (id: string) => Promise<void>
@@ -46,8 +47,14 @@ export const useMeetingStore = create<MeetingState>()((set, get) => ({
     return meeting
   },
 
-  accept: async (id, slot) => {
-    const { data: res } = await api.post<{ success: boolean; data: Meeting }>(`/meetings/${id}/accept`, { slot })
+  accept: async (id) => {
+    const { data: res } = await api.post<{ success: boolean; data: Meeting }>(`/meetings/${id}/accept`)
+    const updated = normalise(res.data)
+    set(s => ({ meetings: s.meetings.map(m => m.id === id ? updated : m) }))
+  },
+
+  confirm: async (id, slot) => {
+    const { data: res } = await api.post<{ success: boolean; data: Meeting }>(`/meetings/${id}/confirm`, { slot })
     const updated = normalise(res.data)
     set(s => ({ meetings: s.meetings.map(m => m.id === id ? updated : m) }))
   },
