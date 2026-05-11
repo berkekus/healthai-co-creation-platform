@@ -47,7 +47,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
     }
   },
 
-  login: async ({ email, password, captchaToken, rememberMe }) => {
+  login: async ({ email, password, captchaToken, rememberMe = true }) => {
     set({ isLoading: true, error: null })
     try {
       const { data } = await api.post<{ success: boolean; data: { user: User; token: string } }>(
@@ -56,8 +56,10 @@ export const useAuthStore = create<AuthState>()((set) => ({
       )
       if (rememberMe) {
         localStorage.setItem('token', data.data.token)
+        sessionStorage.removeItem('token')
       } else {
         sessionStorage.setItem('token', data.data.token)
+        localStorage.removeItem('token')
       }
       set({ user: data.data.user, isAuthenticated: true, isLoading: false })
     } catch (err) {

@@ -119,7 +119,7 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
             <div className="min-w-0">
               <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-3 py-1 mb-3 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
-                Express interest
+                Schedule a Meeting
               </div>
               <h2 id="express-interest-title" className="font-headline font-bold text-xl md:text-2xl leading-tight tracking-normal text-hai-plum line-clamp-2">
                 {post.title}

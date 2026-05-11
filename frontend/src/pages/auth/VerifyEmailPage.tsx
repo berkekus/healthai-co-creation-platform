@@ -91,7 +91,7 @@ export default function VerifyEmailPage() {
           </h1>
           <p className="text-base text-[#6F6878] mb-8">{errorMsg ?? 'The link is invalid or has expired.'}</p>
           <ResendForm email={resendEmail} onChange={setResendEmail} onSubmit={handleResend} loading={resending} sent={resendSent} />
-          <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-1.5 text-[#8AC6D0] font-bold text-sm hover:text-[#36213E] transition-colors mt-6">
+          <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-1.5 text-[#1B7A88] font-bold text-sm hover:text-[#36213E] transition-colors mt-6">
             Already verified? Sign in →
           </Link>
         </div>
@@ -149,7 +149,7 @@ export default function VerifyEmailPage() {
 
           <Link
             to={ROUTES.LOGIN}
-            className="inline-flex items-center gap-1.5 text-[#8AC6D0] font-bold text-sm hover:text-[#36213E] transition-colors mt-6"
+            className="inline-flex items-center gap-1.5 text-[#1B7A88] font-bold text-sm hover:text-[#36213E] transition-colors mt-6"
           >
             Already verified? Sign in →
           </Link>

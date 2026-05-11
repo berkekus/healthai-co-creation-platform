@@ -102,7 +102,7 @@ function OnboardingPanel() {
             <p className="mb-7 text-sm font-semibold leading-6 text-[#6F6878]">{step.body}</p>
             <Link
               to={step.to}
-              className="inline-flex items-center gap-2 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]"
+              className="inline-flex items-center gap-2 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]"
             >
               {step.cta}
               <ArrowRight size={14} />
@@ -138,7 +138,7 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
       <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#36213E] sm:text-6xl">
         Welcome back,
       </h1>
-      <h2 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#8AC6D0] sm:text-6xl">
+      <h2 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#1B7A88] sm:text-6xl">
         {firstName}<span className="text-[#36213E]">.</span>
       </h2>
 
@@ -157,27 +157,13 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
         of healthcare — together.
       </div>
 
-      <div className="mt-14 flex w-full max-w-[292px] flex-col gap-[13px]">
+      <div className="mt-14">
         <Link
           to={ROUTES.POST_CREATE}
-          className="flex h-[48px] items-center gap-5 rounded-full bg-[#36213E] px-7 text-sm font-black text-white shadow-[0_18px_30px_-18px_rgba(45,24,56,0.82)] transition hover:bg-[#24162B]"
+          className="flex h-[48px] w-full max-w-[292px] items-center gap-5 rounded-full bg-[#36213E] px-7 text-sm font-black text-white shadow-[0_18px_30px_-18px_rgba(45,24,56,0.82)] transition hover:bg-[#24162B]"
         >
           <Plus size={18} strokeWidth={2.5} />
           Post an opportunity
-        </Link>
-        <Link
-          to={ROUTES.POSTS}
-          className="flex h-[48px] items-center gap-5 rounded-full border border-[#D5DAE0] bg-white/55 px-7 text-sm font-black text-[#36213E] transition hover:border-[#8AC6D0] hover:bg-white"
-        >
-          <Search size={17} strokeWidth={2.4} />
-          Browse directory
-        </Link>
-        <Link
-          to={ROUTES.MEETINGS}
-          className="flex h-[48px] items-center gap-5 rounded-full border border-[#D5DAE0] bg-white/55 px-7 text-sm font-black text-[#36213E] transition hover:border-[#8AC6D0] hover:bg-white"
-        >
-          <CalendarDays size={17} strokeWidth={2.4} />
-          View meetings
         </Link>
       </div>
     </div>
@@ -217,9 +203,9 @@ function WeeklyBlob({
         </div>
 
         <div className="grid grid-cols-3 gap-6 xl:gap-16">
-          <Metric icon={<FileText size={21} />} iconBg="#8AC6D0" value={postCount} label="My posts" change="↗ Synced with backend" />
-          <Metric icon={<Handshake size={21} />} iconBg="#D8EFF2" value={meetingCount} label="My meetings" change={meetingCount > 0 ? '↗ Review queue' : '— No change'} />
-          <Metric icon={<Eye size={21} />} iconBg="#E3DCD2" value={activeListings} label="Active listings" change={activeListings > 0 ? '↗ Open for interest' : '— No active listings'} />
+          <Metric icon={<FileText size={21} />} iconBg="#8AC6D0" value={postCount} label="My posts" sub={postCount === 0 ? 'No posts yet' : 'Total created'} />
+          <Metric icon={<Handshake size={21} />} iconBg="#D8EFF2" value={meetingCount} label="My meetings" sub={meetingCount === 0 ? 'None scheduled' : 'Pending & confirmed'} />
+          <Metric icon={<Eye size={21} />} iconBg="#E3DCD2" value={activeListings} label="Active listings" sub={activeListings === 0 ? 'None active' : 'Open for interest'} />
         </div>
       </div>
     </div>
@@ -231,13 +217,13 @@ function Metric({
   iconBg,
   value,
   label,
-  change,
+  sub,
 }: {
   icon: ReactNode
   iconBg: string
   value: number
   label: string
-  change: string
+  sub: string
 }) {
   return (
     <div>
@@ -246,7 +232,7 @@ function Metric({
       </div>
       <div className="font-headline text-5xl font-black leading-none text-[#36213E]">{value}</div>
       <div className="mt-3 text-lg font-semibold text-[#6F6878]">{label}</div>
-      <div className="mt-3 text-sm font-semibold text-[#6F6878]">{change}</div>
+      <div className="mt-3 text-sm font-semibold text-[#6F6878]">{sub}</div>
     </div>
   )
 }
@@ -337,7 +323,7 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
             {savedPosts.length}
           </span>
         </div>
-        <Link to={ROUTES.POSTS} className="flex items-center gap-2 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
+        <Link to={ROUTES.POSTS} className="flex items-center gap-2 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
           Browse all <ArrowRight size={14} />
         </Link>
       </div>
@@ -347,7 +333,7 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
           <div key={post.id} className="group relative rounded-[20px] border border-[#E3E7EC] bg-white p-5 shadow-[0_12px_40px_-28px_rgba(45,24,56,0.25)] transition hover:border-[#8AC6D0] hover:shadow-[0_16px_48px_-28px_rgba(45,24,56,0.35)]">
             <button
               onClick={() => unsave(post.id)}
-              className="absolute right-4 top-4 text-[#8AC6D0] opacity-0 group-hover:opacity-100 transition hover:text-[#36213E]"
+              className="absolute right-4 top-4 text-[#1B7A88] opacity-0 group-hover:opacity-100 transition hover:text-[#36213E]"
               title="Remove from saved"
             >
               <Bookmark size={15} fill="#8AC6D0" />
@@ -393,7 +379,7 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
     <div>
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-base font-black text-[#36213E]">Upcoming meetings</h3>
-        <Link to={ROUTES.MEETINGS} className="flex items-center gap-6 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
+        <Link to={ROUTES.MEETINGS} className="flex items-center gap-6 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
           View all
           <ArrowRight size={16} />
         </Link>
@@ -489,10 +475,24 @@ function MeetingAvatar({
     ? new Date(`${slot.date}T${slot.time}`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : 'Slot pending'
 
+  const tooltipId = `meeting-tip-${meeting.id}`
+  const tooltipContent = `${partner} · ${meeting.postTitle} · ${statusLabel} · ${dateLabel}`
+
   return (
-    <div className={`group absolute flex h-[54px] w-[54px] items-center justify-center rounded-full bg-white shadow-[0_10px_28px_-18px_rgba(45,24,56,0.6)] ${className}`}>
+    <div
+      className={`group absolute flex h-[54px] w-[54px] items-center justify-center rounded-full bg-white shadow-[0_10px_28px_-18px_rgba(45,24,56,0.6)] ${className}`}
+      tabIndex={0}
+      role="button"
+      aria-describedby={tooltipId}
+      aria-label={`Meeting with ${partner}`}
+    >
       <img src={imageSrc} alt={partner} className="h-[38px] w-[38px] rounded-full object-cover" />
-      <div className="pointer-events-none absolute left-1/2 top-[62px] z-20 w-[230px] -translate-x-1/2 translate-y-2 rounded-2xl border border-[#E3E7EC] bg-white px-4 py-3 text-left opacity-0 shadow-[0_24px_60px_-28px_rgba(45,24,56,0.45)] transition group-hover:translate-y-0 group-hover:opacity-100">
+      <div
+        id={tooltipId}
+        role="tooltip"
+        aria-label={tooltipContent}
+        className="pointer-events-none absolute left-1/2 top-[62px] z-20 w-[230px] -translate-x-1/2 translate-y-2 rounded-2xl border border-[#E3E7EC] bg-white px-4 py-3 text-left opacity-0 shadow-[0_24px_60px_-28px_rgba(45,24,56,0.45)] transition group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"
+      >
         <div className="truncate text-sm font-black text-[#36213E]">{partner}</div>
         <div className="mt-1 line-clamp-2 text-xs font-semibold leading-4 text-[#6F6878]">{meeting.postTitle}</div>
         <div className="mt-3 flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.12em] text-[#6F6878]">
