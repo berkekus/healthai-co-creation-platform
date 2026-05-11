@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate, useBlocker } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { usePostStore } from '../../store/postStore'
@@ -21,11 +21,13 @@ export default function PostCreatePage() {
     mode: 'onTouched',
   })
 
-  // Block navigation when the form has unsaved changes
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      isDirty && !isSubmitting && currentLocation.pathname !== nextLocation.pathname,
-  )
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty && !isSubmitting) e.preventDefault()
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [isDirty, isSubmitting])
 
   const onSubmit = async (data: PostCreateFormData) => {
     if (!user) return
@@ -43,32 +45,6 @@ export default function PostCreatePage() {
 
   return (
     <main className="min-h-screen bg-[#f6f7f9] text-[#2d1838]">
-
-      {/* Unsaved-changes confirmation dialog */}
-      {blocker.state === 'blocked' && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-[400px] rounded-[24px] bg-white p-8 shadow-[0_32px_80px_-20px_rgba(45,24,56,0.35)]">
-            <h2 className="font-headline text-xl font-black text-[#2d1838]">Leave without saving?</h2>
-            <p className="mt-3 text-sm font-semibold text-[#6f6a76] leading-6">
-              You have unsaved changes. If you leave now, your progress will be lost.
-            </p>
-            <div className="mt-7 flex gap-3">
-              <button
-                onClick={() => blocker.reset()}
-                className="flex-1 h-12 rounded-full border border-[#d5dae0] bg-white text-sm font-black text-[#2d1838] transition hover:border-[#55bde0]"
-              >
-                Keep editing
-              </button>
-              <button
-                onClick={() => blocker.proceed()}
-                className="flex-1 h-12 rounded-full bg-[#2d1838] text-sm font-black text-white transition hover:bg-[#1c1024]"
-              >
-                Leave anyway
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Progress bar — visible only during submission */}
       {isSubmitting && (
