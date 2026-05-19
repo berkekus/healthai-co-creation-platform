@@ -26,7 +26,7 @@ export default function LoginPage() {
   const [failedAttempts, setFailedAttempts] = useState(0)
   const [cooldown, setCooldown] = useState(0)
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+  const [rememberMe, setRememberMe] = useState(true)
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const [captchaError, setCaptchaError] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -71,7 +71,7 @@ export default function LoginPage() {
   const quickLogin = (email: string, password: string) => {
     if (isLoading) return
     quickLoginRef.current = true
-    login({ email, password })
+    login({ email, password, rememberMe: true })
   }
 
   return (
@@ -350,35 +350,33 @@ export default function LoginPage() {
               </Link>
             </p>
 
-            {/* Dev quick-login — development only */}
-            {import.meta.env.DEV && (
-              <div className="mt-8">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
-                  <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#c5cad6] dark:text-[rgb(var(--text-secondary))] font-headline">Dev Access</span>
-                  <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
-                </div>
-                <div className="flex gap-2">
-                  {DEV_ACCOUNTS.map(({ label, email, password, icon: Icon, color }) => (
-                    <button
-                      key={label}
-                      type="button"
-                      onClick={() => quickLogin(email, password)}
-                      disabled={isLoading}
-                      className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-                    >
-                      <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: `${color}18` }}
-                      >
-                        <Icon size={14} strokeWidth={2} style={{ color }} />
-                      </div>
-                      <span className="text-xs font-bold text-[#4a5270] dark:text-[rgb(var(--text-secondary))] font-headline">{label}</span>
-                    </button>
-                  ))}
-                </div>
+            {/* Dev quick-login */}
+            <div className="mt-8">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
+                <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#c5cad6] dark:text-[rgb(var(--text-secondary))] font-headline">Dev Access</span>
+                <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
               </div>
-            )}
+              <div className="flex gap-2">
+                {DEV_ACCOUNTS.map(({ label, email, password, icon: Icon, color }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => quickLogin(email, password)}
+                    disabled={isLoading}
+                    className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                  >
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: `${color}18` }}
+                    >
+                      <Icon size={14} strokeWidth={2} style={{ color }} />
+                    </div>
+                    <span className="text-xs font-bold text-[#4a5270] dark:text-[rgb(var(--text-secondary))] font-headline">{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

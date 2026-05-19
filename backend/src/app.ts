@@ -21,12 +21,15 @@ const allowedOrigins = [
   process.env.CLIENT_ORIGIN,
 ].filter(Boolean) as string[]
 
+const vercelPreviewRe = /^https:\/\/healthai-co-creation-platform(-[a-z0-9]+-berkekus-projects)?\.vercel\.app$/
+
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }))
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true)
+    if (!origin) return cb(null, true)
+    if (allowedOrigins.includes(origin) || vercelPreviewRe.test(origin)) return cb(null, true)
     cb(new Error(`CORS: origin ${origin} not allowed`))
   },
   credentials: true,

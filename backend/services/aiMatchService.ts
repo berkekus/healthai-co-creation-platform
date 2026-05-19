@@ -112,15 +112,13 @@ ${JSON.stringify(candidates.map(post => ({
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.2,
-        responseMimeType: 'application/json',
-      },
+      generationConfig: { temperature: 0.2 },
     }),
   })
 
   if (!response.ok) {
-    throw makeError(`Gemini request failed with ${response.status}`, 502)
+    const errBody = await response.text().catch(() => '')
+    throw makeError(`Gemini ${response.status}: ${errBody.slice(0, 200)}`, 502)
   }
 
   const payload = await response.json() as GeminiResponse
