@@ -85,17 +85,14 @@ async function resolveUpdateFailure(
   throw makeError(`Cannot ${verb} a meeting with status: ${existing.status}`, 400)
 }
 
-export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot) {
-  const existing = await Meeting.findOne({ _id: id, ownerId, status: 'pending' })
-  if (!existing) await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
-
 // Step 1: owner accepts request → pending → time_proposed (no slot chosen yet)
 export async function acceptMeeting(id: string, ownerId: string) {
-  const existing = await Meeting.findOne({ _id: id, ownerId, status: 'pending' })
-  if (!existing) await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
-
-  existing!.status = 'time_proposed'
-  const meeting = await existing!.save()
+  const meeting = await Meeting.findOneAndUpdate(
+    { _id: id, ownerId, status: 'pending' },
+    { $set: { status: 'time_proposed' } },
+    { new: true },
+  )
+  if (!meeting) await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
 
   pushNotification({
     userId: meeting.requesterId.toString(),
@@ -118,9 +115,43 @@ export async function confirmMeetingSlot(id: string, ownerId: string, slot: ITim
   )
   if (!slotWasProposed) throw makeError('Confirmed slot must be one of the proposed slots', 400)
 
+  // Calendar conflict: ensure neither party already has a confirmed meeting at this slot
+  const conflict = await Meeting.exists({
+    _id: { $ne: existing!._id },
+    status: 'confirmed',
+    'confirmedSlot.date': slot.date,
+    'confirmedSlot.time': slot.time,
+    $or: [
+      { requesterId: existing!.requesterId },
+      { ownerId: existing!.ownerId },
+      { requesterId: existing!.ownerId },
+      { ownerId: existing!.requesterId },
+    ],
+  })
+  if (conflict) throw makeError('One of the participants already has a confirmed meeting at this time slot', 409)
+
   existing!.status = 'confirmed'
   existing!.confirmedSlot = slot
   const meeting = await existing!.save()
+
+  // Auto-decline all other pending/time_proposed meetings for the same post
+  const competing = await Meeting.find({
+    postId: meeting.postId,
+    _id: { $ne: meeting._id },
+    status: { $in: ['pending', 'time_proposed'] },
+  })
+  await Promise.all(competing.map(async (m) => {
+    m.status = 'declined'
+    m.declineReason = 'Another meeting was confirmed for this post'
+    await m.save()
+    pushNotification({
+      userId: m.requesterId.toString(),
+      type: 'meeting_declined',
+      title: 'Toplantı isteği iptal edildi',
+      body: `"${m.postTitle}" için başka bir toplantı onaylandığından talebiniz otomatik olarak iptal edildi.`,
+      linkTo: `/meetings`,
+    }).catch(() => {})
+  }))
 
   recomputePostStatus(meeting.postId.toString()).catch(() => {})
 
