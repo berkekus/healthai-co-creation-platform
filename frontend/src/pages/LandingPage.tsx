@@ -732,13 +732,26 @@ export default function LandingPage() {
                 slab) is enough to dissolve the seam completely while
                 preserving the calm teal-to-off-white journey below.
               */
-              background: 'linear-gradient(180deg, rgba(232,244,247,0) 0%, rgba(232,244,247,0.55) 5%, #E8F4F7 10%, #E8F4F7 17%, #F3F4F6 57%, #F3F4F6 100%)',
+              background: 'linear-gradient(180deg, #E8F4F7 0%, #E8F4F7 14%, #EEF7F9 28%, #F3F4F6 54%, #F3F4F6 100%)',
               y: prefersReducedMotion ? 0 : slabY,
             }}
           >
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-0 top-0 z-0 h-48 bg-gradient-to-b from-transparent via-[#E8F4F7]/70 to-[#E8F4F7]"
+              className="pointer-events-none absolute inset-x-0 -top-40 z-0 h-80"
+              style={{
+                background: 'linear-gradient(180deg, rgba(232,244,247,0) 0%, rgba(232,244,247,0.62) 34%, #E8F4F7 68%, rgba(232,244,247,0) 100%)',
+              }}
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 -top-36 z-0 h-[420px]"
+              style={{
+                backgroundImage: 'radial-gradient(circle at center, rgba(54,33,62,0.04) 1px, transparent 1px)',
+                backgroundSize: '24px 24px',
+                WebkitMaskImage: 'linear-gradient(180deg, #000 0%, #000 34%, transparent 100%)',
+                maskImage: 'linear-gradient(180deg, #000 0%, #000 34%, transparent 100%)',
+              }}
             />
 
             <section
