@@ -23,10 +23,13 @@ function LangToggle() {
     <button
       type="button"
       onClick={() => i18n.changeLanguage(isTR ? 'en' : 'tr')}
-      className="h-10 px-3 rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center gap-1.5 text-xs font-black text-hai-plum"
+      className="h-10 px-3 rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center gap-1.5 text-xs font-black text-hai-plum focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal/70 focus-visible:ring-offset-2"
+      aria-label={isTR ? 'Switch language to English' : 'Dili Turkceye gecir'}
       title={isTR ? 'Switch to English' : 'Türkçeye geç'}
     >
-      <span className="text-base leading-none">{isTR ? '🇹🇷' : '🇬🇧'}</span>
+      <span aria-hidden="true" className="rounded-full bg-hai-offwhite px-1.5 py-0.5 text-[10px] leading-none text-[#1B7A88]">
+        {isTR ? 'TR' : 'EN'}
+      </span>
       <span>{isTR ? 'TR' : 'EN'}</span>
     </button>
   )
@@ -80,14 +83,14 @@ function NotifDropdown({
 }) {
   const { t } = useTranslation()
   return (
-    <div className="absolute right-0 top-[calc(100%+10px)] w-[340px] rounded-2xl border border-[#E3E7EC] bg-white shadow-[0_20px_60px_-20px_rgba(45,24,56,0.22)] z-[60] overflow-hidden">
+    <div className="absolute right-0 top-[calc(100%+10px)] z-[60] w-[340px] rounded-2xl border border-[#E3E7EC] bg-white shadow-[0_20px_60px_-20px_rgba(45,24,56,0.22)] overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E7EC]">
         <span className="text-sm font-black text-[#36213E]">{t('notif.title')}</span>
         {unread > 0 && (
           <button
             onClick={onMarkAllRead}
-            className="text-xs font-bold text-[#1B7A88] hover:text-[#36213E] transition-colors"
+            className="cursor-pointer text-xs font-bold text-[#1B7A88] hover:text-[#36213E] transition-colors"
           >
             {t('notif.markAllRead')}
           </button>
@@ -108,7 +111,7 @@ function NotifDropdown({
             <li key={n.id}>
               <button
                 onClick={() => onNavigate(n.linkTo)}
-                className="flex w-full items-start gap-3 px-5 py-3.5 text-left transition-colors hover:bg-[#F3F4F6]"
+                className="flex w-full cursor-pointer items-start gap-3 px-5 py-3.5 text-left transition-colors hover:bg-[#F3F4F6]"
               >
                 <NotifIcon type={n.type} />
                 <div className="min-w-0 flex-1">
@@ -131,7 +134,7 @@ function NotifDropdown({
       <div className="border-t border-[#E3E7EC] px-5 py-3.5">
         <button
           onClick={onViewAll}
-          className="flex items-center gap-1.5 text-sm font-bold text-[#1B7A88] hover:text-[#36213E] transition-colors"
+          className="flex cursor-pointer items-center gap-1.5 text-sm font-bold text-[#1B7A88] hover:text-[#36213E] transition-colors"
         >
           {t('notif.viewAll')}
           <span className="text-base leading-none">→</span>
@@ -302,8 +305,8 @@ export default function Navbar() {
                   onBlur={handleNotifLeave}
                   aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
                   aria-expanded={notifOpen}
-                  aria-haspopup="true"
-                  className="relative w-12 h-12 rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
+                  aria-haspopup="listbox"
+                  className="relative w-12 h-12 cursor-pointer rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal/70 focus-visible:ring-offset-2"
                 >
                   <Bell size={17} />
                   {unread > 0 && (
@@ -333,14 +336,16 @@ export default function Navbar() {
                 <button
                   onClick={() => setProfileOpen(o => !o)}
                   aria-label="Account menu"
-                  className="w-12 h-12 rounded-full overflow-hidden bg-hai-mint text-hai-plum font-bold text-xs font-body flex items-center justify-center border border-hai-teal/40 hover:border-hai-plum transition-colors"
+                  aria-haspopup="menu"
+                  aria-expanded={profileOpen}
+                  className="w-12 h-12 cursor-pointer rounded-full overflow-hidden bg-hai-mint text-hai-plum font-bold text-xs font-body flex items-center justify-center border border-hai-teal/40 hover:border-hai-plum transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal/70 focus-visible:ring-offset-2"
                 >
                   {resolveAvatar(user.avatarUrl)
                     ? <img src={resolveAvatar(user.avatarUrl)} alt={user.name} className="w-full h-full object-cover" onError={e => { const btn = (e.currentTarget as HTMLImageElement); btn.style.display = 'none'; btn.parentElement!.insertAdjacentText('beforeend', user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()) }} />
                     : user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                 </button>
                 {profileOpen && (
-                  <div className="absolute right-0 top-12 w-64 bg-white rounded-2xl border border-neutral-200 shadow-[0_20px_50px_-20px_rgba(54,33,62,0.25)] overflow-hidden z-[60]">
+                  <div className="absolute right-0 top-12 z-[60] w-64 bg-white rounded-2xl border border-neutral-200 shadow-[0_20px_50px_-20px_rgba(54,33,62,0.25)] overflow-hidden" role="menu">
                     <div className="px-4 py-4 bg-hai-offwhite border-b border-neutral-200">
                       <div className="font-bold text-sm text-hai-plum truncate">{user.name}</div>
                       <div className="text-xs font-mono text-neutral-500 mt-0.5 truncate">{user.email}</div>
@@ -384,7 +389,7 @@ export default function Navbar() {
             <button
               onClick={() => setMenuOpen(o => !o)}
               aria-label="Toggle menu"
-              className="md:hidden w-10 h-10 rounded-full border border-neutral-200 bg-white text-neutral-700 flex items-center justify-center"
+              className="md:hidden w-10 h-10 cursor-pointer rounded-full border border-neutral-200 bg-white text-neutral-700 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal/70 focus-visible:ring-offset-2"
             >
               {menuOpen ? <X size={17} /> : <Menu size={17} />}
             </button>
@@ -397,7 +402,7 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       {menuOpen && user && (
-        <div className="md:hidden absolute top-16 inset-x-0 bg-white border-b border-neutral-200 shadow-lg py-2 font-body">
+        <div className="md:hidden absolute top-16 inset-x-0 z-40 bg-white border-b border-neutral-200 shadow-lg py-2 font-body">
           {navLinks.map(({ to, label }) => {
             const active = isActive(to)
             return (
@@ -425,7 +430,8 @@ function DropItem({ icon, label, onClick, danger }: { icon: React.ReactNode; lab
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-semibold font-body text-left transition-colors ${
+      role="menuitem"
+      className={`flex cursor-pointer items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-semibold font-body text-left transition-colors ${
         danger
           ? 'text-red-600 hover:bg-red-50'
           : 'text-neutral-800 hover:bg-hai-mint/40 hover:text-hai-plum'

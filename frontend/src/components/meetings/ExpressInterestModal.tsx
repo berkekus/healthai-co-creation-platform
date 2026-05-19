@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import type { Post } from '../../types/post.types'
 import type { TimeSlot } from '../../types/meeting.types'
 import { useMeetingStore } from '../../store/meetingStore'
 import { useAuthStore } from '../../store/authStore'
+import { useFocusTrap } from '../../hooks/useFocusTrap'
 
 interface Props {
   post: Post
@@ -39,6 +40,7 @@ function StepPill({ n, active, done, label }: { n: number; active: boolean; done
 export default function ExpressInterestModal({ post, onClose, onSuccess }: Props) {
   const { user } = useAuthStore()
   const { request } = useMeetingStore()
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   const [step, setStep] = useState(1)
   const [message, setMessage] = useState('')
@@ -50,12 +52,8 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
   ])
   const [error, setError] = useState('')
 
-  // Close on Escape
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  const handleEscape = useCallback(() => onClose(), [onClose])
+  useFocusTrap(dialogRef, true, handleEscape)
 
   const minDate = new Date()
   minDate.setDate(minDate.getDate() + 1)
@@ -110,7 +108,7 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
       aria-modal="true"
       aria-labelledby="express-interest-title"
     >
-      <div className="bg-white w-full max-w-[640px] max-h-[92vh] rounded-[2rem] shadow-[0_40px_120px_-20px_rgba(54,33,62,0.5)] overflow-hidden flex flex-col">
+      <div ref={dialogRef} tabIndex={-1} className="bg-white w-full max-w-[640px] max-h-[92vh] rounded-[2rem] shadow-[0_40px_120px_-20px_rgba(54,33,62,0.5)] overflow-hidden flex flex-col">
 
         {/* Header */}
         <div className="relative px-6 md:px-8 pt-7 pb-5 border-b border-neutral-100 overflow-hidden">

@@ -187,12 +187,13 @@ export default function NotificationsPage() {
               filtered.map(n => {
                 const { Icon, bg, color } = getIconStyle(n.type)
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={n.id}
                     onClick={() => handleClick(n)}
-                    className={`flex items-start gap-4 px-7 py-4 transition-colors ${
-                      n.linkTo ? 'cursor-pointer' : ''
-                    } ${n.isRead ? 'hover:bg-[#F3F4F6]' : 'bg-[#F3F4F6] hover:bg-[#E8F4F7]'}`}
+                    className={`flex w-full cursor-pointer items-start gap-4 px-7 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8AC6D0]/70 focus-visible:ring-inset ${
+                      n.isRead ? 'hover:bg-[#F3F4F6]' : 'bg-[#F3F4F6] hover:bg-[#E8F4F7]'
+                    }`}
                   >
                     {/* Icon with unread indicator */}
                     <div className="relative shrink-0 mt-0.5">
@@ -226,7 +227,7 @@ export default function NotificationsPage() {
                         <span className="w-2 h-2 rounded-full bg-[#8AC6D0] shrink-0" />
                       )}
                     </div>
-                  </div>
+                  </button>
                 )
               })
             )}

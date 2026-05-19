@@ -727,7 +727,7 @@ export default function AdminPage() {
 
   const totalNonAdmin = users.filter(u => u.role !== 'admin').length
   const failedLogins = logs.filter(l => l.action === 'login_failed' || l.action === 'register_failed').length
-  const selectCls = 'bg-white border border-[#eaecf0] rounded-xl px-3 py-2 text-sm text-[#374151] font-semibold outline-none focus:border-[#4f46e5] transition-colors cursor-pointer'
+  const selectCls = 'bg-white border border-[#eaecf0] rounded-xl px-3 py-2 text-sm text-[#374151] font-semibold outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 transition-colors cursor-pointer'
 
   return (
     <div className="flex font-body" style={{ height: 'calc(100vh - 76px)' }}>
@@ -765,7 +765,7 @@ export default function AdminPage() {
                   <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
                   <input type="search" value={userQuery} onChange={e => setUserQuery(e.target.value)}
                     placeholder="Search name, email, institution…"
-                    className="w-full bg-[#f8f9fb] border border-[#eaecf0] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#374151] outline-none focus:border-[#4f46e5] transition-colors" />
+                    className="w-full bg-[#f8f9fb] border border-[#eaecf0] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#374151] outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 transition-colors" />
                 </div>
                 <span className="text-xs text-[#9ca3af] font-semibold">{filteredUsers.length} of {totalNonAdmin} shown</span>
               </div>

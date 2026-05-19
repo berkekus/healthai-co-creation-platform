@@ -232,7 +232,7 @@ function SortControl({ value, onChange }: { value: SortMode; onChange: (value: S
         <select
           value={value}
           onChange={event => onChange(event.target.value as SortMode)}
-          className="h-11 appearance-none rounded-full border border-[var(--border)] bg-white px-4 pr-9 text-sm font-black text-[var(--text)] outline-none transition hover:border-[var(--accent)]"
+          className="h-11 appearance-none rounded-full border border-[var(--border)] bg-white px-4 pr-9 text-sm font-black text-[var(--text)] outline-none transition hover:border-[var(--accent)] focus:border-[var(--accent-strong)] focus:ring-2 focus:ring-[var(--accent)]/25"
         >
           <option value="recent">{t('meetingsPage.sortRecent')}</option>
           <option value="oldest">{t('meetingsPage.sortOldest')}</option>
@@ -432,7 +432,7 @@ function MeetingRow({
               placeholder={`Optional reason for ${confirmMode === 'decline' ? 'declining' : 'cancelling'}…`}
               rows={2}
               maxLength={300}
-              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#D5DAE0] focus:border-[var(--accent-strong)]"
+              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#D5DAE0] focus:border-[var(--accent-strong)] focus:ring-2 focus:ring-[var(--accent)]/25"
             />
             <div className="flex justify-end gap-2">
               <ActionButton disabled={false} onClick={handleAbort} tone="quiet">
@@ -452,7 +452,7 @@ function MeetingRow({
                 </div>
                 <div className="flex flex-wrap justify-end gap-2">
                   {meeting.proposedSlots.map(slotOption => (
-                    <ActionButton key={`${slotOption.date}-${slotOption.time}`} disabled={busy} onClick={() => onAccept(slotOption)} tone="primary">
+                    <ActionButton key={`${slotOption.date}-${slotOption.time}`} disabled={busy} onClick={() => onConfirm(slotOption)} tone="primary">
                       <Check size={14} />
                       {formatSlotChoice(slotOption)}
                     </ActionButton>
@@ -462,6 +462,12 @@ function MeetingRow({
                   {tRow('meetingsPage.decline')}
                 </ActionButton>
               </div>
+            )}
+            {canAccept && !shouldChooseSlot && (
+              <ActionButton disabled={busy} onClick={onAccept} tone="primary">
+                <Check size={14} />
+                {tRow('meetingsPage.accept')}
+              </ActionButton>
             )}
             {meeting.status === 'pending' && !isOwner && (
               <ActionButton disabled={busy} onClick={() => setConfirmMode('cancel')} tone="quiet">
@@ -649,7 +655,7 @@ function OverviewPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
             <select
               value={range}
               onChange={event => setRange(event.target.value)}
-              className="h-9 appearance-none rounded-full border border-[var(--border)] bg-white px-3 pr-8 text-xs font-black text-[var(--text)] outline-none"
+              className="h-9 appearance-none rounded-full border border-[var(--border)] bg-white px-3 pr-8 text-xs font-black text-[var(--text)] outline-none focus:border-[var(--accent-strong)] focus:ring-2 focus:ring-[var(--accent)]/25"
             >
               <option value="month">{tOv('meetingsPage.thisMonth')}</option>
               <option value="all">{tOv('meetingsPage.allTime')}</option>

@@ -189,7 +189,7 @@ function ResendForm({ email, onChange, onSubmit, loading, sent }: {
   return (
     <form onSubmit={onSubmit} className="bg-white rounded-[18px] border border-neutral-200 p-5 max-w-[460px]">
       <span className="block text-xs font-bold tracking-[0.16em] uppercase text-[#6F6878] mb-3">{t('authPage.verify.didntGet')}</span>
-      <input type="email" value={email} onChange={e => onChange(e.target.value)} placeholder={t('authPage.verify.emailPlaceholder')} required className="w-full bg-[#F3F4F6] border border-[#E3E7EC] rounded-xl px-4 py-3 text-sm font-mono text-[#36213E] outline-none focus:border-[#8AC6D0] focus:bg-white transition-all mb-3" />
+      <input type="email" value={email} onChange={e => onChange(e.target.value)} placeholder={t('authPage.verify.emailPlaceholder')} required className="w-full bg-[#F3F4F6] border border-[#E3E7EC] rounded-xl px-4 py-3 text-sm font-mono text-[#36213E] outline-none focus:border-[#8AC6D0] focus:bg-white focus:ring-2 focus:ring-[#8AC6D0]/20 transition-all mb-3" />
       <div className="flex items-center gap-3 flex-wrap">
         <button type="submit" disabled={loading || !email.trim()} className="inline-flex items-center gap-2.5 bg-[#36213E] text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M1 7h12M7 1l6 6-6 6" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>

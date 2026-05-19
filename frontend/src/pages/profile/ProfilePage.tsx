@@ -8,6 +8,7 @@ import FormField, { inputStyle } from '../../components/ui/FormField'
 import { ROUTES } from '../../constants/routes'
 import api from '../../lib/api'
 import { useAuthStore } from '../../store/authStore'
+import type { User } from '../../types/auth.types'
 import { profileSchema, type ProfileFormData } from '../../utils/validators'
 
 const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'
@@ -279,7 +280,7 @@ function NotifPrefsSection() {
               disabled={saving === key}
               onClick={() => toggle(key)}
               aria-pressed={prefs[key]}
-              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none ${
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-hai-teal/60 focus:ring-offset-2 ${
                 prefs[key] ? 'bg-hai-teal' : 'bg-[#D5DAE0]'
               } ${saving === key ? 'opacity-60' : ''}`}
             >
@@ -297,13 +298,13 @@ function NotifPrefsSection() {
 }
 
 const COMPLETION_ITEM_KEYS = [
-  { labelKey: 'profile.photo',         done: (u: NonNullable<ReturnType<typeof useAuthStore>['user']>) => !!u.avatarUrl,                  href: undefined },
-  { labelKey: 'profile.bioWritten',    done: (u: NonNullable<ReturnType<typeof useAuthStore>['user']>) => (u.bio?.length ?? 0) >= 30,       href: '#about' },
-  { labelKey: 'profile.expertiseTags', done: (u: NonNullable<ReturnType<typeof useAuthStore>['user']>) => u.expertiseTags.length >= 3,      href: '#expertise' },
-  { labelKey: 'profile.emailVerified', done: (u: NonNullable<ReturnType<typeof useAuthStore>['user']>) => u.isVerified,                     href: undefined },
+  { labelKey: 'profile.photo',         done: (u: User) => !!u.avatarUrl,                  href: undefined },
+  { labelKey: 'profile.bioWritten',    done: (u: User) => (u.bio?.length ?? 0) >= 30,       href: '#about' },
+  { labelKey: 'profile.expertiseTags', done: (u: User) => u.expertiseTags.length >= 3,      href: '#expertise' },
+  { labelKey: 'profile.emailVerified', done: (u: User) => u.isVerified,                     href: undefined },
 ] as const
 
-const COMPLETION_ITEMS = (user: ReturnType<typeof useAuthStore>['user']) => {
+const COMPLETION_ITEMS = (user: User | null) => {
   if (!user) return []
   return COMPLETION_ITEM_KEYS.map(item => ({
     labelKey: item.labelKey,
@@ -312,7 +313,7 @@ const COMPLETION_ITEMS = (user: ReturnType<typeof useAuthStore>['user']) => {
   }))
 }
 
-function ProfileCompletionCard({ user }: { user: NonNullable<ReturnType<typeof useAuthStore>['user']> }) {
+function ProfileCompletionCard({ user }: { user: User }) {
   const { t } = useTranslation()
   const items = COMPLETION_ITEMS(user)
   const optionalDone = items.filter(i => i.done).length

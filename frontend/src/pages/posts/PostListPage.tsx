@@ -354,7 +354,7 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
           value={value}
           onChange={event => onChange(event.target.value)}
           placeholder="Search by title, expertise, or keyword..."
-          className="h-full w-full rounded-full border border-transparent bg-[#EEF0F3] pl-16 pr-6 text-sm font-semibold text-[var(--text)] outline-none transition placeholder:text-[#6F6878] hover:bg-white hover:border-[var(--border)] focus:bg-white focus:border-[var(--accent)]"
+          className="h-full w-full rounded-full border border-transparent bg-[#EEF0F3] pl-16 pr-6 text-sm font-semibold text-[var(--text)] outline-none transition placeholder:text-[#6F6878] hover:bg-white hover:border-[var(--border)] focus:bg-white focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/25"
         />
       </label>
 
@@ -447,7 +447,7 @@ function FilterSidebar({
                 placeholder="Search city or country..."
                 list="location-suggestions"
                 autoComplete="off"
-                className="h-12 w-full bg-white px-4 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878]"
+                className="h-12 w-full bg-white px-4 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878] focus:ring-2 focus:ring-[var(--accent)]/25"
               />
               <datalist id="location-suggestions">
                 {locationSuggestions.map(s => <option key={s} value={s} />)}
@@ -489,7 +489,7 @@ function FilterSelect({
         <select
           value={value}
           onChange={event => onChange(event.target.value)}
-          className="h-[46px] w-full appearance-none rounded-[14px] border border-[var(--border)] bg-white px-4 pr-10 text-sm font-black text-[var(--text)] outline-none transition hover:border-[var(--accent)] focus:border-[var(--accent)]"
+          className="h-[46px] w-full appearance-none rounded-[14px] border border-[var(--border)] bg-white px-4 pr-10 text-sm font-black text-[var(--text)] outline-none transition hover:border-[var(--accent)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/25"
         >
           <option value="">{placeholder}</option>
           {children}
@@ -593,7 +593,7 @@ function PostList({
                 <select
                   value={sort}
                   onChange={event => onSort(event.target.value as SortMode)}
-                  className="appearance-none bg-transparent pr-6 text-[var(--text)] outline-none"
+                  className="appearance-none bg-transparent pr-6 text-[var(--text)] outline-none focus:ring-2 focus:ring-[var(--accent)]/25"
                 >
                   <option value="best">AI best match</option>
                   <option value="recent">Most recent</option>
