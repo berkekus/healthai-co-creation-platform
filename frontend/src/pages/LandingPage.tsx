@@ -817,7 +817,7 @@ export default function LandingPage() {
                   >
                     {/* Content — stacks naturally from top, no h-full stretch */}
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
-                      <span className="mb-8 inline-flex items-center gap-3 text-xs font-mono font-black uppercase tracking-[0.16em] text-[#2d2844]">
+                      <span className="mb-8 inline-flex items-center gap-3 whitespace-nowrap text-xs font-mono font-black uppercase tracking-[0.16em] text-[#2d2844]">
                         <span className="h-4 w-1 bg-[#36213E]" />
                         FOR ENGINEERS
                       </span>
@@ -862,7 +862,7 @@ export default function LandingPage() {
                   >
                     {/* Content — stacks naturally from top */}
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
-                      <span className="mb-8 inline-flex items-center gap-3 text-xs font-mono font-black uppercase tracking-[0.16em] text-[#2d2844]">
+                      <span className="mb-8 inline-flex items-center gap-3 whitespace-nowrap text-xs font-mono font-black uppercase tracking-[0.16em] text-[#2d2844]">
                         <span className="h-4 w-1 bg-[#72d6dd]" />
                         FOR HEALTHCARE PROFESSIONALS
                       </span>
@@ -875,10 +875,10 @@ export default function LandingPage() {
                       <Link
                         to={ROUTES.REGISTER}
                         state={{ role: 'healthcare_professional' }}
-                        className="mt-auto inline-flex w-[300px] items-center justify-between border-b-2 border-[#9fdde4] pb-5 text-lg font-black text-hai-plum transition after:text-4xl after:leading-none after:content-['→'] hover:border-hai-plum [&>span]:hidden"
+                        className="mt-auto inline-flex w-[260px] items-center justify-between border-b-2 border-[#9fdde4] pb-4 text-base font-black text-hai-plum transition hover:border-hai-plum"
                       >
                         Create HCP Account
-                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-hai-mint/30 text-xs font-bold">♦</span>
+                        <span className="text-4xl leading-none">→</span>
                       </Link>
                     </div>
                     {/* Portrait — right half, desktop only. Stretches to card height. */}
