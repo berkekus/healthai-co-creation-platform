@@ -680,7 +680,7 @@ export default function LandingPage() {
                 className="font-headline font-bold text-hai-plum leading-none tracking-normal text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
               >
                 Healthcare co-creation,<br />
-                <span className="opacity-25">without the silos.</span>
+                <span className="text-[#008EA2]">without the silos.</span>
               </h1>
               <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed text-hai-plum/65 font-semibold">
                 A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional <span className="font-bold text-hai-plum">.edu</span> verification and an immutable audit trail.
@@ -923,8 +923,7 @@ export default function LandingPage() {
 
             {/* Giant "Platform" wordmark — on off-white, uses ghost tone */}
             <div className="mt-16 text-center md:mt-24">
-              <h2 className="text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-normal"
-                style={{ color: '#36213E', opacity: 0.08 }}>
+              <h2 className="text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-normal text-[#008EA2]">
                 Platform
               </h2>
             </div>
