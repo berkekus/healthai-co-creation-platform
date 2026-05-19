@@ -66,3 +66,33 @@
     [35mhost[39m: "ac-ikimou6-shard-00-00.50lyhit.mongodb.net"
 [22:21:52.411] [32mINFO[39m: [36mServer running[39m
     [35mport[39m: "5000"
+[22:23:27.836] [31mERROR[39m: [36mUnhandled server error[39m
+    err: {
+      "type": "Object",
+      "message": "Gemini 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a",
+      "stack":
+          Error: Gemini 429: {
+            "error": {
+              "code": 429,
+              "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a
+              at makeError (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\utils\AppError.ts:2:15)
+              at Object.rankPostsForUser (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\services\aiMatchService.ts:121:20)
+              at processTicksAndRejections (node:internal/process/task_queues:105:5)
+              at C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\controllers\aiController.ts:7:19
+      "name": "Error"
+    }
+[22:23:28.082] [31mERROR[39m: [36mUnhandled server error[39m
+    err: {
+      "type": "Object",
+      "message": "Gemini 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a",
+      "stack":
+          Error: Gemini 429: {
+            "error": {
+              "code": 429,
+              "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a
+              at makeError (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\utils\AppError.ts:2:15)
+              at Object.rankPostsForUser (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\services\aiMatchService.ts:121:20)
+              at processTicksAndRejections (node:internal/process/task_queues:105:5)
+              at C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\controllers\aiController.ts:7:19
+      "name": "Error"
+    }
