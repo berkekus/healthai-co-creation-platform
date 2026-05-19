@@ -231,6 +231,29 @@ export async function cancelMeeting(id: string, userId: string, reason?: string)
   return (await withEmails([meeting!]))[0]
 }
 
+export async function rescheduleMeeting(id: string, requesterId: string, proposedSlots: ITimeSlot[]) {
+  if (!Array.isArray(proposedSlots) || proposedSlots.length < 3) {
+    throw makeError('At least 3 proposed slots are required', 400)
+  }
+  const meeting = await Meeting.findOneAndUpdate(
+    { _id: id, requesterId, status: 'confirmed' },
+    { $set: { status: 'time_proposed', proposedSlots, confirmedSlot: undefined } },
+    { new: true },
+  )
+  if (!meeting) await resolveUpdateFailure(id, requesterId, 'requesterId', 'reschedule')
+
+  recomputePostStatus(meeting!.postId.toString()).catch(() => {})
+  pushNotification({
+    userId: meeting!.ownerId.toString(),
+    type: 'meeting_cancelled',
+    title: 'Toplantı yeniden zamanlanma isteği',
+    body: `${meeting!.requesterName} toplantıyı yeniden zamanlamak istiyor. "${meeting!.postTitle}"`,
+    linkTo: `/meetings`,
+  }).catch(() => {})
+
+  return (await withEmails([meeting!]))[0]
+}
+
 export async function completeMeeting(id: string, userId: string) {
   const meeting = await Meeting.findOneAndUpdate(
     {

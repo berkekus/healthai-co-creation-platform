@@ -3,6 +3,8 @@ import { useMeetingStore } from '../../store/meetingStore'
 import { useAuthStore } from '../../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { postDetail } from '../../constants/routes'
+import { downloadICS, googleCalendarUrl, outlookCalendarUrl } from '../../utils/calendarExport'
+import TranslateButton from '../ui/TranslateButton'
 
 type Tone = { label: string; bg: string; text: string; dot: string; icon: string }
 
@@ -111,6 +113,7 @@ export default function MeetingCard({ meeting }: Props) {
             Message from {meeting.requesterName}
           </div>
           <p className="text-sm text-hai-plum leading-relaxed">{meeting.message}</p>
+          <TranslateButton text={meeting.message} className="mt-2" />
         </div>
       </div>
 
@@ -134,6 +137,44 @@ export default function MeetingCard({ meeting }: Props) {
                   className="text-sm font-mono font-bold text-hai-plum hover:text-hai-teal transition-colors truncate block"
                 >
                   {partnerEmail}
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Calendar export */}
+          {meeting.status === 'confirmed' && (
+            <div className="mt-3">
+              <div className="text-xs font-mono tracking-[0.12em] uppercase text-hai-plum/60 font-bold mb-2 flex items-center gap-1">
+                <span className="material-symbols-outlined text-sm">calendar_add_on</span>
+                Add to calendar
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => downloadICS(meeting)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs font-mono tracking-[0.1em] font-bold text-hai-plum hover:bg-hai-offwhite transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">download</span>
+                  Download .ics
+                </button>
+                <a
+                  href={googleCalendarUrl(meeting)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs font-mono tracking-[0.1em] font-bold text-hai-plum hover:bg-hai-offwhite transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">open_in_new</span>
+                  Google Calendar
+                </a>
+                <a
+                  href={outlookCalendarUrl(meeting)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs font-mono tracking-[0.1em] font-bold text-hai-plum hover:bg-hai-offwhite transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">open_in_new</span>
+                  Outlook
                 </a>
               </div>
             </div>

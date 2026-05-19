@@ -235,6 +235,132 @@ function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm:
   )
 }
 
+const NOTIF_OPTIONS: { key: keyof import('../types/auth.types').NotifPrefs; label: string; desc: string }[] = [
+  { key: 'meetingRequests',  label: 'Meeting requests',   desc: 'When someone requests a meeting on one of your posts' },
+  { key: 'meetingUpdates',   label: 'Meeting updates',    desc: 'When a meeting is accepted, declined, or cancelled' },
+  { key: 'interestReceived', label: 'Interest received',  desc: 'When someone expresses interest in your post' },
+  { key: 'adminMessages',    label: 'Admin messages',     desc: 'Platform announcements and moderation notices' },
+  { key: 'messages',         label: 'Chat messages',      desc: 'New messages in active meeting conversations' },
+]
+
+function NotifPrefsSection() {
+  const { user, updateNotifPrefs } = useAuthStore()
+  const [saving, setSaving] = useState<string | null>(null)
+
+  const defaults = { meetingRequests: true, meetingUpdates: true, interestReceived: true, adminMessages: true, messages: true }
+  const prefs = { ...defaults, ...(user?.notifPrefs ?? {}) }
+
+  const toggle = async (key: keyof typeof defaults) => {
+    setSaving(key)
+    try {
+      await updateNotifPrefs({ [key]: !prefs[key] })
+    } finally {
+      setSaving(null)
+    }
+  }
+
+  return (
+    <section className="border-b border-[#D5DAE0] py-9">
+      <div className="mb-7 flex items-center gap-4">
+        <span className="material-symbols-outlined text-xl text-hai-plum">notifications</span>
+        <h2 className="font-headline text-xl font-black leading-tight text-hai-plum">Notification preferences</h2>
+      </div>
+      <div className="grid gap-3">
+        {NOTIF_OPTIONS.map(({ key, label, desc }) => (
+          <div key={key} className="flex items-center justify-between gap-6 rounded-2xl border border-[#D5DAE0] bg-white px-5 py-4">
+            <div>
+              <p className="text-sm font-black text-hai-plum">{label}</p>
+              <p className="mt-0.5 text-xs font-semibold text-[#6F6878]">{desc}</p>
+            </div>
+            <button
+              type="button"
+              disabled={saving === key}
+              onClick={() => toggle(key)}
+              aria-pressed={prefs[key]}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none ${
+                prefs[key] ? 'bg-hai-teal' : 'bg-[#D5DAE0]'
+              } ${saving === key ? 'opacity-60' : ''}`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  prefs[key] ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+const COMPLETION_ITEMS = (user: ReturnType<typeof useAuthStore>['user']) => {
+  if (!user) return []
+  return [
+    { label: 'Profile photo', done: !!user.avatarUrl, href: undefined },
+    { label: 'Bio written', done: (user.bio?.length ?? 0) >= 30, href: '#about' },
+    { label: '3+ expertise tags', done: user.expertiseTags.length >= 3, href: '#expertise' },
+    { label: 'Email verified', done: user.isVerified, href: undefined },
+  ]
+}
+
+function ProfileCompletionCard({ user }: { user: NonNullable<ReturnType<typeof useAuthStore>['user']> }) {
+  const items = COMPLETION_ITEMS(user)
+  const optionalDone = items.filter(i => i.done).length
+  const score = 40 + Math.round((optionalDone / items.length) * 60)
+
+  const r = 22
+  const cx = 28
+  const circumference = 2 * Math.PI * r
+  const dashOffset = circumference * (1 - score / 100)
+
+  const color = score >= 85 ? '#6FB8C4' : score >= 60 ? '#F59E0B' : '#EF4444'
+
+  return (
+    <div className="mt-6 rounded-2xl border border-[#D5DAE0] bg-white p-4">
+      <div className="flex items-center gap-3">
+        <svg width="56" height="56" viewBox="0 0 56 56" style={{ flexShrink: 0 }}>
+          <circle cx={cx} cy={cx} r={r} fill="none" stroke="#EEF0F3" strokeWidth="5" />
+          <circle
+            cx={cx} cy={cx} r={r}
+            fill="none"
+            stroke={color}
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={dashOffset}
+            style={{ transform: 'rotate(-90deg)', transformOrigin: '28px 28px', transition: 'stroke-dashoffset 0.6s ease' }}
+          />
+          <text x={cx} y={cx + 1} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="900" fill="#36213E">{score}%</text>
+        </svg>
+        <div>
+          <p className="text-xs font-black text-hai-plum">Profile strength</p>
+          <p className="mt-0.5 text-xs font-semibold text-[#6F6878]">
+            {score === 100 ? 'Complete!' : score >= 70 ? 'Almost there' : 'Keep going'}
+          </p>
+        </div>
+      </div>
+      <ul className="mt-3 space-y-1.5">
+        {items.map(item => (
+          <li key={item.label} className="flex items-center gap-2">
+            <span
+              className="material-symbols-outlined text-sm"
+              style={{ fontVariationSettings: '"FILL" 1', color: item.done ? '#6FB8C4' : '#D1D5DB' }}
+            >
+              {item.done ? 'check_circle' : 'radio_button_unchecked'}
+            </span>
+            {item.href && !item.done ? (
+              <a href={item.href} className="text-xs font-semibold text-hai-teal underline-offset-2 hover:underline">{item.label}</a>
+            ) : (
+              <span className={`text-xs font-semibold ${item.done ? 'text-[#6F6878]' : 'text-hai-plum'}`}>{item.label}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 export default function ProfilePage() {
   const { user, updateProfile, uploadAvatar, deleteAccount } = useAuthStore()
   const navigate = useNavigate()
@@ -359,7 +485,9 @@ export default function ProfilePage() {
             {avatarError && <p className="mt-3 text-xs font-semibold text-red-500">{avatarError}</p>}
           </div>
 
-          <nav className="mt-12 space-y-3 text-sm font-black text-hai-plum">
+          <ProfileCompletionCard user={user} />
+
+          <nav className="mt-8 space-y-3 text-sm font-black text-hai-plum">
             {[
               ['person', 'Overview', '#identity'],
               ['badge', 'Identity', '#identity'],
@@ -497,6 +625,8 @@ export default function ProfilePage() {
               </div>
             </Section>
           </form>
+
+          <NotifPrefsSection />
 
           <section id="data-account" className="py-9">
             <div className="mb-5 flex items-center gap-4">
