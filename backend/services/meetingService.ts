@@ -89,6 +89,30 @@ export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot
   const existing = await Meeting.findOne({ _id: id, ownerId, status: 'pending' })
   if (!existing) await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
 
+// Step 1: owner accepts request → pending → time_proposed (no slot chosen yet)
+export async function acceptMeeting(id: string, ownerId: string) {
+  const existing = await Meeting.findOne({ _id: id, ownerId, status: 'pending' })
+  if (!existing) await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
+
+  existing!.status = 'time_proposed'
+  const meeting = await existing!.save()
+
+  pushNotification({
+    userId: meeting.requesterId.toString(),
+    type: 'meeting_accepted',
+    title: 'Toplanti kabul edildi',
+    body: `${meeting.ownerName} toplanti talebinizi kabul etti. Zaman dilimi onayini bekliyor. "${meeting.postTitle}"`,
+    linkTo: `/meetings`,
+  }).catch(() => {})
+
+  return (await withEmails([meeting]))[0]
+}
+
+// Step 2: owner confirms a slot → time_proposed → confirmed
+export async function confirmMeetingSlot(id: string, ownerId: string, slot: ITimeSlot) {
+  const existing = await Meeting.findOne({ _id: id, ownerId, status: 'time_proposed' })
+  if (!existing) await resolveUpdateFailure(id, ownerId, 'ownerId', 'confirm')
+
   const slotWasProposed = existing!.proposedSlots.some(
     proposed => proposed.date === slot.date && proposed.time === slot.time,
   )
@@ -130,7 +154,7 @@ export async function declineMeeting(id: string, ownerId: string, reason?: strin
   const update: Record<string, unknown> = { status: 'declined' }
   if (reason) update.declineReason = reason
   const meeting = await Meeting.findOneAndUpdate(
-    { _id: id, ownerId, status: 'pending' },
+    { _id: id, ownerId, status: { $in: ['pending', 'time_proposed'] } },
     { $set: update },
     { new: true },
   )

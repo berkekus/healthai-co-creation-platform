@@ -22,6 +22,7 @@ type SortMode = 'recent' | 'oldest'
 
 const STATUS_LABELS: Record<MeetingStatus, string> = {
   pending: 'Pending review',
+  time_proposed: 'Slot selection',
   confirmed: 'Confirmed',
   completed: 'Completed',
   declined: 'Declined',
@@ -30,6 +31,7 @@ const STATUS_LABELS: Record<MeetingStatus, string> = {
 
 const STATUS_CLASS: Record<MeetingStatus, string> = {
   pending: 'bg-[var(--pending-bg)] text-[var(--primary)]',
+  time_proposed: 'bg-[#FFF3CD] text-[#856404]',
   confirmed: 'bg-[var(--success-bg)] text-[var(--primary)]',
   completed: 'bg-[#D8EFF2] text-[var(--primary)]',
   declined: 'bg-[#ffe8e8] text-[#a33a3a]',
@@ -38,7 +40,7 @@ const STATUS_CLASS: Record<MeetingStatus, string> = {
 
 export default function MeetingsPage() {
   const { user } = useAuthStore()
-  const { meetings, fetchByUser, accept, decline, cancel, complete } = useMeetingStore()
+  const { meetings, fetchByUser, accept, confirm, decline, cancel, complete } = useMeetingStore()
   const { fetchConversations } = useConversationStore()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<TabId>('all')
@@ -58,7 +60,7 @@ export default function MeetingsPage() {
   const counts = useMemo(() => {
     const incoming = scopedMeetings.filter(meeting => meeting.ownerId === user?.id).length
     const outgoing = scopedMeetings.filter(meeting => meeting.requesterId === user?.id).length
-    const pending = scopedMeetings.filter(meeting => meeting.status === 'pending').length
+    const pending = scopedMeetings.filter(meeting => meeting.status === 'pending' || meeting.status === 'time_proposed').length
     const confirmed = scopedMeetings.filter(meeting => meeting.status === 'confirmed').length
     const cancelled = scopedMeetings.filter(meeting => meeting.status === 'cancelled' || meeting.status === 'declined').length
     return { all: scopedMeetings.length, incoming, outgoing, pending, confirmed, cancelled }
@@ -78,7 +80,7 @@ export default function MeetingsPage() {
       .filter(meeting => {
         if (activeTab === 'incoming') return meeting.ownerId === user?.id
         if (activeTab === 'outgoing') return meeting.requesterId === user?.id
-        if (activeTab === 'pending') return meeting.status === 'pending'
+        if (activeTab === 'pending') return meeting.status === 'pending' || meeting.status === 'time_proposed'
         if (activeTab === 'confirmed') return meeting.status === 'confirmed'
         if (activeTab === 'cancelled') return meeting.status === 'cancelled' || meeting.status === 'declined'
         return true
@@ -140,7 +142,8 @@ export default function MeetingsPage() {
               busyId={busyId}
               sortValue={sortMode}
               onSortChange={setSortMode}
-              onAccept={(meeting, slot) => runAction(meeting.id, () => accept(meeting.id, slot))}
+              onAccept={meeting => runAction(meeting.id, () => accept(meeting.id))}
+              onConfirm={(meeting, slot) => runAction(meeting.id, () => confirm(meeting.id, slot))}
               onDecline={(meeting, reason) => runAction(meeting.id, () => decline(meeting.id, reason))}
               onCancel={(meeting, reason) => runAction(meeting.id, () => cancel(meeting.id, reason))}
               onComplete={meeting => runAction(meeting.id, () => complete(meeting.id))}
@@ -243,6 +246,7 @@ function MeetingList({
   sortValue,
   onSortChange,
   onAccept,
+  onConfirm,
   onDecline,
   onCancel,
   onComplete,
@@ -254,7 +258,8 @@ function MeetingList({
   busyId: string | null
   sortValue: SortMode
   onSortChange: (value: SortMode) => void
-  onAccept: (meeting: Meeting, slot: TimeSlot) => void
+  onAccept: (meeting: Meeting) => void
+  onConfirm: (meeting: Meeting, slot: TimeSlot) => void
   onDecline: (meeting: Meeting, reason?: string) => void
   onCancel: (meeting: Meeting, reason?: string) => void
   onComplete: (meeting: Meeting) => void
@@ -275,7 +280,8 @@ function MeetingList({
             userId={userId}
             busy={busyId === meeting.id}
             isLast={index === meetings.length - 1}
-            onAccept={slot => onAccept(meeting, slot)}
+            onAccept={() => onAccept(meeting)}
+            onConfirm={slot => onConfirm(meeting, slot)}
             onDecline={reason => onDecline(meeting, reason)}
             onCancel={reason => onCancel(meeting, reason)}
             onComplete={() => onComplete(meeting)}
@@ -303,6 +309,7 @@ function MeetingRow({
   busy,
   isLast,
   onAccept,
+  onConfirm,
   onDecline,
   onCancel,
   onComplete,
@@ -312,7 +319,8 @@ function MeetingRow({
   userId: string
   busy: boolean
   isLast: boolean
-  onAccept: (slot: TimeSlot) => void
+  onAccept: () => void
+  onConfirm: (slot: TimeSlot) => void
   onDecline: (reason?: string) => void
   onCancel: (reason?: string) => void
   onComplete: () => void
@@ -327,6 +335,8 @@ function MeetingRow({
   const partnerEmail = isOwner ? meeting.requesterEmail : meeting.ownerEmail
   const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
   const shouldChooseSlot = meeting.status === 'pending' && isOwner && meeting.proposedSlots.length > 0
+  const canAccept = meeting.status === 'pending' && isOwner
+  const canChooseSlot = meeting.status === 'time_proposed' && isOwner && meeting.proposedSlots.length > 0
 
   const handleConfirm = () => {
     const trimmed = reason.trim() || undefined
@@ -363,7 +373,7 @@ function MeetingRow({
             </>
           )}
         </p>
-        {meeting.status === 'pending' && meeting.proposedSlots.length > 0 && (
+        {(meeting.status === 'pending' || meeting.status === 'time_proposed') && meeting.proposedSlots.length > 0 && (
           <p className="mt-2 text-xs font-bold text-[var(--muted)]">
             {meeting.proposedSlots.length} proposed slots
           </p>
@@ -451,6 +461,11 @@ function MeetingRow({
                 Cancel request
               </ActionButton>
             )}
+            {meeting.status === 'time_proposed' && !isOwner && (
+              <ActionButton disabled={busy} onClick={() => setConfirmMode('cancel')} tone="quiet">
+                Cancel request
+              </ActionButton>
+            )}
             {meeting.status === 'confirmed' && (
               <>
                 <ActionButton disabled={busy} onClick={onOpenChat} tone="chat">
@@ -469,6 +484,11 @@ function MeetingRow({
             {(meeting.status === 'completed' || meeting.status === 'cancelled' || meeting.status === 'declined') && (
               <span className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">
                 No actions
+              </span>
+            )}
+            {meeting.status === 'time_proposed' && isOwner && !canChooseSlot && (
+              <span className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+                Awaiting slot confirmation
               </span>
             )}
           </>

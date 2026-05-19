@@ -254,9 +254,9 @@ The platform is a standalone web application deployed via Docker containers and 
 | **Name** | UC-03: Post Owner Accepts a Meeting Request |
 | **Actor(s)** | Engineer or Healthcare Professional (post author) |
 | **Precondition** | The post author must be logged in. A meeting request in "Pending" status must exist for their post. |
-| **Main Flow** | 1. The post owner navigates to the Meetings page. 2. Opens the "Incoming" tab and views the pending meeting request. 3. Reviews the requester's message and proposed time slots. 4. Clicks "Accept" and selects one of the proposed time slots as the confirmed slot. 5. The system changes the meeting status to "Confirmed." 6. The system changes the post status to "Meeting Scheduled." 7. The system notifies the requester via an in-app notification. |
+| **Main Flow** | 1. The post owner navigates to the Meetings page. 2. Opens the "Incoming" tab and views the pending meeting request. 3. Reviews the requester's message and proposed time slots. 4. Clicks "Accept request" — the system changes the meeting status to "Time Proposed" and notifies the requester. 5. The post owner selects one of the requester's proposed time slots. 6. The system changes the meeting status to "Confirmed" and the post status to "Meeting Scheduled." 7. The system notifies the requester via an in-app notification. |
 | **Postcondition** | Meeting status is "Confirmed." Post status is "Meeting Scheduled." Both parties are notified. |
-| **Alternative Flow** | 4a. If the post owner clicks "Decline" instead, the meeting status changes to "Declined" and the post status remains "Active." The requester is notified. |
+| **Alternative Flow** | 4a. If the post owner clicks "Decline" at any point (pending or time_proposed), the meeting status changes to "Declined" and the post status remains "Active." The requester is notified. |
 
 ---
 
