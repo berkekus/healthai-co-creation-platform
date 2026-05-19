@@ -1,0 +1,98 @@
+
+> healthai-backend@1.0.0 dev
+> ts-node-dev --respawn --transpile-only src/index.ts
+
+[INFO] 22:20:03 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.3)
+[22:20:05.184] [32mINFO[39m: [36mMongoDB connected[39m
+    [35mhost[39m: "ac-ikimou6-shard-00-00.50lyhit.mongodb.net"
+[22:20:05.199] [32mINFO[39m: [36mServer running[39m
+    [35mport[39m: "5000"
+[22:20:56.510] [31mERROR[39m: [36mUnhandled server error[39m
+    err: {
+      "type": "Object",
+      "message": "CORS: origin http://127.0.0.1:5173 not allowed",
+      "stack":
+          Error: CORS: origin http://127.0.0.1:5173 not allowed
+              at origin (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\src\app.ts:33:8)
+              at C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\cors\lib\index.js:219:13
+              at optionsCallback (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\cors\lib\index.js:199:9)
+              at corsMiddleware (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\cors\lib\index.js:204:7)
+              at Layer.handle [as handle_request] (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\layer.js:95:5)
+              at trim_prefix (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\index.js:328:13)
+              at C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\index.js:286:9
+              at Function.process_params (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\index.js:346:12)
+              at next (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\index.js:280:10)
+              at internalNext (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\helmet\index.cjs:531:6)
+      "name": "Error"
+    }
+[22:21:08.289] [31mERROR[39m: [36mUnhandled server error[39m
+    err: {
+      "type": "Object",
+      "message": "CORS: origin http://127.0.0.1:5173 not allowed",
+      "stack":
+          Error: CORS: origin http://127.0.0.1:5173 not allowed
+              at origin (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\src\app.ts:33:8)
+              at C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\cors\lib\index.js:219:13
+              at optionsCallback (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\cors\lib\index.js:199:9)
+              at corsMiddleware (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\cors\lib\index.js:204:7)
+              at Layer.handle [as handle_request] (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\layer.js:95:5)
+              at trim_prefix (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\index.js:328:13)
+              at C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\index.js:286:9
+              at Function.process_params (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\index.js:346:12)
+              at next (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\index.js:280:10)
+              at internalNext (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\helmet\index.cjs:531:6)
+      "name": "Error"
+    }
+[22:21:33.343] [31mERROR[39m: [36mUnhandled server error[39m
+    err: {
+      "type": "Object",
+      "message": "CORS: origin http://127.0.0.1:5173 not allowed",
+      "stack":
+          Error: CORS: origin http://127.0.0.1:5173 not allowed
+              at origin (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\src\app.ts:33:8)
+              at C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\cors\lib\index.js:219:13
+              at optionsCallback (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\cors\lib\index.js:199:9)
+              at corsMiddleware (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\cors\lib\index.js:204:7)
+              at Layer.handle [as handle_request] (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\layer.js:95:5)
+              at trim_prefix (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\index.js:328:13)
+              at C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\index.js:286:9
+              at Function.process_params (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\index.js:346:12)
+              at next (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\express\lib\router\index.js:280:10)
+              at internalNext (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\node_modules\helmet\index.cjs:531:6)
+      "name": "Error"
+    }
+[INFO] 22:21:51 Restarting: C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\src\app.ts has been modified
+[22:21:52.396] [32mINFO[39m: [36mMongoDB connected[39m
+    [35mhost[39m: "ac-ikimou6-shard-00-00.50lyhit.mongodb.net"
+[22:21:52.411] [32mINFO[39m: [36mServer running[39m
+    [35mport[39m: "5000"
+[22:23:27.836] [31mERROR[39m: [36mUnhandled server error[39m
+    err: {
+      "type": "Object",
+      "message": "Gemini 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a",
+      "stack":
+          Error: Gemini 429: {
+            "error": {
+              "code": 429,
+              "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a
+              at makeError (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\utils\AppError.ts:2:15)
+              at Object.rankPostsForUser (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\services\aiMatchService.ts:121:20)
+              at processTicksAndRejections (node:internal/process/task_queues:105:5)
+              at C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\controllers\aiController.ts:7:19
+      "name": "Error"
+    }
+[22:23:28.082] [31mERROR[39m: [36mUnhandled server error[39m
+    err: {
+      "type": "Object",
+      "message": "Gemini 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a",
+      "stack":
+          Error: Gemini 429: {
+            "error": {
+              "code": 429,
+              "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a
+              at makeError (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\utils\AppError.ts:2:15)
+              at Object.rankPostsForUser (C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\services\aiMatchService.ts:121:20)
+              at processTicksAndRejections (node:internal/process/task_queues:105:5)
+              at C:\Users\ahmet\Desktop\healthai-co-creation-platform\backend\controllers\aiController.ts:7:19
+      "name": "Error"
+    }
