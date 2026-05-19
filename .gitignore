@@ -1,6 +1,9 @@
 # Added by code-review-graph
 .code-review-graph/
 
+# Claude Code skills (local dev tooling, not project source)
+.claude/skills/
+
 # Environment variables
 .env
 backend/.env
