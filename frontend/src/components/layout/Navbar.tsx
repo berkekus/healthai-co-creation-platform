@@ -5,6 +5,7 @@ import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import { useConversationStore } from '../../store/conversationStore'
 import ThemeToggle from '../ui/ThemeToggle'
+import { Badge, IconButton, IconLink } from '../ui'
 import { ROUTES } from '../../constants/routes'
 import type { NotificationType, Notification } from '../../types/common.types'
 
@@ -257,18 +258,21 @@ export default function Navbar() {
               <ThemeToggle />
 
               {/* Messages */}
-              <Link
+              <IconLink
                 to={ROUTES.MESSAGES}
-                aria-label={`Messages${msgUnread > 0 ? ` (${msgUnread} unread)` : ''}`}
-                className="relative w-12 h-12 rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
-              >
-                <MessageSquare size={17} />
-                {msgUnread > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-hai-plum text-hai-mint rounded-full flex items-center justify-center text-xs font-mono font-bold border-2 border-white">
-                    {msgUnread > 9 ? '9+' : msgUnread}
-                  </span>
+                label={`Messages${msgUnread > 0 ? ` (${msgUnread} unread)` : ''}`}
+                size="lg"
+                icon={(
+                  <>
+                    <MessageSquare size={17} />
+                    {msgUnread > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-white bg-hai-plum px-1 font-mono text-xs font-bold text-hai-mint">
+                        {msgUnread > 9 ? '9+' : msgUnread}
+                      </span>
+                    )}
+                  </>
                 )}
-              </Link>
+              />
 
               {/* Notifications with hover dropdown */}
               <div
@@ -277,22 +281,25 @@ export default function Navbar() {
                 onMouseEnter={handleNotifEnter}
                 onMouseLeave={handleNotifLeave}
               >
-                <button
+                <IconButton
                   onClick={() => navigate(ROUTES.NOTIFICATIONS)}
                   onFocus={handleNotifEnter}
                   onBlur={handleNotifLeave}
-                  aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
+                  label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
                   aria-expanded={notifOpen}
                   aria-haspopup="true"
-                  className="relative w-12 h-12 rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700"
-                >
-                  <Bell size={17} />
-                  {unread > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-hai-plum text-hai-mint rounded-full flex items-center justify-center text-xs font-mono font-bold border-2 border-white">
-                      {unread > 9 ? '9+' : unread}
-                    </span>
+                  size="lg"
+                  icon={(
+                    <>
+                      <Bell size={17} />
+                      {unread > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-white bg-hai-plum px-1 font-mono text-xs font-bold text-hai-mint">
+                          {unread > 9 ? '9+' : unread}
+                        </span>
+                      )}
+                    </>
                   )}
-                </button>
+                />
 
                 {notifOpen && (
                   <NotifDropdown
@@ -325,10 +332,10 @@ export default function Navbar() {
                     <div className="px-4 py-4 bg-hai-offwhite border-b border-neutral-200">
                       <div className="font-bold text-sm text-hai-plum truncate">{user.name}</div>
                       <div className="text-xs font-mono text-neutral-500 mt-0.5 truncate">{user.email}</div>
-                      <div className="mt-2 inline-flex items-center gap-1.5 bg-white border border-hai-teal/40 px-2 py-0.5 rounded-full text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
+                      <Badge variant="outline" className="mt-2 border-hai-teal/40 bg-white px-2 py-0.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
                         {user.role}
-                      </div>
+                      </Badge>
                     </div>
                     <div className="p-2">
                       <DropItem icon={<LayoutDashboard size={15} />} label="Dashboard" onClick={() => { navigate(ROUTES.DASHBOARD); setProfileOpen(false) }} />
@@ -362,13 +369,12 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           {user && (
-            <button
+            <IconButton
               onClick={() => setMenuOpen(o => !o)}
-              aria-label="Toggle menu"
-              className="md:hidden w-10 h-10 rounded-full border border-neutral-200 bg-white text-neutral-700 flex items-center justify-center"
-            >
-              {menuOpen ? <X size={17} /> : <Menu size={17} />}
-            </button>
+              label="Toggle menu"
+              icon={menuOpen ? <X size={17} /> : <Menu size={17} />}
+              className="md:hidden"
+            />
           )}
         </div>
       </div>
