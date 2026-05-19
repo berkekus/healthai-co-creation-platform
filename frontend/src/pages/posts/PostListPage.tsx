@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import {
+  Bookmark,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -16,6 +17,8 @@ import {
   SlidersHorizontal,
   Trash2,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import api from '../../lib/api'
 import { Skeleton, SkeletonLine, SkeletonPill } from '../../components/ui/Skeleton'
 import {
   Badge,
@@ -103,6 +106,7 @@ const typeLabels: Record<CollaborationType, string> = {
 }
 
 export default function PostListPage() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const { posts, fetchPosts, isLoading, remove } = usePostStore()
   const { suggestions, isLoading: isMatching, load: loadSmartSuggestions, reset: resetSmartSuggestions } = useSmartSuggestions()
@@ -175,6 +179,33 @@ export default function PostListPage() {
     setPage(1)
   }
 
+  const saveCurrentSearch = async () => {
+    const filterParts: string[] = []
+    if (domain) filterParts.push(domain)
+    if (stage) filterParts.push(stage)
+    if (postedBy !== 'Anyone') filterParts.push(postedBy)
+    if (location.trim()) filterParts.push(location.trim())
+    if (search.trim()) filterParts.push(`"${search.trim()}"`)
+    const defaultName = filterParts.length > 0 ? filterParts.join(' · ') : 'All posts'
+    const name = window.prompt('Name this saved search:', defaultName)
+    if (!name) return
+    try {
+      await api.post('/saved-searches', {
+        name: name.trim(),
+        filters: {
+          domain: domain || undefined,
+          expertise: search.trim() || undefined,
+          city: location.trim() || undefined,
+          projectStage: stage || undefined,
+          authorRole: postedBy === 'Engineer' ? 'engineer' : postedBy === 'Healthcare Professional' ? 'healthcare_professional' : undefined,
+        },
+      })
+      window.alert(`Search "${name.trim()}" saved! You'll be notified when new matching posts are published.`)
+    } catch {
+      window.alert('Could not save search. Try again.')
+    }
+  }
+
   useEffect(() => {
     setPage(1)
   }, [domain, location, postedBy, search, sort, stage, status, viewMode])
@@ -241,6 +272,18 @@ export default function PostListPage() {
             onLocation={setLocation}
             onClear={clearFilters}
           />
+          {hasActiveFilters && user && (
+            <div className="mb-4 flex justify-end">
+              <button
+                type="button"
+                onClick={saveCurrentSearch}
+                className="inline-flex items-center gap-2 rounded-full border border-[#D5DAE0] bg-white px-4 py-2 text-xs font-black text-hai-plum hover:bg-hai-mint/30 transition-colors"
+              >
+                <Bookmark size={13} />
+                {t('posts.saveSearch')}
+              </button>
+            </div>
+          )}
           <PostList
             posts={paginatedPosts}
             totalPosts={directoryPosts.length}
@@ -324,6 +367,7 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
           leftIcon={<Search size={20} />}
           placeholder="Search by title, expertise, or keyword..."
           className="h-full rounded-full border-transparent bg-[#EEF0F3] pl-16 pr-6 text-[var(--text)] hover:bg-white hover:border-[var(--border)] focus:bg-white focus:border-[var(--accent)]"
+          className="h-full w-full rounded-full border border-transparent bg-[#EEF0F3] pl-16 pr-6 text-sm font-semibold text-[var(--text)] outline-none transition placeholder:text-[#6F6878] hover:bg-white hover:border-[var(--border)] focus:bg-white focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/25"
         />
       </label>
 
@@ -419,6 +463,7 @@ function FilterSidebar({
                 list="location-suggestions"
                 autoComplete="off"
                 className="h-12 rounded-none border-0 text-[var(--text)]"
+                className="h-12 w-full bg-white px-4 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878] focus:ring-2 focus:ring-[var(--accent)]/25"
               />
               <datalist id="location-suggestions">
                 {locationSuggestions.map(s => <option key={s} value={s} />)}
@@ -464,6 +509,17 @@ function FilterSelect({
         <option value="">{placeholder}</option>
         {children}
       </SelectInput>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={event => onChange(event.target.value)}
+          className="h-[46px] w-full appearance-none rounded-[14px] border border-[var(--border)] bg-white px-4 pr-10 text-sm font-black text-[var(--text)] outline-none transition hover:border-[var(--accent)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/25"
+        >
+          <option value="">{placeholder}</option>
+          {children}
+        </select>
+        <ChevronDown size={17} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[var(--primary)]" />
+      </div>
     </div>
   )
 }
@@ -559,7 +615,7 @@ function PostList({
                 <select
                   value={sort}
                   onChange={event => onSort(event.target.value as SortMode)}
-                  className="appearance-none bg-transparent pr-6 text-[var(--text)] outline-none"
+                  className="appearance-none bg-transparent pr-6 text-[var(--text)] outline-none focus:ring-2 focus:ring-[var(--accent)]/25"
                 >
                   <option value="best">AI best match</option>
                   <option value="recent">Most recent</option>

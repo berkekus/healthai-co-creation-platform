@@ -1,22 +1,21 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { MessageSquare, Clock, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useConversationStore } from '../../store/conversationStore'
 import { useAuthStore } from '../../store/authStore'
 import type { Conversation } from '../../types/conversation.types'
 
 export default function ConversationsPage() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const { conversations, isLoading, fetchConversations, getByMeetingId, deleteConversation } = useConversationStore()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const meetingIdParam = searchParams.get('meetingId')
 
-  useEffect(() => {
-    fetchConversations()
-  }, [fetchConversations])
+  useEffect(() => { fetchConversations() }, [fetchConversations])
 
-  // Auto-navigate if meetingId query param is present
   useEffect(() => {
     if (!meetingIdParam || conversations.length === 0) return
     const conv = getByMeetingId(meetingIdParam)
@@ -34,29 +33,22 @@ export default function ConversationsPage() {
   return (
     <main className="min-h-screen bg-[#f5f6f8]">
       <section className="mx-auto w-full max-w-[860px] px-6 pb-20 pt-[72px] md:px-10">
-
-        {/* Header */}
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#e8e8ee] bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#2d1838] shadow-[0_10px_30px_-24px_rgba(45,24,56,0.5)]">
             <MessageSquare size={12} />
-            {conversations.length} conversations
+            {t('messagesPage.count', { count: conversations.length })}
           </div>
           <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-[#2d1838] md:text-7xl">
-            Messages<span className="text-[#55c7df]">.</span>
+            {t('messagesPage.title')}
           </h1>
-          <p className="mt-4 max-w-[520px] text-base leading-7 text-[#6f6a76]">
-            Collaborate privately with your partner after a meeting is confirmed.
-          </p>
+          <p className="mt-4 max-w-[520px] text-base leading-7 text-[#6f6a76]">{t('messagesPage.desc')}</p>
         </div>
 
-        {/* List */}
         {conversations.length === 0 ? (
           <div className="rounded-[24px] border border-[#e8e8ee] bg-white p-16 text-center shadow-[0_24px_70px_-54px_rgba(45,24,56,0.4)]">
             <MessageSquare size={40} className="mx-auto text-[#c5c0cc] mb-4" />
-            <p className="font-headline text-xl font-black text-[#2d1838]">No conversations yet</p>
-            <p className="mt-2 text-sm text-[#6f6a76]">
-              Conversations open automatically when a meeting request is accepted.
-            </p>
+            <p className="font-headline text-xl font-black text-[#2d1838]">{t('messagesPage.empty')}</p>
+            <p className="mt-2 text-sm text-[#6f6a76]">{t('messagesPage.emptyDesc')}</p>
           </div>
         ) : (
           <div className="rounded-[24px] border border-[#e8e8ee] bg-white shadow-[0_24px_70px_-54px_rgba(45,24,56,0.4)] overflow-hidden">
@@ -77,86 +69,47 @@ export default function ConversationsPage() {
   )
 }
 
-function ConversationRow({
-  conv,
-  userId,
-  isLast,
-  onClick,
-  onDelete,
-}: {
-  conv: Conversation
-  userId: string
-  isLast: boolean
-  onClick: () => void
-  onDelete: (id: string) => Promise<void>
+function ConversationRow({ conv, userId, isLast, onClick, onDelete }: {
+  conv: Conversation; userId: string; isLast: boolean; onClick: () => void; onDelete: (id: string) => Promise<void>
 }) {
+  const { t } = useTranslation()
   const [confirm, setConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   const partner = conv.participantDetails.find(p => p.userId !== userId)
-  const initials = partner
-    ? partner.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
-    : '??'
+  const initials = partner ? partner.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : '??'
   const timeAgo = formatTimeAgo(conv.lastMessageAt)
 
   const handleDelete = async (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setDeleting(true)
+    e.stopPropagation(); setDeleting(true)
     await onDelete(conv.id).catch(() => setDeleting(false))
   }
 
   return (
-    <div
-      className={`flex items-center gap-4 px-6 py-5 hover:bg-[#f8f7fa] transition-colors group ${
-        isLast ? '' : 'border-b border-[#e8e8ee]'
-      }`}
-    >
-      {/* Clickable area */}
+    <div className={`flex items-center gap-4 px-6 py-5 hover:bg-[#f8f7fa] transition-colors group ${isLast ? '' : 'border-b border-[#e8e8ee]'}`}>
       <button onClick={onClick} className="flex items-center gap-4 flex-1 min-w-0 text-left">
-        <div className="w-12 h-12 rounded-full bg-[#2d1838] text-[#8fdff0] font-black text-sm flex items-center justify-center shrink-0">
-          {initials}
-        </div>
+        <div className="w-12 h-12 rounded-full bg-[#2d1838] text-[#8fdff0] font-black text-sm flex items-center justify-center shrink-0">{initials}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-3 mb-1">
-            <span className="font-headline font-black text-base text-[#2d1838] truncate">
-              {partner?.name ?? 'Unknown'}
-            </span>
-            <span className="flex items-center gap-1 text-xs text-[#9f9aaa] font-semibold shrink-0">
-              <Clock size={11} />
-              {timeAgo}
-            </span>
+            <span className="font-headline font-black text-base text-[#2d1838] truncate">{partner?.name ?? 'Unknown'}</span>
+            <span className="flex items-center gap-1 text-xs text-[#9f9aaa] font-semibold shrink-0"><Clock size={11} />{timeAgo}</span>
           </div>
           <p className="text-sm text-[#6f6a76] font-semibold truncate">{conv.postTitle}</p>
-          {conv.lastMessagePreview && (
-            <p className="text-xs text-[#9f9aaa] truncate mt-0.5">{conv.lastMessagePreview}</p>
-          )}
+          {conv.lastMessagePreview && <p className="text-xs text-[#9f9aaa] truncate mt-0.5">{conv.lastMessagePreview}</p>}
         </div>
       </button>
-
-      {/* Delete controls */}
       <div className="shrink-0 flex items-center gap-2">
         {!confirm ? (
-          <button
-            onClick={e => { e.stopPropagation(); setConfirm(true) }}
-            title="Delete conversation"
-            className="w-8 h-8 rounded-full flex items-center justify-center text-[#d0ccd8] hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
-          >
+          <button onClick={e => { e.stopPropagation(); setConfirm(true) }} title={t('messagesPage.deleteConv')} className="w-8 h-8 rounded-full flex items-center justify-center text-[#d0ccd8] hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
             <Trash2 size={14} />
           </button>
         ) : (
           <>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="h-7 px-2.5 rounded-full bg-red-500 text-white text-xs font-bold hover:bg-red-600 disabled:opacity-50 transition-colors"
-            >
-              {deleting ? '…' : 'Delete'}
+            <button onClick={handleDelete} disabled={deleting} className="h-7 px-2.5 rounded-full bg-red-500 text-white text-xs font-bold hover:bg-red-600 disabled:opacity-50 transition-colors">
+              {deleting ? '…' : t('messagesPage.delete')}
             </button>
-            <button
-              onClick={e => { e.stopPropagation(); setConfirm(false) }}
-              className="h-7 px-2.5 rounded-full border border-[#e8e8ee] text-xs font-bold text-[#6f6a76] hover:bg-[#f5f6f8] transition-colors"
-            >
-              Cancel
+            <button onClick={e => { e.stopPropagation(); setConfirm(false) }} className="h-7 px-2.5 rounded-full border border-[#e8e8ee] text-xs font-bold text-[#6f6a76] hover:bg-[#f5f6f8] transition-colors">
+              {t('messagesPage.cancel')}
             </button>
           </>
         )}

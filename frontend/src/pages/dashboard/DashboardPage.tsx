@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Bookmark, CalendarDays, Eye, FileText, Handshake, Plus, Search, Sparkles, User } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import api from '../../lib/api'
 import { ROUTES } from '../../constants/routes'
 import { Badge, ButtonLink, Card, IconButton } from '../../components/ui'
@@ -54,29 +55,30 @@ export default function DashboardPage() {
 }
 
 function OnboardingPanel() {
+  const { t } = useTranslation()
   const steps = [
     {
       icon: <User size={22} />,
       bg: '#E8F4F7',
-      title: 'Complete your profile',
-      body: 'Add your expertise tags, bio, and institution so collaborators can find you.',
-      cta: 'Go to profile',
+      title: t('dashboard.onboarding.profileTitle'),
+      body: t('dashboard.onboarding.profileBody'),
+      cta: t('dashboard.onboarding.profileCta'),
       to: ROUTES.PROFILE,
     },
     {
       icon: <Search size={22} />,
       bg: '#D8EFF2',
-      title: 'Browse the directory',
-      body: 'Explore active collaboration opportunities from clinicians and engineers.',
-      cta: 'Browse directory',
+      title: t('dashboard.onboarding.browseTitle'),
+      body: t('dashboard.onboarding.browseBody'),
+      cta: t('dashboard.onboarding.browseCta'),
       to: ROUTES.POSTS,
     },
     {
       icon: <Plus size={22} />,
       bg: '#E3DCD2',
-      title: 'Post an opportunity',
-      body: 'Have a project idea? Post it and let the right partner find you.',
-      cta: 'Post now',
+      title: t('dashboard.onboarding.postTitle'),
+      body: t('dashboard.onboarding.postBody'),
+      cta: t('dashboard.onboarding.postCta'),
       to: ROUTES.POST_CREATE,
     },
   ]
@@ -87,7 +89,7 @@ function OnboardingPanel() {
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#36213E] text-[#E8F4F7]">
           <Sparkles size={17} />
         </div>
-        <h3 className="text-base font-black text-[#36213E]">Get started</h3>
+        <h3 className="text-base font-black text-[#36213E]">{t('dashboard.getStarted')}</h3>
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-7">
@@ -118,36 +120,37 @@ function OnboardingPanel() {
   )
 }
 
-const ROLE_LABEL: Record<string, string> = {
-  engineer: 'Engineer',
-  healthcare_professional: 'Healthcare Professional',
-  admin: 'Administrator',
+function useRoleLabel() {
+  const { t } = useTranslation()
+  return (role: string) => t(`common.role.${role}`, { defaultValue: role })
 }
 
-function weekRange() {
+function weekRange(locale: string) {
   const now = new Date()
   const day = now.getDay()
   const monday = new Date(now)
   monday.setDate(now.getDate() - ((day + 6) % 7))
   const sunday = new Date(monday)
   sunday.setDate(monday.getDate() + 6)
-  const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  const fmt = (d: Date) => d.toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'en-US', { month: 'short', day: 'numeric' })
   return `${fmt(monday)} - ${fmt(sunday)}, ${sunday.getFullYear()}`
 }
 
 function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>['user'] }) {
+  const { t } = useTranslation()
+  const roleLabel = useRoleLabel()
   const firstName = user?.name?.split(' ')[0] ?? 'there'
   return (
     <div className="pt-6">
       <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#36213E] sm:text-6xl">
-        Welcome back,
+        {t('dashboard.welcomeBack')}
       </h1>
       <h2 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#1B7A88] sm:text-6xl">
         {firstName}<span className="text-[#36213E]">.</span>
       </h2>
 
       <p className="mt-5 text-base font-semibold text-[#6F6878]">
-        Signed in as <span className="font-black text-[#36213E]">{ROLE_LABEL[user?.role ?? ''] ?? user?.role}</span>
+        {t('dashboard.signedInAs')} <span className="font-black text-[#36213E]">{roleLabel(user?.role ?? '')}</span>
         {user?.institution && (
           <>
             <span className="px-1.5">·</span>
@@ -157,8 +160,7 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
       </p>
 
       <div className="mt-10 border-l-2 border-[#b7c1ca] py-1 pl-6 text-lg font-semibold leading-8 text-[#6F6878]">
-        Collaborate, innovate, and build the future<br />
-        of healthcare — together.
+        {t('dashboard.tagline')}
       </div>
 
       <div className="mt-14">
@@ -172,6 +174,9 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
         >
           Post an opportunity
         </ButtonLink>
+          <Plus size={18} strokeWidth={2.5} />
+          {t('dashboard.postOpportunity')}
+        </Link>
       </div>
     </div>
   )
@@ -186,6 +191,7 @@ function WeeklyBlob({
   meetingCount: number
   activeListings: number
 }) {
+  const { t, i18n } = useTranslation()
   return (
     <div className="relative xl:h-[455px]">
       <div
@@ -205,14 +211,14 @@ function WeeklyBlob({
 
       <div className="relative z-10 mx-auto max-w-[790px] px-4 pt-6 xl:pt-[115px]">
         <div className="mb-8 flex items-center justify-between">
-          <div className="text-base font-black text-[#36213E]">Weekly overview</div>
-          <div className="text-sm font-bold text-[#6F6878]">{weekRange()}</div>
+          <div className="text-base font-black text-[#36213E]">{t('dashboard.weeklyOverview')}</div>
+          <div className="text-sm font-bold text-[#6F6878]">{weekRange(i18n.language)}</div>
         </div>
 
         <div className="grid grid-cols-3 gap-6 xl:gap-16">
-          <Metric icon={<FileText size={21} />} iconBg="#8AC6D0" value={postCount} label="My posts" sub={postCount === 0 ? 'No posts yet' : 'Total created'} />
-          <Metric icon={<Handshake size={21} />} iconBg="#D8EFF2" value={meetingCount} label="My meetings" sub={meetingCount === 0 ? 'None scheduled' : 'Pending & confirmed'} />
-          <Metric icon={<Eye size={21} />} iconBg="#E3DCD2" value={activeListings} label="Active listings" sub={activeListings === 0 ? 'None active' : 'Open for interest'} />
+          <Metric icon={<FileText size={21} />} iconBg="#8AC6D0" value={postCount} label={t('dashboard.myPosts')} sub={postCount === 0 ? t('dashboard.noPostsYet') : t('dashboard.totalCreated')} />
+          <Metric icon={<Handshake size={21} />} iconBg="#D8EFF2" value={meetingCount} label={t('dashboard.myMeetings')} sub={meetingCount === 0 ? t('dashboard.noneScheduled') : t('dashboard.pendingConfirmed')} />
+          <Metric icon={<Eye size={21} />} iconBg="#E3DCD2" value={activeListings} label={t('dashboard.activeListings')} sub={activeListings === 0 ? t('dashboard.noneActive') : t('dashboard.openForInterest')} />
         </div>
       </div>
     </div>
@@ -245,6 +251,7 @@ function Metric({
 }
 
 function RecentPosts({ posts }: { posts: Post[] }) {
+  const { t } = useTranslation()
   const recentPosts = [...posts]
     .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
     .slice(0, 3)
@@ -252,9 +259,9 @@ function RecentPosts({ posts }: { posts: Post[] }) {
   return (
     <div>
       <div className="mb-9 flex items-center justify-between">
-        <h3 className="text-base font-black text-[#36213E]">Recent posts</h3>
+        <h3 className="text-base font-black text-[#36213E]">{t('dashboard.recentPosts')}</h3>
         <Link to={`${ROUTES.POSTS}?mine=true`} className="flex items-center gap-6 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
-          View all
+          {t('common.viewAll')}
           <ArrowRight size={16} />
         </Link>
       </div>
@@ -279,7 +286,7 @@ function RecentPosts({ posts }: { posts: Post[] }) {
         ) : (
           <div className="relative min-h-[94px] border-b border-[#D5DAE0] pt-0.5 text-base font-semibold text-[#6F6878]">
             <span className="absolute -left-[41px] top-[4px] h-2.5 w-2.5 rounded-full bg-[#8AC6D0]" />
-            No posts yet.
+            {t('dashboard.noPostsYet')}.
           </div>
         )}
       </div>
@@ -288,6 +295,7 @@ function RecentPosts({ posts }: { posts: Post[] }) {
 }
 
 function SavedPosts({ storePosts }: { storePosts: Post[] }) {
+  const { t } = useTranslation()
   const [savedPosts, setSavedPosts] = useState<Post[]>([])
 
   useEffect(() => {
@@ -325,13 +333,13 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#36213E] text-[#E8F4F7]">
             <Bookmark size={16} fill="white" />
           </div>
-          <h3 className="text-base font-black text-[#36213E]">Saved posts</h3>
+          <h3 className="text-base font-black text-[#36213E]">{t('dashboard.savedPosts')}</h3>
           <span className="rounded-full bg-[#e8f4f7] px-2.5 py-0.5 text-xs font-black text-[#36213E]">
             {savedPosts.length}
           </span>
         </div>
         <Link to={ROUTES.POSTS} className="flex items-center gap-2 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
-          Browse all <ArrowRight size={14} />
+          {t('dashboard.browseAll')} <ArrowRight size={14} />
         </Link>
       </div>
 
@@ -346,6 +354,11 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
               size="sm"
               className="absolute right-3 top-3 text-[#1B7A88] opacity-0 group-hover:opacity-100 hover:text-[#36213E]"
             />
+              className="absolute right-4 top-4 text-[#1B7A88] opacity-0 group-hover:opacity-100 transition hover:text-[#36213E]"
+              title={t('dashboard.removeFromSaved')}
+            >
+              <Bookmark size={15} fill="#8AC6D0" />
+            </button>
             <Link to={`/posts/${post.id}`} className="block">
               <div className="mb-2 line-clamp-2 text-[14.5px] font-black text-[#36213E] leading-snug pr-6">
                 {post.title}
@@ -364,31 +377,28 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
 }
 
 function StatusPill({ status }: { status: Post['status'] }) {
-  const labels: Record<Post['status'], string> = {
-    draft: 'Draft',
-    active: 'Active',
-    meeting_scheduled: 'Meeting',
-    partner_found: 'Partner Found',
-    expired: 'Expired',
-  }
-
+  const { t } = useTranslation()
   return (
     <Badge variant="primary" size="sm" className="mt-1 px-4 py-1.5 text-center text-[#E8F4F7]">
       {labels[status]}
     </Badge>
+    <span className="mt-1 rounded-full bg-[#36213E] px-4 py-1.5 text-center text-xs font-black uppercase tracking-[0.12em] text-[#E8F4F7]">
+      {t(`dashboard.status.${status}`, { defaultValue: status })}
+    </span>
   )
 }
 
 function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: string }) {
+  const { t } = useTranslation()
   const visibleMeetings = meetings.slice(0, 3)
   const positions = ['left-[312px] top-[76px]', 'left-[112px] top-[210px]', 'left-[334px] top-[270px]']
 
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-base font-black text-[#36213E]">Upcoming meetings</h3>
+        <h3 className="text-base font-black text-[#36213E]">{t('dashboard.upcomingMeetings')}</h3>
         <Link to={ROUTES.MEETINGS} className="flex items-center gap-6 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
-          View all
+          {t('common.viewAll')}
           <ArrowRight size={16} />
         </Link>
       </div>
@@ -396,7 +406,7 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
       {/* Mobile: simple list */}
       <div className="mt-4 xl:hidden">
         {visibleMeetings.length === 0 ? (
-          <p className="text-sm font-semibold text-[#6F6878]">No pending meetings.</p>
+          <p className="text-sm font-semibold text-[#6F6878]">{t('dashboard.noPendingMeetings')}</p>
         ) : (
           <div className="flex flex-col gap-3">
             {visibleMeetings.map(meeting => {
@@ -411,7 +421,7 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
                   <div className="min-w-0">
                     <div className="truncate text-sm font-black text-[#36213E]">{partner}</div>
                     <div className="truncate text-xs font-semibold text-[#6F6878]">
-                      {slot ? `${slot.date} · ${slot.time}` : 'Slot pending'} · {meeting.status}
+                      {slot ? `${slot.date} · ${slot.time}` : t('dashboard.slotPending')} · {meeting.status}
                     </div>
                   </div>
                 </Link>
@@ -445,16 +455,16 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
         <div className="absolute left-[200px] top-[248px] w-[120px] text-center">
           {visibleMeetings.length === 0 ? (
             <>
-              <div className="text-lg font-black text-[#36213E]">All caught up</div>
+              <div className="text-lg font-black text-[#36213E]">{t('dashboard.allCaughtUp')}</div>
               <div className="mt-2 text-base font-semibold leading-6 text-[#6F6878]">
-                No pending<br />meetings.
+                {t('dashboard.noPendingMeetings')}
               </div>
             </>
           ) : (
             <>
-              <div className="text-lg font-black text-[#36213E]">{visibleMeetings.length} upcoming</div>
+              <div className="text-lg font-black text-[#36213E]">{visibleMeetings.length} {t('dashboard.upcoming')}</div>
               <div className="mt-2 text-base font-semibold leading-6 text-[#6F6878]">
-                Hover profiles<br />for details.
+                {t('dashboard.hoverProfiles')}
               </div>
             </>
           )}
@@ -475,13 +485,14 @@ function MeetingAvatar({
   imageSrc: string
   className: string
 }) {
+  const { t, i18n } = useTranslation()
   const isRequester = meeting.requesterId === userId
   const partner = isRequester ? meeting.ownerName : meeting.requesterName
   const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
-  const statusLabel = meeting.status.charAt(0).toUpperCase() + meeting.status.slice(1)
+  const statusLabel = t(`meetings.status.${meeting.status}`, { defaultValue: meeting.status })
   const dateLabel = slot
-    ? new Date(`${slot.date}T${slot.time}`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    : 'Slot pending'
+    ? new Date(`${slot.date}T${slot.time}`).toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : t('dashboard.slotPending')
 
   const tooltipId = `meeting-tip-${meeting.id}`
   const tooltipContent = `${partner} · ${meeting.postTitle} · ${statusLabel} · ${dateLabel}`

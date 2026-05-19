@@ -11,13 +11,16 @@ import conversationRoutes from '../routes/conversationRoutes'
 import notificationRoutes from '../routes/notificationRoutes'
 import logRoutes from '../routes/logRoutes'
 import aiRoutes from '../routes/aiRoutes'
+import savedSearchRoutes from '../routes/savedSearchRoutes'
 import { errorHandler, notFound } from '../middleware/errorHandler'
 
 const app = express()
 
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://127.0.0.1:5173',
   'http://localhost:4173',
+  'http://127.0.0.1:4173',
   process.env.CLIENT_ORIGIN,
 ].filter(Boolean) as string[]
 
@@ -39,7 +42,7 @@ app.use(mongoSanitize())
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
-app.get('/health', (_req, res) => {
+app.get('/api/health', (_req, res) => {
   const dbReady = mongoose.connection.readyState === 1
   const status = dbReady ? 'ok' : 'degraded'
   res.status(dbReady ? 200 : 503).json({ status, db: dbReady ? 'connected' : 'disconnected', timestamp: new Date().toISOString() })
@@ -52,6 +55,7 @@ app.use('/api/conversations', conversationRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/logs', logRoutes)
 app.use('/api/ai', aiRoutes)
+app.use('/api/saved-searches', savedSearchRoutes)
 
 app.use(notFound)
 app.use(errorHandler)

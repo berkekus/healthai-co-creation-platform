@@ -264,8 +264,8 @@ const PostVisual = () => (
       </div>
       <div className="h-6 bg-gradient-to-r from-hai-teal/30 to-hai-mint/40 rounded-md w-5/6" />
       <div className="grid grid-cols-2 gap-2 mt-1">
-        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em]r uppercase text-neutral-500">Domain</div>
-        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em]r uppercase text-neutral-500">Stage</div>
+        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">Domain</div>
+        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">Stage</div>
       </div>
       <div className="h-2 bg-neutral-100 rounded-full w-full" />
       <div className="h-2 bg-neutral-100 rounded-full w-4/5" />
@@ -308,7 +308,7 @@ const MatchVisual = () => {
       </div>
       <div className="mt-5 pt-4 border-t border-neutral-100 flex items-center gap-3">
         <Icon name="view_list" className="text-hai-plum text-lg" filled />
-        <span className="text-xs font-mono tracking-[0.12em]r uppercase text-neutral-500">Filters, sorting, and pagination stay in sync.</span>
+        <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">Filters, sorting, and pagination stay in sync.</span>
       </div>
     </div>
   )
@@ -336,7 +336,7 @@ const MeetVisual = () => (
           <span className={`w-5 h-5 rounded-full border-2 ${i === 1 ? 'bg-hai-teal border-hai-teal' : 'border-neutral-300'}`} />
           <span className="text-sm font-semibold text-neutral-800">{date}</span>
         </span>
-        <span className="text-xs font-mono tracking-[0.12em]r text-neutral-500">{time}</span>
+        <span className="text-xs font-mono tracking-[0.12em] text-neutral-500">{time}</span>
       </div>
     ))}
   </div>
@@ -679,7 +679,7 @@ export default function LandingPage() {
                 className="font-headline font-bold landing-text leading-none tracking-normal text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
               >
                 Healthcare co-creation,<br />
-                <span className="opacity-25">without the silos.</span>
+                <span className="text-[#008EA2]">without the silos.</span>
               </h1>
               <p className="landing-body-text mt-6 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed font-semibold">
                 A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional <span className="font-bold landing-text">.edu</span> verification and an immutable audit trail.
@@ -834,6 +834,9 @@ export default function LandingPage() {
                         alt=""
                         aria-hidden="true"
                         className="landing-portrait-image absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 w-full h-full object-cover"
                         style={{ objectPosition: '50% 15%' }}
                       />
                       <div className="landing-card-topfade-engineer absolute inset-x-0 top-0 h-16" />
@@ -879,6 +882,9 @@ export default function LandingPage() {
                         alt=""
                         aria-hidden="true"
                         className="landing-portrait-image absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 w-full h-full object-cover"
                         style={{ objectPosition: '65% 15%' }}
                       />
                       <div className="landing-card-topfade-clinician absolute inset-x-0 top-0 h-16" />
@@ -922,6 +928,7 @@ export default function LandingPage() {
             {/* Giant "Platform" wordmark — on off-white, uses ghost tone */}
             <div className="mt-16 text-center md:mt-24">
               <h2 className="landing-ghost-word text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-normal">
+              <h2 className="text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-normal text-[#008EA2]">
                 Platform
               </h2>
             </div>
@@ -1440,7 +1447,7 @@ export default function LandingPage() {
 
         {/* Bottom strip */}
         <div className="px-6 md:px-16 lg:px-24 py-8 mt-6 flex justify-between items-end relative z-10 w-full text-hai-teal gap-8 flex-wrap border-t border-hai-teal/20">
-          <div className="text-xs font-semibold text-hai-teal font-mono tracking-[0.12em]r">
+          <div className="text-xs font-semibold text-hai-teal font-mono tracking-[0.12em]">
             2026<br />Copyright<br />HealthAI
           </div>
           <div className="flex items-end justify-between flex-grow ml-4 md:ml-12 gap-6 flex-wrap">

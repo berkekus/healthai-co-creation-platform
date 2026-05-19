@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import TranslateButton from '../../components/ui/TranslateButton'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -289,7 +290,10 @@ export default function PostDetailPage() {
           <div className="rounded-[28px] bg-white px-6 py-8 shadow-[0_30px_90px_-84px_rgba(45,24,56,0.7)] sm:px-9">
             <DetailSection title="Project description">
               {post.confidentiality === 'public_pitch' ? (
-                <p className="whitespace-pre-wrap break-words text-base font-semibold leading-8 text-[#4f4a58]">{post.description}</p>
+                <>
+                  <p className="whitespace-pre-wrap break-words text-base font-semibold leading-8 text-[#4f4a58]">{post.description}</p>
+                  <TranslateButton text={post.description} className="mt-3" />
+                </>
               ) : (
                 <p className="text-base font-semibold leading-8 text-[#4f4a58]">Full details are shared in a meeting under NDA.</p>
               )}

@@ -90,13 +90,19 @@ export const listMeetings = asyncHandler<AuthenticatedRequest>(async (req, res) 
 })
 
 export const acceptMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
+  const meeting = await meetingService.acceptMeeting(req.params.id, req.userId)
+  log(req, LOG.MEETING_ACCEPT, req.params.id)
+  res.json({ success: true, data: meeting })
+})
+
+export const confirmMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { slot } = req.body
   if (!isValidSlot(slot)) {
     res.status(400).json({ success: false, message: 'A confirmed slot with date (YYYY-MM-DD) and time (HH:MM) is required' })
     return
   }
-  const meeting = await meetingService.acceptMeeting(req.params.id, req.userId, slot)
-  log(req, LOG.MEETING_ACCEPT, req.params.id)
+  const meeting = await meetingService.confirmMeetingSlot(req.params.id, req.userId, slot)
+  log(req, LOG.MEETING_CONFIRM, req.params.id)
   res.json({ success: true, data: meeting })
 })
 
@@ -110,6 +116,17 @@ export const declineMeeting = asyncHandler<AuthenticatedRequest>(async (req, res
 export const cancelMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const reason = typeof req.body?.reason === 'string' ? req.body.reason.trim() : undefined
   const meeting = await meetingService.cancelMeeting(req.params.id, req.userId, reason || undefined)
+  log(req, LOG.MEETING_CANCEL, req.params.id)
+  res.json({ success: true, data: meeting })
+})
+
+export const rescheduleMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
+  const { proposedSlots } = req.body
+  if (!Array.isArray(proposedSlots) || !proposedSlots.every(isValidSlot)) {
+    res.status(400).json({ success: false, message: 'At least 3 valid slots are required (date YYYY-MM-DD, time HH:MM)' })
+    return
+  }
+  const meeting = await meetingService.rescheduleMeeting(req.params.id, req.userId, proposedSlots)
   log(req, LOG.MEETING_CANCEL, req.params.id)
   res.json({ success: true, data: meeting })
 })

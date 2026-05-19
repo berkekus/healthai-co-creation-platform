@@ -1,5 +1,13 @@
 export type UserRole = 'engineer' | 'healthcare_professional' | 'admin'
 
+export interface NotifPrefs {
+  meetingRequests: boolean
+  meetingUpdates: boolean
+  interestReceived: boolean
+  adminMessages: boolean
+  messages: boolean
+}
+
 export interface User {
   id: string
   name: string
@@ -11,6 +19,7 @@ export interface User {
   bio?: string
   avatarUrl?: string
   expertiseTags: string[]
+  notifPrefs?: NotifPrefs
   createdAt: string
   isVerified: boolean
   isSuspended: boolean
