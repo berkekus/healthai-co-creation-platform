@@ -70,7 +70,7 @@ function Logo({ inverted = false }: { inverted?: boolean }) {
         className="h-9 w-auto"
         style={inverted ? { filter: 'brightness(0) invert(1)' } : undefined}
       />
-      <span className={`text-xl font-black tracking-normal font-headline ${inverted ? 'text-white' : 'text-[#03326D]'}`}>
+      <span className={`text-xl font-black tracking-normal font-headline ${inverted ? 'text-white' : 'landing-text'}`}>
         HealthAI
       </span>
     </div>
@@ -166,8 +166,10 @@ function TopNav() {
 }
 
 // ── Hero portrait card: clean photo panel for each pathway card ─────
-function HeroPortraitCard({ side, cardBg }: { side: 'clinician' | 'engineer'; cardBg: string }) {
+function HeroPortraitCard({ side }: { side: 'clinician' | 'engineer' }) {
   const isClinician = side === 'clinician'
+  const portraitPanel = isClinician ? 'landing-portrait-panel-clinician' : 'landing-portrait-panel-engineer'
+  const portraitFade = isClinician ? 'landing-portrait-fade-clinician' : 'landing-portrait-fade-engineer'
   const src = isClinician ? '/images/clinician-portrait.png' : '/images/engineer-portrait.png'
   const alt = isClinician
     ? 'Portrait of a healthcare professional in a clinical coat with a stethoscope'
@@ -179,15 +181,14 @@ function HeroPortraitCard({ side, cardBg }: { side: 'clinician' | 'engineer'; ca
       style={{ width: isClinician ? '46%' : '47%' }}
     >
       <div
-        className="absolute bottom-0 right-0 h-[78%] w-[88%] rounded-tl-[52%] opacity-80"
-        style={{ background: isClinician ? '#d7f5f7' : '#ece9ff' }}
+        className={`absolute bottom-0 right-0 h-[78%] w-[88%] rounded-tl-[52%] opacity-80 ${portraitPanel}`}
       />
       <img
         src={src}
         alt={alt}
         loading="lazy"
         decoding="async"
-        className="absolute inset-y-0 right-0 h-full w-full object-cover"
+        className="landing-portrait-image absolute inset-y-0 right-0 h-full w-full object-cover"
         style={{
           objectPosition: isClinician ? '58% 50%' : '52% 50%',
           WebkitMaskImage: 'linear-gradient(to right, transparent 0%, #000 18%, #000 100%)',
@@ -196,8 +197,7 @@ function HeroPortraitCard({ side, cardBg }: { side: 'clinician' | 'engineer'; ca
       />
       {/* Gradient fade to blend with card background */}
       <div
-        className="absolute inset-y-0 left-0 w-24 pointer-events-none"
-        style={{ background: `linear-gradient(to right, ${cardBg}, transparent)` }}
+        className={`absolute inset-y-0 left-0 w-24 pointer-events-none ${portraitFade}`}
       />
     </div>
   )
@@ -605,10 +605,10 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col font-body bg-[#E8F4F7] overflow-x-hidden antialiased">
+    <div className="landing-page min-h-screen flex flex-col font-body overflow-x-hidden antialiased">
       <TopNav />
 
-      <main className="flex-grow pb-0 relative bg-hai-offwhite">
+      <main className="landing-main flex-grow pb-0 relative">
         {/*
           ──────────────────────────────────────────────────────────────
           STICKY PARALLAX OVERLAP ZONE
@@ -649,18 +649,17 @@ export default function LandingPage() {
           */}
           <section
             aria-labelledby="hero-headline"
-            className="sticky top-0 z-0 w-full overflow-hidden flex items-start justify-center pt-24 sm:pt-28 md:pt-32 pb-16 bg-[#E8F4F7]"
+            className="landing-hero sticky top-0 z-0 w-full overflow-hidden flex items-start justify-center pt-24 sm:pt-28 md:pt-32 pb-16"
           >
             {/* dot atmosphere */}
             <div
               aria-hidden
-              className="absolute inset-0 pointer-events-none"
-              style={{ backgroundImage: 'radial-gradient(circle at center, rgba(54,33,62,0.04) 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+              className="landing-dot-grid absolute inset-0 pointer-events-none"
             />
             {/* soft glow */}
             <div
               aria-hidden
-              className="absolute top-[18%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-white/60 rounded-full blur-[100px] pointer-events-none"
+              className="landing-soft-glow absolute top-[18%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full blur-[100px] pointer-events-none"
             />
 
             <motion.div
@@ -671,19 +670,19 @@ export default function LandingPage() {
               }}
               className="relative text-center max-w-5xl mx-auto px-6 md:px-8 will-change-[transform,filter,opacity]"
             >
-              <div className="inline-flex items-center gap-2 bg-white/60 backdrop-blur-md border border-hai-teal/40 rounded-full px-4 py-1.5 mb-6 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-hai-plum animate-pulse" />
+              <div className="landing-hero-chip inline-flex items-center gap-2 backdrop-blur-md border rounded-full px-4 py-1.5 mb-6 text-xs font-mono tracking-[0.16em] uppercase landing-text font-bold">
+                <span className="landing-accent-bg w-1.5 h-1.5 rounded-full animate-pulse" />
                 SENG 384 · Spring 2026 · v0.1
               </div>
               <h1
                 id="hero-headline"
-                className="font-headline font-bold text-hai-plum leading-none tracking-normal text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
+                className="font-headline font-bold landing-text leading-none tracking-normal text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
               >
                 Healthcare co-creation,<br />
                 <span className="text-[#008EA2]">without the silos.</span>
               </h1>
-              <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed text-hai-plum/65 font-semibold">
-                A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional <span className="font-bold text-hai-plum">.edu</span> verification and an immutable audit trail.
+              <p className="landing-body-text mt-6 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed font-semibold">
+                A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional <span className="font-bold landing-text">.edu</span> verification and an immutable audit trail.
               </p>
             </motion.div>
 
@@ -722,7 +721,7 @@ export default function LandingPage() {
             viewport height (≥ 640 px).
           */}
           <motion.div
-            className="relative z-10 -mt-4 will-change-transform"
+            className="landing-slab relative z-10 -mt-4 will-change-transform"
             style={{
               /*
                 Top 3% ramps from transparent → solid teal so the slab's
@@ -732,13 +731,16 @@ export default function LandingPage() {
                 slab) is enough to dissolve the seam completely while
                 preserving the calm teal-to-off-white journey below.
               */
-              background: 'linear-gradient(180deg, rgba(232,244,247,0) 0%, rgba(232,244,247,0.55) 5%, #E8F4F7 10%, #E8F4F7 17%, #F3F4F6 57%, #F3F4F6 100%)',
               y: prefersReducedMotion ? 0 : slabY,
             }}
           >
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-0 top-0 z-0 h-48 bg-gradient-to-b from-transparent via-[#E8F4F7]/70 to-[#E8F4F7]"
+              className="landing-slab-feather pointer-events-none absolute inset-x-0 -top-40 z-0 h-80"
+            />
+            <div
+              aria-hidden
+              className="landing-slab-dots pointer-events-none absolute inset-x-0 -top-36 z-0 h-[420px]"
             />
 
             <section
@@ -749,14 +751,14 @@ export default function LandingPage() {
             {/* ── Pathway cards ─────────────────────────────── */}
             <div className="relative mb-10 overflow-hidden py-3">
               <div className="mb-5 flex items-center justify-center gap-3">
-                <Icon name="verified_user" className="text-xl text-[#5A6FD6]" filled />
-                <p className="font-mono text-xs font-black uppercase tracking-[0.16em] text-[#77728f]">
+                <Icon name="verified_user" className="landing-accent-2 text-xl" filled />
+                <p className="landing-muted font-mono text-xs font-black uppercase tracking-[0.16em]">
                   Verified Institutional Network
                 </p>
               </div>
               <div className="relative overflow-hidden">
-                <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-[#E8F4F7] to-transparent" />
-                <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-[#E8F4F7] to-transparent" />
+                <div className="landing-fade-left pointer-events-none absolute inset-y-0 left-0 z-10 w-24" />
+                <div className="landing-fade-right pointer-events-none absolute inset-y-0 right-0 z-10 w-24" />
                 <div className="institution-marquee flex w-max items-center">
                   {[...Array(2)].map((_, groupIndex) => (
                     <div key={groupIndex} className="flex shrink-0 items-center gap-8 px-4">
@@ -774,9 +776,9 @@ export default function LandingPage() {
                         'University of Helsinki',
                         'Karolinska Institutet',
                       ].map((name) => (
-                        <span key={`${groupIndex}-${name}`} className="flex items-center gap-8 font-mono text-xs font-black uppercase tracking-[0.12em] text-[#77728f]">
+                        <span key={`${groupIndex}-${name}`} className="landing-muted flex items-center gap-8 font-mono text-xs font-black uppercase tracking-[0.12em]">
                           {name}
-                          <span className="h-1 w-1 rounded-full bg-[#6B6FEA]" />
+                          <span className="landing-accent-2-bg h-1 w-1 rounded-full" />
                         </span>
                       ))}
                     </div>
@@ -786,16 +788,16 @@ export default function LandingPage() {
             </div>
 
             <div className="relative mb-12">
-              <div className="relative rounded-[32px] bg-white px-5 pb-6 pt-5 shadow-[0_30px_86px_-66px_rgba(45,24,56,0.55),0_-14px_50px_-18px_rgba(255,255,255,0.9)] md:px-7 md:pb-7 md:pt-7">
+              <div className="landing-directory-shell relative rounded-[32px] border px-5 pb-6 pt-5 md:px-7 md:pb-7 md:pt-7">
                 <div className="mb-5 flex items-center justify-between px-1">
-                  <p className="text-xs font-mono tracking-[0.16em] uppercase text-[#77728f] font-black">Join the Directory</p>
+                  <p className="landing-muted text-xs font-mono tracking-[0.16em] uppercase font-black">Join the Directory</p>
                 </div>
 
                 <div className="relative grid gap-4 md:grid-cols-2">
 
                   {/* ───── Engineer card (LEFT) ───── */}
                   <motion.div
-                    className="relative min-h-[390px] overflow-hidden rounded-[24px] bg-[#f8f9fb] text-neutral-900 will-change-transform"
+                    className="landing-path-card-engineer relative min-h-[390px] overflow-hidden rounded-[24px] landing-text will-change-transform"
                     variants={cardOverlapVariants}
                     initial="rest"
                     animate={engineerOuterState}
@@ -804,45 +806,46 @@ export default function LandingPage() {
                   >
                     {/* Content — stacks naturally from top, no h-full stretch */}
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
-                      <span className="mb-8 inline-flex items-center gap-3 text-xs font-mono font-black uppercase tracking-[0.16em] text-[#2d2844]">
-                        <span className="h-4 w-1 bg-[#36213E]" />
+                      <span className="landing-path-label mb-8 inline-flex items-center gap-3 whitespace-nowrap text-xs font-mono font-black uppercase tracking-[0.16em]">
+                        <span className="landing-path-marker-engineer h-4 w-1" />
                         FOR ENGINEERS
                       </span>
-                      <h2 className="font-headline text-[2.15rem] font-black leading-tight tracking-normal text-hai-plum sm:text-[2.45rem] lg:text-[2.75rem]">
+                      <h2 className="font-headline text-[2.15rem] font-black leading-tight tracking-normal landing-text sm:text-[2.45rem] lg:text-[2.75rem]">
                         Build with clinical insight.
                       </h2>
-                      <p className="mt-6 max-w-[320px] font-body text-base font-semibold leading-relaxed text-[#514d62]">
+                      <p className="landing-path-body mt-6 max-w-[320px] font-body text-base font-semibold leading-relaxed">
                         Share your idea or look for the right healthcare partner to co-create solutions.
                       </p>
                       <Link
                         to={ROUTES.REGISTER}
                         state={{ role: 'engineer' }}
-                        className="mt-auto inline-flex w-[260px] items-center justify-between border-b-2 border-[#b9b2e0] pb-4 text-base font-black text-hai-plum transition hover:border-hai-plum"
+                        className="landing-path-link mt-auto inline-flex w-[260px] items-center justify-between border-b-2 pb-4 text-base font-black transition"
                       >
                         Create Engineer Account
                         <span className="text-4xl leading-none">→</span>
                       </Link>
                     </div>
                     {/* Portrait — right half, desktop only. Stretches to card height. */}
-                    <HeroPortraitCard side="engineer" cardBg="#f8f9fb" />
+                    <HeroPortraitCard side="engineer" />
                     {/* Mobile portrait strip */}
                     <div className="md:hidden w-full h-44 relative overflow-hidden">
                       <img
                         src="/images/engineer-portrait.png"
                         alt=""
                         aria-hidden="true"
+                        className="landing-portrait-image absolute inset-0 w-full h-full object-cover"
                         loading="lazy"
                         decoding="async"
                         className="absolute inset-0 w-full h-full object-cover"
                         style={{ objectPosition: '50% 15%' }}
                       />
-                      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#f8f9fb] to-transparent" />
+                      <div className="landing-card-topfade-engineer absolute inset-x-0 top-0 h-16" />
                     </div>
                   </motion.div>
 
                   {/* ───── Healthcare Professional card (RIGHT) ───── */}
                   <motion.div
-                    className="relative min-h-[390px] overflow-hidden rounded-[24px] bg-[#f8fbfc] text-neutral-900 will-change-transform"
+                    className="landing-path-card-clinician relative min-h-[390px] overflow-hidden rounded-[24px] landing-text will-change-transform"
                     variants={cardOverlapVariants}
                     initial="rest"
                     animate={clinicianOuterState}
@@ -851,39 +854,40 @@ export default function LandingPage() {
                   >
                     {/* Content — stacks naturally from top */}
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
-                      <span className="mb-8 inline-flex items-center gap-3 text-xs font-mono font-black uppercase tracking-[0.16em] text-[#2d2844]">
-                        <span className="h-4 w-1 bg-[#72d6dd]" />
+                      <span className="landing-path-label mb-8 inline-flex items-center gap-3 whitespace-nowrap text-xs font-mono font-black uppercase tracking-[0.16em]">
+                        <span className="landing-path-marker-clinician h-4 w-1" />
                         FOR HEALTHCARE PROFESSIONALS
                       </span>
-                      <h2 className="font-headline text-[2.15rem] font-black leading-tight tracking-normal text-hai-plum sm:text-[2.45rem] lg:text-[2.75rem]">
+                      <h2 className="font-headline text-[2.15rem] font-black leading-tight tracking-normal landing-text sm:text-[2.45rem] lg:text-[2.75rem]">
                         Shape technology that matters.
                       </h2>
-                      <p className="mt-6 max-w-[330px] font-body text-base font-semibold leading-relaxed text-[#514d62]">
+                      <p className="landing-path-body mt-6 max-w-[330px] font-body text-base font-semibold leading-relaxed">
                         Collaborate with engineers on real clinical needs and innovations.
                       </p>
                       <Link
                         to={ROUTES.REGISTER}
                         state={{ role: 'healthcare_professional' }}
-                        className="mt-auto inline-flex w-[300px] items-center justify-between border-b-2 border-[#9fdde4] pb-5 text-lg font-black text-hai-plum transition after:text-4xl after:leading-none after:content-['→'] hover:border-hai-plum [&>span]:hidden"
+                        className="landing-path-link mt-auto inline-flex w-[260px] items-center justify-between border-b-2 pb-4 text-base font-black transition"
                       >
                         Create HCP Account
-                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-hai-mint/30 text-xs font-bold">♦</span>
+                        <span className="text-4xl leading-none">→</span>
                       </Link>
                     </div>
                     {/* Portrait — right half, desktop only. Stretches to card height. */}
-                    <HeroPortraitCard side="clinician" cardBg="#f8fbfc" />
+                    <HeroPortraitCard side="clinician" />
                     {/* Mobile portrait strip */}
                     <div className="md:hidden w-full h-44 relative overflow-hidden">
                       <img
                         src="/images/clinician-portrait.png"
                         alt=""
                         aria-hidden="true"
+                        className="landing-portrait-image absolute inset-0 w-full h-full object-cover"
                         loading="lazy"
                         decoding="async"
                         className="absolute inset-0 w-full h-full object-cover"
                         style={{ objectPosition: '65% 15%' }}
                       />
-                      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#f8fbfc] to-transparent" />
+                      <div className="landing-card-topfade-clinician absolute inset-x-0 top-0 h-16" />
                     </div>
                   </motion.div>
 
@@ -896,9 +900,9 @@ export default function LandingPage() {
                     ['lock',            'Zero patient data'],
                     ['account_balance', 'Built for European institutions'],
                   ] as [string, string][]).map(([icon, label], index) => (
-                    <span key={label} className="flex items-center gap-4 text-xs font-mono font-black uppercase tracking-[0.16em] text-[#77728f]">
-                      {index > 0 && <span className="hidden h-5 w-px bg-[#d9d7e4] lg:block" />}
-                      <Icon name={icon} className="text-xl text-[#77728f]" filled />
+                    <span key={label} className="landing-muted flex items-center gap-4 text-xs font-mono font-black uppercase tracking-[0.16em]">
+                      {index > 0 && <span className="landing-rule-bg hidden h-5 w-px lg:block" />}
+                      <Icon name={icon} className="landing-muted text-xl" filled />
                       {label}
                     </span>
                   ))}
@@ -914,8 +918,8 @@ export default function LandingPage() {
                 ['block',           'Zero patient data'],
                 ['account_balance', 'Built for European institutions'],
               ] as [string, string][]).map(([icon, label]) => (
-                <span key={label} className="flex items-center gap-2 text-xs font-mono tracking-[0.12em] uppercase text-hai-plum/70 font-bold">
-                  <Icon name={icon} className="text-base text-hai-plum/60" filled />
+                <span key={label} className="landing-muted flex items-center gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold">
+                  <Icon name={icon} className="landing-muted text-base" filled />
                   {label}
                 </span>
               ))}
@@ -923,6 +927,7 @@ export default function LandingPage() {
 
             {/* Giant "Platform" wordmark — on off-white, uses ghost tone */}
             <div className="mt-16 text-center md:mt-24">
+              <h2 className="landing-ghost-word text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-normal">
               <h2 className="text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-normal text-[#008EA2]">
                 Platform
               </h2>
@@ -930,17 +935,17 @@ export default function LandingPage() {
           </section>
 
           {/* ── PLATFORM · 4 cards ─────────────────────────── */}
-          <section id="platform" className="max-w-[1500px] mx-auto px-6 md:px-8 pb-20 md:pb-24 text-neutral-900">
+          <section id="platform" className="max-w-[1500px] mx-auto px-6 md:px-8 pb-20 md:pb-24 landing-text">
             <div className="relative overflow-hidden px-0 py-10 md:px-2 md:py-14 lg:px-4">
               <div className="grid min-h-[640px] grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.45fr] lg:items-center">
                 <div className="relative z-10 max-w-[500px]">
-                  <p className="font-mono text-xs font-black uppercase tracking-[0.16em] text-[#008EA2]">Built for Europe.</p>
-                  <div className="mt-6 h-0.5 w-10 bg-[#008EA2]" />
-                  <h2 className="mt-10 font-headline text-[2.65rem] font-black leading-tight tracking-normal text-hai-plum sm:text-[3.2rem] lg:text-[3.55rem]">
+                  <p className="landing-accent font-mono text-xs font-black uppercase tracking-[0.16em]">Built for Europe.</p>
+                  <div className="landing-accent-bg mt-6 h-0.5 w-10" />
+                  <h2 className="mt-10 font-headline text-[2.65rem] font-black leading-tight tracking-normal landing-text sm:text-[3.2rem] lg:text-[3.55rem]">
                     Designed for European institutions.<br />
-                    <span className="text-[#008EA2]">Trusted across borders.</span>
+                    <span className="landing-accent">Trusted across borders.</span>
                   </h2>
-                  <p className="mt-8 max-w-[430px] font-body text-lg font-semibold leading-relaxed text-[#596079]">
+                  <p className="landing-body-text mt-8 max-w-[430px] font-body text-lg font-semibold leading-relaxed">
                     HealthAI is built with a European-first approach to privacy, compliance, and collaboration. One platform. Many countries. Shared standards.
                   </p>
 
@@ -951,12 +956,12 @@ export default function LandingPage() {
                       ['groups', 'Cross-border collaboration', 'Connect with verified professionals and institutions across Europe.'],
                     ].map(([icon, title, desc]) => (
                       <div key={title} className="flex items-start gap-4">
-                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#F0F4FF] text-[#5A6FD6]">
+                        <div className="landing-subtle-icon flex h-14 w-14 shrink-0 items-center justify-center rounded-full">
                           <Icon name={icon} className="text-3xl" filled />
                         </div>
                         <div>
-                          <h3 className="font-headline text-base font-black leading-tight text-hai-plum">{title}</h3>
-                          <p className="mt-1 max-w-[300px] font-body text-sm font-semibold leading-relaxed text-[#596079]">{desc}</p>
+                          <h3 className="font-headline text-base font-black leading-tight landing-text">{title}</h3>
+                          <p className="landing-body-text mt-1 max-w-[300px] font-body text-sm font-semibold leading-relaxed">{desc}</p>
                         </div>
                       </div>
                     ))}
@@ -969,17 +974,17 @@ export default function LandingPage() {
                     alt="European collaboration network map"
                     loading="lazy"
                     decoding="async"
-                    className="absolute inset-[-58px_-120px_-20px_-120px] h-[calc(100%+78px)] w-[calc(100%+240px)] object-contain object-center opacity-95"
+                    className="absolute inset-[-58px_-120px_-20px_-120px] h-[calc(100%+78px)] w-[calc(100%+240px)] object-contain object-center opacity-95 dark:opacity-50 dark:saturate-75"
                   />
 
-                  <div className="relative z-10 ml-auto mt-8 max-w-[270px] rounded-[14px] border border-[#E3EAF0] bg-white/88 p-6 shadow-[0_28px_72px_-50px_rgba(54,33,62,0.38)] backdrop-blur-md lg:mt-28">
+                  <div className="landing-glass-card relative z-10 ml-auto mt-8 max-w-[270px] rounded-[14px] border p-6 shadow-[0_28px_72px_-50px_rgba(54,33,62,0.38)] backdrop-blur-md lg:mt-28">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#008EA2] text-white">
+                      <div className="landing-accent-bg flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white">
                         <Icon name="stars" className="text-xl" filled />
                       </div>
                       <div>
-                        <h3 className="font-headline text-base font-black leading-snug text-hai-plum">European standards.<br />Global impact.</h3>
-                        <p className="mt-5 font-body text-sm font-semibold leading-relaxed text-[#596079]">
+                        <h3 className="font-headline text-base font-black leading-snug landing-text">European standards.<br />Global impact.</h3>
+                        <p className="landing-body-text mt-5 font-body text-sm font-semibold leading-relaxed">
                           Supporting innovation in healthcare through secure, ethical and compliant collaboration.
                         </p>
                       </div>
@@ -988,21 +993,21 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="relative z-10 mt-8 grid gap-0 overflow-hidden rounded-[18px] border border-[#E7EDF1] bg-white/92 shadow-[0_28px_80px_-58px_rgba(54,33,62,0.36)] md:grid-cols-2 lg:grid-cols-4">
+              <div className="landing-stats-grid relative z-10 mt-8 grid gap-0 overflow-hidden rounded-[18px] border shadow-[0_28px_80px_-58px_rgba(54,33,62,0.36)] md:grid-cols-2 lg:grid-cols-4">
                 {[
                   ['public', '30+', 'Countries', 'Across the European research landscape'],
                   ['account_balance', '1000+', 'Institutions', 'Hospitals, universities and research centers'],
                   ['groups', 'One', 'Shared Language', 'Strict terminology for clear, effective collaboration'],
                   ['verified_user', 'Complete', 'Compliance', 'GDPR-aligned, secure and audit-ready'],
                 ].map(([icon, value, label, desc], index) => (
-                  <div key={label} className={`flex min-h-[150px] items-start gap-5 p-7 ${index > 0 ? 'lg:border-l lg:border-[#E4EAF0]' : ''}`}>
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F0F4FF] text-[#5A6FD6]">
+                  <div key={label} className={`landing-border flex min-h-[150px] items-start gap-5 p-7 ${index > 0 ? 'lg:border-l' : ''}`}>
+                    <div className="landing-subtle-icon flex h-12 w-12 shrink-0 items-center justify-center rounded-full">
                       <Icon name={icon} className="text-3xl" filled />
                     </div>
                     <div>
-                      <div className="font-headline text-xl font-black leading-none text-[#008EA2]">{value}</div>
-                      <h3 className="mt-3 font-headline text-base font-black leading-tight text-hai-plum">{label}</h3>
-                      <p className="mt-4 font-body text-sm font-semibold leading-relaxed text-[#596079]">{desc}</p>
+                      <div className="landing-accent font-headline text-xl font-black leading-none">{value}</div>
+                      <h3 className="mt-3 font-headline text-base font-black leading-tight landing-text">{label}</h3>
+                      <p className="landing-body-text mt-4 font-body text-sm font-semibold leading-relaxed">{desc}</p>
                     </div>
                   </div>
                 ))}
@@ -1211,11 +1216,14 @@ export default function LandingPage() {
                     {/* Right — visual */}
                     <div
                       className="flex items-center justify-center p-8 md:p-12 relative overflow-hidden"
-                      style={{ background: `linear-gradient(160deg, ${active.accent}44 0%, #F3F4F6 100%)` }}
+                      style={{ background: `linear-gradient(160deg, ${active.accent}44 0%, rgb(var(--landing-page-bg)) 100%)` }}
                     >
                       <div
                         className="absolute inset-0 pointer-events-none"
-                        style={{ backgroundImage: 'radial-gradient(circle at center, rgba(54,33,62,0.05) 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+                        style={{
+                          backgroundImage: 'radial-gradient(circle at center, rgb(var(--landing-dot) / var(--landing-dot-alpha)) 1px, transparent 1px)',
+                          backgroundSize: '24px 24px',
+                        }}
                       />
                       <div className="relative z-10 w-full">
                         <ActiveVisual />
@@ -1276,7 +1284,10 @@ export default function LandingPage() {
         <section
           id="trust"
           className="w-full bg-hai-mint py-6 pb-28"
-          style={{ backgroundImage: 'radial-gradient(circle at center, rgba(54,33,62,0.06) 2px, transparent 2px)', backgroundSize: '32px 32px' }}
+          style={{
+            backgroundImage: 'radial-gradient(circle at center, rgb(var(--landing-dot) / var(--landing-dot-alpha)) 2px, transparent 2px)',
+            backgroundSize: '32px 32px',
+          }}
         >
           <div className="max-w-7xl mx-auto px-6 md:px-8 text-center flex flex-col gap-6 pt-10">
             <div className="border-y border-hai-teal/50 py-4">
@@ -1303,7 +1314,7 @@ export default function LandingPage() {
         <section className="w-full bg-hai-offwhite py-28 md:py-32 relative">
           <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-hai-mint to-transparent pointer-events-none" />
           <div className="max-w-5xl mx-auto px-6 md:px-8 relative z-10">
-            <h2 className="text-[3rem] md:text-[5rem] font-headline font-bold text-black tracking-normal leading-tight mb-10">
+            <h2 className="text-[3rem] md:text-[5rem] font-headline font-bold landing-text tracking-normal leading-tight mb-10">
               Structured<br />collaboration.
             </h2>
 
@@ -1347,7 +1358,7 @@ export default function LandingPage() {
         {/* ── UPCOMING FEATURES ──────────────────────────────── */}
         <section className="w-full bg-hai-offwhite py-24 border-t border-neutral-200">
           <div className="max-w-5xl mx-auto px-6 md:px-8 text-center mb-14">
-            <h2 className="text-[4rem] md:text-[7rem] font-headline font-bold text-black tracking-normal leading-tight mb-4">
+            <h2 className="text-[4rem] md:text-[7rem] font-headline font-bold landing-text tracking-normal leading-tight mb-4">
               Upcoming<br />Features
             </h2>
             <p className="text-base md:text-lg text-neutral-600 max-w-xl mx-auto">
@@ -1365,7 +1376,7 @@ export default function LandingPage() {
                   <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-neutral-100 flex items-center justify-center shrink-0">
                     <Icon name={f.icon} className="text-3xl text-hai-plum" filled />
                   </div>
-                  <h3 className="text-xl md:text-2xl font-headline font-semibold text-black">{f.title}</h3>
+                  <h3 className="text-xl md:text-2xl font-headline font-semibold landing-text">{f.title}</h3>
                 </div>
                 <p className="text-base md:text-base text-neutral-600 font-body leading-relaxed w-full md:w-1/2">{f.desc}</p>
               </div>
