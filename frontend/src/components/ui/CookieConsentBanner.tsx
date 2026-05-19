@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '../../constants/routes'
+import { useFocusTrap } from '../../hooks/useFocusTrap'
 
 const KEY = 'healthai_cookie_consent'
 
 export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!localStorage.getItem(KEY)) {
@@ -23,15 +25,20 @@ export default function CookieConsentBanner() {
     setTimeout(() => setVisible(false), 220)
   }
 
+  useFocusTrap(dialogRef, visible)
+
   if (!visible) return null
 
   return (
     <div
       role="dialog"
+      aria-modal="true"
       aria-label="Cookie consent"
       className="fixed bottom-0 left-0 right-0 z-[300] px-4 pb-4 pointer-events-none font-body"
     >
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         className={`pointer-events-auto mx-auto max-w-5xl bg-hai-plum text-hai-offwhite rounded-[1.75rem] shadow-[0_30px_80px_-20px_rgba(54,33,62,0.55)] border border-hai-plum overflow-hidden transition-all duration-300 ease-out ${
           mounted ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
         }`}

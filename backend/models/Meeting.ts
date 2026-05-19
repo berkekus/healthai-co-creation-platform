@@ -2,6 +2,7 @@ import { Schema, model, Document, Types } from 'mongoose'
 
 export type MeetingStatus =
   | 'pending'
+  | 'time_proposed'
   | 'confirmed'
   | 'completed'
   | 'declined'
@@ -52,7 +53,7 @@ const MeetingSchema = new Schema<IMeeting>(
     ownerEmail: { type: String, required: true, trim: true },
     status: {
       type: String,
-      enum: ['pending', 'confirmed', 'completed', 'declined', 'cancelled'],
+      enum: ['pending', 'time_proposed', 'confirmed', 'completed', 'declined', 'cancelled'],
       default: 'pending',
     },
     message: { type: String, required: true, trim: true },

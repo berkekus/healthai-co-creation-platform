@@ -108,6 +108,14 @@ export const getMe = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   res.json({ success: true, data: user })
 })
 
+export const updateNotifPrefs = asyncHandler<AuthenticatedRequest>(async (req, res) => {
+  const { meetingRequests, meetingUpdates, interestReceived, adminMessages, messages } = req.body
+  const user = await authService.updateNotifPrefs(req.userId, {
+    meetingRequests, meetingUpdates, interestReceived, adminMessages, messages,
+  })
+  res.json({ success: true, data: user })
+})
+
 export const updateProfile = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { name, institution, city, country, bio, avatarUrl, expertiseTags } = req.body
   const user = await authService.updateUserProfile(req.userId, {
@@ -132,10 +140,11 @@ export const getUserById = asyncHandler<Request>(async (req, res) => {
 export const getAllUsers = asyncHandler<Request>(async (req, res) => {
   const page  = Math.max(1, parseInt(req.query.page  as string) || 1)
   const limit = Math.min(500, Math.max(1, parseInt(req.query.limit as string) || 20))
-  const role   = typeof req.query.role   === 'string' ? req.query.role   : undefined
-  const search = typeof req.query.search === 'string' ? req.query.search : undefined
+  const role       = typeof req.query.role       === 'string' ? req.query.role       : undefined
+  const search     = typeof req.query.search     === 'string' ? req.query.search     : undefined
+  const isVerified = typeof req.query.isVerified === 'string' ? req.query.isVerified : undefined
 
-  const result = await authService.getAllUsers({ role, search, page, limit })
+  const result = await authService.getAllUsers({ role, search, isVerified, page, limit })
   res.json({ success: true, data: result })
 })
 
@@ -290,6 +299,14 @@ export const deleteUser = asyncHandler<AuthenticatedRequest>(async (req, res) =>
 
 export const exportMyData = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const data = await authService.exportUserData(req.userId)
+  createLog({
+    userId: req.userId,
+    userEmail: req.userEmail,
+    role: req.userRole,
+    action: LOG.DATA_EXPORT,
+    result: 'success',
+    ipAddress: req.ip,
+  }).catch(() => {})
   res.setHeader('Content-Disposition', `attachment; filename="healthai-export-${req.userId}-${new Date().toISOString().split('T')[0]}.json"`)
   res.setHeader('Content-Type', 'application/json')
   res.send(JSON.stringify(data, null, 2))

@@ -7,7 +7,7 @@ export function startCronJobs() {
   cron.schedule('0 * * * *', async () => {
     try {
       const result = await Post.updateMany(
-        { status: 'active', expiryDate: { $lt: new Date() } },
+        { status: { $in: ['active', 'meeting_scheduled'] }, expiryDate: { $lt: new Date() } },
         { $set: { status: 'expired' } }
       )
       if (result.modifiedCount > 0) {

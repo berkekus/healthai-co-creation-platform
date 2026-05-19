@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Bell, Calendar, Check, FileText, Filter, Shield, Star, Users } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import type { Notification, NotificationType } from '../../types/common.types'
@@ -39,6 +40,7 @@ function getIconStyle(type: NotificationType): { Icon: typeof Bell; bg: string; 
 }
 
 export default function NotificationsPage() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const { getByUser, fetchByUser, markRead, markAllRead } = useNotificationStore()
   const navigate = useNavigate()
@@ -71,14 +73,14 @@ export default function NotificationsPage() {
   }
 
   const tabs: { key: FilterTab; label: string; icon: React.ReactNode }[] = [
-    { key: 'all',      label: 'All Notifications', icon: <Bell size={16} strokeWidth={1.8} /> },
-    { key: 'unread',   label: 'Unread',             icon: <UnreadDotIcon /> },
-    { key: 'meetings', label: 'Meetings',            icon: <Calendar size={16} strokeWidth={1.8} /> },
-    { key: 'posts',    label: 'Posts',               icon: <FileText size={16} strokeWidth={1.8} /> },
-    { key: 'system',   label: 'System',              icon: <Shield size={16} strokeWidth={1.8} /> },
+    { key: 'all',      label: t('notificationsPage.tabs.all'),      icon: <Bell size={16} strokeWidth={1.8} /> },
+    { key: 'unread',   label: t('notificationsPage.tabs.unread'),   icon: <UnreadDotIcon /> },
+    { key: 'meetings', label: t('notificationsPage.tabs.meetings'), icon: <Calendar size={16} strokeWidth={1.8} /> },
+    { key: 'posts',    label: t('notificationsPage.tabs.posts'),    icon: <FileText size={16} strokeWidth={1.8} /> },
+    { key: 'system',   label: t('notificationsPage.tabs.system'),   icon: <Shield size={16} strokeWidth={1.8} /> },
   ]
 
-  const activeLabel = tabs.find(t => t.key === activeTab)?.label ?? 'All Notifications'
+  const activeLabel = tabs.find(tb => tb.key === activeTab)?.label ?? t('notificationsPage.tabs.all')
 
   return (
     <div className="min-h-screen bg-[#F3F4F6] font-body">
@@ -89,7 +91,7 @@ export default function NotificationsPage() {
           <div className="px-5 pt-5 pb-4 border-b border-[#E3E7EC]">
             <div className="flex items-center gap-2.5 text-base font-black text-[#36213E]">
               <Bell size={17} strokeWidth={2} />
-              Notifications
+              {t('notificationsPage.title')}
             </div>
           </div>
 
@@ -133,15 +135,13 @@ export default function NotificationsPage() {
             <div className="w-12 h-12 rounded-full bg-[#D7EEF2] flex items-center justify-center mx-auto mb-3">
               <Bell size={20} strokeWidth={1.8} className="text-[#8AC6D0]" />
             </div>
-            <div className="text-sm font-black text-[#36213E] mb-1">Stay in the loop</div>
-            <p className="text-xs text-[#6F6878] leading-relaxed mb-3">
-              Enable browser notifications to never miss important updates.
-            </p>
+            <div className="text-sm font-black text-[#36213E] mb-1">{t('notificationsPage.stayInLoop')}</div>
+            <p className="text-xs text-[#6F6878] leading-relaxed mb-3">{t('notificationsPage.enableDesc')}</p>
             <button
               onClick={() => Notification.requestPermission()}
               className="w-full py-2 rounded-full border border-[#1B7A88] text-[#1B7A88] text-xs font-bold hover:bg-[#36213E] hover:border-[#36213E] hover:text-white transition-colors"
             >
-              Enable Notifications
+              {t('notificationsPage.enableBtn')}
             </button>
           </div>
         </aside>
@@ -154,8 +154,8 @@ export default function NotificationsPage() {
               <h1 className="text-xl font-black text-[#36213E]">{activeLabel}</h1>
               <p className="text-sm text-[#6F6878] mt-0.5">
                 {filtered.length === 0
-                  ? "You're all caught up! No new notifications."
-                  : `${filtered.length} notification${filtered.length !== 1 ? 's' : ''}`}
+                  ? t('notificationsPage.allCaughtUp')
+                  : t('notificationsPage.count', { count: filtered.length })}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0 pt-0.5">
@@ -165,7 +165,7 @@ export default function NotificationsPage() {
                   className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[#E3E7EC] text-sm font-bold text-[#36213E] hover:border-[#8AC6D0] hover:text-[#8AC6D0] transition-colors"
                 >
                   <Check size={14} strokeWidth={2.5} />
-                  Mark all as read
+                  {t('notificationsPage.markAllRead')}
                 </button>
               )}
               <button className="w-10 h-10 rounded-xl border border-[#E3E7EC] flex items-center justify-center text-[#6F6878] hover:border-[#8AC6D0] hover:text-[#8AC6D0] transition-colors">
@@ -181,18 +181,19 @@ export default function NotificationsPage() {
                 <div className="w-12 h-12 rounded-full bg-[#EEF0F3] flex items-center justify-center mx-auto mb-3">
                   <Bell size={20} className="text-[#D5DAE0]" />
                 </div>
-                <p className="text-sm font-semibold text-[#6F6878]">No notifications here</p>
+                <p className="text-sm font-semibold text-[#6F6878]">{t('notificationsPage.none')}</p>
               </div>
             ) : (
               filtered.map(n => {
                 const { Icon, bg, color } = getIconStyle(n.type)
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={n.id}
                     onClick={() => handleClick(n)}
-                    className={`flex items-start gap-4 px-7 py-4 transition-colors ${
-                      n.linkTo ? 'cursor-pointer' : ''
-                    } ${n.isRead ? 'hover:bg-[#F3F4F6]' : 'bg-[#F3F4F6] hover:bg-[#E8F4F7]'}`}
+                    className={`flex w-full cursor-pointer items-start gap-4 px-7 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8AC6D0]/70 focus-visible:ring-inset ${
+                      n.isRead ? 'hover:bg-[#F3F4F6]' : 'bg-[#F3F4F6] hover:bg-[#E8F4F7]'
+                    }`}
                   >
                     {/* Icon with unread indicator */}
                     <div className="relative shrink-0 mt-0.5">
@@ -226,7 +227,7 @@ export default function NotificationsPage() {
                         <span className="w-2 h-2 rounded-full bg-[#8AC6D0] shrink-0" />
                       )}
                     </div>
-                  </div>
+                  </button>
                 )
               })
             )}
@@ -234,7 +235,7 @@ export default function NotificationsPage() {
 
           {filtered.length > 0 && (
             <div className="py-5 text-center text-xs text-[#6F6878] font-semibold border-t border-[#F3F4F6]">
-              No more notifications
+              {t('notificationsPage.noMore')}
             </div>
           )}
         </main>
