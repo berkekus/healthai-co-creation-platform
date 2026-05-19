@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Bell, Calendar, FileText, Menu, MessageSquare, Star, Users, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import { useConversationStore } from '../../store/conversationStore'
@@ -13,6 +14,22 @@ const resolveAvatar = (url?: string) => {
   if (!url) return undefined
   if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`
   return url
+}
+
+function LangToggle() {
+  const { i18n } = useTranslation()
+  const isTR = i18n.language === 'tr'
+  return (
+    <button
+      type="button"
+      onClick={() => i18n.changeLanguage(isTR ? 'en' : 'tr')}
+      className="h-10 px-3 rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center gap-1.5 text-xs font-black text-hai-plum"
+      title={isTR ? 'Switch to English' : 'Türkçeye geç'}
+    >
+      <span className="text-base leading-none">{isTR ? '🇹🇷' : '🇬🇧'}</span>
+      <span>{isTR ? 'TR' : 'EN'}</span>
+    </button>
+  )
 }
 
 function timeAgo(iso: string): string {
@@ -61,17 +78,18 @@ function NotifDropdown({
   onViewAll: () => void
   onNavigate: (linkTo?: string) => void
 }) {
+  const { t } = useTranslation()
   return (
     <div className="absolute right-0 top-[calc(100%+10px)] w-[340px] rounded-2xl border border-[#E3E7EC] bg-white shadow-[0_20px_60px_-20px_rgba(45,24,56,0.22)] z-[60] overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E7EC]">
-        <span className="text-sm font-black text-[#36213E]">Notifications</span>
+        <span className="text-sm font-black text-[#36213E]">{t('notif.title')}</span>
         {unread > 0 && (
           <button
             onClick={onMarkAllRead}
             className="text-xs font-bold text-[#1B7A88] hover:text-[#36213E] transition-colors"
           >
-            Mark all as read
+            {t('notif.markAllRead')}
           </button>
         )}
       </div>
@@ -82,7 +100,7 @@ function NotifDropdown({
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF0F3]">
             <Bell size={18} className="text-[#6F6878]" />
           </span>
-          <p className="text-sm font-semibold text-[#6F6878]">No notifications yet</p>
+          <p className="text-sm font-semibold text-[#6F6878]">{t('notif.empty')}</p>
         </div>
       ) : (
         <ul>
@@ -115,7 +133,7 @@ function NotifDropdown({
           onClick={onViewAll}
           className="flex items-center gap-1.5 text-sm font-bold text-[#1B7A88] hover:text-[#36213E] transition-colors"
         >
-          View all notifications
+          {t('notif.viewAll')}
           <span className="text-base leading-none">→</span>
         </button>
       </div>
@@ -124,6 +142,7 @@ function NotifDropdown({
 }
 
 export default function Navbar() {
+  const { t } = useTranslation()
   const { user, logout } = useAuthStore()
   const { unreadCount, fetchByUser: fetchNotifs, getByUser, markAllRead } = useNotificationStore()
   const { unreadCount: msgUnread, fetchUnreadCount } = useConversationStore()
@@ -162,11 +181,11 @@ export default function Navbar() {
   }
 
   const navLinks: { to: string; label: string }[] = [
-    { to: ROUTES.DASHBOARD, label: 'Dashboard' },
-    { to: ROUTES.POSTS,     label: 'Browse Posts' },
-    { to: ROUTES.MEETINGS,  label: 'Meetings' },
+    { to: ROUTES.DASHBOARD, label: t('nav.dashboard') },
+    { to: ROUTES.POSTS,     label: t('nav.browse') },
+    { to: ROUTES.MEETINGS,  label: t('nav.meetings') },
   ]
-  if (user?.role === 'admin') navLinks.push({ to: ROUTES.ADMIN, label: 'Admin' })
+  if (user?.role === 'admin') navLinks.push({ to: ROUTES.ADMIN, label: t('nav.admin') })
 
   const handleLogout = () => {
     logout()
@@ -244,7 +263,7 @@ export default function Navbar() {
                 to="/"
                 className="px-5 py-2.5 rounded-full text-sm font-bold text-neutral-600 hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out"
               >
-                Home
+                {t('nav.home')}
               </Link>
             </div>
           )}
@@ -331,13 +350,13 @@ export default function Navbar() {
                       </div>
                     </div>
                     <div className="p-2">
-                      <DropItem icon={<LayoutDashboard size={15} />} label="Dashboard" onClick={() => { navigate(ROUTES.DASHBOARD); setProfileOpen(false) }} />
-                      <DropItem icon={<User size={15} />}            label="Profile"   onClick={() => { navigate(ROUTES.PROFILE);   setProfileOpen(false) }} />
+                      <DropItem icon={<LayoutDashboard size={15} />} label={t('nav.dashboard')}  onClick={() => { navigate(ROUTES.DASHBOARD); setProfileOpen(false) }} />
+                      <DropItem icon={<User size={15} />}            label={t('nav.profile')}    onClick={() => { navigate(ROUTES.PROFILE);   setProfileOpen(false) }} />
                       {user.role === 'admin' && (
-                        <DropItem icon={<Settings size={15} />} label="Admin Panel" onClick={() => { navigate(ROUTES.ADMIN); setProfileOpen(false) }} />
+                        <DropItem icon={<Settings size={15} />} label={t('nav.adminPanel')} onClick={() => { navigate(ROUTES.ADMIN); setProfileOpen(false) }} />
                       )}
                       <div className="h-px bg-neutral-100 my-1" />
-                      <DropItem icon={<LogOut size={15} />} label="Sign out" onClick={handleLogout} danger />
+                      <DropItem icon={<LogOut size={15} />} label={t('nav.signOut')} onClick={handleLogout} danger />
                     </div>
                   </div>
                 )}
@@ -349,13 +368,13 @@ export default function Navbar() {
                 to={ROUTES.LOGIN}
                 className="hidden sm:inline-flex items-center px-4 py-2 rounded-full text-sm font-bold text-neutral-800 border border-neutral-300 hover:bg-neutral-100 transition-colors"
               >
-                Sign in
+                {t('nav.signIn')}
               </Link>
               <Link
                 to={ROUTES.REGISTER}
                 className="inline-flex items-center bg-hai-plum text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-black transition-colors"
               >
-                Sign Up
+                {t('nav.signUp')}
               </Link>
             </>
           )}
@@ -370,6 +389,9 @@ export default function Navbar() {
               {menuOpen ? <X size={17} /> : <Menu size={17} />}
             </button>
           )}
+
+          {/* Language toggle — always far right */}
+          <LangToggle />
         </div>
       </div>
 

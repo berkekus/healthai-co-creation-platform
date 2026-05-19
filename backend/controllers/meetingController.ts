@@ -120,6 +120,17 @@ export const cancelMeeting = asyncHandler<AuthenticatedRequest>(async (req, res)
   res.json({ success: true, data: meeting })
 })
 
+export const rescheduleMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
+  const { proposedSlots } = req.body
+  if (!Array.isArray(proposedSlots) || !proposedSlots.every(isValidSlot)) {
+    res.status(400).json({ success: false, message: 'At least 3 valid slots are required (date YYYY-MM-DD, time HH:MM)' })
+    return
+  }
+  const meeting = await meetingService.rescheduleMeeting(req.params.id, req.userId, proposedSlots)
+  log(req, LOG.MEETING_CANCEL, req.params.id)
+  res.json({ success: true, data: meeting })
+})
+
 export const completeMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const meeting = await meetingService.completeMeeting(req.params.id, req.userId)
   log(req, LOG.MEETING_COMPLETE, req.params.id)

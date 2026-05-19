@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { usePostStore } from '../../store/postStore'
 import { postCreateSchema, type PostCreateFormData } from '../../utils/validators'
@@ -10,6 +11,7 @@ import PostFormFields from '../../components/posts/PostFormFields'
 import { postDetail, ROUTES } from '../../constants/routes'
 
 export default function PostCreatePage() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const { create } = usePostStore()
   const navigate = useNavigate()
@@ -63,7 +65,7 @@ export default function PostCreatePage() {
           className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-[#6f6a76] transition hover:text-[#2d1838] disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ArrowLeft size={16} />
-          Back to directory
+          {t('createPost.backToDirectory')}
         </button>
 
         <div className="mb-12">
@@ -71,11 +73,10 @@ export default function PostCreatePage() {
             07&nbsp;&nbsp;New Post
           </div>
           <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#2d1838] sm:text-6xl">
-            Post a collaboration <span className="text-[#55bde0]">opportunity.</span>
+            {t('createPost.heading')}
           </h1>
           <p className="mt-5 text-base font-semibold leading-8 text-[#4f4a58] sm:text-lg">
-            Connect with the right partner across engineering and healthcare.<br />
-            No file uploads — details are shared in meetings under NDA.
+            {t('createPost.desc')}
           </p>
         </div>
 
@@ -92,7 +93,7 @@ export default function PostCreatePage() {
               onClick={() => setSubmitAction('draft')}
               className="h-14 rounded-full border border-[#2d1838] bg-white px-9 text-sm font-black text-[#2d1838] transition hover:bg-[#2d1838] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting && submitAction === 'draft' ? 'Saving draft…' : 'Save as draft'}
+              {isSubmitting && submitAction === 'draft' ? t('createPost.savingDraft') : t('createPost.saveDraft')}
             </button>
             <button
               type="submit"
@@ -101,8 +102,8 @@ export default function PostCreatePage() {
               className="inline-flex h-14 min-w-[250px] items-center justify-center gap-3 rounded-full bg-[#2d1838] px-9 text-sm font-black text-white shadow-[0_18px_42px_-28px_rgba(45,24,56,0.9)] transition hover:bg-[#1c1024] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting && submitAction === 'publish'
-                ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Publishing…</>
-                : <>Review &amp; publish <ArrowRight size={17} /></>
+                ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t('createPost.publishing')}</>
+                : <>{t('createPost.publish')} <ArrowRight size={17} /></>
               }
             </button>
           </div>

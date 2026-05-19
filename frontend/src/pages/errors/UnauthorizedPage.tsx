@@ -1,9 +1,11 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
 import PageWrapper from '../../components/layout/PageWrapper'
 import { useAuthStore } from '../../store/authStore'
 
 export default function UnauthorizedPage() {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuthStore()
@@ -18,25 +20,19 @@ export default function UnauthorizedPage() {
           <div className="inline-flex items-center gap-2 bg-red-50 border border-red-200 rounded-full px-4 py-1.5 mb-6 text-xs font-mono tracking-[0.16em] uppercase text-red-600 font-bold">
             <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
             <span className="text-red-600/70">Err</span>
-            <span>403 · Access restricted</span>
+            <span>{t('errors.unauthorized.code')}</span>
           </div>
 
           <div className="relative mb-4 leading-none">
-            <div
-              className="font-headline font-bold tracking-normal text-hai-plum select-none"
-              style={{ fontSize: 'clamp(120px, 22vw, 220px)', lineHeight: 0.85 }}
-              aria-hidden
-            >
+            <div className="font-headline font-bold tracking-normal text-hai-plum select-none" style={{ fontSize: 'clamp(120px, 22vw, 220px)', lineHeight: 0.85 }} aria-hidden>
               4<span className="text-red-500">0</span>3
             </div>
           </div>
 
           <h1 className="font-headline font-bold text-3xl md:text-5xl leading-tight tracking-normal text-hai-plum mb-3">
-            You don't have access<span className="text-red-500">.</span>
+            {t('errors.unauthorized.title')}<span className="text-red-500">.</span>
           </h1>
-          <p className="text-base text-neutral-600 leading-relaxed mb-2 max-w-xl">
-            This page is restricted to specific roles or account states. If you think this is a mistake, contact a platform administrator.
-          </p>
+          <p className="text-base text-neutral-600 leading-relaxed mb-2 max-w-xl">{t('errors.unauthorized.desc')}</p>
 
           <div className="mb-8 flex flex-wrap gap-2">
             {location.pathname && (
@@ -48,51 +44,36 @@ export default function UnauthorizedPage() {
             {isAuthenticated && user && (
               <span className="inline-flex items-center gap-1.5 bg-hai-mint rounded-full px-3 py-1.5 font-mono text-xs text-hai-plum font-bold">
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>badge</span>
-                Signed in as {user.role.replace('_', ' ')}
+                {t('errors.unauthorized.signedInAs', { role: user.role.replace('_', ' ') })}
               </span>
             )}
           </div>
 
-          {/* Action pills */}
           <div className="flex flex-wrap gap-2.5 mb-8">
-            <button
-              onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 bg-white border border-neutral-200 hover:border-hai-plum text-hai-plum rounded-full px-5 py-3 text-sm font-bold transition-colors"
-            >
+            <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 bg-white border border-neutral-200 hover:border-hai-plum text-hai-plum rounded-full px-5 py-3 text-sm font-bold transition-colors">
               <span className="material-symbols-outlined text-lg">arrow_back</span>
-              Go back
+              {t('errors.unauthorized.goBack')}
             </button>
             {isAuthenticated ? (
-              <Link
-                to={ROUTES.DASHBOARD}
-                className="inline-flex items-center gap-2 bg-hai-plum text-white hover:bg-black rounded-full px-5 py-3 text-sm font-bold transition-colors shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]"
-              >
+              <Link to={ROUTES.DASHBOARD} className="inline-flex items-center gap-2 bg-hai-plum text-white hover:bg-black rounded-full px-5 py-3 text-sm font-bold transition-colors shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]">
                 <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: '"FILL" 1' }}>dashboard</span>
-                Back to dashboard
+                {t('errors.unauthorized.backToDashboard')}
               </Link>
             ) : (
-              <Link
-                to={ROUTES.LOGIN}
-                className="inline-flex items-center gap-2 bg-hai-plum text-white hover:bg-black rounded-full px-5 py-3 text-sm font-bold transition-colors shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]"
-              >
+              <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-2 bg-hai-plum text-white hover:bg-black rounded-full px-5 py-3 text-sm font-bold transition-colors shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]">
                 <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: '"FILL" 1' }}>login</span>
-                Sign in
+                {t('errors.unauthorized.signIn')}
               </Link>
             )}
-            <a
-              href="mailto:admin@healthai.edu"
-              className="inline-flex items-center gap-2 bg-hai-cream text-hai-plum hover:bg-hai-cream/70 rounded-full px-5 py-3 text-sm font-bold transition-colors"
-            >
+            <a href="mailto:admin@healthai.edu" className="inline-flex items-center gap-2 bg-hai-cream text-hai-plum hover:bg-hai-cream/70 rounded-full px-5 py-3 text-sm font-bold transition-colors">
               <span className="material-symbols-outlined text-lg">support_agent</span>
-              Contact admin
+              {t('errors.unauthorized.contactAdmin')}
             </a>
           </div>
 
           <div className="border-t border-neutral-100 pt-5 flex items-start gap-3 text-xs text-neutral-500 leading-relaxed">
             <span className="material-symbols-outlined text-base text-hai-teal shrink-0 mt-0.5" style={{ fontVariationSettings: '"FILL" 1' }}>info</span>
-            <p>
-              Common reasons: account pending verification, suspended by admin, or the page requires elevated (admin) privileges.
-            </p>
+            <p>{t('errors.unauthorized.reasons')}</p>
           </div>
         </div>
       </div>
