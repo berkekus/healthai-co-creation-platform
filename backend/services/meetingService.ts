@@ -85,6 +85,10 @@ async function resolveUpdateFailure(
   throw makeError(`Cannot ${verb} a meeting with status: ${existing.status}`, 400)
 }
 
+export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot) {
+  const existing = await Meeting.findOne({ _id: id, ownerId, status: 'pending' })
+  if (!existing) await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
+
 // Step 1: owner accepts request → pending → time_proposed (no slot chosen yet)
 export async function acceptMeeting(id: string, ownerId: string) {
   const existing = await Meeting.findOne({ _id: id, ownerId, status: 'pending' })
@@ -138,8 +142,8 @@ export async function confirmMeetingSlot(id: string, ownerId: string, slot: ITim
   pushNotification({
     userId: meeting.requesterId.toString(),
     type: 'meeting_accepted',
-    title: 'Toplanti zamani onaylandi',
-    body: `${meeting.ownerName} toplanti zamanini onayladi. "${meeting.postTitle}"`,
+    title: 'Toplanti kabul edildi',
+    body: `${meeting.ownerName} toplanti talebinizi kabul etti. "${meeting.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 

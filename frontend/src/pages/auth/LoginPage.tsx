@@ -71,7 +71,7 @@ export default function LoginPage() {
   const quickLogin = (email: string, password: string) => {
     if (isLoading) return
     quickLoginRef.current = true
-    login({ email, password })
+    login({ email, password, rememberMe: true })
   }
 
   return (

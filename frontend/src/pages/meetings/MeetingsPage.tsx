@@ -334,6 +334,7 @@ function MeetingRow({
   const partner = isOwner ? meeting.requesterName : meeting.ownerName
   const partnerEmail = isOwner ? meeting.requesterEmail : meeting.ownerEmail
   const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
+  const shouldChooseSlot = meeting.status === 'pending' && isOwner && meeting.proposedSlots.length > 0
   const canAccept = meeting.status === 'pending' && isOwner
   const canChooseSlot = meeting.status === 'time_proposed' && isOwner && meeting.proposedSlots.length > 0
 
@@ -390,7 +391,7 @@ function MeetingRow({
       </div>
 
       <div className="space-y-2 text-sm font-bold text-[var(--muted)] max-lg:col-start-2">
-        {canChooseSlot ? (
+        {shouldChooseSlot ? (
           <>
             <div className="flex items-center gap-2">
               <Calendar size={16} className="text-[var(--primary)]" />
@@ -437,27 +438,16 @@ function MeetingRow({
           </div>
         ) : (
           <>
-            {canAccept && (
-              <div className="flex w-full flex-col items-end gap-2">
-                <ActionButton disabled={busy} onClick={onAccept} tone="primary">
-                  <Check size={14} />
-                  Accept request
-                </ActionButton>
-                <ActionButton disabled={busy} onClick={() => setConfirmMode('decline')} tone="quiet">
-                  Decline
-                </ActionButton>
-              </div>
-            )}
-            {canChooseSlot && (
+            {shouldChooseSlot && (
               <div className="flex w-full flex-col items-end gap-2">
                 <div className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">
-                  Confirm a proposed slot
+                  Choose a proposed slot
                 </div>
                 <div className="flex flex-wrap justify-end gap-2">
                   {meeting.proposedSlots.map(slotOption => (
-                    <ActionButton key={`${slotOption.date}-${slotOption.time}`} disabled={busy} onClick={() => onConfirm(slotOption)} tone="primary">
+                    <ActionButton key={`${slotOption.date}-${slotOption.time}`} disabled={busy} onClick={() => onAccept(slotOption)} tone="primary">
                       <Check size={14} />
-                      {formatSlotDate(slotOption)} {slotOption.time}
+                      {formatSlotChoice(slotOption)}
                     </ActionButton>
                   ))}
                 </div>
@@ -734,6 +724,14 @@ function formatSlotDate(slot: TimeSlot) {
     month: 'short',
     year: 'numeric',
   })
+}
+
+function formatSlotChoice(slot: TimeSlot) {
+  const date = new Date(`${slot.date}T${slot.time}`).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+  })
+  return `${date} - ${slot.time}`
 }
 
 function formatDate(value: string) {

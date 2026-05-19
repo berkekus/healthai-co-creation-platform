@@ -246,7 +246,7 @@ function RecentPosts({ posts }: { posts: Post[] }) {
     <div>
       <div className="mb-9 flex items-center justify-between">
         <h3 className="text-base font-black text-[#36213E]">Recent posts</h3>
-        <Link to={ROUTES.POSTS} className="flex items-center gap-6 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
+        <Link to={`${ROUTES.POSTS}?mine=true`} className="flex items-center gap-6 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
           View all
           <ArrowRight size={16} />
         </Link>
