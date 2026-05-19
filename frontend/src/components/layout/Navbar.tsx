@@ -273,7 +273,6 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
           {user ? (
             <>
-              <LangToggle />
               <ThemeToggle />
 
               {/* Messages */}
@@ -377,7 +376,6 @@ export default function Navbar() {
               >
                 {t('nav.signUp')}
               </Link>
-              <LangToggle />
             </>
           )}
 
@@ -391,6 +389,9 @@ export default function Navbar() {
               {menuOpen ? <X size={17} /> : <Menu size={17} />}
             </button>
           )}
+
+          {/* Language toggle — always far right */}
+          <LangToggle />
         </div>
       </div>
 
