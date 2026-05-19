@@ -17,6 +17,7 @@ import {
   SlidersHorizontal,
   Trash2,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import api from '../../lib/api'
 import { Skeleton, SkeletonLine, SkeletonPill } from '../../components/ui/Skeleton'
 import { ROUTES, postDetail } from '../../constants/routes'
@@ -93,6 +94,7 @@ const typeLabels: Record<CollaborationType, string> = {
 }
 
 export default function PostListPage() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const { posts, fetchPosts, isLoading, remove } = usePostStore()
   const { suggestions, isLoading: isMatching, load: loadSmartSuggestions, reset: resetSmartSuggestions } = useSmartSuggestions()
@@ -266,7 +268,7 @@ export default function PostListPage() {
                 className="inline-flex items-center gap-2 rounded-full border border-[#D5DAE0] bg-white px-4 py-2 text-xs font-black text-hai-plum hover:bg-hai-mint/30 transition-colors"
               >
                 <Bookmark size={13} />
-                Save this search
+                {t('posts.saveSearch')}
               </button>
             </div>
           )}

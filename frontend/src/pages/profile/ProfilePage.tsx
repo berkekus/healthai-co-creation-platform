@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import PageWrapper from '../../components/layout/PageWrapper'
 import FormField, { inputStyle } from '../../components/ui/FormField'
 import { ROUTES } from '../../constants/routes'
@@ -235,15 +236,16 @@ function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm:
   )
 }
 
-const NOTIF_OPTIONS: { key: keyof import('../types/auth.types').NotifPrefs; label: string; desc: string }[] = [
-  { key: 'meetingRequests',  label: 'Meeting requests',   desc: 'When someone requests a meeting on one of your posts' },
-  { key: 'meetingUpdates',   label: 'Meeting updates',    desc: 'When a meeting is accepted, declined, or cancelled' },
-  { key: 'interestReceived', label: 'Interest received',  desc: 'When someone expresses interest in your post' },
-  { key: 'adminMessages',    label: 'Admin messages',     desc: 'Platform announcements and moderation notices' },
-  { key: 'messages',         label: 'Chat messages',      desc: 'New messages in active meeting conversations' },
+const NOTIF_KEYS: { key: keyof import('../../types/auth.types').NotifPrefs; labelKey: string; descKey: string }[] = [
+  { key: 'meetingRequests',  labelKey: 'profile.notifOptions.meetingRequests',  descKey: 'profile.notifOptions.meetingRequestsDesc' },
+  { key: 'meetingUpdates',   labelKey: 'profile.notifOptions.meetingUpdates',   descKey: 'profile.notifOptions.meetingUpdatesDesc' },
+  { key: 'interestReceived', labelKey: 'profile.notifOptions.interestReceived', descKey: 'profile.notifOptions.interestReceivedDesc' },
+  { key: 'adminMessages',    labelKey: 'profile.notifOptions.adminMessages',    descKey: 'profile.notifOptions.adminMessagesDesc' },
+  { key: 'messages',         labelKey: 'profile.notifOptions.messages',         descKey: 'profile.notifOptions.messagesDesc' },
 ]
 
 function NotifPrefsSection() {
+  const { t } = useTranslation()
   const { user, updateNotifPrefs } = useAuthStore()
   const [saving, setSaving] = useState<string | null>(null)
 
@@ -263,14 +265,14 @@ function NotifPrefsSection() {
     <section className="border-b border-[#D5DAE0] py-9">
       <div className="mb-7 flex items-center gap-4">
         <span className="material-symbols-outlined text-xl text-hai-plum">notifications</span>
-        <h2 className="font-headline text-xl font-black leading-tight text-hai-plum">Notification preferences</h2>
+        <h2 className="font-headline text-xl font-black leading-tight text-hai-plum">{t('profile.notifPrefs')}</h2>
       </div>
       <div className="grid gap-3">
-        {NOTIF_OPTIONS.map(({ key, label, desc }) => (
+        {NOTIF_KEYS.map(({ key, labelKey, descKey }) => (
           <div key={key} className="flex items-center justify-between gap-6 rounded-2xl border border-[#D5DAE0] bg-white px-5 py-4">
             <div>
-              <p className="text-sm font-black text-hai-plum">{label}</p>
-              <p className="mt-0.5 text-xs font-semibold text-[#6F6878]">{desc}</p>
+              <p className="text-sm font-black text-hai-plum">{t(labelKey)}</p>
+              <p className="mt-0.5 text-xs font-semibold text-[#6F6878]">{t(descKey)}</p>
             </div>
             <button
               type="button"
@@ -294,17 +296,24 @@ function NotifPrefsSection() {
   )
 }
 
+const COMPLETION_ITEM_KEYS = [
+  { labelKey: 'profile.photo',         done: (u: NonNullable<ReturnType<typeof useAuthStore>['user']>) => !!u.avatarUrl,                  href: undefined },
+  { labelKey: 'profile.bioWritten',    done: (u: NonNullable<ReturnType<typeof useAuthStore>['user']>) => (u.bio?.length ?? 0) >= 30,       href: '#about' },
+  { labelKey: 'profile.expertiseTags', done: (u: NonNullable<ReturnType<typeof useAuthStore>['user']>) => u.expertiseTags.length >= 3,      href: '#expertise' },
+  { labelKey: 'profile.emailVerified', done: (u: NonNullable<ReturnType<typeof useAuthStore>['user']>) => u.isVerified,                     href: undefined },
+] as const
+
 const COMPLETION_ITEMS = (user: ReturnType<typeof useAuthStore>['user']) => {
   if (!user) return []
-  return [
-    { label: 'Profile photo', done: !!user.avatarUrl, href: undefined },
-    { label: 'Bio written', done: (user.bio?.length ?? 0) >= 30, href: '#about' },
-    { label: '3+ expertise tags', done: user.expertiseTags.length >= 3, href: '#expertise' },
-    { label: 'Email verified', done: user.isVerified, href: undefined },
-  ]
+  return COMPLETION_ITEM_KEYS.map(item => ({
+    labelKey: item.labelKey,
+    done: item.done(user),
+    href: item.href,
+  }))
 }
 
 function ProfileCompletionCard({ user }: { user: NonNullable<ReturnType<typeof useAuthStore>['user']> }) {
+  const { t } = useTranslation()
   const items = COMPLETION_ITEMS(user)
   const optionalDone = items.filter(i => i.done).length
   const score = 40 + Math.round((optionalDone / items.length) * 60)
@@ -334,15 +343,15 @@ function ProfileCompletionCard({ user }: { user: NonNullable<ReturnType<typeof u
           <text x={cx} y={cx + 1} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="900" fill="#36213E">{score}%</text>
         </svg>
         <div>
-          <p className="text-xs font-black text-hai-plum">Profile strength</p>
+          <p className="text-xs font-black text-hai-plum">{t('profile.strength')}</p>
           <p className="mt-0.5 text-xs font-semibold text-[#6F6878]">
-            {score === 100 ? 'Complete!' : score >= 70 ? 'Almost there' : 'Keep going'}
+            {score === 100 ? t('profile.complete') : score >= 70 ? t('profile.almostThere') : t('profile.keepGoing')}
           </p>
         </div>
       </div>
       <ul className="mt-3 space-y-1.5">
         {items.map(item => (
-          <li key={item.label} className="flex items-center gap-2">
+          <li key={item.labelKey} className="flex items-center gap-2">
             <span
               className="material-symbols-outlined text-sm"
               style={{ fontVariationSettings: '"FILL" 1', color: item.done ? '#6FB8C4' : '#D1D5DB' }}
@@ -350,9 +359,9 @@ function ProfileCompletionCard({ user }: { user: NonNullable<ReturnType<typeof u
               {item.done ? 'check_circle' : 'radio_button_unchecked'}
             </span>
             {item.href && !item.done ? (
-              <a href={item.href} className="text-xs font-semibold text-hai-teal underline-offset-2 hover:underline">{item.label}</a>
+              <a href={item.href} className="text-xs font-semibold text-hai-teal underline-offset-2 hover:underline">{t(item.labelKey)}</a>
             ) : (
-              <span className={`text-xs font-semibold ${item.done ? 'text-[#6F6878]' : 'text-hai-plum'}`}>{item.label}</span>
+              <span className={`text-xs font-semibold ${item.done ? 'text-[#6F6878]' : 'text-hai-plum'}`}>{t(item.labelKey)}</span>
             )}
           </li>
         ))}
@@ -362,6 +371,7 @@ function ProfileCompletionCard({ user }: { user: NonNullable<ReturnType<typeof u
 }
 
 export default function ProfilePage() {
+  const { t } = useTranslation()
   const { user, updateProfile, uploadAvatar, deleteAccount } = useAuthStore()
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -479,7 +489,7 @@ export default function ProfilePage() {
             {user.isVerified && (
               <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#E8F4F7] px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-hai-plum">
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>verified</span>
-                Verified
+                {t('common.verified')}
               </span>
             )}
             {avatarError && <p className="mt-3 text-xs font-semibold text-red-500">{avatarError}</p>}
@@ -488,15 +498,15 @@ export default function ProfilePage() {
           <ProfileCompletionCard user={user} />
 
           <nav className="mt-8 space-y-3 text-sm font-black text-hai-plum">
-            {[
-              ['person', 'Overview', '#identity'],
-              ['badge', 'Identity', '#identity'],
-              ['location_on', 'Location', '#location'],
-              ['chat_bubble_outline', 'About', '#about'],
-              ['star', 'Expertise', '#expertise'],
-              ['lock', 'Privacy & Data', '#data-account'],
-            ].map(([icon, label, href], index) => (
-              <a key={label} href={href} className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-[#E8F4F7] ${index === 0 ? 'bg-[#E8F4F7] text-[#6FB8C4]' : ''}`}>
+            {([
+              ['person', t('profile.identity'), '#identity'],
+              ['badge', t('profile.identity'), '#identity'],
+              ['location_on', t('profile.location'), '#location'],
+              ['chat_bubble_outline', t('profile.about'), '#about'],
+              ['star', t('profile.expertise'), '#expertise'],
+              ['lock', t('profile.privacy'), '#data-account'],
+            ] as [string, string, string][]).map(([icon, label, href], index) => (
+              <a key={label + index} href={href} className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-[#E8F4F7] ${index === 0 ? 'bg-[#E8F4F7] text-[#6FB8C4]' : ''}`}>
                 <span className="material-symbols-outlined text-lg">{icon}</span>
                 {label}
               </a>
@@ -504,11 +514,11 @@ export default function ProfilePage() {
           </nav>
 
           <div className="profile-help-card rounded-2xl bg-[#EEF0F3] p-4">
-            <div className="text-xs font-black text-hai-plum">Need help?</div>
-            <p className="mt-3 text-xs font-semibold leading-5 text-[#6F6878]">If you have any questions or need support, we're here to help.</p>
+            <div className="text-xs font-black text-hai-plum">{t('profile.help.title')}</div>
+            <p className="mt-3 text-xs font-semibold leading-5 text-[#6F6878]">{t('profile.help.desc')}</p>
             <button className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-[#D5DAE0] bg-white text-xs font-black text-hai-plum">
               <span className="material-symbols-outlined text-base">support_agent</span>
-              Contact support
+              {t('profile.help.contact')}
             </button>
           </div>
         </aside>
@@ -517,24 +527,24 @@ export default function ProfilePage() {
           <div className="flex items-start justify-between gap-8 pt-10">
             <div>
               <h1 className="font-headline text-5xl font-black leading-none tracking-normal text-hai-plum">
-                Your profile<span className="text-hai-teal">.</span>
+                {t('profile.title')}<span className="text-hai-teal">.</span>
               </h1>
-              <p className="mt-5 text-base font-semibold text-[#6F6878]">Manage your information and preferences.</p>
+              <p className="mt-5 text-base font-semibold text-[#6F6878]">{t('profile.subtitle')}</p>
             </div>
             {!isEditing ? (
               <button onClick={() => setIsEditing(true)} className="mt-1 inline-flex items-center gap-2 rounded-full bg-hai-plum px-7 py-3 text-sm font-black text-white shadow-[0_18px_36px_-22px_rgba(54,33,62,0.7)]">
                 <span className="material-symbols-outlined text-base">edit</span>
-                Edit profile
+                {t('profile.edit')}
               </button>
             ) : (
               <div className="flex gap-2">
-                <button type="button" onClick={handleCancel} className="rounded-full border border-[#D5DAE0] bg-white px-5 py-3 text-sm font-black text-hai-plum">Cancel</button>
-                <button form="profile-form" type="submit" className="rounded-full bg-hai-plum px-6 py-3 text-sm font-black text-white">Save changes</button>
+                <button type="button" onClick={handleCancel} className="rounded-full border border-[#D5DAE0] bg-white px-5 py-3 text-sm font-black text-hai-plum">{t('profile.cancel')}</button>
+                <button form="profile-form" type="submit" className="rounded-full bg-hai-plum px-6 py-3 text-sm font-black text-white">{t('profile.save')}</button>
               </div>
             )}
           </div>
 
-          {saved && <div className="mt-7 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 px-5 py-4 text-sm font-bold text-hai-plum">Profile updated successfully.</div>}
+          {saved && <div className="mt-7 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 px-5 py-4 text-sm font-bold text-hai-plum">{t('profile.saved')}</div>}
 
           <div className="mt-10 flex items-center justify-between gap-6 rounded-[22px] bg-[#E8F4F7] px-7 py-8">
             <div className="flex items-center gap-5">
@@ -550,61 +560,61 @@ export default function ProfilePage() {
           </div>
 
           <form id="profile-form" onSubmit={handleSubmit(onSubmit)} noValidate className="mt-9">
-            <Section id="identity" icon="badge" title="Identity">
+            <Section id="identity" icon="badge" title={t('profile.identity')}>
               {isEditing ? (
                 <div className="grid gap-4">
-                  <FormField label="Full name" error={errors.name?.message} required>
+                  <FormField label={t('profile.fields.fullName')} error={errors.name?.message} required>
                     <input {...register('name')} type="text" style={inputStyle(errors.name?.message)} onFocus={onInputFocus(!!errors.name)} onBlur={onInputBlur(!!errors.name)} />
                   </FormField>
-                  <FormField label="Institution" error={errors.institution?.message} required>
+                  <FormField label={t('profile.fields.institution')} error={errors.institution?.message} required>
                     <input {...register('institution')} type="text" style={inputStyle(errors.institution?.message)} onFocus={onInputFocus(!!errors.institution)} onBlur={onInputBlur(!!errors.institution)} />
                   </FormField>
                 </div>
               ) : (
                 <div className="grid gap-3">
-                  <FieldRow label="Full name">{user.name}</FieldRow>
-                  <FieldRow label="Institution">{user.institution}</FieldRow>
-                  <FieldRow label="Professional email">
+                  <FieldRow label={t('profile.fields.fullName')}>{user.name}</FieldRow>
+                  <FieldRow label={t('profile.fields.institution')}>{user.institution}</FieldRow>
+                  <FieldRow label={t('profile.fields.email')}>
                     <span className="inline-flex flex-wrap items-center gap-2">
                       {user.email}
                       <span className="rounded-full bg-[#E8F4F7] px-2 py-0.5 text-xs font-black uppercase tracking-[0.12em] text-[#6F6878]">.edu only</span>
                     </span>
                   </FieldRow>
-                  <FieldRow label="Member since">{memberSince}</FieldRow>
+                  <FieldRow label={t('profile.fields.memberSince')}>{memberSince}</FieldRow>
                 </div>
               )}
             </Section>
 
-            <Section id="location" icon="location_on" title="Location">
+            <Section id="location" icon="location_on" title={t('profile.location')}>
               {isEditing ? (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField label="City" error={errors.city?.message} required>
+                  <FormField label={t('profile.fields.city')} error={errors.city?.message} required>
                     <input {...register('city')} type="text" style={inputStyle(errors.city?.message)} onFocus={onInputFocus(!!errors.city)} onBlur={onInputBlur(!!errors.city)} />
                   </FormField>
-                  <FormField label="Country" error={errors.country?.message} required>
+                  <FormField label={t('profile.fields.country')} error={errors.country?.message} required>
                     <input {...register('country')} type="text" style={inputStyle(errors.country?.message)} onFocus={onInputFocus(!!errors.country)} onBlur={onInputBlur(!!errors.country)} />
                   </FormField>
                 </div>
               ) : (
                 <div className="grid gap-3">
-                  <FieldRow label="City">{user.city || <span className="text-neutral-400">Not set</span>}</FieldRow>
-                  <FieldRow label="Country">{user.country || <span className="text-neutral-400">Not set</span>}</FieldRow>
-                  <FieldRow label="Region visibility">Visible to members <span className="material-symbols-outlined ml-1 align-middle text-base">visibility</span></FieldRow>
+                  <FieldRow label={t('profile.fields.city')}>{user.city || <span className="text-neutral-400">{t('common.noData')}</span>}</FieldRow>
+                  <FieldRow label={t('profile.fields.country')}>{user.country || <span className="text-neutral-400">{t('common.noData')}</span>}</FieldRow>
+                  <FieldRow label={t('profile.fields.regionVisibility')}>Visible to members <span className="material-symbols-outlined ml-1 align-middle text-base">visibility</span></FieldRow>
                 </div>
               )}
             </Section>
 
-            <Section id="about" icon="chat_bubble_outline" title="About" subtitle="Briefly describe your background, interests, and what you bring to collaborations.">
+            <Section id="about" icon="chat_bubble_outline" title={t('profile.about')}>
               {isEditing ? (
-                <FormField label="Bio" hint="Optional - max 400 chars" error={errors.bio?.message}>
-                  <textarea {...register('bio')} rows={5} placeholder="Briefly describe your background and interests..." style={{ ...inputStyle(errors.bio?.message), resize: 'vertical', lineHeight: 1.6 }} onFocus={onInputFocus(!!errors.bio)} onBlur={onInputBlur(!!errors.bio)} />
+                <FormField label={t('profile.fields.bio')} hint={t('profile.fields.bioHint')} error={errors.bio?.message}>
+                  <textarea {...register('bio')} rows={5} placeholder={t('profile.fields.bioPlaceholder')} style={{ ...inputStyle(errors.bio?.message), resize: 'vertical', lineHeight: 1.6 }} onFocus={onInputFocus(!!errors.bio)} onBlur={onInputBlur(!!errors.bio)} />
                 </FormField>
               ) : (
-                <p className="max-w-[650px] text-base font-semibold leading-7 text-hai-plum">{user.bio || 'No bio added yet.'}</p>
+                <p className="max-w-[650px] text-base font-semibold leading-7 text-hai-plum">{user.bio || t('common.noData')}</p>
               )}
             </Section>
 
-            <Section id="expertise" icon="star" title="Expertise" subtitle="These tags help others find you for relevant opportunities.">
+            <Section id="expertise" icon="star" title={t('profile.expertise')}>
               {isEditing && (
                 <div className="mb-4">
                   <TagAutocomplete
@@ -621,7 +631,7 @@ export default function ProfilePage() {
                     {tag}
                     {isEditing && <button type="button" onClick={() => setTags(prev => prev.filter(item => item !== tag))} className="text-sm">x</button>}
                   </span>
-                )) : <span className="text-sm font-semibold italic text-neutral-400">No expertise tags added yet.</span>}
+                )) : <span className="text-sm font-semibold italic text-neutral-400">{t('common.noData')}</span>}
               </div>
             </Section>
           </form>
@@ -631,10 +641,10 @@ export default function ProfilePage() {
           <section id="data-account" className="py-9">
             <div className="mb-5 flex items-center gap-4">
               <span className="material-symbols-outlined text-xl text-hai-plum">lock</span>
-              <h2 className="font-headline text-xl font-black text-hai-plum">Data & Account</h2>
+              <h2 className="font-headline text-xl font-black text-hai-plum">{t('profile.data.title')}</h2>
             </div>
 
-            {exportSuccess && <div className="mb-4 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 p-3.5 text-sm font-bold text-hai-plum">Your data export has started. Check your downloads.</div>}
+            {exportSuccess && <div className="mb-4 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 p-3.5 text-sm font-bold text-hai-plum">{t('profile.data.export')}</div>}
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div className="rounded-[22px] bg-white/82 p-6 shadow-[0_28px_74px_-60px_rgba(54,33,62,0.36)]">
@@ -643,12 +653,12 @@ export default function ProfilePage() {
                     <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>download</span>
                   </div>
                   <div>
-                    <div className="mb-2 font-headline text-lg font-bold leading-tight text-hai-plum">Export my data</div>
-                    <p className="mb-4 text-sm leading-relaxed text-neutral-600">Download your profile, posts and meetings as a portable JSON file.</p>
-                    <div className="mb-4 text-xs font-semibold text-neutral-400">GDPR Art. 20 - Right to data portability</div>
+                    <div className="mb-2 font-headline text-lg font-bold leading-tight text-hai-plum">{t('profile.data.export')}</div>
+                    <p className="mb-4 text-sm leading-relaxed text-neutral-600">{t('profile.data.exportDesc')}</p>
+                    <div className="mb-4 text-xs font-semibold text-neutral-400">{t('profile.data.gdpr20')}</div>
                     <button type="button" onClick={handleExport} className="inline-flex items-center gap-2 rounded-full bg-hai-plum px-5 py-2.5 text-xs font-black text-white hover:bg-black">
                       <span className="material-symbols-outlined text-base">file_download</span>
-                      Export JSON
+                      {t('profile.data.exportBtn')}
                     </button>
                   </div>
                 </div>
@@ -660,12 +670,12 @@ export default function ProfilePage() {
                     <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>delete_forever</span>
                   </div>
                   <div>
-                    <div className="mb-2 font-headline text-lg font-bold leading-tight text-red-600">Delete account</div>
-                    <p className="mb-4 text-sm leading-relaxed text-neutral-600">Permanently remove your account and all associated data. This action cannot be undone.</p>
-                    <div className="mb-4 text-xs font-semibold text-neutral-400">GDPR Art. 17 - Right to erasure</div>
+                    <div className="mb-2 font-headline text-lg font-bold leading-tight text-red-600">{t('profile.data.delete')}</div>
+                    <p className="mb-4 text-sm leading-relaxed text-neutral-600">{t('profile.data.deleteDesc')}</p>
+                    <div className="mb-4 text-xs font-semibold text-neutral-400">{t('profile.data.gdpr17')}</div>
                     <button type="button" onClick={() => setShowDelete(true)} className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white px-5 py-2.5 text-xs font-black text-red-600 hover:bg-red-50">
                       <span className="material-symbols-outlined text-base">warning</span>
-                      Delete account
+                      {t('profile.data.deleteBtn')}
                     </button>
                   </div>
                 </div>
