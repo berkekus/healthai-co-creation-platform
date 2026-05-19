@@ -19,7 +19,7 @@ export default function FormField({ label, error, required, hint, children }: Fo
           {required && <span className="text-red-600 ml-0.5">*</span>}
         </span>
         {hint && (
-          <span className="text-xs font-mono tracking-[0.12em]r uppercase text-neutral-400">
+          <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-400">
             {hint}
           </span>
         )}
