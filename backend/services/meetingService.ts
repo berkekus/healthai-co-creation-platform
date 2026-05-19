@@ -85,47 +85,72 @@ async function resolveUpdateFailure(
   throw makeError(`Cannot ${verb} a meeting with status: ${existing.status}`, 400)
 }
 
-export async function acceptMeeting(id: string, ownerId: string, slot: ITimeSlot) {
-  const meeting = await Meeting.findOneAndUpdate(
-    { _id: id, ownerId, status: 'pending' },
-    { $set: { status: 'confirmed', confirmedSlot: slot } },
-    { new: true },
+// Step 1: owner accepts request → pending → time_proposed (no slot chosen yet)
+export async function acceptMeeting(id: string, ownerId: string) {
+  const existing = await Meeting.findOne({ _id: id, ownerId, status: 'pending' })
+  if (!existing) await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
+
+  existing!.status = 'time_proposed'
+  const meeting = await existing!.save()
+
+  pushNotification({
+    userId: meeting.requesterId.toString(),
+    type: 'meeting_accepted',
+    title: 'Toplanti kabul edildi',
+    body: `${meeting.ownerName} toplanti talebinizi kabul etti. Zaman dilimi onayini bekliyor. "${meeting.postTitle}"`,
+    linkTo: `/meetings`,
+  }).catch(() => {})
+
+  return (await withEmails([meeting]))[0]
+}
+
+// Step 2: owner confirms a slot → time_proposed → confirmed
+export async function confirmMeetingSlot(id: string, ownerId: string, slot: ITimeSlot) {
+  const existing = await Meeting.findOne({ _id: id, ownerId, status: 'time_proposed' })
+  if (!existing) await resolveUpdateFailure(id, ownerId, 'ownerId', 'confirm')
+
+  const slotWasProposed = existing!.proposedSlots.some(
+    proposed => proposed.date === slot.date && proposed.time === slot.time,
   )
-  if (!meeting) await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
+  if (!slotWasProposed) throw makeError('Confirmed slot must be one of the proposed slots', 400)
 
-  recomputePostStatus(meeting!.postId.toString()).catch(() => {})
+  existing!.status = 'confirmed'
+  existing!.confirmedSlot = slot
+  const meeting = await existing!.save()
 
-  const requesterUser = await User.findById(meeting!.requesterId).select('role').lean()
-  const ownerUser     = await User.findById(meeting!.ownerId).select('role').lean()
+  recomputePostStatus(meeting.postId.toString()).catch(() => {})
+
+  const requesterUser = await User.findById(meeting.requesterId).select('role').lean()
+  const ownerUser     = await User.findById(meeting.ownerId).select('role').lean()
 
   createConversation({
-    meetingId:     meeting!.id,
-    postId:        meeting!.postId.toString(),
-    postTitle:     meeting!.postTitle,
-    requesterId:   meeting!.requesterId.toString(),
-    requesterName: meeting!.requesterName,
+    meetingId:     meeting.id,
+    postId:        meeting.postId.toString(),
+    postTitle:     meeting.postTitle,
+    requesterId:   meeting.requesterId.toString(),
+    requesterName: meeting.requesterName,
     requesterRole: requesterUser?.role ?? 'engineer',
-    ownerId:       meeting!.ownerId.toString(),
-    ownerName:     meeting!.ownerName,
+    ownerId:       meeting.ownerId.toString(),
+    ownerName:     meeting.ownerName,
     ownerRole:     ownerUser?.role ?? 'healthcare_professional',
   }).catch(() => {})
 
   pushNotification({
-    userId: meeting!.requesterId.toString(),
+    userId: meeting.requesterId.toString(),
     type: 'meeting_accepted',
-    title: 'Toplanti kabul edildi',
-    body: `${meeting!.ownerName} toplanti talebinizi kabul etti. "${meeting!.postTitle}"`,
+    title: 'Toplanti zamani onaylandi',
+    body: `${meeting.ownerName} toplanti zamanini onayladi. "${meeting.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
-  return (await withEmails([meeting!]))[0]
+  return (await withEmails([meeting]))[0]
 }
 
 export async function declineMeeting(id: string, ownerId: string, reason?: string) {
   const update: Record<string, unknown> = { status: 'declined' }
   if (reason) update.declineReason = reason
   const meeting = await Meeting.findOneAndUpdate(
-    { _id: id, ownerId, status: 'pending' },
+    { _id: id, ownerId, status: { $in: ['pending', 'time_proposed'] } },
     { $set: update },
     { new: true },
   )

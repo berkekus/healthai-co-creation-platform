@@ -27,7 +27,7 @@ router.delete('/me', protect, deleteAccount)
 router.get('/me/export', protect, exportMyData)
 router.get('/users', protect, adminOnly, getAllUsers)
 router.get('/users/:id', protect, getUserById)
-router.put('/users/:id/suspend', protect, adminOnly, setSuspended)
+router.patch('/users/:id/suspend', protect, adminOnly, setSuspended)
 router.delete('/users/:id', protect, adminOnly, deleteUser)
 
 export default router

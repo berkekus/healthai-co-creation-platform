@@ -8,6 +8,7 @@ type Tone = { label: string; bg: string; text: string; dot: string; icon: string
 
 const STATUS_CONFIG: Record<MeetingStatus, Tone> = {
   pending:       { label: 'Pending review',  bg: 'bg-hai-lime',          text: 'text-hai-plum',    dot: 'bg-hai-plum',    icon: 'pending' },
+  time_proposed: { label: 'Slot selection',  bg: 'bg-amber-50',          text: 'text-amber-700',   dot: 'bg-amber-400',   icon: 'schedule' },
   confirmed:     { label: 'Confirmed',       bg: 'bg-hai-plum',          text: 'text-hai-mint',    dot: 'bg-hai-mint',    icon: 'check_circle' },
   completed:     { label: 'Completed',       bg: 'bg-hai-teal',          text: 'text-hai-plum',    dot: 'bg-hai-plum',    icon: 'task_alt' },
   declined:      { label: 'Declined',        bg: 'bg-red-50',            text: 'text-red-600',     dot: 'bg-red-500',     icon: 'block' },
@@ -53,7 +54,7 @@ interface Props { meeting: Meeting }
 
 export default function MeetingCard({ meeting }: Props) {
   const { user } = useAuthStore()
-  const { accept, decline, cancel, complete } = useMeetingStore()
+  const { accept, confirm, decline, cancel, complete } = useMeetingStore()
   const navigate = useNavigate()
 
   const isOwner     = user?.id === meeting.ownerId
@@ -63,15 +64,13 @@ export default function MeetingCard({ meeting }: Props) {
   const partnerName = isOwner ? meeting.requesterName : meeting.ownerName
   const partnerInitials = partnerName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
 
-  const canAct = meeting.status === 'pending'
+  const canAccept = meeting.status === 'pending' && isOwner
+  const canChooseSlot = meeting.status === 'time_proposed' && isOwner
   const partnerEmail = isOwner ? meeting.requesterEmail : meeting.ownerEmail
 
-  const handleAccept = (slot: TimeSlot) => {
-    accept(meeting.id, slot)
-  }
-  const handleDecline = () => {
-    decline(meeting.id)
-  }
+  const handleAccept = () => accept(meeting.id)
+  const handleConfirm = (slot: TimeSlot) => confirm(meeting.id, slot)
+  const handleDecline = () => decline(meeting.id)
   const handleCancel = () => cancel(meeting.id)
 
   return (
@@ -155,52 +154,68 @@ export default function MeetingCard({ meeting }: Props) {
         </div>
       )}
 
-      {/* Proposed slots */}
-      {canAct && (
+      {/* Step 1: pending — accept or decline */}
+      {canAccept && (
+        <div className="px-5 md:px-6 py-3 border-t border-neutral-100 bg-hai-offwhite/50 flex items-center gap-2 justify-end flex-wrap">
+          <button
+            onClick={handleDecline}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-red-200 text-red-600 text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-red-50 transition-colors"
+          >
+            <span className="material-symbols-outlined text-sm">block</span>
+            Decline
+          </button>
+          <button
+            onClick={handleAccept}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-hai-plum text-hai-mint text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-black transition-colors"
+          >
+            <span className="material-symbols-outlined text-sm">check_circle</span>
+            Accept request
+          </button>
+        </div>
+      )}
+
+      {/* Step 2: time_proposed — choose a slot */}
+      {canChooseSlot && (
         <div className="px-5 md:px-6 pb-4">
           <div className="text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2 flex items-center gap-1.5">
             <span className="material-symbols-outlined text-sm">schedule</span>
-            Proposed time slots · {meeting.proposedSlots.length}
+            Confirm a time slot · {meeting.proposedSlots.length} options
           </div>
           <div className="flex flex-col gap-2">
             {meeting.proposedSlots.map((slot, i) => (
               <SlotChip
                 key={i}
                 slot={slot}
-                onAccept={isOwner ? () => handleAccept(slot) : undefined}
+                onAccept={() => handleConfirm(slot)}
               />
             ))}
           </div>
-          {!isOwner && (
-            <p className="mt-3 text-xs font-mono tracking-[0.12em] text-neutral-500 leading-relaxed flex items-start gap-1.5">
-              <span className="material-symbols-outlined text-sm mt-px">hourglass_top</span>
-              Waiting for {meeting.ownerName} to confirm one of your proposed slots.
-            </p>
-          )}
+          <button
+            onClick={handleDecline}
+            className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-red-200 text-red-600 text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-red-50 transition-colors"
+          >
+            <span className="material-symbols-outlined text-sm">block</span>
+            Decline
+          </button>
         </div>
       )}
 
-      {/* Actions */}
-      {canAct && (isOwner || (isRequester && meeting.status === 'pending')) && (
-        <div className="px-5 md:px-6 py-3 border-t border-neutral-100 bg-hai-offwhite/50 flex items-center gap-2 justify-end flex-wrap">
-          {isOwner && (
-            <button
-              onClick={handleDecline}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-red-200 text-red-600 text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-red-50 transition-colors"
-            >
-              <span className="material-symbols-outlined text-sm">block</span>
-              Decline
-            </button>
+      {/* Requester cancel for pending / time_proposed */}
+      {isRequester && (meeting.status === 'pending' || meeting.status === 'time_proposed') && (
+        <div className="px-5 md:px-6 py-3 border-t border-neutral-100 bg-hai-offwhite/50 flex items-center gap-2 justify-end">
+          {meeting.status === 'time_proposed' && (
+            <p className="mr-auto text-xs font-mono tracking-[0.12em] text-neutral-500 flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">hourglass_top</span>
+              Waiting for slot confirmation
+            </p>
           )}
-          {isRequester && meeting.status === 'pending' && (
-            <button
-              onClick={handleCancel}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-neutral-200 text-neutral-500 text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-neutral-100 transition-colors"
-            >
-              <span className="material-symbols-outlined text-sm">cancel</span>
-              Cancel request
-            </button>
-          )}
+          <button
+            onClick={handleCancel}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-neutral-200 text-neutral-500 text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-neutral-100 transition-colors"
+          >
+            <span className="material-symbols-outlined text-sm">cancel</span>
+            Cancel request
+          </button>
         </div>
       )}
     </article>

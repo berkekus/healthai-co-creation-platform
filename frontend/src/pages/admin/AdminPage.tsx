@@ -570,7 +570,7 @@ export default function AdminPage() {
     if (!target) return
     const next = !target.isSuspended
     try {
-      await api.put(`/auth/users/${userId}/suspend`, { isSuspended: next })
+      await api.patch(`/auth/users/${userId}/suspend`, { isSuspended: next })
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, isSuspended: next } : u))
       if (next) push({ userId, type: 'post_closed', title: 'Account suspended', body: 'Your account has been suspended.', isRead: false })
     } catch (err: unknown) {
