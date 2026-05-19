@@ -172,11 +172,8 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
           icon={<Plus size={18} strokeWidth={2.5} />}
           className="max-w-[292px] justify-start gap-5 px-7 shadow-[0_18px_30px_-18px_rgba(45,24,56,0.82)]"
         >
-          Post an opportunity
-        </ButtonLink>
-          <Plus size={18} strokeWidth={2.5} />
           {t('dashboard.postOpportunity')}
-        </Link>
+        </ButtonLink>
       </div>
     </div>
   )
@@ -348,17 +345,12 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
           <Card key={post.id} padding="sm" interactive className="group relative rounded-[20px]">
             <IconButton
               onClick={() => unsave(post.id)}
-              label="Remove from saved"
+              label={t('dashboard.removeFromSaved')}
               icon={<Bookmark size={15} fill="#8AC6D0" />}
               variant="ghost"
               size="sm"
               className="absolute right-3 top-3 text-[#1B7A88] opacity-0 group-hover:opacity-100 hover:text-[#36213E]"
             />
-              className="absolute right-4 top-4 text-[#1B7A88] opacity-0 group-hover:opacity-100 transition hover:text-[#36213E]"
-              title={t('dashboard.removeFromSaved')}
-            >
-              <Bookmark size={15} fill="#8AC6D0" />
-            </button>
             <Link to={`/posts/${post.id}`} className="block">
               <div className="mb-2 line-clamp-2 text-[14.5px] font-black text-[#36213E] leading-snug pr-6">
                 {post.title}
@@ -380,11 +372,8 @@ function StatusPill({ status }: { status: Post['status'] }) {
   const { t } = useTranslation()
   return (
     <Badge variant="primary" size="sm" className="mt-1 px-4 py-1.5 text-center text-[#E8F4F7]">
-      {labels[status]}
-    </Badge>
-    <span className="mt-1 rounded-full bg-[#36213E] px-4 py-1.5 text-center text-xs font-black uppercase tracking-[0.12em] text-[#E8F4F7]">
       {t(`dashboard.status.${status}`, { defaultValue: status })}
-    </span>
+    </Badge>
   )
 }
 

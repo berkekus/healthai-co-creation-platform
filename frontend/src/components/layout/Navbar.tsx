@@ -309,7 +309,7 @@ export default function Navbar() {
                   onBlur={handleNotifLeave}
                   label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
                   aria-expanded={notifOpen}
-                  aria-haspopup="true"
+                  aria-haspopup="listbox"
                   size="lg"
                   icon={(
                     <>
@@ -320,14 +320,6 @@ export default function Navbar() {
                         </span>
                       )}
                     </>
-                  aria-haspopup="listbox"
-                  className="relative w-12 h-12 cursor-pointer rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center justify-center text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal/70 focus-visible:ring-offset-2"
-                >
-                  <Bell size={17} />
-                  {unread > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-hai-plum text-hai-mint rounded-full flex items-center justify-center text-xs font-mono font-bold border-2 border-white">
-                      {unread > 9 ? '9+' : unread}
-                    </span>
                   )}
                 />
 
@@ -407,11 +399,6 @@ export default function Navbar() {
               icon={menuOpen ? <X size={17} /> : <Menu size={17} />}
               className="md:hidden"
             />
-              aria-label="Toggle menu"
-              className="md:hidden w-10 h-10 cursor-pointer rounded-full border border-neutral-200 bg-white text-neutral-700 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal/70 focus-visible:ring-offset-2"
-            >
-              {menuOpen ? <X size={17} /> : <Menu size={17} />}
-            </button>
           )}
 
           {/* Language toggle — always far right */}

@@ -833,10 +833,9 @@ export default function LandingPage() {
                         src="/images/engineer-portrait.png"
                         alt=""
                         aria-hidden="true"
-                        className="landing-portrait-image absolute inset-0 w-full h-full object-cover"
                         loading="lazy"
                         decoding="async"
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="landing-portrait-image absolute inset-0 w-full h-full object-cover"
                         style={{ objectPosition: '50% 15%' }}
                       />
                       <div className="landing-card-topfade-engineer absolute inset-x-0 top-0 h-16" />
@@ -881,10 +880,9 @@ export default function LandingPage() {
                         src="/images/clinician-portrait.png"
                         alt=""
                         aria-hidden="true"
-                        className="landing-portrait-image absolute inset-0 w-full h-full object-cover"
                         loading="lazy"
                         decoding="async"
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="landing-portrait-image absolute inset-0 w-full h-full object-cover"
                         style={{ objectPosition: '65% 15%' }}
                       />
                       <div className="landing-card-topfade-clinician absolute inset-x-0 top-0 h-16" />
@@ -928,7 +926,6 @@ export default function LandingPage() {
             {/* Giant "Platform" wordmark — on off-white, uses ghost tone */}
             <div className="mt-16 text-center md:mt-24">
               <h2 className="landing-ghost-word text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-normal">
-              <h2 className="text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-normal text-[#008EA2]">
                 Platform
               </h2>
             </div>
