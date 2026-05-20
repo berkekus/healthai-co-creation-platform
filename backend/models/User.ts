@@ -8,6 +8,7 @@ export interface INotifPrefs {
   interestReceived: boolean
   adminMessages: boolean
   messages: boolean
+  weeklyDigest: boolean
 }
 
 export type BadgeId =
@@ -54,6 +55,7 @@ const NotifPrefsSchema = new Schema<INotifPrefs>(
     interestReceived: { type: Boolean, default: true },
     adminMessages:    { type: Boolean, default: true },
     messages:         { type: Boolean, default: true },
+    weeklyDigest:     { type: Boolean, default: false },
   },
   { _id: false }
 )

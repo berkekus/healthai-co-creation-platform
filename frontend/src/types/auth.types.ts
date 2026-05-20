@@ -6,6 +6,7 @@ export interface NotifPrefs {
   interestReceived: boolean
   adminMessages: boolean
   messages: boolean
+  weeklyDigest: boolean
 }
 
 export interface User {

@@ -18,6 +18,7 @@ import { useMeetingStore } from '../../store/meetingStore'
 import { useConversationStore } from '../../store/conversationStore'
 import type { Meeting, MeetingStatus, TimeSlot } from '../../types/meeting.types'
 import api from '../../lib/api'
+import { exportSummaryToPdf } from '../../utils/pdfExport'
 
 type TabId = 'all' | 'incoming' | 'outgoing' | 'pending' | 'confirmed' | 'cancelled'
 type SortMode = 'recent' | 'oldest'
@@ -496,7 +497,7 @@ function MeetingRow({
               </>
             )}
             {meeting.status === 'completed' && (
-              <MeetingSummaryButton meetingId={meeting.id} />
+              <MeetingSummaryButton meetingId={meeting.id} postTitle={meeting.postTitle} />
             )}
             {(meeting.status === 'cancelled' || meeting.status === 'declined') && (
               <span className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">
@@ -522,7 +523,7 @@ interface AiSummaryData {
   generatedAt: string
 }
 
-function MeetingSummaryButton({ meetingId }: { meetingId: string }) {
+function MeetingSummaryButton({ meetingId, postTitle }: { meetingId: string; postTitle: string }) {
   const [loading, setLoading] = useState(false)
   const [summary, setSummary] = useState<AiSummaryData | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -587,9 +588,19 @@ function MeetingSummaryButton({ meetingId }: { meetingId: string }) {
               </ul>
             </div>
           )}
-          <p className="mt-3 text-[10px] text-[#9CA3AF]">
-            {t('meetings.summaryGenerated', 'Generated')} {new Date(summary.generatedAt).toLocaleDateString()}
-          </p>
+          <div className="mt-3 flex items-center justify-between">
+            <p className="text-[10px] text-[#9CA3AF]">
+              {t('meetings.summaryGenerated', 'Generated')} {new Date(summary.generatedAt).toLocaleDateString()}
+            </p>
+            <button
+              type="button"
+              onClick={() => exportSummaryToPdf({ postTitle, ...summary })}
+              className="inline-flex items-center gap-1 text-[10px] font-black text-[#9CA3AF] hover:text-hai-teal"
+            >
+              <span className="material-symbols-outlined text-xs">picture_as_pdf</span>
+              Export PDF
+            </button>
+          </div>
         </div>
       )}
     </div>

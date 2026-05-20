@@ -243,6 +243,7 @@ const NOTIF_KEYS: { key: keyof import('../../types/auth.types').NotifPrefs; labe
   { key: 'interestReceived', labelKey: 'profile.notifOptions.interestReceived', descKey: 'profile.notifOptions.interestReceivedDesc' },
   { key: 'adminMessages',    labelKey: 'profile.notifOptions.adminMessages',    descKey: 'profile.notifOptions.adminMessagesDesc' },
   { key: 'messages',         labelKey: 'profile.notifOptions.messages',         descKey: 'profile.notifOptions.messagesDesc' },
+  { key: 'weeklyDigest',     labelKey: 'profile.notifOptions.weeklyDigest',     descKey: 'profile.notifOptions.weeklyDigestDesc' },
 ]
 
 function NotifPrefsSection() {
@@ -250,7 +251,7 @@ function NotifPrefsSection() {
   const { user, updateNotifPrefs } = useAuthStore()
   const [saving, setSaving] = useState<string | null>(null)
 
-  const defaults = { meetingRequests: true, meetingUpdates: true, interestReceived: true, adminMessages: true, messages: true }
+  const defaults = { meetingRequests: true, meetingUpdates: true, interestReceived: true, adminMessages: true, messages: true, weeklyDigest: false }
   const prefs = { ...defaults, ...(user?.notifPrefs ?? {}) }
 
   const toggle = async (key: keyof typeof defaults) => {

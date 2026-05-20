@@ -9,7 +9,7 @@ import type { User } from '../../types/auth.types'
 export default function OAuthCallbackPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
-  const { user } = useAuthStore()
+  void useAuthStore()
 
   useEffect(() => {
     const token = params.get('token')
