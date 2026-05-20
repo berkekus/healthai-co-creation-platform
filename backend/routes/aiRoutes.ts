@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { rankPostMatches, improvePost, translateText } from '../controllers/aiController'
+import { rankPostMatches, improvePost, translateText, getProfileScore } from '../controllers/aiController'
 import { protect } from '../middleware/authMiddleware'
 
 const router = Router()
@@ -7,5 +7,6 @@ const router = Router()
 router.post('/matches', protect, rankPostMatches)
 router.post('/improve-post', protect, improvePost)
 router.post('/translate', protect, translateText)
+router.get('/profile-score', protect, getProfileScore)
 
 export default router

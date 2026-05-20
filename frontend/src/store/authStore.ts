@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { User, LoginCredentials, RegisterData, NotifPrefs } from '../types/auth.types'
 import api from '../lib/api'
+import { connectSocket, disconnectSocket } from '../lib/socket'
 
 interface AuthState {
   user: User | null
@@ -40,6 +41,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
     }
     try {
       const { data } = await api.get<{ success: boolean; data: User }>('/auth/me')
+      connectSocket(token)
       set({ user: data.data, isAuthenticated: true, isHydrating: false })
     } catch {
       localStorage.removeItem('token')
@@ -62,6 +64,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
         sessionStorage.setItem('token', data.data.token)
         localStorage.removeItem('token')
       }
+      connectSocket(data.data.token)
       set({ user: data.data.user, isAuthenticated: true, isLoading: false })
     } catch (err) {
       set({ isLoading: false, error: (err as Error).message })
@@ -72,6 +75,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
     api.post('/auth/logout').catch(() => {})
     localStorage.removeItem('token')
     sessionStorage.removeItem('token')
+    disconnectSocket()
     set({ user: null, isAuthenticated: false })
   },
 

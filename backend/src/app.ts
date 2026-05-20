@@ -12,6 +12,7 @@ import notificationRoutes from '../routes/notificationRoutes'
 import logRoutes from '../routes/logRoutes'
 import aiRoutes from '../routes/aiRoutes'
 import savedSearchRoutes from '../routes/savedSearchRoutes'
+import commentRoutes, { commentRouter } from '../routes/commentRoutes'
 import { errorHandler, notFound } from '../middleware/errorHandler'
 
 const app = express()
@@ -56,6 +57,8 @@ app.use('/api/notifications', notificationRoutes)
 app.use('/api/logs', logRoutes)
 app.use('/api/ai', aiRoutes)
 app.use('/api/saved-searches', savedSearchRoutes)
+app.use('/api/posts/:id/comments', commentRoutes)
+app.use('/api/comments', commentRouter)
 
 app.use(notFound)
 app.use(errorHandler)

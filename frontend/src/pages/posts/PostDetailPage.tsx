@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import TranslateButton from '../../components/ui/TranslateButton'
+import CommentsSection from '../../components/posts/CommentsSection'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -356,6 +357,10 @@ export default function PostDetailPage() {
             </div>
           </aside>
         </div>
+      </div>
+
+      <div className="mx-auto w-full max-w-[1120px] px-5 pb-14 sm:px-8 xl:px-0">
+        {id && <CommentsSection postId={id} />}
       </div>
 
       {showInterest && (

@@ -1,6 +1,7 @@
 import { AuthenticatedRequest } from '../middleware/authMiddleware'
 import { asyncHandler } from '../utils/asyncHandler'
 import * as aiMatchService from '../services/aiMatchService'
+import * as aiProfileScoreService from '../services/aiProfileScoreService'
 import { makeError } from '../utils/AppError'
 
 export const rankPostMatches = asyncHandler<AuthenticatedRequest>(async (req, res) => {
@@ -97,5 +98,10 @@ Rules:
     tip?: string
   }
 
+  res.json({ success: true, data: result })
+})
+
+export const getProfileScore = asyncHandler<AuthenticatedRequest>(async (req, res) => {
+  const result = await aiProfileScoreService.getProfileScore(req.userId)
   res.json({ success: true, data: result })
 })

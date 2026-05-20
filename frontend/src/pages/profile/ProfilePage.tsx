@@ -313,60 +313,96 @@ const COMPLETION_ITEMS = (user: User | null) => {
   }))
 }
 
-function ProfileCompletionCard({ user }: { user: User }) {
+function ProfileCompletionCard({ user, onSaved }: { user: User; onSaved?: boolean }) {
   const { t } = useTranslation()
   const items = COMPLETION_ITEMS(user)
-  const optionalDone = items.filter(i => i.done).length
-  const score = 40 + Math.round((optionalDone / items.length) * 60)
+  const [aiScore, setAiScore] = useState<number | null>(null)
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([])
+  const [aiLoading, setAiLoading] = useState(false)
+
+  const localOptionalDone = items.filter(i => i.done).length
+  const localScore = 40 + Math.round((localOptionalDone / items.length) * 60)
+  const score = aiScore ?? localScore
+
+  useEffect(() => {
+    let cancelled = false
+    setAiLoading(true)
+    api.get<{ success: boolean; data: { score: number; suggestions: string[] } }>('/ai/profile-score')
+      .then(res => {
+        if (cancelled) return
+        setAiScore(res.data.data.score)
+        setAiSuggestions(res.data.data.suggestions)
+      })
+      .catch(() => { /* fallback to local score */ })
+      .finally(() => { if (!cancelled) setAiLoading(false) })
+    return () => { cancelled = true }
+  }, [onSaved])
 
   const r = 22
   const cx = 28
   const circumference = 2 * Math.PI * r
   const dashOffset = circumference * (1 - score / 100)
-
   const color = score >= 85 ? '#6FB8C4' : score >= 60 ? '#F59E0B' : '#EF4444'
+  const activeSuggestions = aiSuggestions.length > 0 ? aiSuggestions : items.filter(i => !i.done).map(i => t(i.labelKey))
 
   return (
     <div className="mt-6 rounded-2xl border border-[#D5DAE0] bg-white p-4">
       <div className="flex items-center gap-3">
-        <svg width="56" height="56" viewBox="0 0 56 56" style={{ flexShrink: 0 }}>
-          <circle cx={cx} cy={cx} r={r} fill="none" stroke="#EEF0F3" strokeWidth="5" />
-          <circle
-            cx={cx} cy={cx} r={r}
-            fill="none"
-            stroke={color}
-            strokeWidth="5"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={dashOffset}
-            style={{ transform: 'rotate(-90deg)', transformOrigin: '28px 28px', transition: 'stroke-dashoffset 0.6s ease' }}
-          />
-          <text x={cx} y={cx + 1} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="900" fill="#36213E">{score}%</text>
-        </svg>
+        <div className="relative" style={{ flexShrink: 0 }}>
+          <svg width="56" height="56" viewBox="0 0 56 56">
+            <circle cx={cx} cy={cx} r={r} fill="none" stroke="#EEF0F3" strokeWidth="5" />
+            <circle
+              cx={cx} cy={cx} r={r}
+              fill="none"
+              stroke={color}
+              strokeWidth="5"
+              strokeLinecap="round"
+              strokeDasharray={circumference}
+              strokeDashoffset={dashOffset}
+              style={{ transform: 'rotate(-90deg)', transformOrigin: '28px 28px', transition: 'stroke-dashoffset 0.6s ease' }}
+            />
+            <text x={cx} y={cx + 1} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="900" fill="#36213E">{score}%</text>
+          </svg>
+          {aiLoading && (
+            <span className="absolute -right-1 -top-1 flex h-3 w-3">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-hai-teal opacity-60" />
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-hai-teal" />
+            </span>
+          )}
+        </div>
         <div>
-          <p className="text-xs font-black text-hai-plum">{t('profile.strength')}</p>
+          <p className="flex items-center gap-1 text-xs font-black text-hai-plum">
+            {t('profile.strength')}
+            {aiScore !== null && (
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-[#E8F4F7] px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-hai-teal">
+                <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: '"FILL" 1' }}>auto_awesome</span>
+                AI
+              </span>
+            )}
+          </p>
           <p className="mt-0.5 text-xs font-semibold text-[#6F6878]">
             {score === 100 ? t('profile.complete') : score >= 70 ? t('profile.almostThere') : t('profile.keepGoing')}
           </p>
         </div>
       </div>
-      <ul className="mt-3 space-y-1.5">
-        {items.map(item => (
-          <li key={item.labelKey} className="flex items-center gap-2">
-            <span
-              className="material-symbols-outlined text-sm"
-              style={{ fontVariationSettings: '"FILL" 1', color: item.done ? '#6FB8C4' : '#D1D5DB' }}
-            >
-              {item.done ? 'check_circle' : 'radio_button_unchecked'}
-            </span>
-            {item.href && !item.done ? (
-              <a href={item.href} className="text-xs font-semibold text-hai-teal underline-offset-2 hover:underline">{t(item.labelKey)}</a>
-            ) : (
-              <span className={`text-xs font-semibold ${item.done ? 'text-[#6F6878]' : 'text-hai-plum'}`}>{t(item.labelKey)}</span>
-            )}
-          </li>
-        ))}
-      </ul>
+
+      {activeSuggestions.length > 0 && (
+        <ul className="mt-3 space-y-1.5">
+          {activeSuggestions.map((suggestion, i) => (
+            <li key={i} className="flex items-start gap-2">
+              <span
+                className="material-symbols-outlined mt-0.5 shrink-0 text-sm"
+                style={{ fontVariationSettings: '"FILL" 1', color: '#D1D5DB' }}
+              >radio_button_unchecked</span>
+              <span className="text-xs font-semibold text-hai-plum">{suggestion}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {activeSuggestions.length === 0 && score === 100 && (
+        <p className="mt-3 text-xs font-semibold text-hai-teal">{t('profile.complete')}</p>
+      )}
     </div>
   )
 }
@@ -496,7 +532,7 @@ export default function ProfilePage() {
             {avatarError && <p className="mt-3 text-xs font-semibold text-red-500">{avatarError}</p>}
           </div>
 
-          <ProfileCompletionCard user={user} />
+          <ProfileCompletionCard user={user} onSaved={saved} />
 
           <nav className="mt-8 space-y-3 text-sm font-black text-hai-plum">
             {([
