@@ -594,7 +594,7 @@ function MeetingSummaryButton({ meetingId, postTitle }: { meetingId: string; pos
             </p>
             <button
               type="button"
-              onClick={() => exportSummaryToPdf({ postTitle, ...summary })}
+              onClick={() => void exportSummaryToPdf({ postTitle, ...summary })}
               className="inline-flex items-center gap-1 text-[10px] font-black text-[#9CA3AF] hover:text-hai-teal"
             >
               <span className="material-symbols-outlined text-xs">picture_as_pdf</span>
