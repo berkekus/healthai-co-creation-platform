@@ -98,7 +98,8 @@ Rules:
     }),
   })
 
-  if (!response.ok) throw makeError(`Gemini ${response.status}`, 502)
+  if (response.status === 429) throw makeError('AI service is temporarily rate-limited. Please try again in a minute.', 429)
+  if (!response.ok) throw makeError(`AI service error (${response.status}). Please try again later.`, 502)
 
   const payload = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> }
   const text = payload.candidates?.[0]?.content?.parts?.map(p => p.text ?? '').join('') ?? ''
