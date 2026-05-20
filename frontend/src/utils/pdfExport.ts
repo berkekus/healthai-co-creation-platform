@@ -1,4 +1,6 @@
-import jsPDF from 'jspdf'
+// jsPDF is imported dynamically inside each export function to prevent
+// jspdf.node.min.js from running Node.js-specific side-effects at module
+// evaluation time, which crashes the browser bundle on import.
 
 interface PostData {
   title: string
@@ -37,7 +39,8 @@ const COLLAB_LABELS: Record<string, string> = {
   contract: 'Contract',
 }
 
-function addHeader(doc: jsPDF, title: string) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function addHeader(doc: any, title: string) {
   doc.setFillColor(54, 33, 62)
   doc.rect(0, 0, 210, 18, 'F')
   doc.setTextColor(255, 255, 255)
@@ -47,23 +50,21 @@ function addHeader(doc: jsPDF, title: string) {
   doc.setFontSize(8)
   doc.setFont('helvetica', 'normal')
   doc.text(new Date().toLocaleDateString('en-GB'), 200, 11, { align: 'right' })
-
   doc.setTextColor(54, 33, 62)
   doc.setFontSize(16)
   doc.setFont('helvetica', 'bold')
   doc.text(title, 10, 32)
-
   doc.setDrawColor(111, 184, 196)
   doc.setLineWidth(0.5)
   doc.line(10, 35, 200, 35)
 }
 
-function addField(doc: jsPDF, label: string, value: string, y: number): number {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function addField(doc: any, label: string, value: string, y: number): number {
   doc.setFontSize(8)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(111, 131, 120)
   doc.text(label.toUpperCase(), 10, y)
-
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(54, 33, 62)
@@ -72,7 +73,8 @@ function addField(doc: jsPDF, label: string, value: string, y: number): number {
   return y + 5 + (lines.length * 5) + 4
 }
 
-export function exportPostToPdf(post: PostData): void {
+export async function exportPostToPdf(post: PostData): Promise<void> {
+  const { default: jsPDF } = await import('jspdf')
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
   addHeader(doc, post.title)
 
@@ -85,7 +87,7 @@ export function exportPostToPdf(post: PostData): void {
   y = addField(doc, 'Location', `${post.city}, ${post.country}`, y)
   y = addField(doc, 'Listing Expires', new Date(post.expiryDate).toLocaleDateString('en-GB'), y)
   y += 3
-  y = addField(doc, 'Description', post.description, y)
+  addField(doc, 'Description', post.description, y)
 
   doc.setFontSize(7)
   doc.setTextColor(180, 180, 180)
@@ -95,7 +97,8 @@ export function exportPostToPdf(post: PostData): void {
   doc.save(`healthai-post-${filename}.pdf`)
 }
 
-export function exportSummaryToPdf(summary: SummaryData): void {
+export async function exportSummaryToPdf(summary: SummaryData): Promise<void> {
+  const { default: jsPDF } = await import('jspdf')
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
   addHeader(doc, `Meeting Summary: ${summary.postTitle}`)
 
@@ -106,6 +109,7 @@ export function exportSummaryToPdf(summary: SummaryData): void {
   doc.text(`Generated ${new Date(summary.generatedAt).toLocaleDateString('en-GB')}`, 10, y)
   y += 8
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const addBulletSection = (title: string, items: string[], bulletColor: [number, number, number]) => {
     if (items.length === 0) return
     doc.setFontSize(10)
@@ -113,7 +117,6 @@ export function exportSummaryToPdf(summary: SummaryData): void {
     doc.setTextColor(54, 33, 62)
     doc.text(title, 10, y)
     y += 6
-
     items.forEach(item => {
       doc.setFillColor(...bulletColor)
       doc.circle(13, y - 1, 1, 'F')

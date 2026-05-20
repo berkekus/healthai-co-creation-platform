@@ -188,7 +188,7 @@ export default function PostDetailPage() {
             </button>
             {post && (
               <button
-                onClick={() => exportPostToPdf({
+                onClick={() => void exportPostToPdf({
                   title: post.title,
                   domain: post.domain,
                   description: post.description,
