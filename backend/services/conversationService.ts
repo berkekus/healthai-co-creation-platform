@@ -2,6 +2,7 @@ import Conversation from '../models/Conversation'
 import Message from '../models/Message'
 import { makeError } from '../utils/AppError'
 import { pushNotification } from './notificationService'
+import { emitToUser } from '../src/socket'
 
 export async function createConversation(data: {
   meetingId: string
@@ -87,7 +88,12 @@ export async function sendMessage(conversationId: string, senderId: string, send
 
   const otherId = conv.participants.find(p => p.toString() !== senderId)?.toString()
   if (otherId) {
-    const otherDetail = conv.participantDetails.find(d => d.userId.toString() !== senderId)
+    // Emit real-time event to recipient
+    emitToUser(otherId, 'new_message', {
+      conversationId,
+      message,
+    })
+
     pushNotification({
       userId: otherId,
       type: 'meeting_request',
@@ -95,7 +101,6 @@ export async function sendMessage(conversationId: string, senderId: string, send
       body: trimmed.length > 60 ? trimmed.slice(0, 60) + '…' : trimmed,
       linkTo: `/messages/${conversationId}`,
     }).catch(() => {})
-    void otherDetail
   }
 
   return message

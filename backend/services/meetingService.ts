@@ -3,6 +3,7 @@ import User from '../models/User'
 import { incrementMeetingCount, markPartnerFound, recomputePostStatus } from './postService'
 import { pushNotification } from './notificationService'
 import { createConversation } from './conversationService'
+import { recalculateBadges } from './badgeService'
 import { makeError } from '../utils/AppError'
 
 async function withEmails(meetings: IMeeting[]) {
@@ -277,6 +278,10 @@ export async function completeMeeting(id: string, userId: string) {
     body: `${isRequester ? meeting!.requesterName : meeting!.ownerName} görüşmeyi tamamlandı olarak işaretledi. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
+
+  // Recalculate badges for both participants
+  recalculateBadges(meeting!.requesterId.toString()).catch(() => {})
+  recalculateBadges(meeting!.ownerId.toString()).catch(() => {})
 
   return (await withEmails([meeting!]))[0]
 }

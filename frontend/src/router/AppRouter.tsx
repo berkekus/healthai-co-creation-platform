@@ -12,6 +12,7 @@ import RegisterPage from '../pages/auth/RegisterPage'
 import VerifyEmailPage from '../pages/auth/VerifyEmailPage'
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage'
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage'
+import OAuthCallbackPage from '../pages/auth/OAuthCallbackPage'
 
 // Lazy load — authenticated / large pages
 const DashboardPage      = lazy(() => import('../pages/dashboard/DashboardPage'))
@@ -55,6 +56,7 @@ export default function AppRouter() {
             <Route path={ROUTES.VERIFY_EMAIL}     element={<VerifyEmailPage />} />
             <Route path={ROUTES.FORGOT_PASSWORD}  element={<ForgotPasswordPage />} />
             <Route path={ROUTES.RESET_PASSWORD}   element={<ResetPasswordPage />} />
+            <Route path={ROUTES.OAUTH_CALLBACK}   element={<OAuthCallbackPage />} />
             <Route path={ROUTES.PRIVACY}      element={<PrivacyPage />} />
             <Route path={ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
             <Route path={ROUTES.NOT_FOUND}    element={<NotFoundPage />} />

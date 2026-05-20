@@ -7,6 +7,11 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.ts'],
+    server: {
+      deps: {
+        external: ['socket.io-client'],
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],

@@ -192,7 +192,21 @@
     },
     "reschedule": "Reschedule",
     "noMeetings": "No meetings yet",
-    "noMeetingsHint": "Your meeting requests will appear here."
+    "noMeetingsHint": "Your meeting requests will appear here.",
+    "aiSummary": "AI Summary",
+    "summaryTopics": "Topics",
+    "summaryNextSteps": "Next Steps",
+    "summaryOpenQuestions": "Open Questions",
+    "summaryGenerated": "Generated"
+  },
+  "comments": {
+    "title": "Discussion",
+    "placeholder": "Ask a question or leave a comment…",
+    "post": "Post",
+    "empty": "No comments yet. Be the first to ask!",
+    "reply": "Reply",
+    "replyingTo": "Replying to",
+    "loadMore": "Load more comments"
   },
   "profile": {
     "title": "Your profile",
@@ -237,7 +251,9 @@
       "adminMessages": "Admin messages",
       "adminMessagesDesc": "Platform announcements and moderation notices",
       "messages": "Chat messages",
-      "messagesDesc": "New messages in active meeting conversations"
+      "messagesDesc": "New messages in active meeting conversations",
+      "weeklyDigest": "Weekly email digest",
+      "weeklyDigestDesc": "Receive a weekly summary of new posts matching your expertise, upcoming meetings, and unread messages"
     },
     "data": {
       "title": "Data & Account",
