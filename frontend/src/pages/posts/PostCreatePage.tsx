@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate, useBlocker } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { usePostStore } from '../../store/postStore'
 import { postCreateSchema, type PostCreateFormData } from '../../utils/validators'
@@ -10,6 +11,7 @@ import PostFormFields from '../../components/posts/PostFormFields'
 import { postDetail, ROUTES } from '../../constants/routes'
 
 export default function PostCreatePage() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const { create } = usePostStore()
   const navigate = useNavigate()
@@ -21,11 +23,13 @@ export default function PostCreatePage() {
     mode: 'onTouched',
   })
 
-  // Block navigation when the form has unsaved changes
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      isDirty && !isSubmitting && currentLocation.pathname !== nextLocation.pathname,
-  )
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty && !isSubmitting) e.preventDefault()
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [isDirty, isSubmitting])
 
   const onSubmit = async (data: PostCreateFormData) => {
     if (!user) return
@@ -44,32 +48,6 @@ export default function PostCreatePage() {
   return (
     <main className="min-h-screen bg-[#f6f7f9] text-[#2d1838]">
 
-      {/* Unsaved-changes confirmation dialog */}
-      {blocker.state === 'blocked' && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-[400px] rounded-[24px] bg-white p-8 shadow-[0_32px_80px_-20px_rgba(45,24,56,0.35)]">
-            <h2 className="font-headline text-xl font-black text-[#2d1838]">Leave without saving?</h2>
-            <p className="mt-3 text-sm font-semibold text-[#6f6a76] leading-6">
-              You have unsaved changes. If you leave now, your progress will be lost.
-            </p>
-            <div className="mt-7 flex gap-3">
-              <button
-                onClick={() => blocker.reset()}
-                className="flex-1 h-12 rounded-full border border-[#d5dae0] bg-white text-sm font-black text-[#2d1838] transition hover:border-[#55bde0]"
-              >
-                Keep editing
-              </button>
-              <button
-                onClick={() => blocker.proceed()}
-                className="flex-1 h-12 rounded-full bg-[#2d1838] text-sm font-black text-white transition hover:bg-[#1c1024]"
-              >
-                Leave anyway
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Progress bar — visible only during submission */}
       {isSubmitting && (
         <div className="fixed inset-x-0 top-0 z-[100] h-[3px] bg-[#2d1838]/10">
@@ -87,7 +65,7 @@ export default function PostCreatePage() {
           className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-[#6f6a76] transition hover:text-[#2d1838] disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ArrowLeft size={16} />
-          Back to directory
+          {t('createPost.backToDirectory')}
         </button>
 
         <div className="mb-12">
@@ -95,11 +73,10 @@ export default function PostCreatePage() {
             07&nbsp;&nbsp;New Post
           </div>
           <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#2d1838] sm:text-6xl">
-            Post a collaboration <span className="text-[#55bde0]">opportunity.</span>
+            {t('createPost.heading')}
           </h1>
           <p className="mt-5 text-base font-semibold leading-8 text-[#4f4a58] sm:text-lg">
-            Connect with the right partner across engineering and healthcare.<br />
-            No file uploads — details are shared in meetings under NDA.
+            {t('createPost.desc')}
           </p>
         </div>
 
@@ -116,7 +93,7 @@ export default function PostCreatePage() {
               onClick={() => setSubmitAction('draft')}
               className="h-14 rounded-full border border-[#2d1838] bg-white px-9 text-sm font-black text-[#2d1838] transition hover:bg-[#2d1838] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting && submitAction === 'draft' ? 'Saving draft…' : 'Save as draft'}
+              {isSubmitting && submitAction === 'draft' ? t('createPost.savingDraft') : t('createPost.saveDraft')}
             </button>
             <button
               type="submit"
@@ -125,8 +102,8 @@ export default function PostCreatePage() {
               className="inline-flex h-14 min-w-[250px] items-center justify-center gap-3 rounded-full bg-[#2d1838] px-9 text-sm font-black text-white shadow-[0_18px_42px_-28px_rgba(45,24,56,0.9)] transition hover:bg-[#1c1024] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting && submitAction === 'publish'
-                ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Publishing…</>
-                : <>Review &amp; publish <ArrowRight size={17} /></>
+                ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t('createPost.publishing')}</>
+                : <>{t('createPost.publish')} <ArrowRight size={17} /></>
               }
             </button>
           </div>

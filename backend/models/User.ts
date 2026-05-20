@@ -2,6 +2,14 @@ import { Schema, model, Document } from 'mongoose'
 
 export type UserRole = 'engineer' | 'healthcare_professional' | 'admin'
 
+export interface INotifPrefs {
+  meetingRequests: boolean
+  meetingUpdates: boolean
+  interestReceived: boolean
+  adminMessages: boolean
+  messages: boolean
+}
+
 export interface IUser extends Document {
   name: string
   email: string
@@ -13,6 +21,7 @@ export interface IUser extends Document {
   bio?: string
   avatarUrl?: string
   expertiseTags: string[]
+  notifPrefs: INotifPrefs
   isVerified: boolean
   verifyToken?: string
   verifyTokenExpires?: Date
@@ -23,6 +32,17 @@ export interface IUser extends Document {
   createdAt: Date
   updatedAt: Date
 }
+
+const NotifPrefsSchema = new Schema<INotifPrefs>(
+  {
+    meetingRequests:  { type: Boolean, default: true },
+    meetingUpdates:   { type: Boolean, default: true },
+    interestReceived: { type: Boolean, default: true },
+    adminMessages:    { type: Boolean, default: true },
+    messages:         { type: Boolean, default: true },
+  },
+  { _id: false }
+)
 
 const UserSchema = new Schema<IUser>(
   {
@@ -40,6 +60,7 @@ const UserSchema = new Schema<IUser>(
     bio: { type: String, trim: true },
     avatarUrl: { type: String, trim: true },
     expertiseTags: { type: [String], default: [] },
+    notifPrefs: { type: NotifPrefsSchema, default: () => ({}) },
     isVerified: { type: Boolean, default: false },
     verifyToken: { type: String, index: true },
     verifyTokenExpires: { type: Date },

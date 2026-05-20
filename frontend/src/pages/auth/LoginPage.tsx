@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Eye, EyeOff, Lock, Mail, Shield, Users, Stethoscope, Wrench, ShieldCheck } from 'lucide-react'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { loginSchema, type LoginFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
@@ -18,6 +19,7 @@ const RATE_LIMIT_AFTER = 3
 const COOLDOWN_SEC = 60
 
 export default function LoginPage() {
+  const { t } = useTranslation()
   const { login, isAuthenticated, isLoading, error, clearError } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
@@ -71,7 +73,7 @@ export default function LoginPage() {
   const quickLogin = (email: string, password: string) => {
     if (isLoading) return
     quickLoginRef.current = true
-    login({ email, password })
+    login({ email, password, rememberMe: true })
   }
 
   return (
@@ -106,14 +108,13 @@ export default function LoginPage() {
           {/* Copy block */}
           <div className="relative z-10 px-9 pt-10">
             <p className="text-xs font-bold tracking-[0.16em] uppercase text-[#4ca8cc] mb-5 font-headline">
-              Co-Creation Platform
+              {t('authPage.platform')}
             </p>
             <h2 className="font-headline font-black text-3xl xl:text-4xl leading-tight text-[#152d5a]">
-              Building the future<br />of healthcare,<br />
-              <span className="text-[#8AC6D0]">together.</span>
+              {t('authPage.tagline')}
             </h2>
             <p className="mt-4 text-sm text-[#5a88a4] leading-relaxed font-body max-w-[260px]">
-              Connect with clinicians and engineers<br />to create real-world impact.
+              {t('authPage.desc')}
             </p>
           </div>
 
@@ -135,17 +136,17 @@ export default function LoginPage() {
           <div className="relative z-10 flex items-center justify-center gap-4 px-6 pb-8 text-xs font-semibold text-[#5a88a4]">
             <div className="flex items-center gap-1.5">
               <Shield size={11} strokeWidth={2} />
-              Secure &amp; Compliant
+              {t('authPage.secure')}
             </div>
             <div className="w-px h-3 bg-[#9ac0d8]/50" />
             <div className="flex items-center gap-1.5">
               <Lock size={11} strokeWidth={2} />
-              Built in Europe
+              {t('authPage.europe')}
             </div>
             <div className="w-px h-3 bg-[#9ac0d8]/50" />
             <div className="flex items-center gap-1.5">
               <Users size={11} strokeWidth={2} />
-              Zero Patient Data
+              {t('authPage.noPatient')}
             </div>
           </div>
         </div>
@@ -156,17 +157,10 @@ export default function LoginPage() {
 
             {/* Heading */}
             <h1 className="font-headline font-black text-4xl sm:text-5xl leading-tight tracking-normal text-[#36213E] dark:text-hai-plum mb-2">
-              Welcome back<span className="text-[#8AC6D0]">.</span>
+              {t('authPage.login.heading')}<span className="text-[#8AC6D0]">.</span>
             </h1>
             <p className="text-sm text-[#6F6878] dark:text-[rgb(var(--text-secondary))] mb-8 font-body">
-              Sign in with your institutional{' '}
-              <span
-                className="text-[#1B7A88] font-bold cursor-help border-b border-dashed border-[#1B7A88]/50"
-                title="HealthAI is open to verified academic and healthcare institutions. Only .edu addresses are accepted to ensure a trusted community."
-              >
-                .edu
-              </span>
-              {' '}account.
+              {t('authPage.login.sub')}
             </p>
 
             {/* Rate-limit banner */}
@@ -175,9 +169,9 @@ export default function LoginPage() {
                 <div className="flex items-start gap-3">
                   <span className="text-hai-plum text-lg leading-none mt-0.5">{'\u23f1'}</span>
                   <div className="flex-1">
-                    <div className="text-sm font-bold text-hai-plum mb-1">Too many failed attempts</div>
+                    <div className="text-sm font-bold text-hai-plum mb-1">{t('authPage.login.tooMany')}</div>
                     <div className="text-xs text-hai-plum/70">
-                      Please wait <span className="font-mono font-bold">{cooldown}s</span> before trying again.
+                      {t('authPage.login.waitSeconds', { count: cooldown })}
                     </div>
                     <div className="mt-2 h-1 bg-hai-cream rounded-full overflow-hidden">
                       <div className="h-full bg-hai-plum transition-[width] duration-1000 ease-linear" style={{ width: `${(cooldown / COOLDOWN_SEC) * 100}%` }} />
@@ -189,8 +183,7 @@ export default function LoginPage() {
 
             {failedAttempts > 0 && failedAttempts < RATE_LIMIT_AFTER && cooldown === 0 && (
               <div role="alert" className="mb-5 p-3 bg-hai-cream/40 border border-hai-cream rounded-xl text-xs text-hai-plum/75 font-semibold">
-                <span className="font-bold">{RATE_LIMIT_AFTER - failedAttempts}</span>
-                {' '}attempt{RATE_LIMIT_AFTER - failedAttempts !== 1 ? 's' : ''} remaining before lockout.
+                {t('authPage.login.attemptsLeft', { count: RATE_LIMIT_AFTER - failedAttempts })}
               </div>
             )}
 
@@ -202,7 +195,7 @@ export default function LoginPage() {
                   {error.toLowerCase().includes('not verified') && (
                     <div className="mt-1.5">
                       <Link to={ROUTES.VERIFY_EMAIL} className="text-[#36213E] font-bold hover:underline text-xs">
-                        Resend verification email {'\u2192'}
+                        {t('authPage.login.resendVerification')}
                       </Link>
                     </div>
                   )}
@@ -216,7 +209,7 @@ export default function LoginPage() {
               {/* Email */}
               <div>
                 <label className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
-                  Institutional email
+                  {t('authPage.login.emailLabel')}
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
@@ -225,7 +218,7 @@ export default function LoginPage() {
                   <input
                     {...register('email')}
                     type="email"
-                    placeholder="you@university.edu"
+                    placeholder={t('authPage.login.emailPlaceholder')}
                     autoComplete="email"
                     className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] dark:text-hai-plum placeholder:text-[#c5cad6] bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
                       errors.email
@@ -240,7 +233,7 @@ export default function LoginPage() {
               {/* Password */}
               <div>
                 <label className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
-                  Password
+                  {t('authPage.login.passwordLabel')}
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
@@ -261,7 +254,7 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setShowPassword(p => !p)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] hover:text-[#6a7590] transition-colors"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? t('authPage.login.hidePassword') : t('authPage.login.showPassword')}
                   >
                     {showPassword ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
                   </button>
@@ -291,13 +284,13 @@ export default function LoginPage() {
                       </svg>
                     )}
                   </div>
-                  <span className="text-sm text-[#6a7590] dark:text-[rgb(var(--text-secondary))] font-body">Remember me</span>
+                  <span className="text-sm text-[#6a7590] dark:text-[rgb(var(--text-secondary))] font-body">{t('authPage.login.rememberMe')}</span>
                 </label>
                 <Link
                   to={ROUTES.FORGOT_PASSWORD}
                   className="text-sm font-semibold text-[#1B7A88] hover:text-[#36213E] transition-colors"
                 >
-                  Forgot password?
+                  {t('authPage.login.forgotPassword')}
                 </Link>
               </div>
 
@@ -313,13 +306,13 @@ export default function LoginPage() {
                 />
                 {captchaError && (
                   <div role="alert" className="flex items-center gap-2 text-xs font-semibold text-red-600">
-                    <span>Security check failed.</span>
+                    <span>{t('authPage.login.captchaFailed')}</span>
                     <button
                       type="button"
                       onClick={() => { setCaptchaError(false); captchaRef.current?.reset() }}
                       className="underline hover:no-underline"
                     >
-                      Retry
+                      {t('authPage.login.retry')}
                     </button>
                   </div>
                 )}
@@ -334,19 +327,19 @@ export default function LoginPage() {
                 {isLoading ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Signing in...
+                    {t('authPage.login.submitting')}
                   </>
                 ) : (
-                  <>Sign in <span className="ml-1" aria-hidden>{'\u2192'}</span></>
+                  t('authPage.login.submit')
                 )}
               </button>
             </form>
 
             {/* Footer */}
             <p className="mt-7 text-center text-sm text-[#9ca3b0] dark:text-[rgb(var(--text-secondary))] font-body">
-              No account?{' '}
+              {t('authPage.login.noAccount')}{' '}
               <Link to={ROUTES.REGISTER} className="font-black text-[#36213E] dark:text-hai-plum hover:text-[#8AC6D0] transition-colors">
-                Create Account {'\u2192'}
+                {t('authPage.login.createAccount')}
               </Link>
             </p>
 

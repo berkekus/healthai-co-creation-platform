@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { ROUTES } from '../../constants/routes'
 import { SESSION_TIMEOUT_MS, SESSION_WARN_MS } from '../../constants/config'
+import { useFocusTrap } from '../../hooks/useFocusTrap'
 
 export default function SessionTimeoutModal() {
   const { isAuthenticated, logout } = useAuthStore()
@@ -12,6 +13,7 @@ export default function SessionTimeoutModal() {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const warnRef    = useRef<ReturnType<typeof setTimeout> | null>(null)
   const countRef   = useRef<ReturnType<typeof setInterval> | null>(null)
+  const dialogRef  = useRef<HTMLDivElement>(null)
 
   const totalSeconds = Math.round(SESSION_WARN_MS / 1000)
 
@@ -54,6 +56,8 @@ export default function SessionTimeoutModal() {
     }
   }, [isAuthenticated, reset])
 
+  useFocusTrap(dialogRef, showWarning)
+
   if (!showWarning) return null
 
   const pct = Math.max(0, Math.min(100, (countdown / totalSeconds) * 100))
@@ -62,11 +66,12 @@ export default function SessionTimeoutModal() {
   return (
     <div
       role="alertdialog"
+      aria-modal="true"
       aria-labelledby="session-timeout-title"
       aria-describedby="session-timeout-desc"
       className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-hai-plum/70 backdrop-blur-sm font-body"
     >
-      <div className="bg-white w-full max-w-[460px] rounded-[2rem] shadow-[0_40px_120px_-20px_rgba(54,33,62,0.5)] overflow-hidden">
+      <div ref={dialogRef} tabIndex={-1} className="bg-white w-full max-w-[460px] rounded-[2rem] shadow-[0_40px_120px_-20px_rgba(54,33,62,0.5)] overflow-hidden">
         <div className="relative px-7 pt-7 pb-6 overflow-hidden">
           <div className="absolute top-0 right-0 w-56 h-56 pointer-events-none opacity-60" style={{ background: 'radial-gradient(circle, #B8F3FF 0%, transparent 70%)' }} />
 

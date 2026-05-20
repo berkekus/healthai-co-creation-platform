@@ -108,6 +108,14 @@ export const getMe = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   res.json({ success: true, data: user })
 })
 
+export const updateNotifPrefs = asyncHandler<AuthenticatedRequest>(async (req, res) => {
+  const { meetingRequests, meetingUpdates, interestReceived, adminMessages, messages } = req.body
+  const user = await authService.updateNotifPrefs(req.userId, {
+    meetingRequests, meetingUpdates, interestReceived, adminMessages, messages,
+  })
+  res.json({ success: true, data: user })
+})
+
 export const updateProfile = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { name, institution, city, country, bio, avatarUrl, expertiseTags } = req.body
   const user = await authService.updateUserProfile(req.userId, {
@@ -132,10 +140,11 @@ export const getUserById = asyncHandler<Request>(async (req, res) => {
 export const getAllUsers = asyncHandler<Request>(async (req, res) => {
   const page  = Math.max(1, parseInt(req.query.page  as string) || 1)
   const limit = Math.min(500, Math.max(1, parseInt(req.query.limit as string) || 20))
-  const role   = typeof req.query.role   === 'string' ? req.query.role   : undefined
-  const search = typeof req.query.search === 'string' ? req.query.search : undefined
+  const role       = typeof req.query.role       === 'string' ? req.query.role       : undefined
+  const search     = typeof req.query.search     === 'string' ? req.query.search     : undefined
+  const isVerified = typeof req.query.isVerified === 'string' ? req.query.isVerified : undefined
 
-  const result = await authService.getAllUsers({ role, search, page, limit })
+  const result = await authService.getAllUsers({ role, search, isVerified, page, limit })
   res.json({ success: true, data: result })
 })
 

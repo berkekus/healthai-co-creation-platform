@@ -11,22 +11,28 @@ import conversationRoutes from '../routes/conversationRoutes'
 import notificationRoutes from '../routes/notificationRoutes'
 import logRoutes from '../routes/logRoutes'
 import aiRoutes from '../routes/aiRoutes'
+import savedSearchRoutes from '../routes/savedSearchRoutes'
 import { errorHandler, notFound } from '../middleware/errorHandler'
 
 const app = express()
 
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://127.0.0.1:5173',
   'http://localhost:4173',
+  'http://127.0.0.1:4173',
   process.env.CLIENT_ORIGIN,
 ].filter(Boolean) as string[]
+
+const vercelPreviewRe = /^https:\/\/healthai-co-creation-platform(-[a-z0-9]+-berkekus-projects)?\.vercel\.app$/
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }))
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true)
+    if (!origin) return cb(null, true)
+    if (allowedOrigins.includes(origin) || vercelPreviewRe.test(origin)) return cb(null, true)
     cb(new Error(`CORS: origin ${origin} not allowed`))
   },
   credentials: true,
@@ -49,6 +55,7 @@ app.use('/api/conversations', conversationRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/logs', logRoutes)
 app.use('/api/ai', aiRoutes)
+app.use('/api/saved-searches', savedSearchRoutes)
 
 app.use(notFound)
 app.use(errorHandler)

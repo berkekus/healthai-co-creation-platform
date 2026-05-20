@@ -12,6 +12,7 @@ import {
   X,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
 import { useConversationStore } from '../../store/conversationStore'
@@ -20,13 +21,13 @@ import type { Meeting, MeetingStatus, TimeSlot } from '../../types/meeting.types
 type TabId = 'all' | 'incoming' | 'outgoing' | 'pending' | 'confirmed' | 'cancelled'
 type SortMode = 'recent' | 'oldest'
 
-const STATUS_LABELS: Record<MeetingStatus, string> = {
-  pending: 'Pending review',
-  time_proposed: 'Slot selection',
-  confirmed: 'Confirmed',
-  completed: 'Completed',
-  declined: 'Declined',
-  cancelled: 'Cancelled',
+const STATUS_LABEL_KEYS: Record<MeetingStatus, string> = {
+  pending:       'meetings.status.pending',
+  time_proposed: 'meetings.status.time_proposed',
+  confirmed:     'meetings.status.confirmed',
+  completed:     'meetings.status.completed',
+  declined:      'meetings.status.declined',
+  cancelled:     'meetings.status.cancelled',
 }
 
 const STATUS_CLASS: Record<MeetingStatus, string> = {
@@ -39,6 +40,7 @@ const STATUS_CLASS: Record<MeetingStatus, string> = {
 }
 
 export default function MeetingsPage() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const { meetings, fetchByUser, accept, confirm, decline, cancel, complete } = useMeetingStore()
   const { fetchConversations } = useConversationStore()
@@ -67,12 +69,12 @@ export default function MeetingsPage() {
   }, [scopedMeetings, user?.id])
 
   const tabs: { id: TabId; label: string; count: number }[] = [
-    { id: 'all', label: 'All', count: counts.all },
-    { id: 'incoming', label: 'Incoming', count: counts.incoming },
-    { id: 'outgoing', label: 'Outgoing', count: counts.outgoing },
-    { id: 'pending', label: 'Pending', count: counts.pending },
-    { id: 'confirmed', label: 'Confirmed', count: counts.confirmed },
-    { id: 'cancelled', label: 'Closed', count: counts.cancelled },
+    { id: 'all',       label: t('meetingsPage.tabs.all'),       count: counts.all },
+    { id: 'incoming',  label: t('meetingsPage.tabs.incoming'),  count: counts.incoming },
+    { id: 'outgoing',  label: t('meetingsPage.tabs.outgoing'),  count: counts.outgoing },
+    { id: 'pending',   label: t('meetingsPage.tabs.pending'),   count: counts.pending },
+    { id: 'confirmed', label: t('meetingsPage.tabs.confirmed'), count: counts.confirmed },
+    { id: 'cancelled', label: t('meetingsPage.tabs.closed'),    count: counts.cancelled },
   ]
 
   const visibleMeetings = useMemo(() => {
@@ -161,12 +163,13 @@ export default function MeetingsPage() {
 }
 
 function Hero({ total }: { total: number }) {
+  const { t } = useTranslation()
   return (
     <div>
       <div>
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-[var(--primary)] shadow-[0_10px_30px_-24px_rgba(45,24,56,0.5)]">
           <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
-          {total} meetings
+          {t('meetingsPage.totalCount', { count: total })}
         </div>
 
         <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-[var(--primary)] md:text-8xl">
@@ -175,7 +178,7 @@ function Hero({ total }: { total: number }) {
         </h1>
 
         <p className="mt-5 max-w-[650px] text-lg leading-8 text-[var(--muted)]">
-          Review requests, confirm time slots, and keep your collaboration pipeline in motion.
+          {t('meetingsPage.desc')}
         </p>
       </div>
     </div>
@@ -221,17 +224,18 @@ function FilterTabs({
 }
 
 function SortControl({ value, onChange }: { value: SortMode; onChange: (value: SortMode) => void }) {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-3 text-sm font-bold text-[var(--muted)]">
-      <span>Sort by</span>
+      <span>{t('meetingsPage.sortBy')}</span>
       <label className="relative">
         <select
           value={value}
           onChange={event => onChange(event.target.value as SortMode)}
-          className="h-11 appearance-none rounded-full border border-[var(--border)] bg-white px-4 pr-9 text-sm font-black text-[var(--text)] outline-none transition hover:border-[var(--accent)]"
+          className="h-11 appearance-none rounded-full border border-[var(--border)] bg-white px-4 pr-9 text-sm font-black text-[var(--text)] outline-none transition hover:border-[var(--accent)] focus:border-[var(--accent-strong)] focus:ring-2 focus:ring-[var(--accent)]/25"
         >
-          <option value="recent">Most recent</option>
-          <option value="oldest">Oldest first</option>
+          <option value="recent">{t('meetingsPage.sortRecent')}</option>
+          <option value="oldest">{t('meetingsPage.sortOldest')}</option>
         </select>
         <ChevronDown size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2" />
       </label>
@@ -253,6 +257,7 @@ function MeetingList({
   onViewAll,
   onOpenChat,
 }: {
+
   meetings: Meeting[]
   userId: string
   busyId: string | null
@@ -266,6 +271,7 @@ function MeetingList({
   onViewAll: () => void
   onOpenChat: (meeting: Meeting) => void
 }) {
+  const { t: tMeetings } = useTranslation()
   return (
     <section className="overflow-hidden rounded-[28px] border border-[var(--border)] bg-white shadow-[0_24px_70px_-54px_rgba(45,24,56,0.5)]">
       <div className="flex min-h-[72px] items-center justify-end border-b border-[var(--border)] px-7">
@@ -290,13 +296,13 @@ function MeetingList({
         ))
       ) : (
         <div className="px-7 py-16 text-center text-base font-bold text-[var(--muted)]">
-          No meetings match this filter.
+          {tMeetings('meetingsPage.noMatch')}
         </div>
       )}
 
       <div className="flex h-[76px] items-center justify-center border-t border-[var(--border)]">
         <button onClick={onViewAll} className="text-sm font-black text-[var(--primary)] transition hover:text-[var(--accent-strong)]">
-          View all meetings →
+          {tMeetings('meetingsPage.viewAll')}
         </button>
       </div>
     </section>
@@ -329,11 +335,13 @@ function MeetingRow({
   const [confirmMode, setConfirmMode] = useState<'decline' | 'cancel' | null>(null)
   const [reason, setReason] = useState('')
 
+  const { t: tRow } = useTranslation()
   const isOwner = meeting.ownerId === userId
-  const direction = isOwner ? 'Incoming' : 'Outgoing'
+  const direction = isOwner ? tRow('meetingsPage.tabs.incoming') : tRow('meetingsPage.tabs.outgoing')
   const partner = isOwner ? meeting.requesterName : meeting.ownerName
   const partnerEmail = isOwner ? meeting.requesterEmail : meeting.ownerEmail
   const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
+  const shouldChooseSlot = meeting.status === 'pending' && isOwner && meeting.proposedSlots.length > 0
   const canAccept = meeting.status === 'pending' && isOwner
   const canChooseSlot = meeting.status === 'time_proposed' && isOwner && meeting.proposedSlots.length > 0
 
@@ -361,7 +369,7 @@ function MeetingRow({
         <div className="flex min-w-0 flex-wrap items-center gap-3">
           <h2 className="truncate font-headline text-lg font-black text-[var(--text)]">{meeting.postTitle}</h2>
           <span className={`rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] ${STATUS_CLASS[meeting.status]}`}>
-            {STATUS_LABELS[meeting.status]}
+            {tRow(STATUS_LABEL_KEYS[meeting.status])}
           </span>
         </div>
         <p className="mt-2 truncate text-sm font-semibold text-[var(--muted)]">
@@ -374,7 +382,7 @@ function MeetingRow({
         </p>
         {(meeting.status === 'pending' || meeting.status === 'time_proposed') && meeting.proposedSlots.length > 0 && (
           <p className="mt-2 text-xs font-bold text-[var(--muted)]">
-            {meeting.proposedSlots.length} proposed slots
+            {tRow('meetingsPage.proposedSlots', { count: meeting.proposedSlots.length })}
           </p>
         )}
         {(meeting.status === 'declined' && meeting.declineReason) && (
@@ -390,7 +398,7 @@ function MeetingRow({
       </div>
 
       <div className="space-y-2 text-sm font-bold text-[var(--muted)] max-lg:col-start-2">
-        {canChooseSlot ? (
+        {shouldChooseSlot ? (
           <>
             <div className="flex items-center gap-2">
               <Calendar size={16} className="text-[var(--primary)]" />
@@ -398,7 +406,7 @@ function MeetingRow({
             </div>
             <div className="flex items-center gap-2">
               <Clock size={16} className="text-[var(--primary)]" />
-              Choose one slot
+              {tRow('meetingsPage.chooseSlot')}
             </div>
           </>
         ) : (
@@ -424,81 +432,76 @@ function MeetingRow({
               placeholder={`Optional reason for ${confirmMode === 'decline' ? 'declining' : 'cancelling'}…`}
               rows={2}
               maxLength={300}
-              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#D5DAE0] focus:border-[var(--accent-strong)]"
+              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#D5DAE0] focus:border-[var(--accent-strong)] focus:ring-2 focus:ring-[var(--accent)]/25"
             />
             <div className="flex justify-end gap-2">
               <ActionButton disabled={false} onClick={handleAbort} tone="quiet">
-                Go back
+                {tRow('meetingsPage.goBack')}
               </ActionButton>
               <ActionButton disabled={busy} onClick={handleConfirm} tone="primary">
-                {confirmMode === 'decline' ? 'Confirm decline' : 'Confirm cancel'}
+                {confirmMode === 'decline' ? tRow('meetingsPage.confirmDecline') : tRow('meetingsPage.confirmCancel')}
               </ActionButton>
             </div>
           </div>
         ) : (
           <>
-            {canAccept && (
-              <div className="flex w-full flex-col items-end gap-2">
-                <ActionButton disabled={busy} onClick={onAccept} tone="primary">
-                  <Check size={14} />
-                  Accept request
-                </ActionButton>
-                <ActionButton disabled={busy} onClick={() => setConfirmMode('decline')} tone="quiet">
-                  Decline
-                </ActionButton>
-              </div>
-            )}
-            {canChooseSlot && (
+            {shouldChooseSlot && (
               <div className="flex w-full flex-col items-end gap-2">
                 <div className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">
-                  Confirm a proposed slot
+                  {tRow('meetingsPage.chooseProposedSlot')}
                 </div>
                 <div className="flex flex-wrap justify-end gap-2">
                   {meeting.proposedSlots.map(slotOption => (
                     <ActionButton key={`${slotOption.date}-${slotOption.time}`} disabled={busy} onClick={() => onConfirm(slotOption)} tone="primary">
                       <Check size={14} />
-                      {formatSlotDate(slotOption)} {slotOption.time}
+                      {formatSlotChoice(slotOption)}
                     </ActionButton>
                   ))}
                 </div>
                 <ActionButton disabled={busy} onClick={() => setConfirmMode('decline')} tone="quiet">
-                  Decline
+                  {tRow('meetingsPage.decline')}
                 </ActionButton>
               </div>
             )}
+            {canAccept && !shouldChooseSlot && (
+              <ActionButton disabled={busy} onClick={onAccept} tone="primary">
+                <Check size={14} />
+                {tRow('meetingsPage.accept')}
+              </ActionButton>
+            )}
             {meeting.status === 'pending' && !isOwner && (
               <ActionButton disabled={busy} onClick={() => setConfirmMode('cancel')} tone="quiet">
-                Cancel request
+                {tRow('meetingsPage.cancelRequest')}
               </ActionButton>
             )}
             {meeting.status === 'time_proposed' && !isOwner && (
               <ActionButton disabled={busy} onClick={() => setConfirmMode('cancel')} tone="quiet">
-                Cancel request
+                {tRow('meetingsPage.cancelRequest')}
               </ActionButton>
             )}
             {meeting.status === 'confirmed' && (
               <>
                 <ActionButton disabled={busy} onClick={onOpenChat} tone="chat">
                   <MessageSquare size={14} />
-                  Open Chat
+                  {tRow('meetingsPage.openChat')}
                 </ActionButton>
                 <ActionButton disabled={busy} onClick={onComplete} tone="primary">
                   <Check size={14} />
-                  Complete
+                  {tRow('meetingsPage.complete')}
                 </ActionButton>
                 <ActionButton disabled={busy} onClick={() => setConfirmMode('cancel')} tone="quiet">
-                  Cancel
+                  {tRow('meetingsPage.cancel')}
                 </ActionButton>
               </>
             )}
             {(meeting.status === 'completed' || meeting.status === 'cancelled' || meeting.status === 'declined') && (
               <span className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">
-                No actions
+                {tRow('meetingsPage.noActions')}
               </span>
             )}
             {meeting.status === 'time_proposed' && isOwner && !canChooseSlot && (
               <span className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">
-                Awaiting slot confirmation
+                {tRow('meetingsPage.awaitingSlot')}
               </span>
             )}
           </>
@@ -537,14 +540,15 @@ function ActionButton({
 }
 
 function WidgetArea({ meetings }: { meetings: Meeting[] }) {
+  const { t: tWidget } = useTranslation()
   const [calendarOpen, setCalendarOpen] = useState(true)
   const [overviewOpen, setOverviewOpen] = useState(true)
 
   return (
     <div className="relative">
       <div className="mb-6 flex items-start justify-end gap-4 pr-2">
-        <IconButton icon={<Calendar size={20} />} label="Open calendar" onClick={() => setCalendarOpen(open => !open)} active={calendarOpen} />
-        <IconButton icon={<PieChart size={20} />} label="Open overview" onClick={() => setOverviewOpen(open => !open)} active={overviewOpen} />
+        <IconButton icon={<Calendar size={20} />} label={tWidget('meetingsPage.openCalendar')} onClick={() => setCalendarOpen(open => !open)} active={calendarOpen} />
+        <IconButton icon={<PieChart size={20} />} label={tWidget('meetingsPage.openOverview')} onClick={() => setOverviewOpen(open => !open)} active={overviewOpen} />
       </div>
 
       <div className="space-y-6">
@@ -632,28 +636,29 @@ function CalendarPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
 }
 
 function OverviewPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: () => void }) {
+  const { t: tOv } = useTranslation()
   const [range, setRange] = useState('month')
   const total = meetings.length
   const legend = [
-    { label: 'Pending review', value: meetings.filter(m => m.status === 'pending').length, color: '#D8EFF2' },
-    { label: 'Confirmed', value: meetings.filter(m => m.status === 'confirmed').length, color: '#8AC6D0' },
-    { label: 'Completed', value: meetings.filter(m => m.status === 'completed').length, color: '#6FB8C4' },
-    { label: 'Closed', value: meetings.filter(m => m.status === 'cancelled' || m.status === 'declined').length, color: '#36213E' },
+    { label: tOv('meetings.status.pending'),   value: meetings.filter(m => m.status === 'pending').length, color: '#D8EFF2' },
+    { label: tOv('meetings.status.confirmed'),  value: meetings.filter(m => m.status === 'confirmed').length, color: '#8AC6D0' },
+    { label: tOv('meetings.status.completed'),  value: meetings.filter(m => m.status === 'completed').length, color: '#6FB8C4' },
+    { label: tOv('meetingsPage.tabs.closed'),   value: meetings.filter(m => m.status === 'cancelled' || m.status === 'declined').length, color: '#36213E' },
   ]
 
   return (
     <section className="rounded-[28px] border border-[var(--border)] bg-white p-6 shadow-[0_28px_70px_-54px_rgba(45,24,56,0.6)]">
       <div className="mb-6 flex items-center justify-between gap-4">
-        <h2 className="font-headline text-lg font-black text-[var(--primary)]">Meetings overview</h2>
+        <h2 className="font-headline text-lg font-black text-[var(--primary)]">{tOv('meetingsPage.overview')}</h2>
         <div className="flex items-center gap-2">
           <label className="relative">
             <select
               value={range}
               onChange={event => setRange(event.target.value)}
-              className="h-9 appearance-none rounded-full border border-[var(--border)] bg-white px-3 pr-8 text-xs font-black text-[var(--text)] outline-none"
+              className="h-9 appearance-none rounded-full border border-[var(--border)] bg-white px-3 pr-8 text-xs font-black text-[var(--text)] outline-none focus:border-[var(--accent-strong)] focus:ring-2 focus:ring-[var(--accent)]/25"
             >
-              <option value="month">This month</option>
-              <option value="all">All time</option>
+              <option value="month">{tOv('meetingsPage.thisMonth')}</option>
+              <option value="all">{tOv('meetingsPage.allTime')}</option>
             </select>
             <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" />
           </label>
@@ -734,6 +739,14 @@ function formatSlotDate(slot: TimeSlot) {
     month: 'short',
     year: 'numeric',
   })
+}
+
+function formatSlotChoice(slot: TimeSlot) {
+  const date = new Date(`${slot.date}T${slot.time}`).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+  })
+  return `${date} - ${slot.time}`
 }
 
 function formatDate(value: string) {

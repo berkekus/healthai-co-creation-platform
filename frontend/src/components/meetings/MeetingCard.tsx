@@ -3,16 +3,28 @@ import { useMeetingStore } from '../../store/meetingStore'
 import { useAuthStore } from '../../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { postDetail } from '../../constants/routes'
+import { downloadICS, googleCalendarUrl, outlookCalendarUrl } from '../../utils/calendarExport'
+import TranslateButton from '../ui/TranslateButton'
+import { useTranslation } from 'react-i18next'
 
 type Tone = { label: string; bg: string; text: string; dot: string; icon: string }
 
-const STATUS_CONFIG: Record<MeetingStatus, Tone> = {
-  pending:       { label: 'Pending review',  bg: 'bg-hai-lime',          text: 'text-hai-plum',    dot: 'bg-hai-plum',    icon: 'pending' },
-  time_proposed: { label: 'Slot selection',  bg: 'bg-amber-50',          text: 'text-amber-700',   dot: 'bg-amber-400',   icon: 'schedule' },
-  confirmed:     { label: 'Confirmed',       bg: 'bg-hai-plum',          text: 'text-hai-mint',    dot: 'bg-hai-mint',    icon: 'check_circle' },
-  completed:     { label: 'Completed',       bg: 'bg-hai-teal',          text: 'text-hai-plum',    dot: 'bg-hai-plum',    icon: 'task_alt' },
-  declined:      { label: 'Declined',        bg: 'bg-red-50',            text: 'text-red-600',     dot: 'bg-red-500',     icon: 'block' },
-  cancelled:     { label: 'Cancelled',       bg: 'bg-neutral-100',       text: 'text-neutral-500', dot: 'bg-neutral-400', icon: 'cancel' },
+const STATUS_KEYS: Record<MeetingStatus, string> = {
+  pending:       'meetings.status.pending',
+  time_proposed: 'meetings.status.time_proposed',
+  confirmed:     'meetings.status.confirmed',
+  completed:     'meetings.status.completed',
+  declined:      'meetings.status.declined',
+  cancelled:     'meetings.status.cancelled',
+}
+
+const STATUS_STYLE: Record<MeetingStatus, Omit<Tone, 'label'>> = {
+  pending:       { bg: 'bg-hai-lime',     text: 'text-hai-plum',    dot: 'bg-hai-plum',    icon: 'pending' },
+  time_proposed: { bg: 'bg-amber-50',     text: 'text-amber-700',   dot: 'bg-amber-400',   icon: 'schedule' },
+  confirmed:     { bg: 'bg-hai-plum',     text: 'text-hai-mint',    dot: 'bg-hai-mint',    icon: 'check_circle' },
+  completed:     { bg: 'bg-hai-teal',     text: 'text-hai-plum',    dot: 'bg-hai-plum',    icon: 'task_alt' },
+  declined:      { bg: 'bg-red-50',       text: 'text-red-600',     dot: 'bg-red-500',     icon: 'block' },
+  cancelled:     { bg: 'bg-neutral-100',  text: 'text-neutral-500', dot: 'bg-neutral-400', icon: 'cancel' },
 }
 
 function formatSlot(slot: TimeSlot) {
@@ -53,13 +65,15 @@ function SlotChip({ slot, onAccept, active }: { slot: TimeSlot; onAccept?: () =>
 interface Props { meeting: Meeting }
 
 export default function MeetingCard({ meeting }: Props) {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const { accept, confirm, decline, cancel, complete } = useMeetingStore()
   const navigate = useNavigate()
 
   const isOwner     = user?.id === meeting.ownerId
   const isRequester = user?.id === meeting.requesterId
-  const cfg = STATUS_CONFIG[meeting.status]
+  const style = STATUS_STYLE[meeting.status]
+  const cfg = { ...style, label: t(STATUS_KEYS[meeting.status]) }
 
   const partnerName = isOwner ? meeting.requesterName : meeting.ownerName
   const partnerInitials = partnerName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
@@ -87,7 +101,7 @@ export default function MeetingCard({ meeting }: Props) {
               <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: '"FILL" 1' }}>
                 {isOwner ? 'call_received' : 'call_made'}
               </span>
-              {isOwner ? 'Incoming from' : 'Outgoing to'} · <span className="text-hai-plum">{partnerName}</span>
+              {isOwner ? t('meetings.incoming') : t('meetings.outgoing')} · <span className="text-hai-plum">{partnerName}</span>
             </div>
             <button
               onClick={() => navigate(postDetail(meeting.postId))}
@@ -108,9 +122,10 @@ export default function MeetingCard({ meeting }: Props) {
       <div className="px-5 md:px-6 pb-4">
         <div className="bg-hai-offwhite rounded-2xl p-4">
           <div className="text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2">
-            Message from {meeting.requesterName}
+            {t('meetings.message')} {meeting.requesterName}
           </div>
           <p className="text-sm text-hai-plum leading-relaxed">{meeting.message}</p>
+          <TranslateButton text={meeting.message} className="mt-2" />
         </div>
       </div>
 
@@ -119,7 +134,7 @@ export default function MeetingCard({ meeting }: Props) {
         <div className="px-5 md:px-6 pb-4">
           <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold mb-2 flex items-center gap-1.5">
             <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>event_available</span>
-            Confirmed slot
+            {t('meetings.confirmedSlot')}
           </div>
           <SlotChip slot={meeting.confirmedSlot} active />
 
@@ -128,12 +143,50 @@ export default function MeetingCard({ meeting }: Props) {
             <div className="mt-3 flex items-center gap-2 p-3 bg-hai-mint/30 border border-hai-teal/30 rounded-2xl">
               <span className="material-symbols-outlined text-hai-plum text-base shrink-0" style={{ fontVariationSettings: '"FILL" 1' }}>mail</span>
               <div className="min-w-0">
-                <div className="text-xs font-mono tracking-[0.12em] uppercase text-hai-plum/60 font-bold mb-0.5">Contact</div>
+                <div className="text-xs font-mono tracking-[0.12em] uppercase text-hai-plum/60 font-bold mb-0.5">{t('meetings.contact')}</div>
                 <a
                   href={`mailto:${partnerEmail}`}
                   className="text-sm font-mono font-bold text-hai-plum hover:text-hai-teal transition-colors truncate block"
                 >
                   {partnerEmail}
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Calendar export */}
+          {meeting.status === 'confirmed' && (
+            <div className="mt-3">
+              <div className="text-xs font-mono tracking-[0.12em] uppercase text-hai-plum/60 font-bold mb-2 flex items-center gap-1">
+                <span className="material-symbols-outlined text-sm">calendar_add_on</span>
+                {t('meetings.addToCalendar')}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => downloadICS(meeting)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs font-mono tracking-[0.1em] font-bold text-hai-plum hover:bg-hai-offwhite transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">download</span>
+                  {t('meetings.downloadIcs')}
+                </button>
+                <a
+                  href={googleCalendarUrl(meeting)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs font-mono tracking-[0.1em] font-bold text-hai-plum hover:bg-hai-offwhite transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">open_in_new</span>
+                  {t('meetings.googleCalendar')}
+                </a>
+                <a
+                  href={outlookCalendarUrl(meeting)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs font-mono tracking-[0.1em] font-bold text-hai-plum hover:bg-hai-offwhite transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">open_in_new</span>
+                  {t('meetings.outlook')}
                 </a>
               </div>
             </div>
@@ -149,7 +202,7 @@ export default function MeetingCard({ meeting }: Props) {
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-hai-teal text-hai-plum text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-hai-mint transition-colors"
           >
             <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>task_alt</span>
-            Görüşme yapıldı
+            {t('meetings.complete')}
           </button>
         </div>
       )}
@@ -162,14 +215,14 @@ export default function MeetingCard({ meeting }: Props) {
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-red-200 text-red-600 text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-red-50 transition-colors"
           >
             <span className="material-symbols-outlined text-sm">block</span>
-            Decline
+            {t('meetings.decline')}
           </button>
           <button
             onClick={handleAccept}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-hai-plum text-hai-mint text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-black transition-colors"
           >
             <span className="material-symbols-outlined text-sm">check_circle</span>
-            Accept request
+            {t('meetings.accept')}
           </button>
         </div>
       )}
@@ -179,7 +232,7 @@ export default function MeetingCard({ meeting }: Props) {
         <div className="px-5 md:px-6 pb-4">
           <div className="text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2 flex items-center gap-1.5">
             <span className="material-symbols-outlined text-sm">schedule</span>
-            Confirm a time slot · {meeting.proposedSlots.length} options
+            {t('meetings.confirmSlot')} · {meeting.proposedSlots.length} {t('meetings.options')}
           </div>
           <div className="flex flex-col gap-2">
             {meeting.proposedSlots.map((slot, i) => (
@@ -195,7 +248,7 @@ export default function MeetingCard({ meeting }: Props) {
             className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-red-200 text-red-600 text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-red-50 transition-colors"
           >
             <span className="material-symbols-outlined text-sm">block</span>
-            Decline
+            {t('meetings.decline')}
           </button>
         </div>
       )}
@@ -206,7 +259,7 @@ export default function MeetingCard({ meeting }: Props) {
           {meeting.status === 'time_proposed' && (
             <p className="mr-auto text-xs font-mono tracking-[0.12em] text-neutral-500 flex items-center gap-1">
               <span className="material-symbols-outlined text-sm">hourglass_top</span>
-              Waiting for slot confirmation
+              {t('meetings.waitingSlot')}
             </p>
           )}
           <button
@@ -214,7 +267,7 @@ export default function MeetingCard({ meeting }: Props) {
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-neutral-200 text-neutral-500 text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-neutral-100 transition-colors"
           >
             <span className="material-symbols-outlined text-sm">cancel</span>
-            Cancel request
+            {t('meetings.cancel')}
           </button>
         </div>
       )}

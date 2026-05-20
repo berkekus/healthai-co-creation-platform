@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import AppRouter from './router/AppRouter'
 import { useAuthStore } from './store/authStore'
 import { usePostStore } from './store/postStore'
 import { useNotificationStore } from './store/notificationStore'
 
 export default function App() {
+  const { i18n } = useTranslation()
   const hydrate         = useAuthStore(s => s.hydrate)
   const isAuthenticated = useAuthStore(s => s.isAuthenticated)
   const fetchPosts      = usePostStore(s => s.fetchPosts)
@@ -14,6 +16,10 @@ export default function App() {
   useEffect(() => {
     hydrate()
   }, [hydrate])
+
+  useEffect(() => {
+    document.documentElement.lang = i18n.language.startsWith('tr') ? 'tr' : 'en'
+  }, [i18n.language])
 
   useEffect(() => {
     if (isAuthenticated) fetchPosts()

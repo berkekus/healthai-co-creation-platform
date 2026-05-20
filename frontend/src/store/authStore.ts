@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { User, LoginCredentials, RegisterData } from '../types/auth.types'
+import type { User, LoginCredentials, RegisterData, NotifPrefs } from '../types/auth.types'
 import api from '../lib/api'
 
 interface AuthState {
@@ -16,6 +16,7 @@ interface AuthState {
   verifyEmail: (token: string) => Promise<void>
   resendVerification: (email: string) => Promise<void>
   updateProfile: (data: Partial<Pick<User, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>) => Promise<void>
+  updateNotifPrefs: (prefs: Partial<NotifPrefs>) => Promise<void>
   uploadAvatar: (file: File) => Promise<void>
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>
   deleteAccount: (password: string) => Promise<void>
@@ -143,6 +144,11 @@ export const useAuthStore = create<AuthState>()((set) => ({
     } catch (err) {
       set({ isLoading: false, error: (err as Error).message })
     }
+  },
+
+  updateNotifPrefs: async (prefs) => {
+    const { data: res } = await api.put<{ success: boolean; data: User }>('/auth/me/notif-prefs', prefs)
+    set((s) => ({ user: s.user ? { ...s.user, notifPrefs: res.data.notifPrefs } : s.user }))
   },
 
   uploadAvatar: async (file: File) => {

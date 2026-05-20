@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
+  Bookmark,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -14,8 +15,23 @@ import {
   RotateCcw,
   Search,
   SlidersHorizontal,
+  Trash2,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import api from '../../lib/api'
 import { Skeleton, SkeletonLine, SkeletonPill } from '../../components/ui/Skeleton'
+import {
+  Badge,
+  Button,
+  ButtonLink,
+  Card,
+  EmptyState as UiEmptyState,
+  FieldLabel,
+  IconButton,
+  SectionCard,
+  SelectInput,
+  TextInput,
+} from '../../components/ui'
 import { ROUTES, postDetail } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
 import { usePostStore } from '../../store/postStore'
@@ -90,9 +106,11 @@ const typeLabels: Record<CollaborationType, string> = {
 }
 
 export default function PostListPage() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
-  const { posts, fetchPosts, isLoading } = usePostStore()
+  const { posts, fetchPosts, isLoading, remove } = usePostStore()
   const { suggestions, isLoading: isMatching, load: loadSmartSuggestions, reset: resetSmartSuggestions } = useSmartSuggestions()
+  const [searchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const [domain, setDomain] = useState('')
   const [stage, setStage] = useState('')
@@ -102,10 +120,12 @@ export default function PostListPage() {
   const [sort, setSort] = useState<SortMode>(() => (localStorage.getItem('postList_sort') as SortMode) ?? 'best')
   const [viewMode, setViewMode] = useState<ViewMode>(() => (localStorage.getItem('postList_view') as ViewMode) ?? 'list')
   const [page, setPage] = useState(1)
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
+  const mineOnly = searchParams.get('mine') === 'true'
 
   useEffect(() => {
-    fetchPosts({ limit: 100, filters: {} })
-  }, [fetchPosts])
+    fetchPosts({ limit: 100, mine: mineOnly, filters: {} })
+  }, [fetchPosts, mineOnly])
 
   useEffect(() => {
     if (!user || posts.length === 0) {
@@ -159,6 +179,33 @@ export default function PostListPage() {
     setPage(1)
   }
 
+  const saveCurrentSearch = async () => {
+    const filterParts: string[] = []
+    if (domain) filterParts.push(domain)
+    if (stage) filterParts.push(stage)
+    if (postedBy !== 'Anyone') filterParts.push(postedBy)
+    if (location.trim()) filterParts.push(location.trim())
+    if (search.trim()) filterParts.push(`"${search.trim()}"`)
+    const defaultName = filterParts.length > 0 ? filterParts.join(' · ') : 'All posts'
+    const name = window.prompt('Name this saved search:', defaultName)
+    if (!name) return
+    try {
+      await api.post('/saved-searches', {
+        name: name.trim(),
+        filters: {
+          domain: domain || undefined,
+          expertise: search.trim() || undefined,
+          city: location.trim() || undefined,
+          projectStage: stage || undefined,
+          authorRole: postedBy === 'Engineer' ? 'engineer' : postedBy === 'Healthcare Professional' ? 'healthcare_professional' : undefined,
+        },
+      })
+      window.alert(`Search "${name.trim()}" saved! You'll be notified when new matching posts are published.`)
+    } catch {
+      window.alert('Could not save search. Try again.')
+    }
+  }
+
   useEffect(() => {
     setPage(1)
   }, [domain, location, postedBy, search, sort, stage, status, viewMode])
@@ -169,6 +216,16 @@ export default function PostListPage() {
     (currentPage - 1) * POSTS_PER_PAGE,
     currentPage * POSTS_PER_PAGE,
   )
+
+  const deletePost = async (postId: string) => {
+    if (!window.confirm('Delete this post? This action cannot be undone.')) return
+    setDeletingPostId(postId)
+    try {
+      await remove(postId)
+    } finally {
+      setDeletingPostId(null)
+    }
+  }
 
   const locationSuggestions = useMemo(() => {
     const seen = new Set<string>()
@@ -197,7 +254,7 @@ export default function PostListPage() {
       } as CSSProperties}
     >
       <div className="mx-auto w-full px-8 pb-16 pt-[70px]" style={{ maxWidth: 1760 }}>
-        <PageHeader search={search} onSearch={setSearch} />
+        <PageHeader search={search} onSearch={setSearch} mineOnly={mineOnly} />
 
         <section className="directory-body-grid grid grid-cols-1 gap-8">
           <FilterSidebar
@@ -215,9 +272,22 @@ export default function PostListPage() {
             onLocation={setLocation}
             onClear={clearFilters}
           />
+          {hasActiveFilters && user && (
+            <div className="mb-4 flex justify-end">
+              <button
+                type="button"
+                onClick={saveCurrentSearch}
+                className="inline-flex items-center gap-2 rounded-full border border-[#D5DAE0] bg-white px-4 py-2 text-xs font-black text-hai-plum hover:bg-hai-mint/30 transition-colors"
+              >
+                <Bookmark size={13} />
+                {t('posts.saveSearch')}
+              </button>
+            </div>
+          )}
           <PostList
             posts={paginatedPosts}
             totalPosts={directoryPosts.length}
+            mineOnly={mineOnly}
             isLoading={isLoading && posts.length === 0}
             isMatching={isMatching}
             aiError={Boolean(user && !isMatching && posts.length > 0 && suggestions.size === 0)}
@@ -230,6 +300,8 @@ export default function PostListPage() {
             page={currentPage}
             totalPages={totalPages}
             onPage={setPage}
+            onDelete={deletePost}
+            deletingPostId={deletingPostId}
           />
         </section>
       </div>
@@ -241,24 +313,41 @@ function setPostededBySafe(setter: (value: PostedBy) => void) {
   return (value: PostedBy) => setter(value)
 }
 
-function PageHeader({ search, onSearch }: { search: string; onSearch: (value: string) => void }) {
+function PageHeader({ search, onSearch, mineOnly }: { search: string; onSearch: (value: string) => void; mineOnly: boolean }) {
   return (
     <header className="mb-[52px]">
       <div className="mb-5 inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--muted)]">
         <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
-        Browse Directory
+        {mineOnly ? '05 My Posts' : '05 Directory'}
       </div>
 
       <div className="directory-header-grid grid grid-cols-1 gap-10 xl:items-end">
         <div>
           <h1 className="font-headline text-6xl font-black leading-tight tracking-normal md:text-7xl">
-            <span className="text-[var(--primary)]">Collaboration </span>
-            <span className="text-[#1B7A88]">opportunities</span>
+            {mineOnly ? (
+              <>
+                <span className="text-[var(--primary)]">Your </span>
+                <span className="text-[#8AC6D0]">posts</span>
+              </>
+            ) : (
+              <>
+                <span className="text-[var(--primary)]">Collaboration </span>
+                <span className="text-[#8AC6D0]">opportunities</span>
+              </>
+            )}
             <span className="text-[var(--primary)]">.</span>
           </h1>
           <p className="mt-5 text-lg font-semibold leading-8 text-[var(--muted)]">
-            Browse & connect with clinicians and engineers working on real healthcare solutions.
+            {mineOnly
+              ? 'Review, open, and manage the opportunities you have published.'
+              : 'Browse & connect with clinicians and engineers working on real healthcare solutions.'}
           </p>
+          {mineOnly && (
+            <Link to={ROUTES.POSTS} className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
+              View full directory
+              <ChevronRight size={15} />
+            </Link>
+          )}
         </div>
 
         <SearchAndAction value={search} onChange={onSearch} />
@@ -271,24 +360,25 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
   return (
     <div className="flex items-center gap-12 max-sm:flex-col max-sm:items-stretch">
       <label className="relative block min-w-0 flex-1" style={{ height: 58 }}>
-        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#6F6878]" size={20} />
-        <input
+        <TextInput
           type="search"
           value={value}
           onChange={event => onChange(event.target.value)}
+          leftIcon={<Search size={20} />}
           placeholder="Search by title, expertise, or keyword..."
-          className="h-full w-full rounded-full border border-transparent bg-[#EEF0F3] pl-16 pr-6 text-sm font-semibold text-[var(--text)] outline-none transition placeholder:text-[#6F6878] hover:bg-white hover:border-[var(--border)] focus:bg-white focus:border-[var(--accent)]"
+          className="h-full rounded-full border-transparent bg-[#EEF0F3] pl-16 pr-6 text-[var(--text)] hover:bg-white hover:border-[var(--border)] focus:bg-white focus:border-[var(--accent)]"
         />
       </label>
 
-      <Link
+      <ButtonLink
         to={ROUTES.POST_CREATE}
-        className="inline-flex shrink-0 items-center justify-center gap-3 rounded-full bg-[var(--primary)] text-sm font-black text-white shadow-[0_18px_42px_-28px_rgba(45,24,56,0.9)] transition hover:bg-[#24162B]"
-        style={{ width: 196, height: 58 }}
+        variant="primary"
+        size="lg"
+        icon={<Plus size={19} strokeWidth={2.6} />}
+        className="w-[196px]"
       >
-        <Plus size={19} strokeWidth={2.6} />
         Post opportunity
-      </Link>
+      </ButtonLink>
     </div>
   )
 }
@@ -323,7 +413,8 @@ function FilterSidebar({
   onClear: () => void
 }) {
   return (
-    <aside className="rounded-[28px] border border-[var(--border)] bg-white px-6 py-6 shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)] lg:self-start">
+    <aside className="lg:self-start">
+      <Card padding="md" className="rounded-[28px] border-[var(--border)] shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)]">
       <div className="mb-9 flex items-center justify-between">
         <div className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--primary)]">
           <SlidersHorizontal size={15} />
@@ -364,13 +455,13 @@ function FilterSidebar({
               </div>
             )}
             <div className="relative">
-              <input
+              <TextInput
                 value={location}
                 onChange={event => onLocation(event.target.value)}
                 placeholder="Search city or country..."
                 list="location-suggestions"
                 autoComplete="off"
-                className="h-12 w-full bg-white px-4 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878]"
+                className="h-12 rounded-none border-0 text-[var(--text)]"
               />
               <datalist id="location-suggestions">
                 {locationSuggestions.map(s => <option key={s} value={s} />)}
@@ -382,12 +473,12 @@ function FilterSidebar({
 
       {hasActiveFilters && (
         <div className="mt-10 border-t border-[var(--border)] pt-7">
-          <button onClick={onClear} className="inline-flex items-center gap-3 rounded-full px-2 py-2 text-sm font-black text-[var(--muted)] transition hover:text-[var(--primary)]">
-            <RotateCcw size={17} />
+          <Button onClick={onClear} variant="ghost" size="sm" icon={<RotateCcw size={17} />} className="-ml-4 text-[var(--muted)] hover:text-[var(--primary)]">
             Clear filters
-          </button>
+          </Button>
         </div>
       )}
+      </Card>
     </aside>
   )
 }
@@ -408,23 +499,20 @@ function FilterSelect({
   return (
     <div>
       <FilterLabel>{label}</FilterLabel>
-      <div className="relative">
-        <select
-          value={value}
-          onChange={event => onChange(event.target.value)}
-          className="h-[46px] w-full appearance-none rounded-[14px] border border-[var(--border)] bg-white px-4 pr-10 text-sm font-black text-[var(--text)] outline-none transition hover:border-[var(--accent)] focus:border-[var(--accent)]"
-        >
-          <option value="">{placeholder}</option>
-          {children}
-        </select>
-        <ChevronDown size={17} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[var(--primary)]" />
-      </div>
+      <SelectInput
+        value={value}
+        onChange={event => onChange(event.target.value)}
+        className="border-[var(--border)] text-[var(--text)] hover:border-[var(--accent)] focus:border-[var(--accent)]"
+      >
+        <option value="">{placeholder}</option>
+        {children}
+      </SelectInput>
     </div>
   )
 }
 
 function FilterLabel({ children }: { children: ReactNode }) {
-  return <div className="mb-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--muted)]">{children}</div>
+  return <FieldLabel className="text-[var(--muted)]">{children}</FieldLabel>
 }
 
 function SegmentedControl({ active, onChange }: { active: PostedBy; onChange: (value: PostedBy) => void }) {
@@ -454,6 +542,7 @@ function SegmentedControl({ active, onChange }: { active: PostedBy; onChange: (v
 function PostList({
   posts,
   totalPosts,
+  mineOnly,
   isLoading,
   isMatching,
   aiError,
@@ -466,9 +555,12 @@ function PostList({
   page,
   totalPages,
   onPage,
+  onDelete,
+  deletingPostId,
 }: {
   posts: DirectoryPost[]
   totalPosts: number
+  mineOnly: boolean
   isLoading: boolean
   isMatching: boolean
   aiError: boolean
@@ -481,19 +573,26 @@ function PostList({
   page: number
   totalPages: number
   onPage: (page: number) => void
+  onDelete: (postId: string) => void
+  deletingPostId: string | null
 }) {
   return (
-    <section className="overflow-hidden rounded-[28px] border border-[var(--border)] bg-white shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)]">
+    <SectionCard className="border-[var(--border)] shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)]">
       <div className="border-b border-[var(--border)] px-7 py-5">
         <div className="flex items-center justify-between gap-6">
           <div>
             <div className="text-base font-black text-[var(--muted)]">
-              {isLoading ? 'Loading opportunities…' : `${totalPosts} opportunities found`}
+              {isLoading ? 'Loading opportunities...' : mineOnly ? `${totalPosts} posts found` : `${totalPosts} opportunities found`}
             </div>
-            <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#36213E] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-white shadow-[0_12px_28px_-20px_rgba(45,24,56,0.8)]">
-              <Sparkles size={14} />
-              {isMatching ? 'AI matching in progress' : aiError ? 'AI fallback ranking active' : 'AI-ranked for your profile'}
-            </div>
+            {mineOnly ? (
+              <Badge variant="soft" className="mt-2 py-2" icon={<FileText size={14} />}>
+                Your published and draft opportunities
+              </Badge>
+            ) : (
+              <Badge variant={aiError ? 'soft' : 'ai'} className="mt-2 py-2" icon={<Sparkles size={14} />}>
+                {isMatching ? 'AI matching in progress' : aiError ? 'AI fallback ranking active' : 'AI-ranked for your profile'}
+              </Badge>
+            )}
           </div>
 
           <div className="flex items-center gap-6">
@@ -503,7 +602,7 @@ function PostList({
                 <select
                   value={sort}
                   onChange={event => onSort(event.target.value as SortMode)}
-                  className="appearance-none bg-transparent pr-6 text-[var(--text)] outline-none"
+                  className="appearance-none bg-transparent pr-6 text-[var(--text)] outline-none focus:ring-2 focus:ring-[var(--accent)]/25"
                 >
                   <option value="best">AI best match</option>
                   <option value="recent">Most recent</option>
@@ -514,20 +613,24 @@ function PostList({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button
+              <IconButton
+                label="Grid view"
                 aria-pressed={viewMode === 'grid'}
                 onClick={() => onViewMode('grid')}
-                className={`flex h-9 w-9 items-center justify-center rounded-full transition ${viewMode === 'grid' ? 'bg-[var(--accent-soft)] text-[var(--primary)]' : 'text-[var(--muted)] hover:bg-[var(--tag-bg)] hover:text-[var(--primary)]'}`}
-              >
-                <Grid2X2 size={17} />
-              </button>
-              <button
+                icon={<Grid2X2 size={17} />}
+                variant={viewMode === 'grid' ? 'soft' : 'ghost'}
+                size="sm"
+                className={viewMode === 'grid' ? 'bg-[var(--accent-soft)] text-[var(--primary)]' : 'text-[var(--muted)] hover:bg-[var(--tag-bg)] hover:text-[var(--primary)]'}
+              />
+              <IconButton
+                label="List view"
                 aria-pressed={viewMode === 'list'}
                 onClick={() => onViewMode('list')}
-                className={`flex h-9 w-9 items-center justify-center rounded-full transition ${viewMode === 'list' ? 'bg-[var(--accent-soft)] text-[var(--primary)]' : 'text-[var(--muted)] hover:bg-[var(--tag-bg)] hover:text-[var(--primary)]'}`}
-              >
-                <List size={18} />
-              </button>
+                icon={<List size={18} />}
+                variant={viewMode === 'list' ? 'soft' : 'ghost'}
+                size="sm"
+                className={viewMode === 'list' ? 'bg-[var(--accent-soft)] text-[var(--primary)]' : 'text-[var(--muted)] hover:bg-[var(--tag-bg)] hover:text-[var(--primary)]'}
+              />
             </div>
           </div>
         </div>
@@ -536,17 +639,19 @@ function PostList({
       {isLoading ? (
         <PostListSkeleton />
       ) : totalPosts === 0 && !hasActiveFilters ? (
-        <EmptyState />
+        <DirectoryEmptyState mineOnly={mineOnly} />
       ) : totalPosts === 0 ? (
         <div className="flex flex-col items-center gap-4 px-7 py-16 text-center">
           <p className="text-base font-semibold text-[var(--muted)]">No opportunities match your filters.</p>
-          <button
+          <Button
             onClick={onClear}
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-5 py-2 text-sm font-black text-[var(--primary)] transition hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
+            variant="outline"
+            size="sm"
+            icon={<RotateCcw size={14} />}
+            className="border-[var(--border)] text-[var(--primary)] hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
           >
-            <RotateCcw size={14} />
             Reset filters
-          </button>
+          </Button>
         </div>
       ) : (
         <>
@@ -557,6 +662,9 @@ function PostList({
                 post={post}
                 isLast={index === posts.length - 1}
                 compact={viewMode === 'grid'}
+                mineOnly={mineOnly}
+                onDelete={onDelete}
+                isDeleting={deletingPostId === post.id}
               />
             ))}
           </div>
@@ -568,7 +676,7 @@ function PostList({
           />
         </>
       )}
-    </section>
+    </SectionCard>
   )
 }
 
@@ -610,33 +718,42 @@ function PostListSkeleton() {
   )
 }
 
-function EmptyState() {
+function DirectoryEmptyState({ mineOnly }: { mineOnly: boolean }) {
   return (
-    <div className="flex flex-col items-center gap-6 px-7 py-20 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-soft)]">
-        <FileText size={28} className="text-[var(--primary)]" strokeWidth={1.5} />
-      </div>
-      <div>
-        <p className="text-lg font-black text-[var(--primary)]">No opportunities yet</p>
-        <p className="mt-2 text-sm font-semibold text-[var(--muted)]">
-          Be the first to post a collaboration opportunity.
-        </p>
-      </div>
-      <Link
-        to={ROUTES.POST_CREATE}
-        className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-6 py-3 text-sm font-black text-white transition hover:bg-[#24162B]"
-      >
-        <Plus size={16} strokeWidth={2.6} />
-        Post an opportunity
-      </Link>
-    </div>
+    <UiEmptyState
+      icon={<FileText size={28} strokeWidth={1.5} />}
+      title={mineOnly ? 'No posts yet' : 'No opportunities yet'}
+      description={mineOnly ? 'Your published and draft opportunities will appear here.' : 'Be the first to post a collaboration opportunity.'}
+      action={(
+        <ButtonLink
+          to={ROUTES.POST_CREATE}
+          variant="primary"
+          icon={<Plus size={16} strokeWidth={2.6} />}
+        >
+          Post an opportunity
+        </ButtonLink>
+      )}
+    />
   )
 }
 
-function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boolean; compact: boolean }) {
+function PostRow({
+  post,
+  isLast,
+  compact,
+  mineOnly,
+  onDelete,
+  isDeleting,
+}: {
+  post: DirectoryPost
+  isLast: boolean
+  compact: boolean
+  mineOnly: boolean
+  onDelete: (postId: string) => void
+  isDeleting: boolean
+}) {
   return (
-    <Link
-      to={postDetail(post.id)}
+    <article
       className={`post-row block transition hover:bg-[#F3F4F6] ${compact ? 'post-row-compact' : ''} ${isLast ? '' : 'border-b border-[var(--border)]'}`}
       style={{ minHeight: compact ? 220 : 246, padding: '32px 28px' }}
     >
@@ -652,9 +769,7 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
       <div className="min-w-0 pt-1">
         {post.matchScore > 0 && (
           <div className="mb-4 flex flex-wrap items-center gap-3">
-            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] ${
-              post.hasAI ? 'bg-[#36213E] text-white' : 'bg-[#D8EFF2] text-[#36213E]'
-            }`}>
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] ${post.hasAI ? 'bg-[#36213E] text-white' : 'bg-[#D8EFF2] text-[#36213E]'}`}>
               <Sparkles size={14} />
               {post.hasAI ? 'AI match' : 'Profile match'} · {post.matchScore}%
             </div>
@@ -666,8 +781,10 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
           </div>
         )}
 
-        <h2 className="truncate font-headline text-2xl font-black leading-tight text-[var(--primary)]">{post.title}</h2>
-        <p className="mt-4 max-w-[900px] break-words text-base font-semibold leading-6 text-[var(--muted)]">{post.description}</p>
+        <Link to={postDetail(post.id)} className="group block">
+          <h2 className="truncate font-headline text-2xl font-black leading-tight text-[var(--primary)] transition group-hover:text-[#8AC6D0]">{post.title}</h2>
+          <p className="mt-4 max-w-[900px] break-words text-base font-semibold leading-6 text-[var(--muted)]">{post.description}</p>
+        </Link>
 
         <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-black text-[var(--muted)]">
           <span className="text-[var(--primary)]">{post.author}</span>
@@ -689,15 +806,26 @@ function PostRow({ post, isLast, compact }: { post: DirectoryPost; isLast: boole
           <StatusPill label={post.stage} />
           <StatusPill label={post.type} />
         </div>
-        {post.tags.length > 0 && (
-          <div className="flex max-w-[340px] flex-wrap justify-end gap-2 self-end">
-            {post.tags.map(tag => (
-              <Tag key={tag} label={tag} />
-            ))}
-          </div>
-        )}
+        <div className="flex max-w-[340px] flex-wrap justify-end gap-2 self-end">
+          {post.tags.map(tag => (
+            <Tag key={tag} label={tag} />
+          ))}
+          {mineOnly && (
+            <Button
+              type="button"
+              onClick={() => onDelete(post.id)}
+              disabled={isDeleting}
+              variant="outline"
+              size="sm"
+              icon={<Trash2 size={13} />}
+              className="h-8 border-[#F0C8CC] text-[#B64B55] hover:bg-[#F7EDEE]"
+            >
+              {isDeleting ? 'Deleting' : 'Delete'}
+            </Button>
+          )}
+        </div>
       </div>
-    </Link>
+    </article>
   )
 }
 
@@ -706,26 +834,26 @@ function Tag({ label }: { label: string }) {
   const primary = ['Needs Engineering', 'Partner Found'].includes(label) || label.startsWith('AI:')
 
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 text-xs font-black uppercase tracking-[0.12em] ${
+    <Badge
+      variant={primary ? 'primary' : cyan ? 'soft' : 'neutral'}
+      className={
         primary
-          ? 'bg-[var(--primary)] text-white'
+          ? 'bg-[var(--primary)]'
           : cyan
             ? 'bg-[#E8F4F7] text-[var(--tag-text)]'
             : 'bg-[var(--tag-bg)] text-[var(--tag-text)]'
-      }`}
-      style={{ height: 22 }}
+      }
     >
       {label}
-    </span>
+    </Badge>
   )
 }
 
 function StatusPill({ label }: { label: string }) {
   return (
-    <span className="inline-flex min-w-24 items-center justify-center rounded-full border border-[var(--border)] bg-white px-4 text-xs font-black uppercase tracking-[0.12em] text-[var(--tag-text)]" style={{ height: 32 }}>
+    <Badge variant="outline" size="md" className="min-w-24 border-[var(--border)] text-[var(--tag-text)]">
       {label}
-    </span>
+    </Badge>
   )
 }
 
@@ -751,14 +879,14 @@ function Pagination({
         Showing {start}-{end} of {totalPosts}
       </div>
       <div className="flex items-center gap-2">
-        <button
+        <IconButton
           onClick={() => onPage(Math.max(1, page - 1))}
           disabled={page === 1}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--primary)] transition hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-40"
-          aria-label="Previous page"
-        >
-          <ChevronLeft size={17} />
-        </button>
+          label="Previous page"
+          icon={<ChevronLeft size={17} />}
+          variant="outline"
+          className="border-[var(--border)] text-[var(--primary)] hover:border-[var(--accent)]"
+        />
         {buildPageRange(page, totalPages).map((item, i) =>
           item === '…' ? (
             <span key={`ellipsis-${i}`} className="flex h-10 w-6 items-center justify-center text-sm text-[var(--muted)]">…</span>
@@ -776,14 +904,14 @@ function Pagination({
             </button>
           ),
         )}
-        <button
+        <IconButton
           onClick={() => onPage(Math.min(totalPages, page + 1))}
           disabled={page === totalPages}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--primary)] transition hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-40"
-          aria-label="Next page"
-        >
-          <ChevronRight size={17} />
-        </button>
+          label="Next page"
+          icon={<ChevronRight size={17} />}
+          variant="outline"
+          className="border-[var(--border)] text-[var(--primary)] hover:border-[var(--accent)]"
+        />
       </div>
     </div>
   )

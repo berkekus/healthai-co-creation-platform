@@ -14,7 +14,7 @@ import type { ActivityLog } from '../../types/common.types'
 import type { User } from '../../types/auth.types'
 import { ROUTES } from '../../constants/routes'
 
-type AdminView = 'overview' | 'users' | 'posts' | 'logs'
+type AdminView = 'overview' | 'users' | 'posts' | 'logs' | 'verification'
 const USERS_PER_PAGE = 20
 
 const ROLE_LABEL: Record<string, string> = {
@@ -60,17 +60,18 @@ function timeAgo(iso: string) {
 
 // ── HOVER-EXPAND SIDEBAR ──────────────────────────────────
 function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: AdminView) => void }) {
-  const mainViews = new Set<AdminView>(['overview', 'users', 'posts', 'logs'])
+  const mainViews = new Set<AdminView>(['overview', 'users', 'posts', 'logs', 'verification'])
 
   const navItems: { id: string; label: string; icon: React.ReactNode; route?: string; soon?: true }[] = [
-    { id: 'overview',  label: 'Overview',        icon: <LayoutDashboard size={18} strokeWidth={1.8} /> },
-    { id: 'users',     label: 'Users',            icon: <Users size={18} strokeWidth={1.8} /> },
-    { id: 'posts',     label: 'Posts & Listings', icon: <FileText size={18} strokeWidth={1.8} /> },
-    { id: 'logs',      label: 'Activity Logs',    icon: <Clock size={18} strokeWidth={1.8} /> },
-    { id: 'meetings',  label: 'Meetings',         icon: <Calendar size={18} strokeWidth={1.8} />, route: ROUTES.MEETINGS },
-    { id: 'security',  label: 'Security',         icon: <Shield size={18} strokeWidth={1.8} />, soon: true },
-    { id: 'reports',   label: 'Reports',          icon: <BarChart2 size={18} strokeWidth={1.8} />, soon: true },
-    { id: 'settings',  label: 'Settings',         icon: <Settings size={18} strokeWidth={1.8} />, soon: true },
+    { id: 'overview',     label: 'Overview',          icon: <LayoutDashboard size={18} strokeWidth={1.8} /> },
+    { id: 'users',        label: 'Users',              icon: <Users size={18} strokeWidth={1.8} /> },
+    { id: 'verification', label: 'Verification Queue', icon: <UserCheck size={18} strokeWidth={1.8} /> },
+    { id: 'posts',        label: 'Posts & Listings',   icon: <FileText size={18} strokeWidth={1.8} /> },
+    { id: 'logs',         label: 'Activity Logs',      icon: <Clock size={18} strokeWidth={1.8} /> },
+    { id: 'meetings',     label: 'Meetings',           icon: <Calendar size={18} strokeWidth={1.8} />, route: ROUTES.MEETINGS },
+    { id: 'security',     label: 'Security',           icon: <Shield size={18} strokeWidth={1.8} />, soon: true },
+    { id: 'reports',      label: 'Reports',            icon: <BarChart2 size={18} strokeWidth={1.8} />, soon: true },
+    { id: 'settings',     label: 'Settings',           icon: <Settings size={18} strokeWidth={1.8} />, soon: true },
   ]
 
   return (
@@ -232,10 +233,98 @@ function MiniSparkline() {
 }
 
 // ── OVERVIEW ──────────────────────────────────────────────
-function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigate, onExportUsers, navigateTo }: {
+function VerificationQueueTab() {
+  const [pending, setPending] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const load = () => {
+    setLoading(true)
+    api.get<{ success: boolean; data: { users: (User & { _id?: string })[] } }>('/auth/users', { params: { isVerified: 'false', limit: 200 } })
+      .then(({ data }) => setPending(data.data.users.map(u => ({ ...u, id: u._id ?? u.id })).filter(u => u.role !== 'admin')))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => { load() }, [])
+
+  const handleVerify = async (userId: string) => {
+    await api.patch(`/auth/users/${userId}/verify`)
+    setPending(prev => prev.filter(u => u.id !== userId))
+  }
+
+  return (
+    <div className="p-6">
+      <div className="mb-5">
+        <h1 className="text-xl font-black text-[#18203a]">Verification Queue</h1>
+        <p className="text-sm text-[#9ca3af] mt-0.5">{loading ? '…' : pending.length} users awaiting manual verification</p>
+      </div>
+      <div className="bg-white rounded-2xl border border-[#eaecf0] overflow-hidden">
+        {loading ? (
+          <div className="px-6 py-12 text-center text-sm text-[#9ca3af]">Loading…</div>
+        ) : pending.length === 0 ? (
+          <div className="px-6 py-12 text-center">
+            <CheckCircle size={32} className="mx-auto text-[#22c55e] mb-3" />
+            <p className="text-sm font-semibold text-[#374151]">No users pending verification</p>
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[#f3f4f6] bg-[#f9fafb]">
+                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">User</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">Role</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">Institution</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">Registered</th>
+                <th className="px-6 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {pending.map(u => (
+                <tr key={u.id} className="border-b border-[#f3f4f6] hover:bg-[#f9fafb] transition-colors">
+                  <td className="px-6 py-3.5">
+                    <div className="font-semibold text-[#18203a]">{u.name}</div>
+                    <div className="text-xs text-[#9ca3af]">{u.email}</div>
+                  </td>
+                  <td className="px-6 py-3.5">
+                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${u.role === 'healthcare_professional' ? 'bg-[#dbeafe] text-[#2563eb]' : 'bg-[#d1fae5] text-[#059669]'}`}>
+                      {ROLE_LABEL[u.role] ?? u.role}
+                    </span>
+                  </td>
+                  <td className="px-6 py-3.5 text-[#6b7280] max-w-[180px] truncate">{u.institution}</td>
+                  <td className="px-6 py-3.5 text-[#9ca3af]">{new Date(u.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                  <td className="px-6 py-3.5 text-right">
+                    <button
+                      onClick={() => handleVerify(u.id)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#18203a] text-white text-xs font-bold hover:bg-black transition-colors"
+                    >
+                      <UserCheck size={13} />
+                      Verify
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  )
+}
+
+interface PlatformStats {
+  usersByRole: Record<string, number>
+  postsByStatus: Record<string, number>
+  postsByDomain: { domain: string; count: number }[]
+  meetingsByStatus: Record<string, number>
+  meetingCompletionRate: number
+  newUsersLast30: number
+  newPostsLast30: number
+}
+
+function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, onNavigate, onExportUsers, navigateTo }: {
   users: User[]
   posts: { domain: string; status: string; title: string; authorName: string; createdAt: string; id: string; authorId: string }[]
   meetingCount: number; failedLogins: number; logs: ActivityLog[]
+  stats: PlatformStats | null
   onNavigate: (v: AdminView) => void
   onExportUsers: () => void
   navigateTo: (path: string) => void
@@ -309,10 +398,10 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigat
 
       {/* Stats — 4-column grid */}
       <div className="grid grid-cols-4 gap-4">
-        <StatCard label="Total Users"     value={totalUsers}   icon={<Users size={20} strokeWidth={1.8} />}    iconBg="#ede9fe" iconColor="#7c3aed" change="12%"  up={true} />
-        <StatCard label="Active Listings" value={activePosts}  icon={<FileText size={20} strokeWidth={1.8} />} iconBg="#dbeafe" iconColor="#2563eb" change="8%"   up={true} />
-        <StatCard label="Meetings"        value={meetingCount} icon={<Calendar size={20} strokeWidth={1.8} />} iconBg="#fef3c7" iconColor="#d97706" change="24%"  up={true} />
-        <StatCard label="Security Events" value={failedLogins} icon={<Shield size={20} strokeWidth={1.8} />}   iconBg="#fee2e2" iconColor="#dc2626" change="0%"   up={null} />
+        <StatCard label="Total Users"     value={totalUsers}   icon={<Users size={20} strokeWidth={1.8} />}    iconBg="#ede9fe" iconColor="#7c3aed" change={stats ? `+${stats.newUsersLast30} (30d)` : '…'}  up={true} />
+        <StatCard label="Active Listings" value={activePosts}  icon={<FileText size={20} strokeWidth={1.8} />} iconBg="#dbeafe" iconColor="#2563eb" change={stats ? `+${stats.newPostsLast30} (30d)` : '…'}   up={true} />
+        <StatCard label="Meetings"        value={meetingCount} icon={<Calendar size={20} strokeWidth={1.8} />} iconBg="#fef3c7" iconColor="#d97706" change={stats ? `${stats.meetingCompletionRate}% done` : '…'}  up={true} />
+        <StatCard label="Security Events" value={failedLogins} icon={<Shield size={20} strokeWidth={1.8} />}   iconBg="#fee2e2" iconColor="#dc2626" change="last 200 logs"   up={null} />
       </div>
 
       {/* Main + Right panel */}
@@ -461,6 +550,45 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, onNavigat
 
           <div className="border-t border-[#f3f4f6]" />
 
+          {/* Platform metrics */}
+          {stats && (
+            <>
+              <div className="px-5 py-4">
+                <h3 className="text-sm font-black text-[#18203a] mb-3">Top domains</h3>
+                <div className="space-y-2">
+                  {stats.postsByDomain.slice(0, 5).map(({ domain, count }) => {
+                    const max = stats.postsByDomain[0]?.count ?? 1
+                    const pct = Math.round((count / max) * 100)
+                    return (
+                      <div key={domain}>
+                        <div className="flex justify-between text-xs mb-0.5">
+                          <span className="font-semibold text-[#374151] truncate max-w-[160px]">{domain}</span>
+                          <span className="text-[#9ca3af] font-bold ml-2">{count}</span>
+                        </div>
+                        <div className="h-1.5 bg-[#f0f1f3] rounded-full overflow-hidden">
+                          <div className="h-full bg-[#4f46e5] rounded-full" style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              <div className="border-t border-[#f3f4f6]" />
+              <div className="px-5 py-4">
+                <h3 className="text-sm font-black text-[#18203a] mb-2.5">Users by role</h3>
+                <div className="space-y-1.5">
+                  {Object.entries(stats.usersByRole).filter(([r]) => r !== 'admin').map(([role, count]) => (
+                    <div key={role} className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-[#374151] capitalize">{role.replace('_', ' ')}</span>
+                      <span className={`px-2 py-0.5 rounded-full font-bold ${role === 'healthcare_professional' ? 'bg-[#dbeafe] text-[#2563eb]' : 'bg-[#d1fae5] text-[#059669]'}`}>{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="border-t border-[#f3f4f6]" />
+            </>
+          )}
+
           {/* System Status */}
           <div className="px-5 py-4">
             <h3 className="text-sm font-black text-[#18203a] mb-2.5">System status</h3>
@@ -519,6 +647,7 @@ export default function AdminPage() {
   const [logsLoading, setLogsLoading] = useState(false)
   const [logAction, setLogAction] = useState('')
   const [logResult, setLogResult] = useState('')
+  const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null)
 
   const { posts, fetchPosts, remove: removePost } = usePostStore()
   const { push } = useNotificationStore()
@@ -527,6 +656,9 @@ export default function AdminPage() {
   useEffect(() => {
     api.get<{ success: boolean; data: { users: (User & { _id?: string })[]; total: number } }>('/auth/users', { params: { limit: 500 } })
       .then(({ data }) => setUsers(data.data.users.map(u => ({ ...u, id: u._id ?? u.id }))))
+      .catch(() => {})
+    api.get<{ success: boolean; data: PlatformStats }>('/auth/stats')
+      .then(({ data }) => setPlatformStats(data.data))
       .catch(() => {})
   }, [])
 
@@ -595,7 +727,7 @@ export default function AdminPage() {
 
   const totalNonAdmin = users.filter(u => u.role !== 'admin').length
   const failedLogins = logs.filter(l => l.action === 'login_failed' || l.action === 'register_failed').length
-  const selectCls = 'bg-white border border-[#eaecf0] rounded-xl px-3 py-2 text-sm text-[#374151] font-semibold outline-none focus:border-[#4f46e5] transition-colors cursor-pointer'
+  const selectCls = 'bg-white border border-[#eaecf0] rounded-xl px-3 py-2 text-sm text-[#374151] font-semibold outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 transition-colors cursor-pointer'
 
   return (
     <div className="flex font-body" style={{ height: 'calc(100vh - 76px)' }}>
@@ -607,10 +739,15 @@ export default function AdminPage() {
         {view === 'overview' && (
           <OverviewTab
             users={users} posts={posts} meetingCount={meetings.length}
-            failedLogins={failedLogins} logs={logs} onNavigate={setView}
-            onExportUsers={() => downloadUsersCSV(users)}
+            failedLogins={failedLogins} logs={logs} stats={platformStats}
+            onNavigate={setView} onExportUsers={() => downloadUsersCSV(users)}
             navigateTo={navigate}
           />
+        )}
+
+        {/* ── VERIFICATION QUEUE ── */}
+        {view === 'verification' && (
+          <VerificationQueueTab />
         )}
 
         {/* ── USERS ── */}
@@ -628,7 +765,7 @@ export default function AdminPage() {
                   <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
                   <input type="search" value={userQuery} onChange={e => setUserQuery(e.target.value)}
                     placeholder="Search name, email, institution…"
-                    className="w-full bg-[#f8f9fb] border border-[#eaecf0] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#374151] outline-none focus:border-[#4f46e5] transition-colors" />
+                    className="w-full bg-[#f8f9fb] border border-[#eaecf0] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#374151] outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 transition-colors" />
                 </div>
                 <span className="text-xs text-[#9ca3af] font-semibold">{filteredUsers.length} of {totalNonAdmin} shown</span>
               </div>

@@ -43,6 +43,7 @@ function sanitize(user: IUser) {
     bio: user.bio,
     avatarUrl: user.avatarUrl,
     expertiseTags: user.expertiseTags,
+    notifPrefs: user.notifPrefs,
     isVerified: user.isVerified,
     isSuspended: user.isSuspended,
     lastActive: user.lastActive,
@@ -146,6 +147,20 @@ export async function loginUser(email: string, password: string) {
   return { user: sanitize(user), token }
 }
 
+export async function updateNotifPrefs(
+  userId: string,
+  prefs: Partial<IUser['notifPrefs']>
+) {
+  const update: Record<string, unknown> = {}
+  const allowed: (keyof IUser['notifPrefs'])[] = ['meetingRequests', 'meetingUpdates', 'interestReceived', 'adminMessages', 'messages']
+  for (const key of allowed) {
+    if (typeof prefs[key] === 'boolean') update[`notifPrefs.${key}`] = prefs[key]
+  }
+  const user = await User.findByIdAndUpdate(userId, { $set: update }, { new: true })
+  if (!user) throw makeError('User not found', 404)
+  return sanitize(user)
+}
+
 export async function updateUserProfile(
   userId: string,
   data: Partial<Pick<IUser, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>
@@ -174,13 +189,16 @@ export async function getPublicUserById(userId: string) {
 export async function getAllUsers(opts: {
   role?: string
   search?: string
+  isVerified?: string
   page?: number
   limit?: number
 }) {
-  const { role, search, page = 1, limit = 20 } = opts
+  const { role, search, isVerified, page = 1, limit = 20 } = opts
   const query: Record<string, unknown> = {}
 
   if (role) query.role = role
+  if (isVerified === 'false') query.isVerified = false
+  if (isVerified === 'true') query.isVerified = true
   if (search) {
     query.$or = [
       { name:  { $regex: search, $options: 'i' } },
