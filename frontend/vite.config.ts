@@ -7,6 +7,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.ts'],
+    pool: 'vmThreads',
     server: {
       deps: {
         external: ['socket.io-client'],
