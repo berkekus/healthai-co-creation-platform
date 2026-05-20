@@ -14,6 +14,10 @@ import aiRoutes from '../routes/aiRoutes'
 import savedSearchRoutes from '../routes/savedSearchRoutes'
 import commentRoutes, { commentRouter } from '../routes/commentRoutes'
 import { errorHandler, notFound } from '../middleware/errorHandler'
+import passport from 'passport'
+import { initPassport } from './passport'
+
+initPassport()
 
 const app = express()
 
@@ -40,6 +44,7 @@ app.use(cors({
 }))
 app.use(express.json({ limit: '10kb' }))
 app.use(mongoSanitize())
+app.use(passport.initialize())
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 

@@ -13,6 +13,13 @@ export interface ITimeSlot {
   time: string
 }
 
+export interface IAiSummary {
+  topics: string[]
+  nextSteps: string[]
+  openQuestions: string[]
+  generatedAt: Date
+}
+
 export interface IMeeting extends Document {
   postId: Types.ObjectId
   postTitle: string
@@ -29,6 +36,7 @@ export interface IMeeting extends Document {
   confirmedSlot?: ITimeSlot
   declineReason?: string
   cancelReason?: string
+  aiSummary?: IAiSummary
   createdAt: Date
   updatedAt: Date
 }
@@ -62,6 +70,15 @@ const MeetingSchema = new Schema<IMeeting>(
     confirmedSlot: { type: TimeSlotSchema },
     declineReason: { type: String, trim: true },
     cancelReason: { type: String, trim: true },
+    aiSummary: {
+      type: {
+        topics:        [String],
+        nextSteps:     [String],
+        openQuestions: [String],
+        generatedAt:   Date,
+      },
+      default: null,
+    },
   },
   {
     timestamps: true,

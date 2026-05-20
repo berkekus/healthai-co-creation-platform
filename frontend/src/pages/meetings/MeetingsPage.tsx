@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import {
   Calendar,
@@ -17,6 +17,7 @@ import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
 import { useConversationStore } from '../../store/conversationStore'
 import type { Meeting, MeetingStatus, TimeSlot } from '../../types/meeting.types'
+import api from '../../lib/api'
 
 type TabId = 'all' | 'incoming' | 'outgoing' | 'pending' | 'confirmed' | 'cancelled'
 type SortMode = 'recent' | 'oldest'
@@ -494,7 +495,10 @@ function MeetingRow({
                 </ActionButton>
               </>
             )}
-            {(meeting.status === 'completed' || meeting.status === 'cancelled' || meeting.status === 'declined') && (
+            {meeting.status === 'completed' && (
+              <MeetingSummaryButton meetingId={meeting.id} />
+            )}
+            {(meeting.status === 'cancelled' || meeting.status === 'declined') && (
               <span className="text-xs font-black uppercase tracking-[0.12em] text-[var(--muted)]">
                 {tRow('meetingsPage.noActions')}
               </span>
@@ -508,6 +512,87 @@ function MeetingRow({
         )}
       </div>
     </article>
+  )
+}
+
+interface AiSummaryData {
+  topics: string[]
+  nextSteps: string[]
+  openQuestions: string[]
+  generatedAt: string
+}
+
+function MeetingSummaryButton({ meetingId }: { meetingId: string }) {
+  const [loading, setLoading] = useState(false)
+  const [summary, setSummary] = useState<AiSummaryData | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [open, setOpen] = useState(false)
+  const { t } = useTranslation()
+
+  const generate = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const { data } = await api.post<{ success: boolean; data: AiSummaryData }>(
+        `/ai/meeting-summary/${meetingId}`
+      )
+      setSummary(data.data)
+      setOpen(true)
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setLoading(false)
+    }
+  }, [meetingId])
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={summary ? () => setOpen(o => !o) : generate}
+        disabled={loading}
+        className="inline-flex items-center gap-1.5 rounded-lg bg-[#E8F4F7] px-3 py-1.5 text-xs font-black text-hai-teal transition hover:bg-hai-teal hover:text-white disabled:opacity-50"
+      >
+        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>
+          auto_awesome
+        </span>
+        {loading ? t('common.loading', 'Loading…') : t('meetings.aiSummary', 'AI Summary')}
+      </button>
+
+      {error && <p className="mt-1 text-[10px] font-semibold text-red-500">{error}</p>}
+
+      {summary && open && (
+        <div className="mt-3 rounded-xl border border-[#D5DAE0] bg-[#F8FBFC] p-4 text-xs">
+          {summary.topics.length > 0 && (
+            <div className="mb-3">
+              <p className="mb-1.5 font-black uppercase tracking-wide text-hai-plum">{t('meetings.summaryTopics', 'Topics')}</p>
+              <ul className="space-y-1">
+                {summary.topics.map((t, i) => <li key={i} className="flex gap-2 font-semibold text-[#374151]"><span className="text-hai-teal">•</span>{t}</li>)}
+              </ul>
+            </div>
+          )}
+          {summary.nextSteps.length > 0 && (
+            <div className="mb-3">
+              <p className="mb-1.5 font-black uppercase tracking-wide text-hai-plum">{t('meetings.summaryNextSteps', 'Next Steps')}</p>
+              <ul className="space-y-1">
+                {summary.nextSteps.map((s, i) => <li key={i} className="flex gap-2 font-semibold text-[#374151]"><span className="text-green-500">→</span>{s}</li>)}
+              </ul>
+            </div>
+          )}
+          {summary.openQuestions.length > 0 && (
+            <div>
+              <p className="mb-1.5 font-black uppercase tracking-wide text-hai-plum">{t('meetings.summaryOpenQuestions', 'Open Questions')}</p>
+              <ul className="space-y-1">
+                {summary.openQuestions.map((q, i) => <li key={i} className="flex gap-2 font-semibold text-[#374151]"><span className="text-amber-500">?</span>{q}</li>)}
+              </ul>
+            </div>
+          )}
+          <p className="mt-3 text-[10px] text-[#9CA3AF]">
+            {t('meetings.summaryGenerated', 'Generated')} {new Date(summary.generatedAt).toLocaleDateString()}
+          </p>
+        </div>
+      )}
+    </div>
   )
 }
 
