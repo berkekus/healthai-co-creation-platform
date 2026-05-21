@@ -366,8 +366,8 @@ function PageHeader({ search, onSearch, mineOnly }: { search: string; onSearch: 
 
 function SearchAndAction({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   return (
-    <div className="flex items-center gap-12 max-sm:flex-col max-sm:items-stretch">
-      <label className="relative block min-w-0 flex-1" style={{ height: 58 }}>
+    <div className="flex items-center gap-4 max-sm:flex-col max-sm:items-stretch">
+      <label className="relative block min-w-0 flex-1" style={{ height: 52 }}>
         <TextInput
           type="search"
           value={value}
@@ -381,9 +381,9 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
       <ButtonLink
         to={ROUTES.POST_CREATE}
         variant="primary"
-        size="lg"
-        icon={<Plus size={19} strokeWidth={2.6} />}
-        className="w-[196px]"
+        size="md"
+        icon={<Plus size={16} strokeWidth={2.6} />}
+        className="shrink-0"
       >
         Post opportunity
       </ButtonLink>
