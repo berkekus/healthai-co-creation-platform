@@ -170,7 +170,7 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
           size="md"
           fullWidth
           icon={<Plus size={18} strokeWidth={2.5} />}
-          className="max-w-[292px] justify-start gap-5 px-7 shadow-[0_18px_30px_-18px_rgba(45,24,56,0.82)]"
+          className="max-w-[250px] justify-start gap-4 px-6 shadow-[0_18px_30px_-18px_rgba(45,24,56,0.82)]"
         >
           {t('dashboard.postOpportunity')}
         </ButtonLink>
