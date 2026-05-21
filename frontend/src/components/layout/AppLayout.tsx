@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
 import Footer from './Footer'
+import FloatingChat from './FloatingChat'
 import SessionTimeoutModal from '../ui/SessionTimeoutModal'
 import CookieConsentBanner from '../ui/CookieConsentBanner'
 /**
@@ -13,6 +14,7 @@ export default function AppLayout() {
       <div className="flex-1">
         <Outlet />
       </div>
+      <FloatingChat />
       <Footer />
       <SessionTimeoutModal />
       <CookieConsentBanner />

@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Bell, Calendar, FileText, Menu, MessageSquare, Star, Users, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
+import { Bell, Calendar, FileText, Menu, Star, Users, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
-import { useConversationStore } from '../../store/conversationStore'
 import ThemeToggle from '../ui/ThemeToggle'
 import LanguageToggle from '../ui/LanguageToggle'
-import { Badge, IconButton, IconLink } from '../ui'
+import { Badge, IconButton } from '../ui'
 import { ROUTES } from '../../constants/routes'
 import type { NotificationType, Notification } from '../../types/common.types'
 
@@ -131,7 +130,6 @@ export default function Navbar() {
   const { t } = useTranslation()
   const { user, logout } = useAuthStore()
   const { unreadCount, fetchByUser: fetchNotifs, getByUser, markAllRead } = useNotificationStore()
-  const { unreadCount: msgUnread, fetchUnreadCount } = useConversationStore()
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -143,13 +141,6 @@ export default function Navbar() {
 
   const unread = user ? unreadCount(user.id) : 0
   const recentNotifs = user ? getByUser(user.id).slice(0, 5) : []
-
-  useEffect(() => {
-    if (!user) return
-    fetchUnreadCount()
-    const interval = setInterval(fetchUnreadCount, 30000)
-    return () => clearInterval(interval)
-  }, [user, fetchUnreadCount])
 
   const handleNotifEnter = () => {
     if (notifTimer.current) clearTimeout(notifTimer.current)
@@ -260,23 +251,6 @@ export default function Navbar() {
           {user ? (
             <>
               <ThemeToggle />
-
-              {/* Messages */}
-              <IconLink
-                to={ROUTES.MESSAGES}
-                label={`Messages${msgUnread > 0 ? ` (${msgUnread} unread)` : ''}`}
-                size="lg"
-                icon={(
-                  <>
-                    <MessageSquare size={17} />
-                    {msgUnread > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-white bg-hai-plum px-1 font-mono text-xs font-bold text-hai-mint">
-                        {msgUnread > 9 ? '9+' : msgUnread}
-                      </span>
-                    )}
-                  </>
-                )}
-              />
 
               {/* Notifications with hover dropdown */}
               <div
