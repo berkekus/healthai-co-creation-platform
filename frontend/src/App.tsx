@@ -19,7 +19,8 @@ export default function App() {
   }, [hydrate])
 
   useEffect(() => {
-    document.documentElement.lang = i18n.language.startsWith('tr') ? 'tr' : 'en'
+    const language = i18n.language.split('-')[0]
+    document.documentElement.lang = ['en', 'tr', 'pt', 'es', 'nl'].includes(language) ? language : 'en'
   }, [i18n.language])
 
   useEffect(() => {

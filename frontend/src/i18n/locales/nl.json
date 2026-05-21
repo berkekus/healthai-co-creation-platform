@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "browse": "Berichten verkennen",
+    "meetings": "Vergaderingen",
+    "admin": "Beheer",
+    "home": "Home",
+    "signIn": "Inloggen",
+    "signUp": "Registreren",
+    "profile": "Profiel",
+    "adminPanel": "Beheerpaneel",
+    "signOut": "Uitloggen",
+    "messages": "Berichten",
+    "notifications": "Meldingen"
+  },
+  "landing": {
+    "nav": {
+      "platform": "Platform",
+      "directory": "Directory",
+      "how": "Hoe het werkt",
+      "trust": "Vertrouwen"
+    },
+    "actions": {
+      "requestAccess": "Toegang aanvragen",
+      "goToDashboard": "Naar dashboard",
+      "signIn": "Inloggen",
+      "signUp": "Registreren",
+      "createEngineerAccount": "Ingenieursaccount maken",
+      "createHcpAccount": "Zorgprofessionalaccount maken"
+    },
+    "hero": {
+      "kicker": "SENG 384 · Voorjaar 2026 · v0.1",
+      "titleLine1": "Co-creatie in de zorg,",
+      "titleLine2": "zonder silo's.",
+      "subtitle": "Een gestructureerde, GDPR-native directory waar Europese clinici en ingenieurs publiceren, matchen en afspreken — allemaal met institutionele .edu-verificatie en een onveranderlijk auditspoor."
+    },
+    "directory": {
+      "verifiedNetwork": "Geverifieerd institutioneel netwerk",
+      "join": "Word lid van de directory",
+      "engineerLabel": "VOOR INGENIEURS",
+      "engineerTitle": "Bouw met klinisch inzicht.",
+      "engineerBody": "Deel je idee of vind de juiste zorgpartner om samen oplossingen te creëren.",
+      "clinicianLabel": "VOOR ZORGPROFESSIONALS",
+      "clinicianTitle": "Geef vorm aan technologie die ertoe doet.",
+      "clinicianBody": "Werk samen met ingenieurs aan echte klinische behoeften en innovaties."
+    },
+    "trust": {
+      "euHosted": "Gehost in de EU & GDPR-native",
+      "auditTrail": "Onveranderlijk auditspoor",
+      "zeroPatientData": "Geen patiëntgegevens",
+      "europeanInstitutions": "Gebouwd voor Europese instellingen"
+    },
+    "platform": {
+      "eyebrow": "Gebouwd voor Europa.",
+      "titleLine1": "Ontworpen voor Europese instellingen.",
+      "titleLine2": "Vertrouwd over grenzen heen.",
+      "body": "HealthAI is gebouwd met een Europese aanpak voor privacy, compliance en samenwerking. Eén platform. Veel landen. Gedeelde standaarden.",
+      "features": {
+        "gdpr": {
+          "title": "GDPR-native by design",
+          "desc": "Privacy, beveiliging en datasoevereiniteit staan centraal."
+        },
+        "institutions": {
+          "title": "Gebouwd voor Europese instellingen",
+          "desc": "Afgestemd op EU-regelgeving, ethiek en onderzoeksstandaarden."
+        },
+        "crossBorder": {
+          "title": "Grensoverschrijdende samenwerking",
+          "desc": "Maak verbinding met geverifieerde professionals en instellingen in heel Europa."
+        }
+      }
+    },
+    "cta": {
+      "ready": "Klaar om samen te creëren?"
+    }
+  }
+}

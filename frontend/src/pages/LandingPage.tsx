@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useMotionTemplate, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../constants/routes'
 import { useAuthStore } from '../store/authStore'
 import LanguageToggle from '../components/ui/LanguageToggle'
@@ -92,6 +93,7 @@ function NavDivider() {
 
 function TopNav() {
   const { user } = useAuthStore()
+  const { t } = useTranslation()
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 md:px-12 py-5 bg-transparent font-body">
       <Logo />
@@ -107,13 +109,13 @@ function TopNav() {
       <div className="hidden lg:flex items-center bg-white/25 backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
         <div className="flex items-center bg-white rounded-full h-full">
           <div className="flex items-center px-1">
-            <a href="#platform" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">Platform</a>
+            <a href="#platform" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{t('landing.nav.platform')}</a>
             <NavDivider />
-            <a href="#directory" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">Directory</a>
+            <a href="#directory" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{t('landing.nav.directory')}</a>
             <NavDivider />
-            <a href="#how" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">How it works</a>
+            <a href="#how" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{t('landing.nav.how')}</a>
             <NavDivider />
-            <a href="#trust" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">Trust</a>
+            <a href="#trust" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{t('landing.nav.trust')}</a>
           </div>
           <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
             {/* Request Access — plum bg + white font. Same premium hover
@@ -124,7 +126,7 @@ function TopNav() {
               to={ROUTES.REGISTER}
               className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out will-change-transform"
             >
-              Request Access
+              {t('landing.actions.requestAccess')}
             </Link>
           </div>
         </div>
@@ -143,7 +145,7 @@ function TopNav() {
             to={ROUTES.DASHBOARD}
             className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
           >
-            Go to Dashboard →
+            {t('landing.actions.goToDashboard')} →
           </Link>
         ) : (
           <>
@@ -151,13 +153,13 @@ function TopNav() {
               to={ROUTES.LOGIN}
               className="hidden sm:inline-flex text-neutral-900 font-bold text-sm px-5 py-2.5 rounded-full border border-neutral-900/30 bg-white/0 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] hover:bg-white/70 hover:border-neutral-900/50 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-10px_rgba(0,0,0,0.25)] active:translate-y-0 active:shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] transition-all duration-[250ms] ease-out will-change-transform"
             >
-              Sign in
+              {t('landing.actions.signIn')}
             </Link>
             <Link
               to={ROUTES.REGISTER}
               className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
             >
-              Sign up
+              {t('landing.actions.signUp')}
             </Link>
           </>
         )}
@@ -484,6 +486,7 @@ const STEPS: Step[] = [
 
 // ── Main ────────────────────────────────────────────────────────────
 export default function LandingPage() {
+  const { t } = useTranslation()
   const [step, setStep] = useState(0)
   const [dir, setDir] = useState<'right' | 'left'>('right')
 
@@ -674,17 +677,17 @@ export default function LandingPage() {
             >
               <div className="landing-hero-chip inline-flex items-center gap-2 backdrop-blur-md border rounded-full px-4 py-1.5 mb-6 text-xs font-mono tracking-[0.16em] uppercase landing-text font-bold">
                 <span className="landing-accent-bg w-1.5 h-1.5 rounded-full animate-pulse" />
-                SENG 384 · Spring 2026 · v0.1
+                {t('landing.hero.kicker')}
               </div>
               <h1
                 id="hero-headline"
                 className="font-headline font-bold landing-text leading-none tracking-normal text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
               >
-                Healthcare co-creation,<br />
-                <span className="text-[#008EA2]">without the silos.</span>
+                {t('landing.hero.titleLine1')}<br />
+                <span className="text-[#008EA2]">{t('landing.hero.titleLine2')}</span>
               </h1>
               <p className="landing-body-text mt-6 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed font-semibold">
-                A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional <span className="font-bold landing-text">.edu</span> verification and an immutable audit trail.
+                {t('landing.hero.subtitle')}
               </p>
             </motion.div>
 
@@ -755,7 +758,7 @@ export default function LandingPage() {
               <div className="mb-5 flex items-center justify-center gap-3">
                 <Icon name="verified_user" className="landing-accent-2 text-xl" filled />
                 <p className="landing-muted font-mono text-xs font-black uppercase tracking-[0.16em]">
-                  Verified Institutional Network
+                  {t('landing.directory.verifiedNetwork')}
                 </p>
               </div>
               <div className="relative overflow-hidden">
@@ -792,7 +795,7 @@ export default function LandingPage() {
             <div className="relative mb-12">
               <div className="landing-directory-shell relative rounded-[32px] border px-5 pb-6 pt-5 md:px-7 md:pb-7 md:pt-7">
                 <div className="mb-5 flex items-center justify-between px-1">
-                  <p className="landing-muted text-xs font-mono tracking-[0.16em] uppercase font-black">Join the Directory</p>
+                  <p className="landing-muted text-xs font-mono tracking-[0.16em] uppercase font-black">{t('landing.directory.join')}</p>
                 </div>
 
                 <div className="relative grid gap-4 md:grid-cols-2">
@@ -810,20 +813,20 @@ export default function LandingPage() {
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
                       <span className="landing-path-label mb-8 inline-flex items-center gap-3 whitespace-nowrap text-xs font-mono font-black uppercase tracking-[0.16em]">
                         <span className="landing-path-marker-engineer h-4 w-1" />
-                        FOR ENGINEERS
+                        {t('landing.directory.engineerLabel')}
                       </span>
                       <h2 className="font-headline text-[2.15rem] font-black leading-tight tracking-normal landing-text sm:text-[2.45rem] lg:text-[2.75rem]">
-                        Build with clinical insight.
+                        {t('landing.directory.engineerTitle')}
                       </h2>
                       <p className="landing-path-body mt-6 max-w-[320px] font-body text-base font-semibold leading-relaxed">
-                        Share your idea or look for the right healthcare partner to co-create solutions.
+                        {t('landing.directory.engineerBody')}
                       </p>
                       <Link
                         to={ROUTES.REGISTER}
                         state={{ role: 'engineer' }}
                         className="landing-path-link mt-auto inline-flex w-[260px] items-center justify-between border-b-2 pb-4 text-base font-black transition"
                       >
-                        Create Engineer Account
+                        {t('landing.actions.createEngineerAccount')}
                         <span className="text-4xl leading-none">→</span>
                       </Link>
                     </div>
@@ -857,20 +860,20 @@ export default function LandingPage() {
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
                       <span className="landing-path-label mb-8 inline-flex items-center gap-3 whitespace-nowrap text-xs font-mono font-black uppercase tracking-[0.16em]">
                         <span className="landing-path-marker-clinician h-4 w-1" />
-                        FOR HEALTHCARE PROFESSIONALS
+                        {t('landing.directory.clinicianLabel')}
                       </span>
                       <h2 className="font-headline text-[2.15rem] font-black leading-tight tracking-normal landing-text sm:text-[2.45rem] lg:text-[2.75rem]">
-                        Shape technology that matters.
+                        {t('landing.directory.clinicianTitle')}
                       </h2>
                       <p className="landing-path-body mt-6 max-w-[330px] font-body text-base font-semibold leading-relaxed">
-                        Collaborate with engineers on real clinical needs and innovations.
+                        {t('landing.directory.clinicianBody')}
                       </p>
                       <Link
                         to={ROUTES.REGISTER}
                         state={{ role: 'healthcare_professional' }}
                         className="landing-path-link mt-auto inline-flex w-[260px] items-center justify-between border-b-2 pb-4 text-base font-black transition"
                       >
-                        Create HCP Account
+                        {t('landing.actions.createHcpAccount')}
                         <span className="text-4xl leading-none">→</span>
                       </Link>
                     </div>
@@ -895,10 +898,10 @@ export default function LandingPage() {
 
                 <div className="mt-9 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 pt-2">
                   {([
-                    ['language',        'EU hosted & GDPR-native'],
-                    ['verified_user',   'Immutable audit trail'],
-                    ['lock',            'Zero patient data'],
-                    ['account_balance', 'Built for European institutions'],
+                    ['language',        t('landing.trust.euHosted')],
+                    ['verified_user',   t('landing.trust.auditTrail')],
+                    ['lock',            t('landing.trust.zeroPatientData')],
+                    ['account_balance', t('landing.trust.europeanInstitutions')],
                   ] as [string, string][]).map(([icon, label], index) => (
                     <span key={label} className="landing-muted flex items-center gap-4 text-xs font-mono font-black uppercase tracking-[0.16em]">
                       {index > 0 && <span className="landing-rule-bg hidden h-5 w-px lg:block" />}
@@ -928,7 +931,7 @@ export default function LandingPage() {
             {/* Giant "Platform" wordmark — on off-white, uses ghost tone */}
             <div className="mt-16 text-center md:mt-24">
               <h2 className="landing-ghost-word text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-normal">
-                Platform
+                {t('landing.nav.platform')}
               </h2>
             </div>
           </section>
@@ -938,21 +941,21 @@ export default function LandingPage() {
             <div className="relative overflow-hidden px-0 py-10 md:px-2 md:py-14 lg:px-4">
               <div className="grid min-h-[640px] grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.45fr] lg:items-center">
                 <div className="relative z-10 max-w-[500px]">
-                  <p className="landing-accent font-mono text-xs font-black uppercase tracking-[0.16em]">Built for Europe.</p>
+                  <p className="landing-accent font-mono text-xs font-black uppercase tracking-[0.16em]">{t('landing.platform.eyebrow')}</p>
                   <div className="landing-accent-bg mt-6 h-0.5 w-10" />
                   <h2 className="mt-10 font-headline text-[2.65rem] font-black leading-tight tracking-normal landing-text sm:text-[3.2rem] lg:text-[3.55rem]">
-                    Designed for European institutions.<br />
-                    <span className="landing-accent">Trusted across borders.</span>
+                    {t('landing.platform.titleLine1')}<br />
+                    <span className="landing-accent">{t('landing.platform.titleLine2')}</span>
                   </h2>
                   <p className="landing-body-text mt-8 max-w-[430px] font-body text-lg font-semibold leading-relaxed">
-                    HealthAI is built with a European-first approach to privacy, compliance, and collaboration. One platform. Many countries. Shared standards.
+                    {t('landing.platform.body')}
                   </p>
 
                   <div className="mt-10 space-y-7">
                     {[
-                      ['security', 'GDPR-native by design', 'Privacy, security and data sovereignty at the core.'],
-                      ['account_balance', 'Built for European institutions', 'Aligned with EU regulations, ethics and research standards.'],
-                      ['groups', 'Cross-border collaboration', 'Connect with verified professionals and institutions across Europe.'],
+                      ['security', t('landing.platform.features.gdpr.title'), t('landing.platform.features.gdpr.desc')],
+                      ['account_balance', t('landing.platform.features.institutions.title'), t('landing.platform.features.institutions.desc')],
+                      ['groups', t('landing.platform.features.crossBorder.title'), t('landing.platform.features.crossBorder.desc')],
                     ].map(([icon, title, desc]) => (
                       <div key={title} className="flex items-start gap-4">
                         <div className="landing-subtle-icon flex h-14 w-14 shrink-0 items-center justify-center rounded-full">
@@ -1105,9 +1108,9 @@ export default function LandingPage() {
           {/* ── CTA row — last piece of the foreground slab ──── */}
           <section className="max-w-7xl mx-auto px-6 md:px-8 pb-20">
             <div className="bg-white rounded-full p-5 md:p-6 shadow-sm border border-neutral-100 flex items-center justify-between gap-4 flex-wrap">
-              <h2 className="text-xl md:text-2xl font-headline font-bold text-neutral-900 ml-2 md:ml-4">Ready to co-create?</h2>
+              <h2 className="text-xl md:text-2xl font-headline font-bold text-neutral-900 ml-2 md:ml-4">{t('landing.cta.ready')}</h2>
               <Link to={ROUTES.REGISTER} className="bg-hai-teal text-hai-plum px-7 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-all">
-                Request Access
+                {t('landing.actions.requestAccess')}
               </Link>
             </div>
           </section>

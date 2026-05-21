@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Bookmark, CalendarDays, Eye, FileText, Handshake, Plus, Search, Sparkles, User } from 'lucide-react'
+import { Activity, ArrowRight, Bookmark, BrainCircuit, CalendarDays, ChevronRight, Eye, FileText, Handshake, HeartPulse, Plus, Search, Sparkles, User } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../lib/api'
@@ -248,46 +248,131 @@ function Metric({
 }
 
 function RecentPosts({ posts }: { posts: Post[] }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const recentPosts = [...posts]
     .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
     .slice(0, 3)
 
   return (
     <div>
-      <div className="mb-9 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between">
         <h3 className="text-base font-black text-[#36213E]">{t('dashboard.recentPosts')}</h3>
-        <Link to={`${ROUTES.POSTS}?mine=true`} className="flex items-center gap-6 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
+        <Link to={`${ROUTES.POSTS}?mine=true`} className="flex items-center gap-3 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
           {t('common.viewAll')}
           <ArrowRight size={16} />
         </Link>
       </div>
 
-      <div className="relative ml-2 pl-9">
-        <div className="absolute left-0 top-[8px] bottom-[34px] border-l border-dashed border-[#D5DAE0]" />
+      <div className="flex flex-col gap-3">
         {recentPosts.length > 0 ? (
-          recentPosts.map(post => (
-            <Link
-              to={`/posts/${post.id}`}
-              key={post.id}
-              className="group relative grid min-h-[94px] grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-[#D5DAE0] pt-0.5 transition hover:border-[#8AC6D0] sm:grid-cols-[minmax(0,1fr)_132px] sm:gap-8"
-            >
-              <span className="absolute -left-[41px] top-[4px] h-2.5 w-2.5 rounded-full bg-[#8AC6D0]" />
-              <div>
-                <div className="truncate text-base font-black text-[#36213E] transition group-hover:text-[#36213E]">{post.title}</div>
-                <div className="mt-2 text-base font-semibold text-[#6F6878]">{post.domain}</div>
-              </div>
-              <StatusPill status={post.status} />
-            </Link>
+          recentPosts.map((post, index) => (
+            <RecentPostCard key={post.id} post={post} index={index} timeLabel={formatPostAge(post.updatedAt || post.createdAt, i18n.language)} />
           ))
         ) : (
-          <div className="relative min-h-[94px] border-b border-[#D5DAE0] pt-0.5 text-base font-semibold text-[#6F6878]">
-            <span className="absolute -left-[41px] top-[4px] h-2.5 w-2.5 rounded-full bg-[#8AC6D0]" />
+          <div className="min-h-[82px] rounded-[10px] border border-[#E3E7EC] bg-white px-5 py-5 text-sm font-semibold text-[#6F6878] shadow-[0_14px_34px_-28px_rgba(45,24,56,0.5)]">
             {t('dashboard.noPostsYet')}.
           </div>
         )}
       </div>
     </div>
+  )
+}
+
+function formatPostAge(dateValue: string, language: string) {
+  const timestamp = new Date(dateValue).getTime()
+  if (Number.isNaN(timestamp)) return ''
+
+  const diffMs = Date.now() - timestamp
+  const diffDays = Math.floor(diffMs / 86400000)
+  const locale = language.startsWith('tr') ? 'tr-TR' : 'en-US'
+
+  if (diffDays <= 0) return language.startsWith('tr') ? 'Bugün' : 'Today'
+  if (diffDays === 1) return language.startsWith('tr') ? 'Dün' : 'Yesterday'
+  if (diffDays < 7) return language.startsWith('tr') ? `${diffDays} gün önce` : `${diffDays} days ago`
+
+  return new Date(timestamp).toLocaleDateString(locale, { month: 'short', day: 'numeric' })
+}
+
+function getRecentPostVisual(post: Post, index: number) {
+  const domain = `${post.domain} ${post.title}`.toLowerCase()
+  const palette = [
+    { accent: '#2DA7B7', bg: '#E2F6F8', fg: '#168191', icon: <Activity size={21} strokeWidth={2.4} /> },
+    { accent: '#5A84E8', bg: '#EAF0FF', fg: '#3562C7', icon: <BrainCircuit size={21} strokeWidth={2.25} /> },
+    { accent: '#7D5AE8', bg: '#F0EAFF', fg: '#6543CA', icon: <HeartPulse size={21} strokeWidth={2.35} /> },
+  ]
+
+  if (domain.includes('neuro') || domain.includes('brain')) return palette[1]
+  if (domain.includes('heart') || domain.includes('cardio') || domain.includes('ecg')) return index === 0 ? palette[0] : palette[2]
+  return palette[index % palette.length]
+}
+
+function RecentPostCard({ post, index, timeLabel }: { post: Post; index: number; timeLabel: string }) {
+  const visual = getRecentPostVisual(post, index)
+
+  return (
+    <Link
+      to={`/posts/${post.id}`}
+      className="group relative grid min-h-[82px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 overflow-hidden rounded-[10px] border border-[#E3E7EC] bg-white px-5 py-3.5 shadow-[0_16px_36px_-30px_rgba(45,24,56,0.55)] transition hover:-translate-y-0.5 hover:border-[#8AC6D0] hover:shadow-[0_22px_44px_-30px_rgba(45,24,56,0.62)]"
+    >
+      <span className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: visual.accent }} />
+      <span
+        className="flex h-12 w-12 items-center justify-center rounded-[10px]"
+        style={{ backgroundColor: visual.bg, color: visual.fg }}
+      >
+        {visual.icon}
+      </span>
+
+      <div className="min-w-0">
+        <div className="truncate text-sm font-black leading-5 text-[#181431]">{post.title}</div>
+        <div className="mt-1 flex min-w-0 items-center gap-2 text-sm font-semibold text-[#65708A]">
+          <span className="truncate">{post.domain}</span>
+          {timeLabel && (
+            <>
+              <span className="h-1 w-1 shrink-0 rounded-full bg-[#8B94AA]" />
+              <span className="shrink-0">{timeLabel}</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <RecentPostStatusBadge status={post.status} />
+        <ChevronRight size={19} className="text-[#687294] transition group-hover:translate-x-0.5 group-hover:text-[#1B7A88]" />
+      </div>
+    </Link>
+  )
+}
+
+function RecentPostStatusBadge({ status }: { status: Post['status'] }) {
+  const { t } = useTranslation()
+  const config: Record<Post['status'], { label: string; className: string }> = {
+    draft: {
+      label: t('dashboard.status.draft'),
+      className: 'bg-[#EEF0F6] text-[#687294]',
+    },
+    active: {
+      label: t('dashboard.status.open', { defaultValue: 'Open' }),
+      className: 'bg-[#E8F0FF] text-[#3562C7]',
+    },
+    meeting_scheduled: {
+      label: t('dashboard.status.meeting_scheduled'),
+      className: 'bg-[#EAF0FF] text-[#3562C7]',
+    },
+    partner_found: {
+      label: t('dashboard.status.partner_found'),
+      className: 'bg-[#63BFC1] text-white',
+    },
+    expired: {
+      label: t('dashboard.status.expired'),
+      className: 'bg-[#F3E9EA] text-[#A94555]',
+    },
+  }
+  const item = config[status]
+
+  return (
+    <span className={`min-w-[92px] rounded-[9px] px-3 py-2 text-center text-[11px] font-black uppercase leading-3 tracking-[0.04em] ${item.className}`}>
+      {item.label}
+    </span>
   )
 }
 
