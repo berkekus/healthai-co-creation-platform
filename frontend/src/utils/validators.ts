@@ -7,6 +7,7 @@ export const postCreateSchema = z.object({
   description:       z.string().min(50, 'Description must be at least 50 characters'),
   projectStage:      z.enum(['idea', 'concept_validation', 'prototype', 'pilot', 'pre_deployment'] as const),
   collaborationType: z.enum(['advisor', 'co_founder', 'research_partner', 'contract'] as const),
+  levelOfCommitment: z.enum(['flexible', 'low', 'medium', 'high'] as const),
   confidentiality:   z.enum(['public_pitch', 'meeting_only'] as const),
   city:              z.string().min(1, 'City is required'),
   country:           z.string().min(1, 'Country is required'),

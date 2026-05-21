@@ -3,6 +3,7 @@ import { Schema, model, Document, Types } from 'mongoose'
 export type PostStatus = 'draft' | 'active' | 'meeting_scheduled' | 'partner_found' | 'expired'
 export type ProjectStage = 'idea' | 'concept_validation' | 'prototype' | 'pilot' | 'pre_deployment'
 export type CollaborationType = 'advisor' | 'co_founder' | 'research_partner' | 'contract'
+export type CommitmentLevel = 'flexible' | 'low' | 'medium' | 'high'
 export type ConfidentialityLevel = 'public_pitch' | 'meeting_only'
 export type PostAuthorRole = 'engineer' | 'healthcare_professional'
 
@@ -16,6 +17,7 @@ export interface IPost extends Document {
   description: string
   projectStage: ProjectStage
   collaborationType: CollaborationType
+  levelOfCommitment: CommitmentLevel
   confidentiality: ConfidentialityLevel
   city: string
   country: string
@@ -50,6 +52,11 @@ const PostSchema = new Schema<IPost>(
       type: String,
       enum: ['advisor', 'co_founder', 'research_partner', 'contract'],
       required: true,
+    },
+    levelOfCommitment: {
+      type: String,
+      enum: ['flexible', 'low', 'medium', 'high'],
+      default: 'flexible',
     },
     confidentiality: {
       type: String,

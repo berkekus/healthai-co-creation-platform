@@ -37,7 +37,7 @@ import { useAuthStore } from '../../store/authStore'
 import { usePostStore } from '../../store/postStore'
 import { useSmartSuggestions } from '../../lib/gemini'
 import { computeMatchReasons, getCombinedMatchScore } from '../../utils/matchPosts'
-import type { CollaborationType, Post, PostAuthorRole, PostStatus, ProjectStage } from '../../types/post.types'
+import type { CollaborationType, CommitmentLevel, Post, PostAuthorRole, PostStatus, ProjectStage } from '../../types/post.types'
 
 type PostedBy = 'Anyone' | 'Engineer' | 'Healthcare Professional'
 
@@ -61,6 +61,7 @@ interface DirectoryPost {
   daysLeft?: string
   stage: string
   type: string
+  commitment: string
   domain: string
   projectStage: ProjectStage
   status: PostStatus
@@ -103,6 +104,13 @@ const typeLabels: Record<CollaborationType, string> = {
   co_founder: 'Co-Founder',
   research_partner: 'Research Partner',
   contract: 'Contract',
+}
+
+const commitmentLabels: Record<CommitmentLevel, string> = {
+  flexible: 'Flexible',
+  low: 'Light advisory',
+  medium: 'Part-time',
+  high: 'High commitment',
 }
 
 export default function PostListPage() {
@@ -802,9 +810,10 @@ function PostRow({
       </div>
 
       <div className="post-row-side flex flex-col items-end justify-between gap-8">
-        <div className="flex items-center gap-3">
+        <div className="flex max-w-[340px] flex-wrap items-center justify-end gap-3">
           <StatusPill label={post.stage} />
           <StatusPill label={post.type} />
+          <StatusPill label={post.commitment} />
         </div>
         <div className="flex max-w-[340px] flex-wrap justify-end gap-2 self-end">
           {post.tags.map(tag => (
@@ -943,6 +952,7 @@ function toDirectoryPost(
     daysLeft: days > 0 && post.status === 'active' ? `${days}D LEFT` : undefined,
     stage: stageLabels[post.projectStage],
     type: typeLabels[post.collaborationType],
+    commitment: commitmentLabels[post.levelOfCommitment ?? 'flexible'],
     domain: post.domain,
     projectStage: post.projectStage,
     status: post.status,

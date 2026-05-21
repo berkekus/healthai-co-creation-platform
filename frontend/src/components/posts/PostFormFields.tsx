@@ -213,6 +213,17 @@ export default function PostFormFields({ register, control, setValue, errors, mi
               </select>
             </SelectShell>
           </Field>
+
+          <Field label="Level of commitment" error={errors.levelOfCommitment?.message} required>
+            <SelectShell>
+              <select {...register('levelOfCommitment')} className={baseSelect}>
+                <option value="flexible">Flexible / to be agreed</option>
+                <option value="low">Light advisory (1-2 hrs/week)</option>
+                <option value="medium">Part-time collaboration (3-6 hrs/week)</option>
+                <option value="high">High commitment / focused sprint</option>
+              </select>
+            </SelectShell>
+          </Field>
         </div>
 
         <Field label="Confidentiality level" error={errors.confidentiality?.message} required>

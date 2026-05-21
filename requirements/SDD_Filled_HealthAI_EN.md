@@ -299,6 +299,7 @@ User ──< Log            (one User generates many audit Log entries)
 | description | String | Yes | — | Full project description |
 | projectStage | String (enum) | Yes | idea \| concept_validation \| prototype \| pilot \| pre_deployment | Current project maturity stage |
 | collaborationType | String (enum) | Yes | advisor \| co_founder \| research_partner \| contract | Type of collaboration sought |
+| levelOfCommitment | String (enum) | Yes | flexible \| low \| medium \| high | Expected commitment level for the collaboration |
 | confidentiality | String (enum) | Yes | public_pitch \| meeting_only | Visibility level of post content |
 | city | String | Yes | — | Project location city |
 | country | String | Yes | — | Project location country |
@@ -463,7 +464,7 @@ User ──< Log            (one User generates many audit Log entries)
 | **Dashboard** (`/dashboard`) | Active post feed, top AI-matched posts, quick navigation cards | Authenticated |
 | **Post List** (`/posts`) | Searchable + filterable post grid, Featured Match section at top (AI-ranked) | Authenticated |
 | **Post Detail** (`/posts/:id`) | Full post information, author info, interest button, "Request Meeting" modal trigger | Authenticated |
-| **Post Create** (`/posts/new`) | Multi-field creation form (title, domain, stage, expertise, description, location, expiry) | Authenticated |
+| **Post Create** (`/posts/new`) | Multi-field creation form (title, domain, stage, expertise, description, commitment level, location, expiry) | Authenticated |
 | **Post Edit** (`/posts/:id/edit`) | Pre-filled form to edit an existing post | Post author |
 | **Meetings** (`/meetings`) | Tabbed view: All / Incoming / Outgoing / Confirmed; meeting cards with action buttons (Accept, Decline, Cancel) | Authenticated |
 | **Profile** (`/profile`) | Edit profile form, change password section, "Export My Data" button, "Delete Account" button | Authenticated |

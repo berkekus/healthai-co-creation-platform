@@ -19,7 +19,7 @@ export default function PostCreatePage() {
 
   const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<PostCreateFormData>({
     resolver: zodResolver(postCreateSchema),
-    defaultValues: { confidentiality: 'public_pitch', projectStage: 'idea' },
+    defaultValues: { confidentiality: 'public_pitch', projectStage: 'idea', levelOfCommitment: 'flexible' },
     mode: 'onTouched',
   })
 

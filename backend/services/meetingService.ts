@@ -93,7 +93,7 @@ export async function acceptMeeting(id: string, ownerId: string) {
     { $set: { status: 'time_proposed' } },
     { new: true },
   )
-  if (!meeting) await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
+  if (!meeting) return await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
 
   pushNotification({
     userId: meeting.requesterId.toString(),

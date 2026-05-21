@@ -24,9 +24,9 @@ export default function PostEditPage() {
     defaultValues: post ? {
       title: post.title, domain: post.domain, expertiseRequired: post.expertiseRequired,
       description: post.description, projectStage: post.projectStage,
-      collaborationType: post.collaborationType, confidentiality: post.confidentiality,
+      collaborationType: post.collaborationType, levelOfCommitment: post.levelOfCommitment ?? 'flexible', confidentiality: post.confidentiality,
       city: post.city, country: post.country, expiryDate: post.expiryDate,
-    } : { confidentiality: 'public_pitch', projectStage: 'idea' },
+    } : { confidentiality: 'public_pitch', projectStage: 'idea', levelOfCommitment: 'flexible' },
   })
 
   if (!post) {

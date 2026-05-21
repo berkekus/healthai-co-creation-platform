@@ -4,7 +4,6 @@ import { Bell, Calendar, FileText, Menu, Star, Users, X, LogOut, User, Settings,
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
-import ThemeToggle from '../ui/ThemeToggle'
 import LanguageToggle from '../ui/LanguageToggle'
 import { Badge, IconButton } from '../ui'
 import { ROUTES } from '../../constants/routes'
@@ -250,8 +249,6 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
           {user ? (
             <>
-              <ThemeToggle />
-
               {/* Notifications with hover dropdown */}
               <div
                 ref={notifRef}

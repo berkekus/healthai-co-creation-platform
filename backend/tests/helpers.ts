@@ -54,6 +54,7 @@ export async function createPost(token: string, overrides: Record<string, unknow
       description: 'A test post for integration tests.',
       projectStage: 'idea',
       collaborationType: 'research_partner',
+      levelOfCommitment: 'flexible',
       confidentiality: 'public_pitch',
       city: 'Istanbul',
       country: 'Turkey',

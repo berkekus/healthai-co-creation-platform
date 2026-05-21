@@ -28,6 +28,7 @@ export async function createPost(data: {
   description: string
   projectStage: IPost['projectStage']
   collaborationType: IPost['collaborationType']
+  levelOfCommitment: IPost['levelOfCommitment']
   confidentiality: IPost['confidentiality']
   city: string
   country: string
@@ -76,7 +77,7 @@ export async function listPosts(filters: PostFilters, page = 1, limit = 20) {
 
 const UPDATABLE_FIELDS = [
   'title', 'domain', 'expertiseRequired', 'description',
-  'projectStage', 'collaborationType', 'confidentiality',
+  'projectStage', 'collaborationType', 'levelOfCommitment', 'confidentiality',
   'city', 'country', 'expiryDate',
 ] as const
 
