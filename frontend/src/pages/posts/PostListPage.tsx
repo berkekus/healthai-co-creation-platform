@@ -367,23 +367,25 @@ function PageHeader({ search, onSearch, mineOnly }: { search: string; onSearch: 
 function SearchAndAction({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   return (
     <div className="flex items-center gap-4 max-sm:flex-col max-sm:items-stretch">
-      <label className="relative block min-w-0 flex-1" style={{ height: 52 }}>
-        <TextInput
+      <div className="relative min-w-0 flex-1">
+        <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-[#6F6878]">
+          <Search size={22} />
+        </span>
+        <input
           type="search"
           value={value}
-          onChange={event => onChange(event.target.value)}
-          leftIcon={<Search size={20} />}
+          onChange={e => onChange(e.target.value)}
           placeholder="Search by title, expertise, or keyword..."
-          className="h-full rounded-full border-transparent bg-[#EEF0F3] pl-16 pr-6 text-[var(--text)] hover:bg-white hover:border-[var(--border)] focus:bg-white focus:border-[var(--accent)]"
+          className="w-full rounded-full border border-transparent bg-[#EEF0F3] py-5 pl-14 pr-6 text-base font-semibold text-[var(--text)] outline-none transition placeholder:text-[#9CA3AF] hover:border-[var(--border)] hover:bg-white focus:border-[var(--accent)] focus:bg-white"
         />
-      </label>
+      </div>
 
       <ButtonLink
         to={ROUTES.POST_CREATE}
         variant="primary"
         size="md"
         icon={<Plus size={16} strokeWidth={2.6} />}
-        className="shrink-0"
+        className="shrink-0 py-5 px-7 text-sm"
       >
         Post opportunity
       </ButtonLink>
