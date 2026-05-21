@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "dashboard": "Panel",
+    "browse": "Explorar publicaciones",
+    "meetings": "Reuniones",
+    "admin": "Administración",
+    "home": "Inicio",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "profile": "Perfil",
+    "adminPanel": "Panel de administración",
+    "signOut": "Cerrar sesión",
+    "messages": "Mensajes",
+    "notifications": "Notificaciones"
+  },
+  "landing": {
+    "nav": {
+      "platform": "Plataforma",
+      "directory": "Directorio",
+      "how": "Cómo funciona",
+      "trust": "Confianza"
+    },
+    "actions": {
+      "requestAccess": "Solicitar acceso",
+      "goToDashboard": "Ir al panel",
+      "signIn": "Iniciar sesión",
+      "signUp": "Registrarse",
+      "createEngineerAccount": "Crear cuenta de ingeniero",
+      "createHcpAccount": "Crear cuenta de profesional sanitario"
+    },
+    "hero": {
+      "kicker": "SENG 384 · Primavera de 2026 · v0.1",
+      "titleLine1": "Cocreación en salud,",
+      "titleLine2": "sin silos.",
+      "subtitle": "Un directorio estructurado y nativo de GDPR donde clínicos e ingenieros europeos publican, se emparejan y se reúnen — todo con verificación institucional .edu y una pista de auditoría inmutable."
+    },
+    "directory": {
+      "verifiedNetwork": "Red institucional verificada",
+      "join": "Unirse al directorio",
+      "engineerLabel": "PARA INGENIEROS",
+      "engineerTitle": "Construye con visión clínica.",
+      "engineerBody": "Comparte tu idea o encuentra el socio sanitario adecuado para cocrear soluciones.",
+      "clinicianLabel": "PARA PROFESIONALES SANITARIOS",
+      "clinicianTitle": "Da forma a tecnología que importa.",
+      "clinicianBody": "Colabora con ingenieros en necesidades clínicas reales e innovaciones."
+    },
+    "trust": {
+      "euHosted": "Alojado en la UE y nativo de GDPR",
+      "auditTrail": "Pista de auditoría inmutable",
+      "zeroPatientData": "Cero datos de pacientes",
+      "europeanInstitutions": "Creado para instituciones europeas"
+    },
+    "platform": {
+      "eyebrow": "Creado para Europa.",
+      "titleLine1": "Diseñado para instituciones europeas.",
+      "titleLine2": "Confiable más allá de las fronteras.",
+      "body": "HealthAI se creó con un enfoque europeo de privacidad, cumplimiento y colaboración. Una plataforma. Muchos países. Estándares compartidos.",
+      "features": {
+        "gdpr": {
+          "title": "GDPR nativo por diseño",
+          "desc": "Privacidad, seguridad y soberanía de datos en el centro."
+        },
+        "institutions": {
+          "title": "Creado para instituciones europeas",
+          "desc": "Alineado con regulaciones de la UE, ética y estándares de investigación."
+        },
+        "crossBorder": {
+          "title": "Colaboración transfronteriza",
+          "desc": "Conecta con profesionales e instituciones verificadas en toda Europa."
+        }
+      }
+    },
+    "cta": {
+      "ready": "¿Listo para cocrear?"
+    }
+  }
+}
