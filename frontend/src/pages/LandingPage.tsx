@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, useMotionTemplate, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
 import { ROUTES } from '../constants/routes'
 import { useAuthStore } from '../store/authStore'
+import LanguageToggle from '../components/ui/LanguageToggle'
 
 // ─────────────────────────────────────────────────────────────────────
 // HEALTH AI · Co-Creation Platform — Landing (Faz 0 refresh)
@@ -160,6 +161,7 @@ function TopNav() {
             </Link>
           </>
         )}
+        <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] backdrop-blur-md hover:bg-white" />
       </div>
     </nav>
   )

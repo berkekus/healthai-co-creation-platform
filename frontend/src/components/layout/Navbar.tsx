@@ -6,6 +6,7 @@ import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import { useConversationStore } from '../../store/conversationStore'
 import ThemeToggle from '../ui/ThemeToggle'
+import LanguageToggle from '../ui/LanguageToggle'
 import { Badge, IconButton, IconLink } from '../ui'
 import { ROUTES } from '../../constants/routes'
 import type { NotificationType, Notification } from '../../types/common.types'
@@ -15,25 +16,6 @@ const resolveAvatar = (url?: string) => {
   if (!url) return undefined
   if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`
   return url
-}
-
-function LangToggle() {
-  const { i18n } = useTranslation()
-  const isTR = i18n.language === 'tr'
-  return (
-    <button
-      type="button"
-      onClick={() => i18n.changeLanguage(isTR ? 'en' : 'tr')}
-      className="h-10 px-3 rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center gap-1.5 text-xs font-black text-hai-plum focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal/70 focus-visible:ring-offset-2"
-      aria-label={isTR ? 'Switch language to English' : 'Dili Turkceye gecir'}
-      title={isTR ? 'Switch to English' : 'Türkçeye geç'}
-    >
-      <span aria-hidden="true" className="rounded-full bg-hai-offwhite px-1.5 py-0.5 text-[10px] leading-none text-[#1B7A88]">
-        {isTR ? 'TR' : 'EN'}
-      </span>
-      <span>{isTR ? 'TR' : 'EN'}</span>
-    </button>
-  )
 }
 
 function timeAgo(iso: string): string {
@@ -402,7 +384,7 @@ export default function Navbar() {
           )}
 
           {/* Language toggle — always far right */}
-          <LangToggle />
+          <LanguageToggle />
         </div>
       </div>
 
