@@ -129,6 +129,7 @@ export default function PostListPage() {
   const [viewMode, setViewMode] = useState<ViewMode>(() => (localStorage.getItem('postList_view') as ViewMode) ?? 'list')
   const [page, setPage] = useState(1)
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
+  const [filterOpen, setFilterOpen] = useState(false)
   const mineOnly = searchParams.get('mine') === 'true'
 
   useEffect(() => {
@@ -144,6 +145,7 @@ export default function PostListPage() {
   }, [loadSmartSuggestions, posts, resetSmartSuggestions, user])
 
   const hasActiveFilters = Boolean(search.trim() || domain || stage || status || location.trim() || postedBy !== 'Anyone')
+  const activeFilterCount = [domain, stage, status, location.trim(), postedBy !== 'Anyone' ? postedBy : ''].filter(Boolean).length
 
   const directoryPosts = useMemo(() => {
     const source = posts.map(post => toDirectoryPost(post, user, suggestions.get(post.id)))
@@ -261,8 +263,39 @@ export default function PostListPage() {
         '--tag-text': '#6F6878',
       } as CSSProperties}
     >
-      <div className="mx-auto w-full px-8 pb-16 pt-[70px]" style={{ maxWidth: 1760 }}>
+      <div className="mx-auto w-full px-4 sm:px-8 pb-16 pt-[70px]" style={{ maxWidth: 1760 }}>
         <PageHeader search={search} onSearch={setSearch} mineOnly={mineOnly} />
+
+        {/* Mobile filter toggle — only visible below the CSS breakpoint where
+            .directory-body-grid collapses to 1 column (≤1280px = Tailwind xl) */}
+        <div className="mb-4 flex items-center gap-3 xl:hidden">
+          <button
+            type="button"
+            onClick={() => setFilterOpen(o => !o)}
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-black text-[var(--primary)] shadow-sm transition hover:border-[var(--accent)]"
+          >
+            <SlidersHorizontal size={15} />
+            Filters
+            {activeFilterCount > 0 && (
+              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[var(--primary)] px-1 text-xs font-black text-white">
+                {activeFilterCount}
+              </span>
+            )}
+            <ChevronDown
+              size={14}
+              className={`transition-transform duration-200 ${filterOpen ? 'rotate-180' : ''}`}
+            />
+          </button>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="text-xs font-bold text-[var(--muted)] transition hover:text-[var(--primary)]"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
 
         <section className="directory-body-grid grid grid-cols-1 gap-8">
           <FilterSidebar
@@ -279,6 +312,7 @@ export default function PostListPage() {
             onPostedBy={setPostededBySafe(setPostedBy)}
             onLocation={setLocation}
             onClear={clearFilters}
+            open={filterOpen}
           />
           {hasActiveFilters && user && (
             <div className="mb-4 flex justify-end">
@@ -407,6 +441,7 @@ function FilterSidebar({
   onPostedBy,
   onLocation,
   onClear,
+  open = true,
 }: {
   domain: string
   stage: string
@@ -421,9 +456,15 @@ function FilterSidebar({
   onPostedBy: (value: PostedBy) => void
   onLocation: (value: string) => void
   onClear: () => void
+  /** Controlled by mobile toggle; always visible on xl+ via CSS */
+  open?: boolean
 }) {
   return (
-    <aside className="lg:self-start">
+    // On desktop (≥1281px, .directory-body-grid is 2-col) the sidebar is always
+    // in view. Below that breakpoint it collapses to a toggle-driven panel.
+    // We use `xl-filter:block` to mirror the custom Tailwind breakpoint added in
+    // tailwind.config.js. Until then, `hidden` is overridden by the open flag.
+    <aside className={`lg:self-start ${open ? 'block' : 'hidden xl:block'}`}>
       <Card padding="md" className="rounded-[28px] border-[var(--border)] shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)]">
       <div className="mb-9 flex items-center justify-between">
         <div className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--primary)]">
