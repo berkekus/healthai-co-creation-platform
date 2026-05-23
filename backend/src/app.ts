@@ -27,9 +27,12 @@ const allowedOrigins = [
   'http://localhost:4173',
   'http://127.0.0.1:4173',
   process.env.CLIENT_ORIGIN,
+  // Support an optional second production origin (e.g. a second team member's Vercel)
+  process.env.CLIENT_ORIGIN_EXTRA,
 ].filter(Boolean) as string[]
 
-const vercelPreviewRe = /^https:\/\/healthai-co-creation-platform(-[a-z0-9]+-berkekus-projects)?\.vercel\.app$/
+// Allow any Vercel preview/production URL for this project
+const vercelPreviewRe = /^https:\/\/healthai-co-creation-platform(-[a-z0-9]+)?(-[a-z0-9]+-[a-z0-9]+-projects)?\.vercel\.app$/
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
