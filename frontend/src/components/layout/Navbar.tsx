@@ -64,7 +64,7 @@ function NotifDropdown({
 }) {
   const { t } = useTranslation()
   return (
-    <div className="absolute right-0 top-[calc(100%+10px)] z-[60] w-[340px] rounded-2xl border border-[#E3E7EC] bg-white shadow-[0_20px_60px_-20px_rgba(45,24,56,0.22)] overflow-hidden">
+    <div className="absolute right-0 top-[calc(100%+10px)] z-[60] w-[340px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-[#E3E7EC] bg-white shadow-[0_20px_60px_-20px_rgba(45,24,56,0.22)] overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E7EC]">
         <span className="text-sm font-black text-[#36213E]">{t('notif.title')}</span>
@@ -305,7 +305,7 @@ export default function Navbar() {
                     : user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                 </button>
                 {profileOpen && (
-                  <div className="absolute right-0 top-12 z-[60] w-64 bg-white rounded-2xl border border-neutral-200 shadow-[0_20px_50px_-20px_rgba(54,33,62,0.25)] overflow-hidden" role="menu">
+                  <div className="absolute right-0 top-12 z-[60] w-64 max-w-[calc(100vw-1rem)] bg-white rounded-2xl border border-neutral-200 shadow-[0_20px_50px_-20px_rgba(54,33,62,0.25)] overflow-hidden" role="menu">
                     <div className="px-4 py-4 bg-hai-offwhite border-b border-neutral-200">
                       <div className="font-bold text-sm text-hai-plum truncate">{user.name}</div>
                       <div className="text-xs font-mono text-neutral-500 mt-0.5 truncate">{user.email}</div>
@@ -361,7 +361,7 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       {menuOpen && user && (
-        <div className="md:hidden absolute top-16 inset-x-0 z-40 bg-white border-b border-neutral-200 shadow-lg py-2 font-body">
+        <div className="md:hidden absolute top-[76px] inset-x-0 z-40 bg-white border-b border-neutral-200 shadow-lg py-2 font-body">
           {navLinks.map(({ to, label }) => {
             const active = isActive(to)
             return (
