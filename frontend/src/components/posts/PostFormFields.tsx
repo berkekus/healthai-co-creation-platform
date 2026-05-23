@@ -1,11 +1,12 @@
-import { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Controller, useWatch } from 'react-hook-form'
 import type { Control, FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form'
-import { CalendarDays, Lock, ShieldCheck } from 'lucide-react'
+import { CalendarDays, Lock, ShieldCheck, Sparkles } from 'lucide-react'
 import type { PostCreateFormData } from '../../utils/validators'
 import SearchableSelect from '../ui/SearchableSelect'
 import { COUNTRIES, getCitiesForCountry } from '../../data/locations'
+import api from '../../lib/api'
 
 const MEDICAL_DOMAINS = [
   'Cardiology','Oncology','Radiology & Imaging','Neurology','Orthopedics',
@@ -21,6 +22,13 @@ const baseInput =
 const baseSelect =
   `${baseInput} appearance-none pr-10`
 
+interface AIResult {
+  improvedTitle?: string
+  improvedDescription?: string
+  suggestedExpertise?: string[]
+  tip?: string
+}
+
 interface Props {
   register: UseFormRegister<PostCreateFormData>
   control: Control<PostCreateFormData>
@@ -30,6 +38,42 @@ interface Props {
 }
 
 export default function PostFormFields({ register, control, setValue, errors, minDateStr }: Props) {
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiResult, setAiResult] = useState<AIResult | null>(null)
+  const [aiError, setAiError] = useState<string | null>(null)
+
+  const currentTitle       = useWatch({ control, name: 'title' }) ?? ''
+  const currentDescription = useWatch({ control, name: 'description' }) ?? ''
+  const currentDomain      = useWatch({ control, name: 'domain' }) ?? ''
+  const currentExpertise   = useWatch({ control, name: 'expertiseRequired' }) ?? ''
+
+  const handleAIAssist = async () => {
+    if (!currentTitle && !currentDescription) return
+    setAiLoading(true)
+    setAiResult(null)
+    setAiError(null)
+    try {
+      const { data } = await api.post<{ success: boolean; data: AIResult }>('/ai/improve-post', {
+        title: currentTitle,
+        description: currentDescription,
+        domain: currentDomain,
+        expertiseRequired: currentExpertise,
+      })
+      setAiResult(data.data)
+    } catch {
+      setAiError('AI assist is temporarily unavailable. Try again shortly.')
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
+  const applyAISuggestions = () => {
+    if (!aiResult) return
+    if (aiResult.improvedTitle)       setValue('title',             aiResult.improvedTitle,       { shouldValidate: true })
+    if (aiResult.improvedDescription) setValue('description',       aiResult.improvedDescription, { shouldValidate: true })
+    if (aiResult.suggestedExpertise?.length) setValue('expertiseRequired', aiResult.suggestedExpertise.join(', '), { shouldValidate: true })
+    setAiResult(null)
+  }
   const radioGroupId = useId()
   const selectedCountry = useWatch({ control, name: 'country' }) ?? ''
   const isFirstRender = useRef(true)
@@ -81,8 +125,67 @@ export default function PostFormFields({ register, control, setValue, errors, mi
               placeholder="Describe your project goal, what you've built so far, and what you need from a collaborator."
             />
           </Field>
-          <Hint>Min. 50 characters.</Hint>
+          <div className="flex flex-col items-start gap-3 lg:pt-7">
+            <span className="text-sm font-semibold leading-5 text-[#6f6a76]">Min. 50 characters.</span>
+            <button
+              type="button"
+              disabled={aiLoading || (!currentTitle && !currentDescription)}
+              onClick={handleAIAssist}
+              className="inline-flex items-center gap-2 rounded-full bg-[#36213E] px-4 py-2 text-xs font-black text-white hover:bg-black disabled:opacity-50 transition-colors"
+            >
+              <Sparkles size={13} />
+              {aiLoading ? 'Improving…' : 'AI Assist'}
+            </button>
+          </div>
         </div>
+
+        {/* AI Suggestion Panel */}
+        {aiError && (
+          <div className="mt-4 rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{aiError}</div>
+        )}
+        {aiResult && (
+          <div className="mt-4 rounded-[14px] border border-[#cdeefa] bg-[#eefaff] p-5">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-black text-[#2d1838]">
+                <Sparkles size={14} />
+                AI suggestions — review before applying
+              </div>
+              <button type="button" onClick={() => setAiResult(null)} className="text-[#9a95a1] hover:text-[#2d1838] transition-colors">✕</button>
+            </div>
+            {aiResult.improvedTitle && (
+              <div className="mb-2">
+                <span className="text-xs font-black uppercase tracking-wide text-[#6f6a76]">Title</span>
+                <p className="mt-1 text-sm font-semibold text-[#2d1838]">{aiResult.improvedTitle}</p>
+              </div>
+            )}
+            {aiResult.improvedDescription && (
+              <div className="mb-2">
+                <span className="text-xs font-black uppercase tracking-wide text-[#6f6a76]">Description</span>
+                <p className="mt-1 text-sm font-semibold text-[#2d1838]">{aiResult.improvedDescription}</p>
+              </div>
+            )}
+            {aiResult.suggestedExpertise && aiResult.suggestedExpertise.length > 0 && (
+              <div className="mb-2">
+                <span className="text-xs font-black uppercase tracking-wide text-[#6f6a76]">Expertise tags</span>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {aiResult.suggestedExpertise.map(t => (
+                    <span key={t} className="rounded-full bg-[#36213E]/10 px-2.5 py-0.5 text-xs font-bold text-[#36213E]">{t}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {aiResult.tip && (
+              <div className="mb-3 text-xs font-semibold italic text-[#6f6a76]">{aiResult.tip}</div>
+            )}
+            <button
+              type="button"
+              onClick={applyAISuggestions}
+              className="rounded-full bg-[#36213E] px-5 py-2 text-xs font-black text-white hover:bg-black transition-colors"
+            >
+              Apply all suggestions
+            </button>
+          </div>
+        )}
       </FormSection>
 
       <FormSection number="3" title="How you want to collaborate" subtitle="Set expectations on project stage, engagement type, and confidentiality.">
@@ -110,6 +213,17 @@ export default function PostFormFields({ register, control, setValue, errors, mi
               </select>
             </SelectShell>
           </Field>
+
+          <Field label="Level of commitment" error={errors.levelOfCommitment?.message} required>
+            <SelectShell>
+              <select {...register('levelOfCommitment')} className={baseSelect}>
+                <option value="flexible">Flexible / to be agreed</option>
+                <option value="low">Light advisory (1-2 hrs/week)</option>
+                <option value="medium">Part-time collaboration (3-6 hrs/week)</option>
+                <option value="high">High commitment / focused sprint</option>
+              </select>
+            </SelectShell>
+          </Field>
         </div>
 
         <Field label="Confidentiality level" error={errors.confidentiality?.message} required>
@@ -130,8 +244,10 @@ export default function PostFormFields({ register, control, setValue, errors, mi
                   <span className="block text-sm font-black text-[#2d1838]">{option.title}</span>
                   <span className="mt-1 block text-xs font-semibold leading-5 text-[#6f6a76]">{option.desc}</span>
                 </span>
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[#cfd3dc] peer-checked:border-[#2d1838] peer-checked:bg-[#2d1838]">
-                  <span className="h-2 w-2 rounded-full bg-white opacity-0 peer-checked:opacity-100" />
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[#cfd3dc] transition group-has-[:checked]:border-[#66c8e7] group-has-[:checked]:bg-[#66c8e7]">
+                  <svg className="hidden group-has-[:checked]:block" width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+                    <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </span>
               </label>
             ))}
@@ -229,7 +345,13 @@ function SelectShell({ children }: { children: ReactNode }) {
   return (
     <div className="relative">
       {children}
-      <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#6f6a76]">⌄</span>
+      <svg
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6f6a76]"
+        width="16" height="16" viewBox="0 0 16 16" fill="none"
+        aria-hidden="true"
+      >
+        <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
     </div>
   )
 }

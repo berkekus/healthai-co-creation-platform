@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
 
 type Status = 'idle' | 'verifying' | 'success' | 'error'
 
 export default function VerifyEmailPage() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { verifyEmail, resendVerification, pendingVerificationEmail } = useAuthStore()
@@ -48,8 +50,8 @@ export default function VerifyEmailPage() {
       <PageShell>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <div className="w-14 h-14 rounded-full border-4 border-[#c4c4e0] border-t-[#36213E] animate-spin mb-6" />
-          <h1 className="font-headline font-black text-3xl text-[#36213E] mb-2">Verifying your email…</h1>
-          <p className="text-sm text-[#6F6878]">Please wait a moment.</p>
+          <h1 className="font-headline font-black text-3xl text-[#36213E] mb-2">{t('authPage.verify.verifying')}</h1>
+          <p className="text-sm text-[#6F6878]">{t('authPage.verify.verifyingWait')}</p>
         </div>
       </PageShell>
     )
@@ -65,10 +67,10 @@ export default function VerifyEmailPage() {
               <path d="M10 18l6 6 10-10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h1 className="font-headline font-black text-4xl text-[#36213E] mb-3">Email verified!</h1>
-          <p className="text-sm text-[#6F6878] mb-7 max-w-sm">Welcome aboard. Redirecting you to your dashboard…</p>
+          <h1 className="font-headline font-black text-4xl text-[#36213E] mb-3">{t('authPage.verify.successTitle')}</h1>
+          <p className="text-sm text-[#6F6878] mb-7 max-w-sm">{t('authPage.verify.successDesc')}</p>
           <Link to={ROUTES.DASHBOARD} className="inline-flex items-center gap-2 bg-[#36213E] text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-black transition-colors">
-            Go to dashboard →
+            {t('authPage.verify.successCta')}
           </Link>
         </div>
       </PageShell>
@@ -89,10 +91,10 @@ export default function VerifyEmailPage() {
           <h1 className="font-headline font-black text-4xl leading-tight text-[#36213E] mb-3">
             Verification<br />failed<span className="text-[#8AC6D0]">.</span>
           </h1>
-          <p className="text-base text-[#6F6878] mb-8">{errorMsg ?? 'The link is invalid or has expired.'}</p>
+          <p className="text-base text-[#6F6878] mb-8">{errorMsg ?? t('authPage.verify.failDesc')}</p>
           <ResendForm email={resendEmail} onChange={setResendEmail} onSubmit={handleResend} loading={resending} sent={resendSent} />
-          <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-1.5 text-[#8AC6D0] font-bold text-sm hover:text-[#36213E] transition-colors mt-6">
-            Already verified? Sign in →
+          <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-1.5 text-[#1B7A88] font-bold text-sm hover:text-[#36213E] transition-colors mt-6">
+            {t('authPage.verify.alreadyVerified')}
           </Link>
         </div>
       </PageShell>
@@ -123,21 +125,18 @@ export default function VerifyEmailPage() {
           </div>
 
           <h1 className="font-headline font-black text-5xl md:text-6xl leading-tight tracking-normal text-[#36213E] mb-5">
-            Check your<br />inbox<span className="text-[#8AC6D0]">.</span>
+            {t('authPage.verify.checkTitle')}<span className="text-[#8AC6D0]">.</span>
           </h1>
 
           <p className="text-base text-[#6F6878] leading-relaxed mb-1">
-            We've sent a verification link to
+            {t('authPage.verify.checkDesc', { email: '' })}
           </p>
           {pendingVerificationEmail && (
             <span className="inline-block bg-white border border-[#D5DAE0] rounded-lg px-3 py-1.5 text-sm font-mono text-[#36213E] font-semibold mb-4">
               {pendingVerificationEmail}
             </span>
           )}
-          <p className="text-base text-[#6F6878] leading-relaxed mb-8">
-            Click the link to activate your account before signing in.<br />
-            The link expires in 24 hours.
-          </p>
+          <p className="text-base text-[#6F6878] leading-relaxed mb-8">{t('authPage.verify.checkSub')}</p>
 
           <ResendForm
             email={resendEmail}
@@ -149,9 +148,9 @@ export default function VerifyEmailPage() {
 
           <Link
             to={ROUTES.LOGIN}
-            className="inline-flex items-center gap-1.5 text-[#8AC6D0] font-bold text-sm hover:text-[#36213E] transition-colors mt-6"
+            className="inline-flex items-center gap-1.5 text-[#1B7A88] font-bold text-sm hover:text-[#36213E] transition-colors mt-6"
           >
-            Already verified? Sign in →
+            {t('authPage.verify.alreadyVerified')}
           </Link>
         </div>
 
@@ -173,51 +172,30 @@ function PageShell({ children }: { children: React.ReactNode }) {
 }
 
 function StepBadge() {
+  const { t } = useTranslation()
   return (
     <div className="inline-flex items-center gap-2 bg-white border border-neutral-200 rounded-full px-4 py-1.5">
       <span className="w-2 h-2 rounded-full bg-[#8AC6D0]" />
       <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#6F6878]">03</span>
-      <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#36213E]">Verify Email</span>
+      <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#36213E]">{t('auth.verify.title')}</span>
     </div>
   )
 }
 
 function ResendForm({ email, onChange, onSubmit, loading, sent }: {
-  email: string
-  onChange: (v: string) => void
-  onSubmit: (e: React.FormEvent) => void
-  loading: boolean
-  sent: boolean
+  email: string; onChange: (v: string) => void; onSubmit: (e: React.FormEvent) => void; loading: boolean; sent: boolean
 }) {
+  const { t } = useTranslation()
   return (
     <form onSubmit={onSubmit} className="bg-white rounded-[18px] border border-neutral-200 p-5 max-w-[460px]">
-      <span className="block text-xs font-bold tracking-[0.16em] uppercase text-[#6F6878] mb-3">
-        Didn't get the email?
-      </span>
-      <input
-        type="email"
-        value={email}
-        onChange={e => onChange(e.target.value)}
-        placeholder="your.email@university.edu"
-        required
-        className="w-full bg-[#F3F4F6] border border-[#E3E7EC] rounded-xl px-4 py-3 text-sm font-mono text-[#36213E] outline-none focus:border-[#8AC6D0] focus:bg-white transition-all mb-3"
-      />
+      <span className="block text-xs font-bold tracking-[0.16em] uppercase text-[#6F6878] mb-3">{t('authPage.verify.didntGet')}</span>
+      <input type="email" value={email} onChange={e => onChange(e.target.value)} placeholder={t('authPage.verify.emailPlaceholder')} required className="w-full bg-[#F3F4F6] border border-[#E3E7EC] rounded-xl px-4 py-3 text-sm font-mono text-[#36213E] outline-none focus:border-[#8AC6D0] focus:bg-white focus:ring-2 focus:ring-[#8AC6D0]/20 transition-all mb-3" />
       <div className="flex items-center gap-3 flex-wrap">
-        <button
-          type="submit"
-          disabled={loading || !email.trim()}
-          className="inline-flex items-center gap-2.5 bg-[#36213E] text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <path d="M1 7h12M7 1l6 6-6 6" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          {loading ? 'Sending…' : 'Resend verification'}
+        <button type="submit" disabled={loading || !email.trim()} className="inline-flex items-center gap-2.5 bg-[#36213E] text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M1 7h12M7 1l6 6-6 6" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          {loading ? t('common.loading') : t('authPage.verify.resend')}
         </button>
-        {sent && (
-          <span className="text-xs text-[#6FB8C4] font-semibold">
-            ✓ Link sent — check your inbox.
-          </span>
-        )}
+        {sent && <span className="text-xs text-[#6FB8C4] font-semibold">{t('authPage.verify.sent')}</span>}
       </div>
     </form>
   )

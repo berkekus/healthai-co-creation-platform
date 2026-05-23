@@ -15,7 +15,8 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   if (isHydrating) return null
 
   if (!isAuthenticated) {
-    return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />
+    const state = allowedRoles ? undefined : { from: location }
+    return <Navigate to={ROUTES.LOGIN} state={state} replace />
   }
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     return <Navigate to={ROUTES.UNAUTHORIZED} replace />

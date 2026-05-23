@@ -143,7 +143,7 @@ The platform is a standalone web application deployed via Docker containers and 
 
 | ID | Requirement Description | Priority | Source |
 |----|------------------------|----------|--------|
-| FR-10 | The system shall allow authenticated engineers and healthcare professionals to create posts with the following mandatory fields: title, domain, required expertise, description, project stage, collaboration type, confidentiality level, city, country, and expiry date. | High | Brief 4.2 |
+| FR-10 | The system shall allow authenticated engineers and healthcare professionals to create posts with the following mandatory fields: title, domain, required expertise, description, project stage, collaboration type, level of commitment, confidentiality level, city, country, and expiry date. | High | Brief 4.2 |
 | FR-11 | Newly created posts shall be saved in "Draft" status until explicitly published by the author. | High | Brief 4.2 |
 | FR-12 | The post author shall be able to publish a draft post, changing its status to "Active". | High | Brief 4.2 |
 | FR-13 | The post author shall be able to edit any field of their own post while it is in Draft or Active status. | Medium | Brief 4.2 |
@@ -228,7 +228,7 @@ The platform is a standalone web application deployed via Docker containers and 
 | **Name** | UC-01: Engineer Creates a Post |
 | **Actor(s)** | Engineer |
 | **Precondition** | The engineer must be logged in with an active account. |
-| **Main Flow** | 1. The engineer navigates to the "Create Post" page. 2. Fills in all required fields: title, domain, required expertise, description, project stage, collaboration type, confidentiality, city, country, and expiry date. 3. Clicks "Save as Draft" to save a draft. 4. Clicks "Publish" to publish the post. 5. The system changes the post status to "Active" and makes it visible to other users. |
+| **Main Flow** | 1. The engineer navigates to the "Create Post" page. 2. Fills in all required fields: title, domain, required expertise, description, project stage, collaboration type, level of commitment, confidentiality, city, country, and expiry date. 3. Clicks "Save as Draft" to save a draft. 4. Clicks "Publish" to publish the post. 5. The system changes the post status to "Active" and makes it visible to other users. |
 | **Postcondition** | The post is saved with "Active" status and visible to all authenticated users in the post list. |
 | **Alternative Flow** | 3a. If a required field is left blank, the system displays a validation error and prevents submission. 4a. The engineer can save the post as a draft and publish it later. |
 
@@ -254,9 +254,9 @@ The platform is a standalone web application deployed via Docker containers and 
 | **Name** | UC-03: Post Owner Accepts a Meeting Request |
 | **Actor(s)** | Engineer or Healthcare Professional (post author) |
 | **Precondition** | The post author must be logged in. A meeting request in "Pending" status must exist for their post. |
-| **Main Flow** | 1. The post owner navigates to the Meetings page. 2. Opens the "Incoming" tab and views the pending meeting request. 3. Reviews the requester's message and proposed time slots. 4. Clicks "Accept" and selects one of the proposed time slots as the confirmed slot. 5. The system changes the meeting status to "Confirmed." 6. The system changes the post status to "Meeting Scheduled." 7. The system notifies the requester via an in-app notification. |
+| **Main Flow** | 1. The post owner navigates to the Meetings page. 2. Opens the "Incoming" tab and views the pending meeting request. 3. Reviews the requester's message and proposed time slots. 4. Clicks "Accept request" — the system changes the meeting status to "Time Proposed" and notifies the requester. 5. The post owner selects one of the requester's proposed time slots. 6. The system changes the meeting status to "Confirmed" and the post status to "Meeting Scheduled." 7. The system notifies the requester via an in-app notification. |
 | **Postcondition** | Meeting status is "Confirmed." Post status is "Meeting Scheduled." Both parties are notified. |
-| **Alternative Flow** | 4a. If the post owner clicks "Decline" instead, the meeting status changes to "Declined" and the post status remains "Active." The requester is notified. |
+| **Alternative Flow** | 4a. If the post owner clicks "Decline" at any point (pending or time_proposed), the meeting status changes to "Declined" and the post status remains "Active." The requester is notified. |
 
 ---
 
@@ -293,7 +293,7 @@ The platform is a standalone web application deployed via Docker containers and 
 | Entity | Key Fields | Relationships |
 |--------|-----------|---------------|
 | **User** | _id, name, email, password (hashed), role, institution, city, country, bio, expertiseTags, isVerified, isSuspended, lastActive | Has many Posts (1:N); Has many Meetings as requester (1:N); Has many Meetings as owner (1:N); Has many Notifications (1:N); Has many Logs (1:N) |
-| **Post** | _id, title, authorId, authorName, authorRole, domain, expertiseRequired, description, projectStage, collaborationType, confidentiality, city, country, expiryDate, status, interestCount, meetingCount | Belongs to User (N:1); Has many Meetings (1:N) |
+| **Post** | _id, title, authorId, authorName, authorRole, domain, expertiseRequired, description, projectStage, collaborationType, levelOfCommitment, confidentiality, city, country, expiryDate, status, interestCount, meetingCount | Belongs to User (N:1); Has many Meetings (1:N) |
 | **Meeting (MeetingRequest)** | _id, postId, postTitle, requesterId, requesterName, requesterEmail, ownerId, ownerName, ownerEmail, status, message, ndaAccepted, proposedSlots, confirmedSlot | Belongs to Post (N:1); Belongs to User as requester (N:1); Belongs to User as owner (N:1) |
 | **Notification** | _id, userId, type, title, body, isRead, linkTo | Belongs to User (N:1) |
 | **ActivityLog** | _id, timestamp, userId, userEmail, role, action, targetEntityId, result, ipAddress | Belongs to User (N:1) |

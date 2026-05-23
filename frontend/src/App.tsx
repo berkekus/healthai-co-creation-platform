@@ -1,10 +1,13 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import AppRouter from './router/AppRouter'
 import { useAuthStore } from './store/authStore'
 import { usePostStore } from './store/postStore'
 import { useNotificationStore } from './store/notificationStore'
+import { subscribeToSocketMessages } from './store/conversationStore'
 
 export default function App() {
+  const { i18n } = useTranslation()
   const hydrate         = useAuthStore(s => s.hydrate)
   const isAuthenticated = useAuthStore(s => s.isAuthenticated)
   const fetchPosts      = usePostStore(s => s.fetchPosts)
@@ -16,15 +19,30 @@ export default function App() {
   }, [hydrate])
 
   useEffect(() => {
+    const language = i18n.language.split('-')[0]
+    document.documentElement.lang = ['en', 'tr', 'pt', 'es', 'nl'].includes(language) ? language : 'en'
+  }, [i18n.language])
+
+  useEffect(() => {
     if (isAuthenticated) fetchPosts()
   }, [isAuthenticated, fetchPosts])
 
-  // Start notification polling when authenticated; stop on logout/unmount
   useEffect(() => {
     if (!isAuthenticated) return
     startPolling()
     return () => stopPolling()
   }, [isAuthenticated, startPolling, stopPolling])
+
+  // Subscribe to real-time messages when authenticated
+  useEffect(() => {
+    if (!isAuthenticated) return
+    // Small delay to ensure socket is connected after login/hydrate
+    const t = setTimeout(() => {
+      const unsubscribe = subscribeToSocketMessages()
+      return unsubscribe
+    }, 500)
+    return () => clearTimeout(t)
+  }, [isAuthenticated])
 
   return <AppRouter />
 }

@@ -1,6 +1,7 @@
 import Post, { IPost } from '../models/Post'
 import { FilterQuery, Types } from 'mongoose'
 import Meeting from '../models/Meeting'
+import SavedSearch from '../models/SavedSearch'
 import { pushNotification } from './notificationService'
 import { makeError } from '../utils/AppError'
 
@@ -27,6 +28,7 @@ export async function createPost(data: {
   description: string
   projectStage: IPost['projectStage']
   collaborationType: IPost['collaborationType']
+  levelOfCommitment: IPost['levelOfCommitment']
   confidentiality: IPost['confidentiality']
   city: string
   country: string
@@ -75,7 +77,7 @@ export async function listPosts(filters: PostFilters, page = 1, limit = 20) {
 
 const UPDATABLE_FIELDS = [
   'title', 'domain', 'expertiseRequired', 'description',
-  'projectStage', 'collaborationType', 'confidentiality',
+  'projectStage', 'collaborationType', 'levelOfCommitment', 'confidentiality',
   'city', 'country', 'expiryDate',
 ] as const
 
@@ -93,6 +95,33 @@ export async function updatePost(id: string, requesterId: string, isAdmin: boole
   return post
 }
 
+async function notifySavedSearchSubscribers(post: IPost) {
+  const searches = await SavedSearch.find({
+    userId: { $ne: post.authorId },
+    ...(post.domain ? { 'filters.domain': { $in: [post.domain, ''] } } : {}),
+  }).lean()
+
+  await Promise.all(searches.map(async (search) => {
+    const f = search.filters
+    if (f.domain && f.domain !== post.domain) return
+    if (f.projectStage && f.projectStage !== post.projectStage) return
+    if (f.authorRole && f.authorRole !== post.authorRole) return
+    if (f.country && post.country.toLowerCase() !== f.country.toLowerCase()) return
+    if (f.expertise && !post.expertiseRequired.toLowerCase().includes(f.expertise.toLowerCase())) return
+    if (f.search) {
+      const hay = [post.title, post.description, post.expertiseRequired, post.domain].join(' ').toLowerCase()
+      if (!hay.includes(f.search.toLowerCase())) return
+    }
+    pushNotification({
+      userId: search.userId.toString(),
+      type: 'interest_received',
+      title: 'New post matches your saved search',
+      body: `"${search.name}" — ${post.title}`,
+      linkTo: `/posts/${post.id}`,
+    }).catch(() => {})
+  }))
+}
+
 export async function publishPost(id: string, requesterId: string) {
   const post = await Post.findById(id)
   if (!post) throw makeError('Post not found', 404)
@@ -100,6 +129,7 @@ export async function publishPost(id: string, requesterId: string) {
 
   post.status = 'active'
   await post.save()
+  notifySavedSearchSubscribers(post).catch(() => {})
   return post
 }
 

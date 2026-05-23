@@ -1,6 +1,7 @@
 import { create } from 'zustand'
-import type { User, LoginCredentials, RegisterData } from '../types/auth.types'
+import type { User, LoginCredentials, RegisterData, NotifPrefs } from '../types/auth.types'
 import api from '../lib/api'
+import { connectSocket, disconnectSocket } from '../lib/socket'
 
 interface AuthState {
   user: User | null
@@ -16,6 +17,7 @@ interface AuthState {
   verifyEmail: (token: string) => Promise<void>
   resendVerification: (email: string) => Promise<void>
   updateProfile: (data: Partial<Pick<User, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>) => Promise<void>
+  updateNotifPrefs: (prefs: Partial<NotifPrefs>) => Promise<void>
   uploadAvatar: (file: File) => Promise<void>
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>
   deleteAccount: (password: string) => Promise<void>
@@ -32,28 +34,37 @@ export const useAuthStore = create<AuthState>()((set) => ({
   pendingVerificationEmail: null,
 
   hydrate: async () => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token') ?? sessionStorage.getItem('token')
     if (!token) {
       set({ isHydrating: false })
       return
     }
     try {
       const { data } = await api.get<{ success: boolean; data: User }>('/auth/me')
+      connectSocket(token)
       set({ user: data.data, isAuthenticated: true, isHydrating: false })
     } catch {
       localStorage.removeItem('token')
+      sessionStorage.removeItem('token')
       set({ isHydrating: false })
     }
   },
 
-  login: async ({ email, password, captchaToken }) => {
+  login: async ({ email, password, captchaToken, rememberMe = true }) => {
     set({ isLoading: true, error: null })
     try {
       const { data } = await api.post<{ success: boolean; data: { user: User; token: string } }>(
         '/auth/login',
         { email, password, captchaToken }
       )
-      localStorage.setItem('token', data.data.token)
+      if (rememberMe) {
+        localStorage.setItem('token', data.data.token)
+        sessionStorage.removeItem('token')
+      } else {
+        sessionStorage.setItem('token', data.data.token)
+        localStorage.removeItem('token')
+      }
+      connectSocket(data.data.token)
       set({ user: data.data.user, isAuthenticated: true, isLoading: false })
     } catch (err) {
       set({ isLoading: false, error: (err as Error).message })
@@ -63,6 +74,8 @@ export const useAuthStore = create<AuthState>()((set) => ({
   logout: () => {
     api.post('/auth/logout').catch(() => {})
     localStorage.removeItem('token')
+    sessionStorage.removeItem('token')
+    disconnectSocket()
     set({ user: null, isAuthenticated: false })
   },
 
@@ -135,6 +148,11 @@ export const useAuthStore = create<AuthState>()((set) => ({
     } catch (err) {
       set({ isLoading: false, error: (err as Error).message })
     }
+  },
+
+  updateNotifPrefs: async (prefs) => {
+    const { data: res } = await api.put<{ success: boolean; data: User }>('/auth/me/notif-prefs', prefs)
+    set((s) => ({ user: s.user ? { ...s.user, notifPrefs: res.data.notifPrefs } : s.user }))
   },
 
   uploadAvatar: async (file: File) => {

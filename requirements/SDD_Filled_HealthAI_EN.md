@@ -109,7 +109,7 @@ HTTP Request → Router → Controller → Service → Model → MongoDB
 
 The frontend uses **Zustand** for global client-side state management, organized in per-domain stores (authStore, postStore, meetingStore, notificationStore). All HTTP calls go through a single **Axios instance** that attaches the JWT token to every request header.
 
-An **AI Matching** subsystem runs on the frontend, calling the Google Gemini API directly to score compatibility between the logged-in user's expertise tags and available posts.
+An **AI Matching** subsystem routes matching requests through the backend (`POST /api/ai/matches`), which calls the Google Gemini API server-side to score compatibility between the logged-in user's expertise tags and available posts. Keeping the Gemini API key on the backend prevents key exposure in client-side bundles. The frontend falls back to local keyword-based scoring (`getSimpleMatchScore`) if the backend AI endpoint is unavailable.
 
 ### 2.2 Layers
 
@@ -299,6 +299,7 @@ User ──< Log            (one User generates many audit Log entries)
 | description | String | Yes | — | Full project description |
 | projectStage | String (enum) | Yes | idea \| concept_validation \| prototype \| pilot \| pre_deployment | Current project maturity stage |
 | collaborationType | String (enum) | Yes | advisor \| co_founder \| research_partner \| contract | Type of collaboration sought |
+| levelOfCommitment | String (enum) | Yes | flexible \| low \| medium \| high | Expected commitment level for the collaboration |
 | confidentiality | String (enum) | Yes | public_pitch \| meeting_only | Visibility level of post content |
 | city | String | Yes | — | Project location city |
 | country | String | Yes | — | Project location country |
@@ -398,7 +399,7 @@ User ──< Log            (one User generates many audit Log entries)
 | GET | `/api/auth/me/export` | Export all user data as JSON (GDPR) | Authenticated | NFR-05, NFR-06 |
 | DELETE | `/api/auth/me` | Permanently delete account and associated content (GDPR) | Authenticated | NFR-07 |
 | GET | `/api/auth/users` | List all users (admin: search, filter by role/suspension) | Admin | FR-40 |
-| PATCH | `/api/auth/users/:id/suspend` | Suspend or unsuspend a user account | Admin | FR-42 |
+| PATCH | `/api/auth/users/:id/suspend` | Suspend or unsuspend a user account (toggle via `isSuspended` body field) | Admin | FR-42 |
 
 ### 5.2 Post Management (Posts)
 
@@ -420,7 +421,8 @@ User ──< Log            (one User generates many audit Log entries)
 | GET | `/api/meetings` | List all meetings for the current user (both as requester and owner) | Authenticated | — |
 | POST | `/api/meetings` | Create a meeting request (message + ndaAccepted + proposedSlots) | Authenticated | FR-30 |
 | GET | `/api/meetings/:id` | Get full details of a specific meeting | Authenticated | — |
-| POST | `/api/meetings/:id/accept` | Accept a meeting request + confirm a time slot | Post owner | FR-31, FR-32 |
+| POST | `/api/meetings/:id/accept` | Accept a meeting request → status: `time_proposed` | Post owner | FR-31 |
+| POST | `/api/meetings/:id/confirm` | Confirm a proposed time slot → status: `confirmed` | Post owner | FR-32 |
 | POST | `/api/meetings/:id/decline` | Decline a meeting request | Post owner | FR-31 |
 | POST | `/api/meetings/:id/cancel` | Cancel a confirmed or pending meeting | Either party | FR-33 |
 
@@ -445,7 +447,7 @@ User ──< Log            (one User generates many audit Log entries)
 
 | Method | Endpoint | Description | Auth | SRS Ref. |
 |--------|----------|-------------|------|---------|
-| GET | `/api/health` | Server health check (returns status + uptime) | Public | — |
+| GET | `/api/health` | Server health check (returns status + DB connection state) | Public | — |
 
 ---
 
@@ -462,7 +464,7 @@ User ──< Log            (one User generates many audit Log entries)
 | **Dashboard** (`/dashboard`) | Active post feed, top AI-matched posts, quick navigation cards | Authenticated |
 | **Post List** (`/posts`) | Searchable + filterable post grid, Featured Match section at top (AI-ranked) | Authenticated |
 | **Post Detail** (`/posts/:id`) | Full post information, author info, interest button, "Request Meeting" modal trigger | Authenticated |
-| **Post Create** (`/posts/new`) | Multi-field creation form (title, domain, stage, expertise, description, location, expiry) | Authenticated |
+| **Post Create** (`/posts/new`) | Multi-field creation form (title, domain, stage, expertise, description, commitment level, location, expiry) | Authenticated |
 | **Post Edit** (`/posts/:id/edit`) | Pre-filled form to edit an existing post | Post author |
 | **Meetings** (`/meetings`) | Tabbed view: All / Incoming / Outgoing / Confirmed; meeting cards with action buttons (Accept, Decline, Cancel) | Authenticated |
 | **Profile** (`/profile`) | Edit profile form, change password section, "Export My Data" button, "Delete Account" button | Authenticated |
@@ -604,10 +606,12 @@ cancels               passes
 | From State | Trigger Event | To State |
 |-----------|--------------|----------|
 | (new) | Requester submits a meeting request | Pending |
-| Pending | Post owner clicks "Accept" | Time Proposed |
+| Pending | Post owner clicks "Accept request" (`POST /accept`) | Time Proposed |
 | Pending | Post owner clicks "Decline" | Declined |
 | Pending | Requester cancels before decision | Cancelled |
-| Time Proposed | Post owner confirms a time slot | Confirmed |
+| Time Proposed | Post owner selects a slot (`POST /confirm`) | Confirmed |
+| Time Proposed | Post owner clicks "Decline" | Declined |
+| Time Proposed | Requester cancels | Cancelled |
 | Confirmed | Either party cancels the meeting | Cancelled |
 | Confirmed | The confirmed meeting date/time passes | Completed |
 

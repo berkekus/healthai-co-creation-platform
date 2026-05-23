@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import api from '../lib/api'
 import type { Conversation, Message } from '../types/conversation.types'
+import { getSocket } from '../lib/socket'
 
 interface ConversationState {
   conversations: Conversation[]
@@ -87,3 +88,30 @@ export const useConversationStore = create<ConversationState>()((set, get) => ({
     return get().conversations.find(c => c.meetingId === meetingId)
   },
 }))
+
+// Subscribe to real-time messages via Socket.io
+// Called once after login/hydrate — safe to call multiple times (guard on socket)
+export function subscribeToSocketMessages(): () => void {
+  const socket = getSocket()
+  if (!socket) return () => {}
+
+  const handler = ({ conversationId, message }: { conversationId: string; message: Message }) => {
+    useConversationStore.setState(state => {
+      const existing = state.messages[conversationId] ?? []
+      const alreadyExists = existing.some(m => m.id === message.id)
+      if (alreadyExists) return state
+      return {
+        messages: { ...state.messages, [conversationId]: [...existing, message] },
+        conversations: state.conversations.map(c =>
+          c.id === conversationId
+            ? { ...c, lastMessagePreview: message.content.slice(0, 80), lastMessageAt: message.createdAt }
+            : c,
+        ),
+        unreadCount: state.unreadCount + 1,
+      }
+    })
+  }
+
+  socket.on('new_message', handler)
+  return () => { socket.off('new_message', handler) }
+}

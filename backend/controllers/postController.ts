@@ -7,10 +7,10 @@ import { log } from '../utils/controllerLog'
 
 export const createPost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { title, domain, expertiseRequired, description, projectStage,
-          collaborationType, confidentiality, city, country, expiryDate } = req.body
+          collaborationType, levelOfCommitment, confidentiality, city, country, expiryDate } = req.body
 
   if (!title || !domain || !expertiseRequired || !description || !projectStage ||
-      !collaborationType || !confidentiality || !city || !country || !expiryDate) {
+      !collaborationType || !levelOfCommitment || !confidentiality || !city || !country || !expiryDate) {
     res.status(400).json({ success: false, message: 'All post fields are required' })
     return
   }
@@ -33,7 +33,7 @@ export const createPost = asyncHandler<AuthenticatedRequest>(async (req, res) =>
 
   const post = await postService.createPost({
     title, domain, expertiseRequired, description, projectStage,
-    collaborationType, confidentiality, city, country, expiryDate,
+    collaborationType, levelOfCommitment, confidentiality, city, country, expiryDate,
     authorId: req.userId,
     authorName: author.name,
     authorRole: req.userRole as 'engineer' | 'healthcare_professional',
@@ -77,6 +77,7 @@ export const listPosts = asyncHandler<AuthenticatedRequest>(async (req, res) => 
 export const updatePost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const isAdmin = req.userRole === 'admin'
   const post = await postService.updatePost(req.params.id, req.userId, isAdmin, req.body)
+  log(req, LOG.POST_UPDATE, req.params.id)
   res.json({ success: true, data: post })
 })
 

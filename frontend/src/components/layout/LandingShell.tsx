@@ -1,7 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import SessionTimeoutModal from '../ui/SessionTimeoutModal'
 import CookieConsentBanner from '../ui/CookieConsentBanner'
-import ThemeToggle from '../ui/ThemeToggle'
 
 /**
  * Minimal wrapper for the public landing page.
@@ -14,7 +13,6 @@ export default function LandingShell() {
       <Outlet />
       <SessionTimeoutModal />
       <CookieConsentBanner />
-      <ThemeToggle />
     </>
   )
 }

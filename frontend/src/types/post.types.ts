@@ -2,6 +2,7 @@ export type PostStatus = 'draft' | 'active' | 'meeting_scheduled' | 'partner_fou
 export type ProjectStage = 'idea' | 'concept_validation' | 'prototype' | 'pilot' | 'pre_deployment'
 export type CollaborationType = 'advisor' | 'co_founder' | 'research_partner' | 'contract'
 export type ConfidentialityLevel = 'public_pitch' | 'meeting_only'
+export type CommitmentLevel = 'flexible' | 'low' | 'medium' | 'high'
 export type PostAuthorRole = 'engineer' | 'healthcare_professional'
 
 export interface Post {
@@ -15,6 +16,7 @@ export interface Post {
   description: string
   projectStage: ProjectStage
   collaborationType: CollaborationType
+  levelOfCommitment?: CommitmentLevel
   confidentiality: ConfidentialityLevel
   city: string
   country: string
@@ -44,6 +46,7 @@ export interface PostCreateData {
   description: string
   projectStage: ProjectStage
   collaborationType: CollaborationType
+  levelOfCommitment: CommitmentLevel
   confidentiality: ConfidentialityLevel
   city: string
   country: string

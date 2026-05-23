@@ -31,6 +31,29 @@
   --border-default: 207 211 217;
   --border-divider: 223 226 231;
 
+  /* Landing page semantic tokens. This keeps the landing dark mode on
+     variables/classes instead of broad hardcoded-color interception. */
+  --landing-hero-bg:        232 244 247;
+  --landing-page-bg:        243 244 246;
+  --landing-slab-mid:       238 247 249;
+  --landing-surface:        255 255 255;
+  --landing-surface-soft:   248 249 251;
+  --landing-surface-alt:    248 251 252;
+  --landing-text:           54 33 62;
+  --landing-text-muted:     81 77 98;
+  --landing-label:          119 114 143;
+  --landing-accent:         0 142 162;
+  --landing-accent-2:       90 111 214;
+  --landing-rule:           217 215 228;
+  --landing-border:         227 234 240;
+  --landing-dot:            54 33 62;
+  --landing-dot-alpha:      0.045;
+  --landing-shadow:         45 24 56;
+  --landing-path-engineer:  248 249 251;
+  --landing-path-clinician: 248 251 252;
+  --landing-portrait-engineer: 236 233 255;
+  --landing-portrait-clinician: 215 245 247;
+
   /* Palette A — Oxblood + Bone */
   --paper:     oklch(0.965 0.008 85);
   --paper-2:   oklch(0.945 0.012 82);
@@ -54,6 +77,14 @@
 
   --gutter: clamp(16px, 2.6vw, 40px);
   --maxw: 1440px;
+
+  /* Z-index scale: 10 cards, 20 sticky nav, 30 drawers, 40 overlays, 50 modals, 60 dropdowns. */
+  --z-card: 10;
+  --z-sticky: 20;
+  --z-drawer: 30;
+  --z-overlay: 40;
+  --z-modal: 50;
+  --z-dropdown: 60;
 }
 
 /* Palette B — Graphite + Oxblood Red + Slate (default) */
@@ -118,7 +149,154 @@
   --border-default: 36 32 58;
   --border-divider: 26 24 44;
 
+  --landing-hero-bg:        7 13 24;
+  --landing-page-bg:        6 8 18;
+  --landing-slab-mid:       8 18 30;
+  --landing-surface:        13 16 31;
+  --landing-surface-soft:   17 21 39;
+  --landing-surface-alt:    11 24 35;
+  --landing-text:           244 238 255;
+  --landing-text-muted:     169 158 190;
+  --landing-label:          154 144 171;
+  --landing-accent:         85 195 215;
+  --landing-accent-2:       139 158 255;
+  --landing-rule:           48 43 68;
+  --landing-border:         40 50 72;
+  --landing-dot:            180 235 255;
+  --landing-dot-alpha:      0.07;
+  --landing-shadow:         0 0 0;
+  --landing-path-engineer:  13 16 31;
+  --landing-path-clinician: 11 24 35;
+  --landing-portrait-engineer: 28 24 48;
+  --landing-portrait-clinician: 15 45 54;
+
   color-scheme: dark;
+}
+
+/* Landing page token-driven theme layer. Prefer adding landing-* classes over
+   expanding the broad .dark .bg-[#...] overrides below. */
+.landing-page {
+  background-color: rgb(var(--landing-hero-bg));
+  color: rgb(var(--landing-text));
+}
+.landing-main { background-color: rgb(var(--landing-page-bg)); }
+.landing-hero { background-color: rgb(var(--landing-hero-bg)); }
+.landing-surface { background-color: rgb(var(--landing-surface)); }
+.landing-surface-soft { background-color: rgb(var(--landing-surface-soft)); }
+.landing-surface-alt { background-color: rgb(var(--landing-surface-alt)); }
+.landing-text { color: rgb(var(--landing-text)); }
+.landing-muted { color: rgb(var(--landing-label)); }
+.landing-body-text { color: rgb(var(--landing-text-muted)); }
+.landing-accent { color: rgb(var(--landing-accent)); }
+.landing-accent-bg { background-color: rgb(var(--landing-accent)); }
+.landing-accent-2 { color: rgb(var(--landing-accent-2)); }
+.landing-accent-2-bg { background-color: rgb(var(--landing-accent-2)); }
+.landing-rule-bg { background-color: rgb(var(--landing-rule)); }
+.landing-border { border-color: rgb(var(--landing-border)); }
+
+.landing-dot-grid {
+  background-image: radial-gradient(
+    circle at center,
+    rgb(var(--landing-dot) / var(--landing-dot-alpha)) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+.landing-soft-glow { background-color: rgb(var(--landing-surface) / 0.6); }
+.dark .landing-soft-glow { background-color: rgb(var(--landing-accent) / 0.1); }
+
+.landing-slab {
+  background: linear-gradient(
+    180deg,
+    rgb(var(--landing-hero-bg)) 0%,
+    rgb(var(--landing-hero-bg)) 14%,
+    rgb(var(--landing-slab-mid)) 28%,
+    rgb(var(--landing-page-bg)) 54%,
+    rgb(var(--landing-page-bg)) 100%
+  );
+}
+.landing-slab-feather {
+  background: linear-gradient(
+    180deg,
+    rgb(var(--landing-hero-bg) / 0) 0%,
+    rgb(var(--landing-hero-bg) / 0.62) 34%,
+    rgb(var(--landing-hero-bg)) 68%,
+    rgb(var(--landing-hero-bg) / 0) 100%
+  );
+}
+.landing-slab-dots {
+  background-image: radial-gradient(
+    circle at center,
+    rgb(var(--landing-dot) / var(--landing-dot-alpha)) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 34%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 34%, transparent 100%);
+}
+
+.landing-hero-chip,
+.landing-directory-shell,
+.landing-glass-card,
+.landing-stats-grid {
+  background-color: rgb(var(--landing-surface) / 0.88);
+  border-color: rgb(var(--landing-border));
+}
+.landing-directory-shell {
+  box-shadow:
+    0 30px 86px -66px rgb(var(--landing-shadow) / 0.55),
+    0 -14px 50px -18px rgb(255 255 255 / 0.9);
+}
+.dark .landing-directory-shell {
+  box-shadow:
+    0 32px 90px -54px rgb(0 0 0 / 0.78),
+    0 -14px 54px -22px rgb(var(--landing-accent) / 0.12);
+}
+.landing-fade-left { background: linear-gradient(to right, rgb(var(--landing-hero-bg)), transparent); }
+.landing-fade-right { background: linear-gradient(to left, rgb(var(--landing-hero-bg)), transparent); }
+
+.landing-path-card-engineer { background-color: rgb(var(--landing-path-engineer)); }
+.landing-path-card-clinician { background-color: rgb(var(--landing-path-clinician)); }
+.landing-path-label { color: rgb(var(--landing-text)); }
+.landing-path-body { color: rgb(var(--landing-text-muted)); }
+.landing-path-link {
+  color: rgb(var(--landing-text));
+  border-color: rgb(var(--landing-rule));
+}
+.landing-path-link:hover { border-color: rgb(var(--landing-text)); }
+.landing-path-marker-engineer { background-color: rgb(var(--landing-text)); }
+.landing-path-marker-clinician { background-color: rgb(var(--landing-accent)); }
+.landing-card-topfade-engineer {
+  background: linear-gradient(to bottom, rgb(var(--landing-path-engineer)), transparent);
+}
+.landing-card-topfade-clinician {
+  background: linear-gradient(to bottom, rgb(var(--landing-path-clinician)), transparent);
+}
+.landing-portrait-panel-engineer { background-color: rgb(var(--landing-portrait-engineer)); }
+.landing-portrait-panel-clinician { background-color: rgb(var(--landing-portrait-clinician)); }
+.landing-portrait-fade-engineer {
+  background: linear-gradient(to right, rgb(var(--landing-path-engineer)), transparent);
+}
+.landing-portrait-fade-clinician {
+  background: linear-gradient(to right, rgb(var(--landing-path-clinician)), transparent);
+}
+.dark .landing-portrait-image {
+  filter: saturate(0.9) brightness(0.82);
+  opacity: 0.72;
+}
+
+.landing-subtle-icon {
+  background-color: rgb(var(--landing-accent-2) / 0.14);
+  color: rgb(var(--landing-accent-2));
+}
+.landing-ghost-word {
+  color: rgb(var(--landing-text));
+  opacity: 0.08;
+}
+.dark .landing-ghost-word { opacity: 0.14; }
+.landing-section-card {
+  background-color: rgb(var(--landing-surface) / 0.92);
+  border-color: rgb(var(--landing-border));
 }
 
 /* ── Dark mode: intercept hardcoded Tailwind values ── */
@@ -392,6 +570,20 @@ body::before {
 
 a { color: inherit; text-decoration: none; }
 
+button:not(:disabled),
+a[href],
+[role="button"],
+[role="link"],
+[tabindex]:not([tabindex="-1"]) {
+  cursor: pointer;
+}
+
+:where(input, textarea, select, button, a[href], [role="button"], [role="link"], [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid rgb(var(--hai-teal));
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(var(--hai-teal), 0.24);
+}
+
 .wrap {
   max-width: var(--maxw);
   margin: 0 auto;
@@ -625,6 +817,7 @@ a { color: inherit; text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer { animation: none; background-image: none; }
   .institution-marquee { animation: none; }
+  .cities-inner { animation: none; }
 }
 
 @media (max-width: 1100px) { .scroll-ind { display: none !important; } }

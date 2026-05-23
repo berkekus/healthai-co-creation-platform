@@ -110,7 +110,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
                   if (e.key === 'Escape') setOpen(false)
                 }}
                 placeholder="Search…"
-                className="w-full pl-8 pr-3 py-2 text-sm font-body text-hai-plum placeholder:text-neutral-400 bg-hai-offwhite rounded-xl border border-neutral-200 outline-none focus:border-hai-teal"
+                className="w-full pl-8 pr-3 py-2 text-sm font-body text-hai-plum placeholder:text-neutral-400 bg-hai-offwhite rounded-xl border border-neutral-200 outline-none focus:border-hai-teal focus:ring-2 focus:ring-hai-teal/25"
               />
             </div>
           </div>

@@ -23,13 +23,27 @@ const FROM = process.env.SMTP_FROM ?? '"HEALTH AI" <noreply@healthai.local>'
 const APP_URL = process.env.APP_BASE_URL ?? process.env.CLIENT_ORIGIN ?? 'http://localhost:5173'
 
 async function send(to: string, subject: string, html: string): Promise<void> {
+  // Always extract and log links in dev so they're visible even if SMTP fails
+  if (process.env.NODE_ENV !== 'production') {
+    const links = [...html.matchAll(/href="([^"]+)"/g)].map(m => m[1]).filter(u => u.startsWith('http'))
+    if (links.length) {
+      console.log(`\n📧 EMAIL → ${to}\n   Subject: ${subject}\n   Link: ${links[0]}\n`)
+    }
+  }
+
   const t = getTransporter()
   if (!t) {
-    // Dev mode fallback: log the email content so the link is still visible
-    logger.debug({ to, subject, body: html }, '[EMAIL — SMTP not configured, logging instead]')
+    logger.warn({ to, subject }, '[EMAIL] SMTP not configured — link logged to console above')
     return
   }
-  await t.sendMail({ from: FROM, to, subject, html })
+
+  try {
+    await t.sendMail({ from: FROM, to, subject, html })
+    logger.info({ to, subject }, '[EMAIL] Sent successfully')
+  } catch (err) {
+    logger.error({ err, to, subject }, '[EMAIL] SMTP send failed — link still logged to console above')
+    // Do NOT re-throw: registration/password-reset must succeed even if email fails
+  }
 }
 
 export async function sendVerificationEmail(to: string, token: string, name: string): Promise<void> {

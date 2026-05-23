@@ -135,6 +135,7 @@ async function run() {
         description: 'Automated smoke test post — safe to ignore.',
         projectStage: 'idea',
         collaborationType: 'research_partner',
+        levelOfCommitment: 'flexible',
         confidentiality: 'public_pitch',
         city: 'Istanbul',
         country: 'Turkey',

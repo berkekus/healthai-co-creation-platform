@@ -2,6 +2,7 @@ import { Schema, model, Document, Types } from 'mongoose'
 
 export type MeetingStatus =
   | 'pending'
+  | 'time_proposed'
   | 'confirmed'
   | 'completed'
   | 'declined'
@@ -10,6 +11,13 @@ export type MeetingStatus =
 export interface ITimeSlot {
   date: string
   time: string
+}
+
+export interface IAiSummary {
+  topics: string[]
+  nextSteps: string[]
+  openQuestions: string[]
+  generatedAt: Date
 }
 
 export interface IMeeting extends Document {
@@ -28,6 +36,7 @@ export interface IMeeting extends Document {
   confirmedSlot?: ITimeSlot
   declineReason?: string
   cancelReason?: string
+  aiSummary?: IAiSummary
   createdAt: Date
   updatedAt: Date
 }
@@ -52,7 +61,7 @@ const MeetingSchema = new Schema<IMeeting>(
     ownerEmail: { type: String, required: true, trim: true },
     status: {
       type: String,
-      enum: ['pending', 'confirmed', 'completed', 'declined', 'cancelled'],
+      enum: ['pending', 'time_proposed', 'confirmed', 'completed', 'declined', 'cancelled'],
       default: 'pending',
     },
     message: { type: String, required: true, trim: true },
@@ -61,6 +70,15 @@ const MeetingSchema = new Schema<IMeeting>(
     confirmedSlot: { type: TimeSlotSchema },
     declineReason: { type: String, trim: true },
     cancelReason: { type: String, trim: true },
+    aiSummary: {
+      type: {
+        topics:        [String],
+        nextSteps:     [String],
+        openQuestions: [String],
+        generatedAt:   Date,
+      },
+      default: null,
+    },
   },
   {
     timestamps: true,

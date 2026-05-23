@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
+import TranslateButton from '../../components/ui/TranslateButton'
+import CommentsSection from '../../components/posts/CommentsSection'
+import { exportPostToPdf } from '../../utils/pdfExport'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
   Bookmark,
   CalendarDays,
+  Clock,
   FileText,
   Flag,
   Link as LinkIcon,
@@ -40,6 +44,13 @@ const COLLAB_LABELS: Record<string, string> = {
 const CONF_LABELS: Record<string, string> = {
   public_pitch: 'Public Pitch',
   meeting_only: 'Details in Meeting Only',
+}
+
+const COMMITMENT_LABELS: Record<string, string> = {
+  flexible: 'Flexible / to be agreed',
+  low: 'Light advisory (1-2 hrs/week)',
+  medium: 'Part-time collaboration (3-6 hrs/week)',
+  high: 'High commitment / focused sprint',
 }
 
 const ROLE_LABELS: Record<string, string> = {
@@ -102,6 +113,7 @@ export default function PostDetailPage() {
       { label: 'Location', value: `${post.city}, ${post.country}`, icon: <MapPin size={21} /> },
       { label: 'Project Stage', value: STAGE_LABELS[post.projectStage], icon: <Flag size={21} /> },
       { label: 'Collaboration Type', value: COLLAB_LABELS[post.collaborationType], icon: <Users size={21} /> },
+      { label: 'Commitment', value: COMMITMENT_LABELS[post.levelOfCommitment ?? 'flexible'], icon: <Clock size={21} /> },
       { label: 'Confidentiality', value: CONF_LABELS[post.confidentiality], icon: <Lock size={21} /> },
       {
         label: 'Expires On',
@@ -126,11 +138,30 @@ export default function PostDetailPage() {
     return (
       <main className="min-h-screen bg-[#f6f7f9] px-8 py-20 text-[#36213E]">
         <div className="mx-auto max-w-[760px] rounded-[18px] bg-white p-12 text-center shadow-[0_24px_80px_-68px_rgba(45,24,56,0.75)]">
-          <h1 className="text-3xl font-black">Post not found</h1>
-          <p className="mt-3 text-[#6F6878]">This listing may have been removed or the link is broken.</p>
-          <button onClick={() => navigate(ROUTES.POSTS)} className="mt-8 rounded-full bg-[#36213E] px-6 py-3 text-sm font-black text-white">
-            Back to directory
-          </button>
+          <h1 className="text-3xl font-black">
+            {fetchError ? 'Could not load this post' : 'Post not found'}
+          </h1>
+          <p className="mt-3 text-[#6F6878]">
+            {fetchError
+              ? 'There was a problem loading this listing. Please check your connection and try again.'
+              : 'This listing may have been removed or the link is broken.'}
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
+            {fetchError && (
+              <button
+                onClick={() => window.location.reload()}
+                className="rounded-full border border-[#36213E] bg-white px-6 py-3 text-sm font-black text-[#36213E] hover:bg-[#36213E] hover:text-white transition-colors"
+              >
+                Try again
+              </button>
+            )}
+            <button
+              onClick={() => navigate(ROUTES.POSTS)}
+              className="rounded-full bg-[#36213E] px-6 py-3 text-sm font-black text-white hover:bg-[#24162B] transition-colors"
+            >
+              Back to directory
+            </button>
+          </div>
         </div>
       </main>
     )
@@ -164,6 +195,28 @@ export default function PostDetailPage() {
               <LinkIcon size={18} />
               {copied ? 'Copied!' : 'Share'}
             </button>
+            {post && (
+              <button
+                onClick={() => void exportPostToPdf({
+                  title: post.title,
+                  domain: post.domain,
+                  description: post.description,
+                  authorName: post.authorName,
+                  authorRole: post.authorRole,
+                  projectStage: post.projectStage,
+                  collaborationType: post.collaborationType,
+                  levelOfCommitment: post.levelOfCommitment,
+                  city: post.city,
+                  country: post.country,
+                  expiryDate: post.expiryDate,
+                  expertiseRequired: post.expertiseRequired,
+                })}
+                className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              >
+                <span className="material-symbols-outlined text-base">picture_as_pdf</span>
+                PDF
+              </button>
+            )}
             <button
               onClick={() => {
                 const next = !saved
@@ -215,7 +268,7 @@ export default function PostDetailPage() {
                     </button>
                   ) : canExpressInterest ? (
                     <button onClick={() => setShowInterest(true)} className="h-[46px] rounded-full bg-[#36213E] px-7 text-sm font-black text-white transition hover:bg-[#4b3055]">
-                      Express interest
+                      Schedule a Meeting
                     </button>
                   ) : isOwner ? (
                     <>
@@ -252,7 +305,7 @@ export default function PostDetailPage() {
           </div>
 
           <div className="mt-8 border-t border-[#E3E7EC] pt-7">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
               {meta.map(item => (
                 <div key={item.label} className="flex items-start gap-4">
                   <span className="mt-1 shrink-0 text-[#6FB8C4]">{item.icon}</span>
@@ -270,7 +323,10 @@ export default function PostDetailPage() {
           <div className="rounded-[28px] bg-white px-6 py-8 shadow-[0_30px_90px_-84px_rgba(45,24,56,0.7)] sm:px-9">
             <DetailSection title="Project description">
               {post.confidentiality === 'public_pitch' ? (
-                <p className="whitespace-pre-wrap break-words text-base font-semibold leading-8 text-[#4f4a58]">{post.description}</p>
+                <>
+                  <p className="whitespace-pre-wrap break-words text-base font-semibold leading-8 text-[#4f4a58]">{post.description}</p>
+                  <TranslateButton text={post.description} className="mt-3" />
+                </>
               ) : (
                 <p className="text-base font-semibold leading-8 text-[#4f4a58]">Full details are shared in a meeting under NDA.</p>
               )}
@@ -316,6 +372,7 @@ export default function PostDetailPage() {
                   ['Posted', new Date(post.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), <FileText size={18} />],
                   ['Project Stage', STAGE_LABELS[post.projectStage], <Flag size={18} />],
                   ['Collaboration Type', COLLAB_LABELS[post.collaborationType], <Users size={18} />],
+                  ['Commitment', COMMITMENT_LABELS[post.levelOfCommitment ?? 'flexible'], <Clock size={18} />],
                   ['Confidentiality', CONF_LABELS[post.confidentiality], <Lock size={18} />],
                   ['Listing Expiry', new Date(post.expiryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), <CalendarDays size={18} />],
                 ].map(([label, value, icon]) => (
@@ -333,6 +390,10 @@ export default function PostDetailPage() {
             </div>
           </aside>
         </div>
+      </div>
+
+      <div className="mx-auto w-full max-w-[1120px] px-5 pb-14 sm:px-8 xl:px-0">
+        {id && <CommentsSection postId={id} />}
       </div>
 
       {showInterest && (
