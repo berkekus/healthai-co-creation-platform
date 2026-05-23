@@ -140,6 +140,8 @@ export async function loginUser(email: string, password: string) {
   const match = await bcrypt.compare(password, user.password)
   if (!match) throw makeError('Invalid credentials', 401)
 
+  if (!user.isVerified) throw makeError('Email not verified. Please check your inbox or request a new verification link.', 403)
+
   user.lastActive = new Date()
   await user.save()
 

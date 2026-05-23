@@ -7,8 +7,11 @@
 # Environment variables
 .env
 backend/.env
+backend/.env.atlas
 frontend/.env
 *.env.local
+*.env.production
+*.env.staging
 
 # Dependencies
 node_modules/
