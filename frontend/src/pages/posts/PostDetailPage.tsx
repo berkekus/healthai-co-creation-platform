@@ -126,7 +126,7 @@ export default function PostDetailPage() {
 
   if (isFetching && !post) {
     return (
-      <main className="min-h-screen bg-[#f6f7f9] px-8 py-20 text-[#36213E]">
+      <main className="min-h-screen bg-[#f6f7f9] px-4 sm:px-8 py-20 text-[#36213E]">
         <div className="flex min-h-[40vh] items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#36213E]/20 border-t-[#36213E]" />
         </div>
@@ -136,7 +136,7 @@ export default function PostDetailPage() {
 
   if (!post || fetchError) {
     return (
-      <main className="min-h-screen bg-[#f6f7f9] px-8 py-20 text-[#36213E]">
+      <main className="min-h-screen bg-[#f6f7f9] px-4 sm:px-8 py-20 text-[#36213E]">
         <div className="mx-auto max-w-[760px] rounded-[18px] bg-white p-12 text-center shadow-[0_24px_80px_-68px_rgba(45,24,56,0.75)]">
           <h1 className="text-3xl font-black">
             {fetchError ? 'Could not load this post' : 'Post not found'}
@@ -174,27 +174,30 @@ export default function PostDetailPage() {
   return (
     <main className="min-h-screen bg-[#f6f7f9] text-[#36213E]">
       <div className="mx-auto w-full max-w-[1120px] px-5 pb-14 pt-[42px] sm:px-8 xl:px-0">
-        <div className="mb-[22px] flex items-center justify-between gap-4">
+        <div className="mb-[22px] flex items-center justify-between gap-2 sm:gap-4">
           <button
             onClick={() => navigate(ROUTES.POSTS)}
-            className="inline-flex items-center gap-3 text-sm font-black text-[#26162f] transition hover:text-[#55bde0]"
+            className="inline-flex shrink-0 items-center gap-2 sm:gap-3 text-sm font-black text-[#26162f] transition hover:text-[#55bde0]"
           >
             <ArrowLeft size={17} />
-            Back to directory
+            <span className="hidden sm:inline">Back to directory</span>
           </button>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* Share */}
             <button
               onClick={() => {
                 navigator.clipboard?.writeText(window.location.href).catch(() => {})
                 setCopied(true)
                 setTimeout(() => setCopied(false), 2000)
               }}
-              className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              className="inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              title={copied ? 'Copied!' : 'Share'}
             >
-              <LinkIcon size={18} />
-              {copied ? 'Copied!' : 'Share'}
+              <LinkIcon size={17} />
+              <span className="hidden sm:inline">{copied ? 'Copied!' : 'Share'}</span>
             </button>
+            {/* PDF */}
             {post && (
               <button
                 onClick={() => void exportPostToPdf({
@@ -211,26 +214,29 @@ export default function PostDetailPage() {
                   expiryDate: post.expiryDate,
                   expertiseRequired: post.expertiseRequired,
                 })}
-                className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+                className="inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+                title="Export PDF"
               >
                 <span className="material-symbols-outlined text-base">picture_as_pdf</span>
-                PDF
+                <span className="hidden sm:inline">PDF</span>
               </button>
             )}
+            {/* Save */}
             <button
               onClick={() => {
                 const next = !saved
                 setSaved(next)
                 if (id) localStorage.setItem(`saved_post_${id}`, String(next))
               }}
-              className={`inline-flex h-[44px] items-center gap-3 rounded-[12px] border px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition ${
+              className={`inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition ${
                 saved
                   ? 'border-[#2d1838] bg-[#2d1838] text-white'
                   : 'border-[#D5DAE0] bg-white hover:border-[#8bddea]'
               }`}
+              title={saved ? 'Saved' : 'Save'}
             >
-              <Bookmark size={18} fill={saved ? 'white' : 'none'} />
-              {saved ? 'Saved' : 'Save'}
+              <Bookmark size={17} fill={saved ? 'white' : 'none'} />
+              <span className="hidden sm:inline">{saved ? 'Saved' : 'Save'}</span>
             </button>
           </div>
         </div>
@@ -364,7 +370,7 @@ export default function PostDetailPage() {
           </div>
 
           <aside className="lg:pt-2">
-            <div className="sticky top-6 rounded-[28px] bg-white px-6 py-7 shadow-[0_30px_90px_-84px_rgba(45,24,56,0.7)]">
+            <div className="relative lg:sticky lg:top-6 rounded-[28px] bg-white px-6 py-7 shadow-[0_30px_90px_-84px_rgba(45,24,56,0.7)]">
               <h2 className="text-xl font-black leading-tight text-[#36213E]">Opportunity details</h2>
               <div className="mt-6 space-y-[18px]">
                 {[
