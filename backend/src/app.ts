@@ -12,7 +12,12 @@ import notificationRoutes from '../routes/notificationRoutes'
 import logRoutes from '../routes/logRoutes'
 import aiRoutes from '../routes/aiRoutes'
 import savedSearchRoutes from '../routes/savedSearchRoutes'
+import commentRoutes, { commentRouter } from '../routes/commentRoutes'
 import { errorHandler, notFound } from '../middleware/errorHandler'
+import passport from 'passport'
+import { initPassport } from './passport'
+
+initPassport()
 
 const app = express()
 
@@ -39,6 +44,7 @@ app.use(cors({
 }))
 app.use(express.json({ limit: '10kb' }))
 app.use(mongoSanitize())
+app.use(passport.initialize())
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
@@ -56,6 +62,8 @@ app.use('/api/notifications', notificationRoutes)
 app.use('/api/logs', logRoutes)
 app.use('/api/ai', aiRoutes)
 app.use('/api/saved-searches', savedSearchRoutes)
+app.use('/api/posts/:id/comments', commentRoutes)
+app.use('/api/comments', commentRouter)
 
 app.use(notFound)
 app.use(errorHandler)

@@ -152,7 +152,7 @@ export async function updateNotifPrefs(
   prefs: Partial<IUser['notifPrefs']>
 ) {
   const update: Record<string, unknown> = {}
-  const allowed: (keyof IUser['notifPrefs'])[] = ['meetingRequests', 'meetingUpdates', 'interestReceived', 'adminMessages', 'messages']
+  const allowed: (keyof IUser['notifPrefs'])[] = ['meetingRequests', 'meetingUpdates', 'interestReceived', 'adminMessages', 'messages', 'weeklyDigest']
   for (const key of allowed) {
     if (typeof prefs[key] === 'boolean') update[`notifPrefs.${key}`] = prefs[key]
   }

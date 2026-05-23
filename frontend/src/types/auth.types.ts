@@ -6,6 +6,7 @@ export interface NotifPrefs {
   interestReceived: boolean
   adminMessages: boolean
   messages: boolean
+  weeklyDigest: boolean
 }
 
 export interface User {
@@ -24,6 +25,12 @@ export interface User {
   isVerified: boolean
   isSuspended: boolean
   lastActive: string
+  badges?: string[]
+  collaborationScore?: number
+  githubId?: string
+  githubUsername?: string
+  linkedinId?: string
+  linkedinProfileUrl?: string
 }
 
 export interface LoginCredentials {

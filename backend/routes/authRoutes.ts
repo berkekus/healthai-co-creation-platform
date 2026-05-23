@@ -10,6 +10,11 @@ import { protect, adminOnly, AuthenticatedRequest } from '../middleware/authMidd
 import { avatarUpload } from '../middleware/uploadMiddleware'
 import { authLimiter } from '../middleware/rateLimiter'
 import { asyncHandler } from '../utils/asyncHandler'
+import { recalculateBadges, BADGE_META } from '../services/badgeService'
+import User from '../models/User'
+import passport from 'passport'
+import { makeOAuthToken } from '../src/passport'
+import type { IUser } from '../models/User'
 
 const router = Router()
 
@@ -39,5 +44,46 @@ router.patch('/users/:id/verify', protect, adminOnly, asyncHandler<Authenticated
   res.json({ success: true, message: 'User verified' })
 }))
 router.delete('/users/:id', protect, adminOnly, deleteUser)
+
+// OAuth — GitHub
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN ?? 'http://localhost:5173'
+const oauthRedirect = (token: string) => `${CLIENT_ORIGIN}/oauth-callback?token=${token}`
+
+router.get('/github', passport.authenticate('github', { session: false }))
+router.get('/github/callback',
+  passport.authenticate('github', { session: false, failureRedirect: `${CLIENT_ORIGIN}/login?error=oauth` }),
+  (req, res) => {
+    const user = req.user as IUser
+    const token = makeOAuthToken(user.id as string)
+    res.redirect(oauthRedirect(token))
+  }
+)
+
+// OAuth — LinkedIn
+router.get('/linkedin', passport.authenticate('linkedin', { session: false }))
+router.get('/linkedin/callback',
+  passport.authenticate('linkedin', { session: false, failureRedirect: `${CLIENT_ORIGIN}/login?error=oauth` }),
+  (req, res) => {
+    const user = req.user as IUser
+    const token = makeOAuthToken(user.id as string)
+    res.redirect(oauthRedirect(token))
+  }
+)
+
+// Badge endpoints
+router.get('/users/:id/badges', protect, asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id).select('badges collaborationScore').lean()
+  if (!user) { res.status(404).json({ success: false, message: 'User not found' }); return }
+  const badgesWithMeta = (user.badges as string[]).map(id => ({
+    id,
+    ...(BADGE_META[id as keyof typeof BADGE_META] ?? { label: id, icon: 'star', description: '' }),
+  }))
+  res.json({ success: true, data: { badges: badgesWithMeta, collaborationScore: user.collaborationScore } })
+}))
+
+router.post('/users/:id/badges/recalculate', protect, adminOnly, asyncHandler(async (req, res) => {
+  await recalculateBadges(req.params.id)
+  res.json({ success: true, message: 'Badges recalculated' })
+}))
 
 export default router

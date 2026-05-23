@@ -4,6 +4,7 @@ import AppRouter from './router/AppRouter'
 import { useAuthStore } from './store/authStore'
 import { usePostStore } from './store/postStore'
 import { useNotificationStore } from './store/notificationStore'
+import { subscribeToSocketMessages } from './store/conversationStore'
 
 export default function App() {
   const { i18n } = useTranslation()
@@ -25,12 +26,22 @@ export default function App() {
     if (isAuthenticated) fetchPosts()
   }, [isAuthenticated, fetchPosts])
 
-  // Start notification polling when authenticated; stop on logout/unmount
   useEffect(() => {
     if (!isAuthenticated) return
     startPolling()
     return () => stopPolling()
   }, [isAuthenticated, startPolling, stopPolling])
+
+  // Subscribe to real-time messages when authenticated
+  useEffect(() => {
+    if (!isAuthenticated) return
+    // Small delay to ensure socket is connected after login/hydrate
+    const t = setTimeout(() => {
+      const unsubscribe = subscribeToSocketMessages()
+      return unsubscribe
+    }, 500)
+    return () => clearTimeout(t)
+  }, [isAuthenticated])
 
   return <AppRouter />
 }

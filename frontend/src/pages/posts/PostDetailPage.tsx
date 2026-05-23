@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import TranslateButton from '../../components/ui/TranslateButton'
+import CommentsSection from '../../components/posts/CommentsSection'
+import { exportPostToPdf } from '../../utils/pdfExport'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -184,6 +186,27 @@ export default function PostDetailPage() {
               <LinkIcon size={18} />
               {copied ? 'Copied!' : 'Share'}
             </button>
+            {post && (
+              <button
+                onClick={() => void exportPostToPdf({
+                  title: post.title,
+                  domain: post.domain,
+                  description: post.description,
+                  authorName: post.authorName,
+                  authorRole: post.authorRole,
+                  projectStage: post.projectStage,
+                  collaborationType: post.collaborationType,
+                  city: post.city,
+                  country: post.country,
+                  expiryDate: post.expiryDate,
+                  expertiseRequired: post.expertiseRequired,
+                })}
+                className="inline-flex h-[44px] items-center gap-3 rounded-[12px] border border-[#D5DAE0] bg-white px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              >
+                <span className="material-symbols-outlined text-base">picture_as_pdf</span>
+                PDF
+              </button>
+            )}
             <button
               onClick={() => {
                 const next = !saved
@@ -356,6 +379,10 @@ export default function PostDetailPage() {
             </div>
           </aside>
         </div>
+      </div>
+
+      <div className="mx-auto w-full max-w-[1120px] px-5 pb-14 sm:px-8 xl:px-0">
+        {id && <CommentsSection postId={id} />}
       </div>
 
       {showInterest && (

@@ -55,7 +55,8 @@ export const errorHandler = (
   }
 
   const statusCode = err.statusCode ?? 500
-  const message = statusCode >= 500 ? 'Internal server error' : err.message
+  // Expose meaningful messages for upstream/gateway errors (502, 503) but not generic 500s
+  const message = statusCode === 500 ? 'Internal server error' : err.message
   res.status(statusCode).json({ success: false, message })
 }
 

@@ -8,7 +8,16 @@ export interface INotifPrefs {
   interestReceived: boolean
   adminMessages: boolean
   messages: boolean
+  weeklyDigest: boolean
 }
+
+export type BadgeId =
+  | 'first_post'
+  | 'active_collaborator'
+  | 'trusted_partner'
+  | 'community_helper'
+  | 'profile_complete'
+  | 'early_adopter'
 
 export interface IUser extends Document {
   name: string
@@ -29,6 +38,12 @@ export interface IUser extends Document {
   resetTokenExpires?: Date
   isSuspended: boolean
   lastActive: Date
+  badges: BadgeId[]
+  collaborationScore: number
+  githubId?: string
+  githubUsername?: string
+  linkedinId?: string
+  linkedinProfileUrl?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -40,6 +55,7 @@ const NotifPrefsSchema = new Schema<INotifPrefs>(
     interestReceived: { type: Boolean, default: true },
     adminMessages:    { type: Boolean, default: true },
     messages:         { type: Boolean, default: true },
+    weeklyDigest:     { type: Boolean, default: false },
   },
   { _id: false }
 )
@@ -68,6 +84,12 @@ const UserSchema = new Schema<IUser>(
     resetTokenExpires: { type: Date },
     isSuspended: { type: Boolean, default: false },
     lastActive: { type: Date, default: Date.now },
+    badges: { type: [String], default: [] },
+    collaborationScore: { type: Number, default: 0 },
+    githubId: { type: String, sparse: true },
+    githubUsername: { type: String },
+    linkedinId: { type: String, sparse: true },
+    linkedinProfileUrl: { type: String },
   },
   { timestamps: true }
 )

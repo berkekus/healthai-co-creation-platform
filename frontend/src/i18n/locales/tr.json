@@ -192,7 +192,21 @@
     },
     "reschedule": "Yeniden zamanla",
     "noMeetings": "Henüz toplantı yok",
-    "noMeetingsHint": "Toplantı talepleriniz burada görünecektir."
+    "noMeetingsHint": "Toplantı talepleriniz burada görünecektir.",
+    "aiSummary": "Yapay Zeka Özeti",
+    "summaryTopics": "Konular",
+    "summaryNextSteps": "Sonraki Adımlar",
+    "summaryOpenQuestions": "Açık Sorular",
+    "summaryGenerated": "Oluşturuldu"
+  },
+  "comments": {
+    "title": "Tartışma",
+    "placeholder": "Soru sorun veya yorum yapın…",
+    "post": "Gönder",
+    "empty": "Henüz yorum yok. İlk soru soran siz olun!",
+    "reply": "Yanıtla",
+    "replyingTo": "Yanıtlıyor:",
+    "loadMore": "Daha fazla yorum yükle"
   },
   "profile": {
     "title": "Profiliniz",
@@ -237,7 +251,9 @@
       "adminMessages": "Yönetim mesajları",
       "adminMessagesDesc": "Platform duyuruları ve moderasyon bildirimleri",
       "messages": "Sohbet mesajları",
-      "messagesDesc": "Aktif toplantı görüşmelerindeki yeni mesajlar"
+      "messagesDesc": "Aktif toplantı görüşmelerindeki yeni mesajlar",
+      "weeklyDigest": "Haftalık e-posta özeti",
+      "weeklyDigestDesc": "Uzmanlığınıza uygun yeni gönderiler, yaklaşan toplantılar ve okunmamış mesajların haftalık özetini alın"
     },
     "data": {
       "title": "Veri ve Hesap",

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Building2, MapPin, ShieldCheck, Tag } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import api from '../../lib/api'
+import BadgeList from '../../components/ui/BadgeList'
 import type { User } from '../../types/auth.types'
 
 const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
@@ -111,6 +112,8 @@ export default function PublicProfilePage() {
             )}
           </div>
         </div>
+
+        {userId && <BadgeList userId={userId} />}
 
         <p className="mt-5 text-center text-[12.5px] text-[#9f9aaa] font-semibold">
           {t('publicProfile.memberSince', {

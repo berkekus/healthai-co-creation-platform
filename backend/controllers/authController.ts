@@ -109,9 +109,9 @@ export const getMe = asyncHandler<AuthenticatedRequest>(async (req, res) => {
 })
 
 export const updateNotifPrefs = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const { meetingRequests, meetingUpdates, interestReceived, adminMessages, messages } = req.body
+  const { meetingRequests, meetingUpdates, interestReceived, adminMessages, messages, weeklyDigest } = req.body
   const user = await authService.updateNotifPrefs(req.userId, {
-    meetingRequests, meetingUpdates, interestReceived, adminMessages, messages,
+    meetingRequests, meetingUpdates, interestReceived, adminMessages, messages, weeklyDigest,
   })
   res.json({ success: true, data: user })
 })

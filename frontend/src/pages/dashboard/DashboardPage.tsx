@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../../lib/api'
 import { ROUTES } from '../../constants/routes'
+import { Badge, ButtonLink, Card, IconButton } from '../../components/ui'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
 import { usePostStore } from '../../store/postStore'
@@ -93,7 +94,7 @@ function OnboardingPanel() {
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-7">
         {steps.map((step, i) => (
-          <div key={i} className="rounded-[24px] border border-[#E3E7EC] bg-white p-7 shadow-[0_20px_60px_-44px_rgba(45,24,56,0.35)]">
+          <Card key={i} padding="lg">
             <div
               className="mb-6 flex h-[50px] w-[50px] items-center justify-center rounded-[14px] text-[#36213E]"
               style={{ backgroundColor: step.bg }}
@@ -102,14 +103,17 @@ function OnboardingPanel() {
             </div>
             <div className="mb-2 text-lg font-black text-[#36213E]">{step.title}</div>
             <p className="mb-7 text-sm font-semibold leading-6 text-[#6F6878]">{step.body}</p>
-            <Link
+            <ButtonLink
               to={step.to}
-              className="inline-flex items-center gap-2 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]"
+              variant="ghost"
+              size="sm"
+              className="-ml-4 text-[#1B7A88] hover:text-[#36213E]"
+              icon={<ArrowRight size={14} />}
+              iconPosition="right"
             >
               {step.cta}
-              <ArrowRight size={14} />
-            </Link>
-          </div>
+            </ButtonLink>
+          </Card>
         ))}
       </div>
     </section>
@@ -160,13 +164,16 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
       </div>
 
       <div className="mt-14">
-        <Link
+        <ButtonLink
           to={ROUTES.POST_CREATE}
-          className="flex h-[48px] w-full max-w-[292px] items-center gap-5 rounded-full bg-[#36213E] px-7 text-sm font-black text-white shadow-[0_18px_30px_-18px_rgba(45,24,56,0.82)] transition hover:bg-[#24162B]"
+          variant="primary"
+          size="md"
+          fullWidth
+          icon={<Plus size={18} strokeWidth={2.5} />}
+          className="max-w-[292px] justify-start gap-5 px-7 shadow-[0_18px_30px_-18px_rgba(45,24,56,0.82)]"
         >
-          <Plus size={18} strokeWidth={2.5} />
           {t('dashboard.postOpportunity')}
-        </Link>
+        </ButtonLink>
       </div>
     </div>
   )
@@ -335,14 +342,15 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {savedPosts.map(post => (
-          <div key={post.id} className="group relative rounded-[20px] border border-[#E3E7EC] bg-white p-5 shadow-[0_12px_40px_-28px_rgba(45,24,56,0.25)] transition hover:border-[#8AC6D0] hover:shadow-[0_16px_48px_-28px_rgba(45,24,56,0.35)]">
-            <button
+          <Card key={post.id} padding="sm" interactive className="group relative rounded-[20px]">
+            <IconButton
               onClick={() => unsave(post.id)}
-              className="absolute right-4 top-4 text-[#1B7A88] opacity-0 group-hover:opacity-100 transition hover:text-[#36213E]"
-              title={t('dashboard.removeFromSaved')}
-            >
-              <Bookmark size={15} fill="#8AC6D0" />
-            </button>
+              label={t('dashboard.removeFromSaved')}
+              icon={<Bookmark size={15} fill="#8AC6D0" />}
+              variant="ghost"
+              size="sm"
+              className="absolute right-3 top-3 text-[#1B7A88] opacity-0 group-hover:opacity-100 hover:text-[#36213E]"
+            />
             <Link to={`/posts/${post.id}`} className="block">
               <div className="mb-2 line-clamp-2 text-[14.5px] font-black text-[#36213E] leading-snug pr-6">
                 {post.title}
@@ -353,7 +361,7 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
                 <StatusPill status={post.status} />
               </div>
             </Link>
-          </div>
+          </Card>
         ))}
       </div>
     </section>
@@ -363,9 +371,9 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
 function StatusPill({ status }: { status: Post['status'] }) {
   const { t } = useTranslation()
   return (
-    <span className="mt-1 rounded-full bg-[#36213E] px-4 py-1.5 text-center text-xs font-black uppercase tracking-[0.12em] text-[#E8F4F7]">
+    <Badge variant="primary" size="sm" className="mt-1 px-4 py-1.5 text-center text-[#E8F4F7]">
       {t(`dashboard.status.${status}`, { defaultValue: status })}
-    </span>
+    </Badge>
   )
 }
 
