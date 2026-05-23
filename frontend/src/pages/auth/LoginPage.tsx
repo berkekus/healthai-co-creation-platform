@@ -71,9 +71,9 @@ export default function LoginPage() {
   }
 
   const quickLogin = (email: string, password: string) => {
-    if (isLoading) return
+    if (isLoading || !captchaToken) return
     quickLoginRef.current = true
-    login({ email, password, rememberMe: true })
+    login({ email, password, captchaToken: captchaToken ?? undefined, rememberMe: true })
   }
 
   return (
@@ -350,13 +350,18 @@ export default function LoginPage() {
                 <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#c5cad6] dark:text-[rgb(var(--text-secondary))] font-headline">Dev Access</span>
                 <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
               </div>
+              {!captchaToken && (
+                <p className="mb-2 text-center text-[10px] text-[#c5cad6] font-semibold">
+                  Complete the security check above to enable quick login
+                </p>
+              )}
               <div className="flex gap-2">
                 {DEV_ACCOUNTS.map(({ label, email, password, icon: Icon, color }) => (
                   <button
                     key={label}
                     type="button"
                     onClick={() => quickLogin(email, password)}
-                    disabled={isLoading}
+                    disabled={isLoading || !captchaToken}
                     className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                   >
                     <div
