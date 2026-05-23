@@ -916,3 +916,22 @@ a[href],
     grid-column: 1;
   }
 }
+
+/* ── Mobile (≤480px) fine-tuning ── */
+@media (max-width: 480px) {
+  /* Directory page header: prevent 6xl title overflow on 320px screens */
+  .directory-header-grid h1 {
+    font-size: clamp(1.9rem, 9vw, 3.75rem);
+  }
+  /* Meetings / conversations list: tighter side padding */
+  .meetings-list-container,
+  .conversations-container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  /* Auth forms: reduce side padding on very small screens */
+  .auth-card-inner {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}

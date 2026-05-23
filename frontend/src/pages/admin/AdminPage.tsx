@@ -253,7 +253,7 @@ function VerificationQueueTab() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-6">
       <div className="mb-5">
         <h1 className="text-xl font-black text-[#18203a]">Verification Queue</h1>
         <p className="text-sm text-[#9ca3af] mt-0.5">{loading ? '…' : pending.length} users awaiting manual verification</p>
@@ -729,9 +729,38 @@ export default function AdminPage() {
   const failedLogins = logs.filter(l => l.action === 'login_failed' || l.action === 'register_failed').length
   const selectCls = 'bg-white border border-[#eaecf0] rounded-xl px-3 py-2 text-sm text-[#374151] font-semibold outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 transition-colors cursor-pointer'
 
+  const mobileNavItems: { id: AdminView; label: string; icon: React.ReactNode }[] = [
+    { id: 'overview',     label: 'Overview',  icon: <LayoutDashboard size={18} strokeWidth={1.8} /> },
+    { id: 'users',        label: 'Users',     icon: <Users size={18} strokeWidth={1.8} /> },
+    { id: 'verification', label: 'Verify',    icon: <UserCheck size={18} strokeWidth={1.8} /> },
+    { id: 'posts',        label: 'Posts',     icon: <FileText size={18} strokeWidth={1.8} /> },
+    { id: 'logs',         label: 'Logs',      icon: <Clock size={18} strokeWidth={1.8} /> },
+  ]
+
   return (
-    <div className="flex font-body" style={{ height: 'calc(100vh - 76px)' }}>
-      <AdminSidebar view={view} onNavigate={setView} />
+    <div className="flex flex-col md:flex-row font-body" style={{ height: 'calc(100vh - 76px)' }}>
+      {/* Desktop sidebar — hover-expand, hidden on mobile */}
+      <div className="hidden md:flex">
+        <AdminSidebar view={view} onNavigate={setView} />
+      </div>
+
+      {/* Mobile top tab bar — only visible below md */}
+      <nav className="md:hidden flex items-center gap-0.5 overflow-x-auto bg-white border-b border-[#eaecf0] px-2 py-2 shrink-0">
+        {mobileNavItems.map(item => (
+          <button
+            key={item.id}
+            onClick={() => setView(item.id)}
+            className={`flex flex-col items-center gap-1 min-w-[60px] px-3 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
+              view === item.id
+                ? 'bg-[#eeecff] text-[#4f46e5]'
+                : 'text-[#6b7280] hover:bg-[#f5f5ff] hover:text-[#4f46e5]'
+            }`}
+          >
+            {item.icon}
+            {item.label}
+          </button>
+        ))}
+      </nav>
 
       <main className="flex-1 overflow-y-auto bg-[#f3f4f8]">
 
@@ -752,7 +781,7 @@ export default function AdminPage() {
 
         {/* ── USERS ── */}
         {view === 'users' && (
-          <div className="p-6">
+          <div className="p-3 sm:p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h1 className="text-xl font-black text-[#18203a]">Users</h1>
@@ -870,7 +899,7 @@ export default function AdminPage() {
 
         {/* ── POSTS ── */}
         {view === 'posts' && (
-          <div className="p-6">
+          <div className="p-3 sm:p-6">
             <div className="mb-5">
               <h1 className="text-xl font-black text-[#18203a]">Posts & Listings</h1>
               <p className="text-sm text-[#9ca3af]">{posts.length} total listings</p>
@@ -923,7 +952,7 @@ export default function AdminPage() {
 
         {/* ── LOGS ── */}
         {view === 'logs' && (
-          <div className="p-6">
+          <div className="p-3 sm:p-6">
             <div className="mb-5">
               <h1 className="text-xl font-black text-[#18203a]">Activity Logs</h1>
               <p className="text-sm text-[#9ca3af]">Tamper-resistant · Retention 24 months</p>
