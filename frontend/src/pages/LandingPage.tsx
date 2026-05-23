@@ -94,78 +94,118 @@ function NavDivider() {
 function TopNav() {
   const { user } = useAuthStore()
   const { t } = useTranslation()
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 md:px-12 py-5 bg-transparent font-body">
-      <Logo />
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-      {/* Center pill — hidden below lg.
-          Each anchor uses the same premium micro-interaction as the
-          authenticated Navbar: px-4 py-2 tap target, rounded-lg corners,
-          and a quiet black/5 wash that fades in over 200 ms.
-          The vertical dividers are rendered as standalone <span>s between
-          links instead of `border-r` on the anchor itself — this way the
-          divider is visually outside the rounded-lg hover chamber, so the
-          wash never clips against a hard line. */}
-      <div className="hidden lg:flex items-center bg-white/25 backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
-        <div className="flex items-center bg-white rounded-full h-full">
-          <div className="flex items-center px-1">
-            <a href="#platform" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{t('landing.nav.platform')}</a>
-            <NavDivider />
-            <a href="#directory" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{t('landing.nav.directory')}</a>
-            <NavDivider />
-            <a href="#how" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{t('landing.nav.how')}</a>
-            <NavDivider />
-            <a href="#trust" className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{t('landing.nav.trust')}</a>
-          </div>
-          <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
-            {/* Request Access — plum bg + white font. Same premium hover
-                recipe as Sign in / Sign up: soft lift, blooming shadow,
-                eased color shift. Shadow is plum-tinted (rgba(54,33,62,·))
-                so the drop feels branded against the white pill chamber. */}
-            <Link
-              to={ROUTES.REGISTER}
-              className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out will-change-transform"
-            >
-              {t('landing.actions.requestAccess')}
-            </Link>
+  const anchorLinks = [
+    { href: '#platform', label: t('landing.nav.platform') },
+    { href: '#directory', label: t('landing.nav.directory') },
+    { href: '#how',       label: t('landing.nav.how') },
+    { href: '#trust',     label: t('landing.nav.trust') },
+  ]
+
+  return (
+    <>
+      <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 md:px-12 py-5 bg-transparent font-body">
+        <Logo />
+
+        {/* Center pill — hidden below lg */}
+        <div className="hidden lg:flex items-center bg-white/25 backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+          <div className="flex items-center bg-white rounded-full h-full">
+            <div className="flex items-center px-1">
+              {anchorLinks.map((link, i) => (
+                <span key={link.href} className="flex items-center">
+                  {i > 0 && <NavDivider />}
+                  <a href={link.href} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{link.label}</a>
+                </span>
+              ))}
+            </div>
+            <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
+              <Link
+                to={ROUTES.REGISTER}
+                className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out will-change-transform"
+              >
+                {t('landing.actions.requestAccess')}
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Right auth actions — premium hover effect:
-           · soft lift (-translate-y-0.5)
-           · shadow blooms from a tight base glow into a wider, softer drop
-           · background color eases smoothly (no jump)
-           · `active:translate-y-0` + shadow shrink gives a crisp press feedback
-          transition-all runs over 250 ms ease-out so all three properties
-          (transform / shadow / color) resolve in perfect sync. */}
-      <div className="flex items-center gap-2 md:gap-3">
-        {user ? (
-          <Link
-            to={ROUTES.DASHBOARD}
-            className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
-          >
-            {t('landing.actions.goToDashboard')} →
-          </Link>
-        ) : (
-          <>
+        {/* Right cluster */}
+        <div className="flex items-center gap-2 md:gap-3">
+          {user ? (
+            <Link
+              to={ROUTES.DASHBOARD}
+              className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
+            >
+              {t('landing.actions.goToDashboard')} →
+            </Link>
+          ) : (
+            <>
+              <Link
+                to={ROUTES.LOGIN}
+                className="hidden sm:inline-flex text-neutral-900 font-bold text-sm px-5 py-2.5 rounded-full border border-neutral-900/30 bg-white/0 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] hover:bg-white/70 hover:border-neutral-900/50 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-10px_rgba(0,0,0,0.25)] active:translate-y-0 active:shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] transition-all duration-[250ms] ease-out will-change-transform"
+              >
+                {t('landing.actions.signIn')}
+              </Link>
+              <Link
+                to={ROUTES.REGISTER}
+                className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
+              >
+                {t('landing.actions.signUp')}
+              </Link>
+            </>
+          )}
+          <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] backdrop-blur-md hover:bg-white" />
+
+          {/* Mobile hamburger — only visible below lg where center pill is hidden */}
+          {!user && (
+            <button
+              onClick={() => setMobileMenuOpen(o => !o)}
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileMenuOpen}
+              className="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-white/70 backdrop-blur-md border border-white/50 text-neutral-800 shadow-[0_4px_14px_-4px_rgba(0,0,0,0.18)] transition hover:bg-white"
+            >
+              {mobileMenuOpen
+                ? <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                : <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              }
+            </button>
+          )}
+        </div>
+      </nav>
+
+      {/* Mobile dropdown menu — anchor links + CTA */}
+      {mobileMenuOpen && !user && (
+        <div className="lg:hidden fixed top-[72px] inset-x-4 z-40 rounded-2xl bg-white/95 backdrop-blur-md border border-white/60 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.35)] py-3 font-body">
+          {anchorLinks.map(link => (
+            <a
+              key={link.href}
+              href={link.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-5 py-3 text-sm font-semibold text-neutral-800 hover:bg-black/5 transition-colors rounded-xl mx-2"
+            >
+              {link.label}
+            </a>
+          ))}
+          <div className="mx-2 mt-2 pt-2 border-t border-neutral-200 flex gap-2">
             <Link
               to={ROUTES.LOGIN}
-              className="hidden sm:inline-flex text-neutral-900 font-bold text-sm px-5 py-2.5 rounded-full border border-neutral-900/30 bg-white/0 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] hover:bg-white/70 hover:border-neutral-900/50 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-10px_rgba(0,0,0,0.25)] active:translate-y-0 active:shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] transition-all duration-[250ms] ease-out will-change-transform"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex-1 text-center py-2.5 text-sm font-bold text-neutral-800 border border-neutral-300 rounded-full hover:bg-neutral-50 transition-colors"
             >
               {t('landing.actions.signIn')}
             </Link>
             <Link
               to={ROUTES.REGISTER}
-              className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex-1 text-center py-2.5 text-sm font-bold bg-hai-plum text-white rounded-full hover:bg-black transition-colors"
             >
               {t('landing.actions.signUp')}
             </Link>
-          </>
-        )}
-        <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] backdrop-blur-md hover:bg-white" />
-      </div>
-    </nav>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -1150,26 +1190,26 @@ export default function LandingPage() {
               {/* Slide viewport */}
               <div className="overflow-hidden">
                 <div key={step} className={dir === 'right' ? 'step-in-right' : 'step-in-left'}>
-                  <div className="grid md:grid-cols-2 gap-0 items-stretch min-h-[500px]">
+                  <div className="grid md:grid-cols-2 gap-0 items-stretch md:min-h-[500px]">
                     {/* Left — copy */}
-                    <div className="p-8 md:p-12 flex flex-col justify-between">
+                    <div className="p-6 sm:p-8 md:p-12 flex flex-col justify-between">
                       <div>
                         <div className="flex items-center gap-3 mb-5">
-                          <div className="w-12 h-12 rounded-xl bg-hai-mint flex items-center justify-center">
-                            <Icon name={active.icon} className="text-hai-plum text-2xl" filled />
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-hai-mint flex items-center justify-center">
+                            <Icon name={active.icon} className="text-hai-plum text-xl sm:text-2xl" filled />
                           </div>
                           <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">
                             Step {active.num} / 0{STEPS.length}
                           </span>
                         </div>
 
-                        <h3 className="font-headline font-bold text-hai-plum tracking-normal leading-tight text-[3.5rem] md:text-[5rem] mb-2">
+                        <h3 className="font-headline font-bold text-hai-plum tracking-normal leading-tight text-[2.4rem] sm:text-[3.5rem] md:text-[5rem] mb-2">
                           {active.name}<span className="text-hai-teal">.</span>
                         </h3>
-                        <p className="text-lg md:text-xl font-headline text-neutral-700 leading-snug mb-6">
+                        <p className="text-base sm:text-lg md:text-xl font-headline text-neutral-700 leading-snug mb-6">
                           {active.tagline}
                         </p>
-                        <p className="text-base md:text-base text-neutral-600 leading-relaxed max-w-md">
+                        <p className="text-sm sm:text-base text-neutral-600 leading-relaxed max-w-md">
                           {active.desc}
                         </p>
                         <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -1197,27 +1237,30 @@ export default function LandingPage() {
                         </div>
                       </div>
 
-                      {/* Step breadcrumbs */}
-                      <div className="mt-10 flex items-center gap-3 flex-wrap">
+                      {/* Step breadcrumbs
+                          On mobile (< sm): show numbered circles only (no labels)
+                          so all 6 fit in a single row even on 320px screens.
+                          On sm+: show circle + name label. */}
+                      <div className="mt-10 flex items-center gap-2 sm:gap-3 flex-wrap">
                         {STEPS.map((s, i) => (
                           <button
                             key={s.num}
                             onClick={() => goTo(i)}
-                            className={`flex items-center gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold transition-colors ${i === step ? 'text-hai-plum' : 'text-neutral-400 hover:text-neutral-700'}`}
-                            aria-label={`Jump to step ${s.num}`}
+                            className={`flex items-center gap-1.5 sm:gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold transition-colors ${i === step ? 'text-hai-plum' : 'text-neutral-400 hover:text-neutral-700'}`}
+                            aria-label={`Jump to step ${s.num}: ${s.name}`}
                           >
-                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all ${i === step ? 'bg-hai-plum text-white' : i < step ? 'bg-hai-teal text-hai-plum' : 'bg-neutral-100 text-neutral-400'}`}>
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all shrink-0 ${i === step ? 'bg-hai-plum text-white' : i < step ? 'bg-hai-teal text-hai-plum' : 'bg-neutral-100 text-neutral-400'}`}>
                               {i < step ? '✓' : s.num}
                             </span>
-                            {s.name}
+                            <span className="hidden sm:inline">{s.name}</span>
                           </button>
                         ))}
                       </div>
                     </div>
 
-                    {/* Right — visual */}
+                    {/* Right — visual (hidden on mobile, shown md+) */}
                     <div
-                      className="flex items-center justify-center p-8 md:p-12 relative overflow-hidden"
+                      className="hidden md:flex items-center justify-center p-8 md:p-12 relative overflow-hidden"
                       style={{ background: `linear-gradient(160deg, ${active.accent}44 0%, rgb(var(--landing-page-bg)) 100%)` }}
                     >
                       <div
@@ -1242,15 +1285,15 @@ export default function LandingPage() {
                 onClick={prev}
                 disabled={step === 0}
                 aria-label="Previous step"
-                className="group flex items-center gap-3 bg-white border border-neutral-200 rounded-full pl-3 pr-5 py-3 font-bold text-sm text-hai-plum shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="group flex items-center gap-2 sm:gap-3 bg-white border border-neutral-200 rounded-full pl-3 pr-3 sm:pr-5 py-3 font-bold text-sm text-hai-plum shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
-                <span className="w-9 h-9 rounded-full bg-hai-plum text-white flex items-center justify-center group-hover:-translate-x-0.5 transition-transform">
+                <span className="w-9 h-9 rounded-full bg-hai-plum text-white flex items-center justify-center group-hover:-translate-x-0.5 transition-transform shrink-0">
                   <Icon name="arrow_back" className="text-xl" />
                 </span>
-                {step > 0 ? STEPS[step - 1].name : 'Start'}
+                <span className="hidden sm:inline">{step > 0 ? STEPS[step - 1].name : 'Start'}</span>
               </button>
 
-              <div className="hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 {STEPS.map((_, i) => (
                   <button
                     key={i}
@@ -1258,8 +1301,8 @@ export default function LandingPage() {
                     aria-label={`Go to step ${i + 1}`}
                     className="transition-all"
                     style={{
-                      width: i === step ? 32 : 10,
-                      height: 10,
+                      width: i === step ? 24 : 8,
+                      height: 8,
                       background: i === step ? '#36213E' : i < step ? '#8AC6D0' : '#D4D4D4',
                       borderRadius: 9999,
                     }}
@@ -1271,10 +1314,10 @@ export default function LandingPage() {
                 onClick={next}
                 disabled={step === STEPS.length - 1}
                 aria-label="Next step"
-                className="group flex items-center gap-3 bg-hai-plum text-white rounded-full pr-3 pl-5 py-3 font-bold text-sm shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="group flex items-center gap-2 sm:gap-3 bg-hai-plum text-white rounded-full pr-3 pl-3 sm:pl-5 py-3 font-bold text-sm shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
-                {step < STEPS.length - 1 ? STEPS[step + 1].name : 'Done'}
-                <span className="w-9 h-9 rounded-full bg-hai-mint text-hai-plum flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
+                <span className="hidden sm:inline">{step < STEPS.length - 1 ? STEPS[step + 1].name : 'Done'}</span>
+                <span className="w-9 h-9 rounded-full bg-hai-mint text-hai-plum flex items-center justify-center group-hover:translate-x-0.5 transition-transform shrink-0">
                   <Icon name="arrow_forward" className="text-xl" />
                 </span>
               </button>
