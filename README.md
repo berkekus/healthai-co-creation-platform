@@ -1,4 +1,6 @@
 <div align="center">
+  <img width="125" height="125" alt="image" src="https://github.com/user-attachments/assets/8e0a47dc-25b8-40c2-b877-9feab518fe9a" />
+
 
 # HealthAI Co-Creation Platform
 

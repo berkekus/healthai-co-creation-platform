@@ -537,7 +537,6 @@ export default function ProfilePage() {
 
           <nav className="mt-8 space-y-3 text-sm font-black text-hai-plum">
             {([
-              ['person', t('profile.identity'), '#identity'],
               ['badge', t('profile.identity'), '#identity'],
               ['location_on', t('profile.location'), '#location'],
               ['chat_bubble_outline', t('profile.about'), '#about'],

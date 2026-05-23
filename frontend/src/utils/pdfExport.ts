@@ -10,6 +10,7 @@ interface PostData {
   authorRole: string
   projectStage: string
   collaborationType: string
+  levelOfCommitment?: string
   city: string
   country: string
   expiryDate: string
@@ -37,6 +38,13 @@ const COLLAB_LABELS: Record<string, string> = {
   co_founder: 'Co-Founder',
   research_partner: 'Research Partner',
   contract: 'Contract',
+}
+
+const COMMITMENT_LABELS: Record<string, string> = {
+  flexible: 'Flexible / to be agreed',
+  low: 'Light advisory (1-2 hrs/week)',
+  medium: 'Part-time collaboration (3-6 hrs/week)',
+  high: 'High commitment / focused sprint',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,6 +92,7 @@ export async function exportPostToPdf(post: PostData): Promise<void> {
   y = addField(doc, 'Expertise Required', post.expertiseRequired, y)
   y = addField(doc, 'Project Stage', STAGE_LABELS[post.projectStage] ?? post.projectStage, y)
   y = addField(doc, 'Collaboration Type', COLLAB_LABELS[post.collaborationType] ?? post.collaborationType, y)
+  y = addField(doc, 'Commitment Required', COMMITMENT_LABELS[post.levelOfCommitment ?? 'flexible'], y)
   y = addField(doc, 'Location', `${post.city}, ${post.country}`, y)
   y = addField(doc, 'Listing Expires', new Date(post.expiryDate).toLocaleDateString('en-GB'), y)
   y += 3

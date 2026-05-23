@@ -13,6 +13,67 @@
     "messages": "Messages",
     "notifications": "Notifications"
   },
+  "landing": {
+    "nav": {
+      "platform": "Platform",
+      "directory": "Directory",
+      "how": "How it works",
+      "trust": "Trust"
+    },
+    "actions": {
+      "requestAccess": "Request Access",
+      "goToDashboard": "Go to Dashboard",
+      "signIn": "Sign in",
+      "signUp": "Sign up",
+      "createEngineerAccount": "Create Engineer Account",
+      "createHcpAccount": "Create HCP Account"
+    },
+    "hero": {
+      "kicker": "SENG 384 · Spring 2026 · v0.1",
+      "titleLine1": "Healthcare co-creation,",
+      "titleLine2": "without the silos.",
+      "subtitle": "A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional .edu verification and an immutable audit trail."
+    },
+    "directory": {
+      "verifiedNetwork": "Verified Institutional Network",
+      "join": "Join the Directory",
+      "engineerLabel": "FOR ENGINEERS",
+      "engineerTitle": "Build with clinical insight.",
+      "engineerBody": "Share your idea or look for the right healthcare partner to co-create solutions.",
+      "clinicianLabel": "FOR HEALTHCARE PROFESSIONALS",
+      "clinicianTitle": "Shape technology that matters.",
+      "clinicianBody": "Collaborate with engineers on real clinical needs and innovations."
+    },
+    "trust": {
+      "euHosted": "EU hosted & GDPR-native",
+      "auditTrail": "Immutable audit trail",
+      "zeroPatientData": "Zero patient data",
+      "europeanInstitutions": "Built for European institutions"
+    },
+    "platform": {
+      "eyebrow": "Built for Europe.",
+      "titleLine1": "Designed for European institutions.",
+      "titleLine2": "Trusted across borders.",
+      "body": "HealthAI is built with a European-first approach to privacy, compliance, and collaboration. One platform. Many countries. Shared standards.",
+      "features": {
+        "gdpr": {
+          "title": "GDPR-native by design",
+          "desc": "Privacy, security and data sovereignty at the core."
+        },
+        "institutions": {
+          "title": "Built for European institutions",
+          "desc": "Aligned with EU regulations, ethics and research standards."
+        },
+        "crossBorder": {
+          "title": "Cross-border collaboration",
+          "desc": "Connect with verified professionals and institutions across Europe."
+        }
+      }
+    },
+    "cta": {
+      "ready": "Ready to co-create?"
+    }
+  },
   "notif": {
     "title": "Notifications",
     "markAllRead": "Mark all as read",
@@ -95,6 +156,7 @@
     "confirmDelete": "Delete this post? This action cannot be undone.",
     "status": {
       "draft": "Draft",
+      "open": "Open",
       "active": "Active",
       "meeting_scheduled": "Meeting Scheduled",
       "partner_found": "Partner Found",
@@ -319,6 +381,7 @@
     },
     "status": {
       "draft": "Draft",
+      "open": "Open",
       "active": "Active",
       "meeting_scheduled": "Meeting",
       "partner_found": "Partner Found",

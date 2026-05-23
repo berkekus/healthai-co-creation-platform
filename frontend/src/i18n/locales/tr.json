@@ -13,6 +13,67 @@
     "messages": "Mesajlar",
     "notifications": "Bildirimler"
   },
+  "landing": {
+    "nav": {
+      "platform": "Platform",
+      "directory": "Dizin",
+      "how": "Nasıl çalışır",
+      "trust": "Güven"
+    },
+    "actions": {
+      "requestAccess": "Erişim İste",
+      "goToDashboard": "Kontrol Paneline Git",
+      "signIn": "Giriş yap",
+      "signUp": "Kayıt ol",
+      "createEngineerAccount": "Mühendis Hesabı Oluştur",
+      "createHcpAccount": "Sağlık Profesyoneli Hesabı Oluştur"
+    },
+    "hero": {
+      "kicker": "SENG 384 · Bahar 2026 · v0.1",
+      "titleLine1": "Sağlıkta ortak yaratım,",
+      "titleLine2": "silosuz şekilde.",
+      "subtitle": "Avrupalı klinisyenlerin ve mühendislerin yayınladığı, eşleştiği ve buluştuğu; kurumsal .edu doğrulaması ve değiştirilemez denetim kaydıyla desteklenen, GDPR uyumlu yapılandırılmış bir dizin."
+    },
+    "directory": {
+      "verifiedNetwork": "Doğrulanmış Kurumsal Ağ",
+      "join": "Dizine Katıl",
+      "engineerLabel": "MÜHENDİSLER İÇİN",
+      "engineerTitle": "Klinik içgörüyle geliştirin.",
+      "engineerBody": "Fikrinizi paylaşın veya çözümünüzü birlikte geliştirecek doğru sağlık ortağını bulun.",
+      "clinicianLabel": "SAĞLIK PROFESYONELLERİ İÇİN",
+      "clinicianTitle": "Önemli teknolojiyi şekillendirin.",
+      "clinicianBody": "Gerçek klinik ihtiyaçlar ve yenilikler için mühendislerle iş birliği yapın."
+    },
+    "trust": {
+      "euHosted": "AB'de barındırılır & GDPR uyumlu",
+      "auditTrail": "Değiştirilemez denetim kaydı",
+      "zeroPatientData": "Sıfır hasta verisi",
+      "europeanInstitutions": "Avrupa kurumları için geliştirildi"
+    },
+    "platform": {
+      "eyebrow": "Avrupa için geliştirildi.",
+      "titleLine1": "Avrupa kurumları için tasarlandı.",
+      "titleLine2": "Sınırlar ötesinde güvenilir.",
+      "body": "HealthAI gizlilik, uyumluluk ve iş birliği için Avrupa öncelikli bir yaklaşımla geliştirildi. Tek platform. Birçok ülke. Ortak standartlar.",
+      "features": {
+        "gdpr": {
+          "title": "Tasarımı gereği GDPR uyumlu",
+          "desc": "Gizlilik, güvenlik ve veri egemenliği merkezdedir."
+        },
+        "institutions": {
+          "title": "Avrupa kurumları için geliştirildi",
+          "desc": "AB düzenlemeleri, etik ilkeler ve araştırma standartlarıyla uyumludur."
+        },
+        "crossBorder": {
+          "title": "Sınır ötesi iş birliği",
+          "desc": "Avrupa genelinde doğrulanmış profesyoneller ve kurumlarla bağlantı kurun."
+        }
+      }
+    },
+    "cta": {
+      "ready": "Ortak yaratmaya hazır mısınız?"
+    }
+  },
   "notif": {
     "title": "Bildirimler",
     "markAllRead": "Tümünü okundu işaretle",
@@ -95,6 +156,7 @@
     "confirmDelete": "Bu ilan silinsin mi? Bu işlem geri alınamaz.",
     "status": {
       "draft": "Taslak",
+      "open": "Açık",
       "active": "Aktif",
       "meeting_scheduled": "Toplantı Planlandı",
       "partner_found": "Ortak Bulundu",
@@ -319,6 +381,7 @@
     },
     "status": {
       "draft": "Taslak",
+      "open": "Açık",
       "active": "Aktif",
       "meeting_scheduled": "Toplantı",
       "partner_found": "Ortak Bulundu",

@@ -73,6 +73,7 @@ describe('postCreateSchema', () => {
     description: 'A detailed description that is at least fifty characters long for the test.',
     projectStage: 'idea' as const,
     collaborationType: 'research_partner' as const,
+    levelOfCommitment: 'flexible' as const,
     confidentiality: 'public_pitch' as const,
     city: 'Istanbul',
     country: 'Turkey',
@@ -100,6 +101,10 @@ describe('postCreateSchema', () => {
 
   it('rejects invalid collaborationType enum value', () => {
     expect(postCreateSchema.safeParse({ ...valid, collaborationType: 'research' }).success).toBe(false)
+  })
+
+  it('rejects invalid levelOfCommitment enum value', () => {
+    expect(postCreateSchema.safeParse({ ...valid, levelOfCommitment: 'weekly' }).success).toBe(false)
   })
 
   it('rejects invalid confidentiality enum value', () => {

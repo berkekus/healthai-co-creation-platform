@@ -248,6 +248,7 @@ Create a draft post. Admins cannot create posts. Rate-limited per user.
   "description": "Looking for an ML engineer to help interpret ECG signals.",
   "projectStage": "idea",
   "collaborationType": "research_partner",
+  "levelOfCommitment": "flexible",
   "confidentiality": "public_pitch",
   "city": "Berlin",
   "country": "Germany",

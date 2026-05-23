@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   Bookmark,
   CalendarDays,
+  Clock,
   FileText,
   Flag,
   Link as LinkIcon,
@@ -43,6 +44,13 @@ const COLLAB_LABELS: Record<string, string> = {
 const CONF_LABELS: Record<string, string> = {
   public_pitch: 'Public Pitch',
   meeting_only: 'Details in Meeting Only',
+}
+
+const COMMITMENT_LABELS: Record<string, string> = {
+  flexible: 'Flexible / to be agreed',
+  low: 'Light advisory (1-2 hrs/week)',
+  medium: 'Part-time collaboration (3-6 hrs/week)',
+  high: 'High commitment / focused sprint',
 }
 
 const ROLE_LABELS: Record<string, string> = {
@@ -105,6 +113,7 @@ export default function PostDetailPage() {
       { label: 'Location', value: `${post.city}, ${post.country}`, icon: <MapPin size={21} /> },
       { label: 'Project Stage', value: STAGE_LABELS[post.projectStage], icon: <Flag size={21} /> },
       { label: 'Collaboration Type', value: COLLAB_LABELS[post.collaborationType], icon: <Users size={21} /> },
+      { label: 'Commitment', value: COMMITMENT_LABELS[post.levelOfCommitment ?? 'flexible'], icon: <Clock size={21} /> },
       { label: 'Confidentiality', value: CONF_LABELS[post.confidentiality], icon: <Lock size={21} /> },
       {
         label: 'Expires On',
@@ -196,6 +205,7 @@ export default function PostDetailPage() {
                   authorRole: post.authorRole,
                   projectStage: post.projectStage,
                   collaborationType: post.collaborationType,
+                  levelOfCommitment: post.levelOfCommitment,
                   city: post.city,
                   country: post.country,
                   expiryDate: post.expiryDate,
@@ -295,7 +305,7 @@ export default function PostDetailPage() {
           </div>
 
           <div className="mt-8 border-t border-[#E3E7EC] pt-7">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
               {meta.map(item => (
                 <div key={item.label} className="flex items-start gap-4">
                   <span className="mt-1 shrink-0 text-[#6FB8C4]">{item.icon}</span>
@@ -362,6 +372,7 @@ export default function PostDetailPage() {
                   ['Posted', new Date(post.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), <FileText size={18} />],
                   ['Project Stage', STAGE_LABELS[post.projectStage], <Flag size={18} />],
                   ['Collaboration Type', COLLAB_LABELS[post.collaborationType], <Users size={18} />],
+                  ['Commitment', COMMITMENT_LABELS[post.levelOfCommitment ?? 'flexible'], <Clock size={18} />],
                   ['Confidentiality', CONF_LABELS[post.confidentiality], <Lock size={18} />],
                   ['Listing Expiry', new Date(post.expiryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), <CalendarDays size={18} />],
                 ].map(([label, value, icon]) => (

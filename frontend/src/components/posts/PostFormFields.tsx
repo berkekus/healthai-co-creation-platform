@@ -213,6 +213,17 @@ export default function PostFormFields({ register, control, setValue, errors, mi
               </select>
             </SelectShell>
           </Field>
+
+          <Field label="Level of commitment" error={errors.levelOfCommitment?.message} required>
+            <SelectShell>
+              <select {...register('levelOfCommitment')} className={baseSelect}>
+                <option value="flexible">Flexible / to be agreed</option>
+                <option value="low">Light advisory (1-2 hrs/week)</option>
+                <option value="medium">Part-time collaboration (3-6 hrs/week)</option>
+                <option value="high">High commitment / focused sprint</option>
+              </select>
+            </SelectShell>
+          </Field>
         </div>
 
         <Field label="Confidentiality level" error={errors.confidentiality?.message} required>
@@ -233,8 +244,10 @@ export default function PostFormFields({ register, control, setValue, errors, mi
                   <span className="block text-sm font-black text-[#2d1838]">{option.title}</span>
                   <span className="mt-1 block text-xs font-semibold leading-5 text-[#6f6a76]">{option.desc}</span>
                 </span>
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[#cfd3dc] peer-checked:border-[#2d1838] peer-checked:bg-[#2d1838]">
-                  <span className="h-2 w-2 rounded-full bg-white opacity-0 peer-checked:opacity-100" />
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[#cfd3dc] transition group-has-[:checked]:border-[#66c8e7] group-has-[:checked]:bg-[#66c8e7]">
+                  <svg className="hidden group-has-[:checked]:block" width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+                    <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </span>
               </label>
             ))}
@@ -332,7 +345,13 @@ function SelectShell({ children }: { children: ReactNode }) {
   return (
     <div className="relative">
       {children}
-      <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#6f6a76]">⌄</span>
+      <svg
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6f6a76]"
+        width="16" height="16" viewBox="0 0 16 16" fill="none"
+        aria-hidden="true"
+      >
+        <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
     </div>
   )
 }

@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Bell, Calendar, FileText, Menu, MessageSquare, Star, Users, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
+import { Bell, Calendar, FileText, Menu, Star, Users, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
-import { useConversationStore } from '../../store/conversationStore'
-import ThemeToggle from '../ui/ThemeToggle'
-import { Badge, IconButton, IconLink } from '../ui'
+import LanguageToggle from '../ui/LanguageToggle'
+import { Badge, IconButton } from '../ui'
 import { ROUTES } from '../../constants/routes'
 import type { NotificationType, Notification } from '../../types/common.types'
 
@@ -15,25 +14,6 @@ const resolveAvatar = (url?: string) => {
   if (!url) return undefined
   if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`
   return url
-}
-
-function LangToggle() {
-  const { i18n } = useTranslation()
-  const isTR = i18n.language === 'tr'
-  return (
-    <button
-      type="button"
-      onClick={() => i18n.changeLanguage(isTR ? 'en' : 'tr')}
-      className="h-10 px-3 rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center gap-1.5 text-xs font-black text-hai-plum focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal/70 focus-visible:ring-offset-2"
-      aria-label={isTR ? 'Switch language to English' : 'Dili Turkceye gecir'}
-      title={isTR ? 'Switch to English' : 'Türkçeye geç'}
-    >
-      <span aria-hidden="true" className="rounded-full bg-hai-offwhite px-1.5 py-0.5 text-[10px] leading-none text-[#1B7A88]">
-        {isTR ? 'TR' : 'EN'}
-      </span>
-      <span>{isTR ? 'TR' : 'EN'}</span>
-    </button>
-  )
 }
 
 function timeAgo(iso: string): string {
@@ -149,7 +129,6 @@ export default function Navbar() {
   const { t } = useTranslation()
   const { user, logout } = useAuthStore()
   const { unreadCount, fetchByUser: fetchNotifs, getByUser, markAllRead } = useNotificationStore()
-  const { unreadCount: msgUnread, fetchUnreadCount } = useConversationStore()
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -161,13 +140,6 @@ export default function Navbar() {
 
   const unread = user ? unreadCount(user.id) : 0
   const recentNotifs = user ? getByUser(user.id).slice(0, 5) : []
-
-  useEffect(() => {
-    if (!user) return
-    fetchUnreadCount()
-    const interval = setInterval(fetchUnreadCount, 30000)
-    return () => clearInterval(interval)
-  }, [user, fetchUnreadCount])
 
   const handleNotifEnter = () => {
     if (notifTimer.current) clearTimeout(notifTimer.current)
@@ -277,25 +249,6 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
           {user ? (
             <>
-              <ThemeToggle />
-
-              {/* Messages */}
-              <IconLink
-                to={ROUTES.MESSAGES}
-                label={`Messages${msgUnread > 0 ? ` (${msgUnread} unread)` : ''}`}
-                size="lg"
-                icon={(
-                  <>
-                    <MessageSquare size={17} />
-                    {msgUnread > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-white bg-hai-plum px-1 font-mono text-xs font-bold text-hai-mint">
-                        {msgUnread > 9 ? '9+' : msgUnread}
-                      </span>
-                    )}
-                  </>
-                )}
-              />
-
               {/* Notifications with hover dropdown */}
               <div
                 ref={notifRef}
@@ -402,7 +355,7 @@ export default function Navbar() {
           )}
 
           {/* Language toggle — always far right */}
-          <LangToggle />
+          <LanguageToggle />
         </div>
       </div>
 
