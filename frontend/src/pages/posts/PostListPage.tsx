@@ -365,7 +365,7 @@ function PageHeader({ search, onSearch, mineOnly }: { search: string; onSearch: 
 
       <div className="directory-header-grid grid grid-cols-1 gap-10 xl:items-end">
         <div>
-          <h1 className="font-headline text-6xl font-black leading-tight tracking-normal md:text-7xl">
+          <h1 className="font-headline text-4xl sm:text-6xl font-black leading-tight tracking-normal md:text-7xl">
             {mineOnly ? (
               <>
                 <span className="text-[var(--primary)]">Your </span>
