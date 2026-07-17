@@ -35,5 +35,7 @@ LogSchema.index({ userId: 1 })
 LogSchema.index({ createdAt: -1 })
 LogSchema.index({ action: 1 })
 LogSchema.index({ result: 1 })
+// Güvenlik politikası (hesap silme e-postasındaki taahhüt): audit loglar 24 ay saklanır
+LogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 24 * 30 * 24 * 60 * 60 })
 
 export default model<ILog>('Log', LogSchema)

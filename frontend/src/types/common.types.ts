@@ -8,6 +8,7 @@ export type NotificationType =
   | 'post_status_changed'
   | 'partner_found'
   | 'interest_received'
+  | 'message_received'
   | 'account_activity'
 
 export interface Notification {

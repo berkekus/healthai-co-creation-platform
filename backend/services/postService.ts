@@ -1,9 +1,11 @@
 import Post, { IPost } from '../models/Post'
 import { FilterQuery, Types } from 'mongoose'
 import Meeting from '../models/Meeting'
+import Comment from '../models/Comment'
 import SavedSearch from '../models/SavedSearch'
 import { pushNotification } from './notificationService'
 import { makeError } from '../utils/AppError'
+import { escapeRegExp } from '../utils/escapeRegExp'
 
 export interface PostFilters {
   domain?: string
@@ -57,10 +59,10 @@ export async function listPosts(filters: PostFilters, page = 1, limit = 20) {
     query.status = { $ne: 'draft' }
   }
 
-  if (filters.domain) query.domain = { $regex: filters.domain, $options: 'i' }
-  if (filters.expertise) query.expertiseRequired = { $regex: filters.expertise, $options: 'i' }
-  if (filters.city) query.city = { $regex: `^${filters.city}$`, $options: 'i' }
-  if (filters.country) query.country = { $regex: `^${filters.country}$`, $options: 'i' }
+  if (filters.domain) query.domain = { $regex: escapeRegExp(filters.domain), $options: 'i' }
+  if (filters.expertise) query.expertiseRequired = { $regex: escapeRegExp(filters.expertise), $options: 'i' }
+  if (filters.city) query.city = { $regex: `^${escapeRegExp(filters.city)}$`, $options: 'i' }
+  if (filters.country) query.country = { $regex: `^${escapeRegExp(filters.country)}$`, $options: 'i' }
   if (filters.projectStage) query.projectStage = filters.projectStage
   if (filters.authorRole) query.authorRole = filters.authorRole
   if (filters.search) {
@@ -192,6 +194,26 @@ export async function deletePost(id: string, requesterId: string, isAdmin: boole
   const post = await Post.findById(id)
   if (!post) throw makeError('Post not found', 404)
   if (!isAdmin && post.authorId.toString() !== requesterId) throw makeError('Forbidden', 403)
+
+  // Kaskad: aktif toplantıları iptal edip talepçilere haber ver, yorumları temizle.
+  // Konuşmalar toplantı geçmişinin parçası olduğu için silinmez.
+  const activeMeetings = await Meeting.find({
+    postId: id,
+    status: { $in: ['pending', 'time_proposed', 'confirmed'] },
+  })
+  await Promise.all(activeMeetings.map(async (meeting) => {
+    meeting.status = 'cancelled'
+    meeting.cancelReason = 'Post was deleted'
+    await meeting.save()
+    pushNotification({
+      userId: meeting.requesterId.toString(),
+      type: 'meeting_cancelled',
+      title: 'Toplantı iptal edildi',
+      body: `"${post.title}" postu silindiği için toplantı talebiniz iptal edildi.`,
+      linkTo: '/meetings',
+    }).catch(() => {})
+  }))
+  await Comment.deleteMany({ postId: id })
 
   await post.deleteOne()
 }

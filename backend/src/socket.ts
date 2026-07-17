@@ -2,6 +2,7 @@ import { Server as HttpServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
 import jwt from 'jsonwebtoken'
 import logger from './logger'
+import { allowedOrigins, vercelPreviewRe } from '../config/origins'
 
 interface JwtPayload {
   id: string
@@ -11,17 +12,9 @@ interface JwtPayload {
 let io: SocketServer | null = null
 
 export function initSocket(httpServer: HttpServer): SocketServer {
-  const allowedOrigins = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'http://localhost:4173',
-    'http://127.0.0.1:4173',
-    process.env.CLIENT_ORIGIN,
-  ].filter(Boolean) as string[]
-
   io = new SocketServer(httpServer, {
     cors: {
-      origin: allowedOrigins,
+      origin: [...allowedOrigins, vercelPreviewRe],
       credentials: true,
     },
     transports: ['websocket', 'polling'],

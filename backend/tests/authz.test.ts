@@ -116,7 +116,8 @@ describe('POST /api/notifications — admin-only protection', () => {
   })
 
   it('returns 201 when admin creates a notification', async () => {
-    const admin = await createUser({ role: 'admin' })
+    // Register artık 'admin' rolünü kabul etmez (K1 düzeltmesi) — normal kayıt + DB'de terfi
+    const admin = await createUser()
     const target = await createUser()
 
     // Promote user to admin directly in DB (role enum enforced at register)

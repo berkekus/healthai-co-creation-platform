@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next'
 import api from '../../lib/api'
 import BadgeList from '../../components/ui/BadgeList'
 import type { User } from '../../types/auth.types'
+import { API_ORIGIN } from '../../lib/env'
 
-const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
 const resolveAvatar = (url?: string) => {
   if (!url) return undefined
   if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`

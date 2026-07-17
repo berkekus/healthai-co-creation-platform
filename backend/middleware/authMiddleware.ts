@@ -26,6 +26,14 @@ interface JwtPayload {
 const lastActiveThrottle = new Map<string, number>()
 const LAST_ACTIVE_THROTTLE_MS = 5 * 60 * 1000
 
+// Map sınırsız büyümesin: eski girdileri periyodik temizle (unref → process'i açık tutmaz)
+setInterval(() => {
+  const cutoff = Date.now() - LAST_ACTIVE_THROTTLE_MS
+  for (const [key, ts] of lastActiveThrottle) {
+    if (ts < cutoff) lastActiveThrottle.delete(key)
+  }
+}, 30 * 60 * 1000).unref()
+
 export const protect = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   const header = req.headers.authorization
 

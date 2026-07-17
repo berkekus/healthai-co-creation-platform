@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Bell, Calendar, FileText, Menu, Star, Users, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
+import { Bell, Calendar, FileText, Menu, MessageCircle, Star, Users, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
@@ -8,8 +8,8 @@ import LanguageToggle from '../ui/LanguageToggle'
 import { Badge, IconButton } from '../ui'
 import { ROUTES } from '../../constants/routes'
 import type { NotificationType, Notification } from '../../types/common.types'
+import { API_ORIGIN } from '../../lib/env'
 
-const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
 const resolveAvatar = (url?: string) => {
   if (!url) return undefined
   if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`
@@ -44,6 +44,8 @@ function NotifIcon({ type }: { type: NotificationType }) {
       return <span className={`${base} bg-[#E8F4F7]`}><Users size={15} className="text-[#8AC6D0]" /></span>
     case 'interest_received':
       return <span className={`${base} bg-[#E8F4F7]`}><Star size={15} className="text-[#8AC6D0]" /></span>
+    case 'message_received':
+      return <span className={`${base} bg-[#E8F4F7]`}><MessageCircle size={15} className="text-[#6FB8C4]" /></span>
     default:
       return <span className={`${base} bg-[#EEF0F3]`}><Bell size={15} className="text-[#6F6878]" /></span>
   }

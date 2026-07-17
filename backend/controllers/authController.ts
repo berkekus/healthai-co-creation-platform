@@ -8,7 +8,10 @@ import { deleteAvatarFile } from '../middleware/uploadMiddleware'
 import { verifyTurnstile } from '../utils/verifyTurnstile'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const VALID_ROLES = ['engineer', 'healthcare_professional', 'admin'] as const
+// Kurumsal .edu zorunluluğu — frontend registerSchema ile birebir aynı kural
+const EDU_EMAIL_RE = /\.edu(\.[a-z]{2,})?$/i
+// Admin hesapları yalnızca seed/script ile oluşturulur; self-register ile asla
+const VALID_ROLES = ['engineer', 'healthcare_professional'] as const
 
 export const register = asyncHandler(async (req, res) => {
   const { name, email, password, role, institution, city, country, captchaToken } = req.body
@@ -25,6 +28,10 @@ export const register = asyncHandler(async (req, res) => {
   }
   if (!EMAIL_RE.test(email)) {
     res.status(400).json({ success: false, message: 'Invalid email format' })
+    return
+  }
+  if (!EDU_EMAIL_RE.test(email)) {
+    res.status(400).json({ success: false, message: 'Only institutional .edu email addresses are accepted' })
     return
   }
   if (!VALID_ROLES.includes(role)) {
@@ -118,6 +125,28 @@ export const updateNotifPrefs = asyncHandler<AuthenticatedRequest>(async (req, r
 
 export const updateProfile = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { name, institution, city, country, bio, avatarUrl, expertiseTags } = req.body
+
+  if (name !== undefined && (typeof name !== 'string' || name.trim().length < 2 || name.length > 100)) {
+    res.status(400).json({ success: false, message: 'Name must be 2-100 characters' })
+    return
+  }
+  if (bio !== undefined && (typeof bio !== 'string' || bio.length > 400)) {
+    res.status(400).json({ success: false, message: 'Bio must be under 400 characters' })
+    return
+  }
+  // avatarUrl yalnızca kendi upload'ımız veya https görsel URL'i olabilir (javascript: vb. engellenir)
+  if (avatarUrl !== undefined && avatarUrl !== '' &&
+      (typeof avatarUrl !== 'string' || !(avatarUrl.startsWith('/uploads/avatars/') || /^https:\/\/.+/i.test(avatarUrl)) || avatarUrl.length > 500)) {
+    res.status(400).json({ success: false, message: 'avatarUrl must be an /uploads path or an https URL' })
+    return
+  }
+  if (expertiseTags !== undefined &&
+      (!Array.isArray(expertiseTags) || expertiseTags.length > 10 ||
+       expertiseTags.some(t => typeof t !== 'string' || t.trim().length === 0 || t.length > 40))) {
+    res.status(400).json({ success: false, message: 'expertiseTags must be up to 10 tags of max 40 characters' })
+    return
+  }
+
   const user = await authService.updateUserProfile(req.userId, {
     name, institution, city, country, bio, avatarUrl, expertiseTags,
   })

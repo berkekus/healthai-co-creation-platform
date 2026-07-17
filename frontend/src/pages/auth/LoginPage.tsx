@@ -9,11 +9,15 @@ import { useAuthStore } from '../../store/authStore'
 import { loginSchema, type LoginFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
 
-const DEV_ACCOUNTS = [
-  { label: 'Doctor',    email: 'elif.kaya@istanbul.edu.tr', password: 'HealthAI2026!', icon: Stethoscope, color: '#0ea5e9' },
-  { label: 'Engineer',  email: 'mert.aydin@metu.edu.tr',   password: 'HealthAI2026!', icon: Wrench,      color: '#8b5cf6' },
-  { label: 'Admin',     email: 'admin@healthai.edu',        password: 'Admin1234!',    icon: ShieldCheck, color: '#f97316' },
-] as const
+// Yalnızca lokal geliştirme: prod build'de bu blok hiç render edilmez ve
+// hesap bilgileri bundle'a girmez (aşağıdaki import.meta.env.DEV koşulu sayesinde tree-shake edilir).
+const DEV_ACCOUNTS = import.meta.env.DEV
+  ? ([
+      { label: 'Doctor',    email: 'elif.kaya@istanbul.edu.tr', password: 'HealthAI2026!', icon: Stethoscope, color: '#0ea5e9' },
+      { label: 'Engineer',  email: 'mert.aydin@metu.edu.tr',   password: 'HealthAI2026!', icon: Wrench,      color: '#8b5cf6' },
+      { label: 'Admin',     email: 'admin@healthai.edu',        password: 'Admin1234!',    icon: ShieldCheck, color: '#f97316' },
+    ] as const)
+  : ([] as const)
 
 const RATE_LIMIT_AFTER = 3
 const COOLDOWN_SEC = 60
@@ -343,7 +347,8 @@ export default function LoginPage() {
               </Link>
             </p>
 
-            {/* Dev quick-login */}
+            {/* Dev quick-login — yalnız lokal geliştirmede görünür */}
+            {import.meta.env.DEV && (
             <div className="mt-8">
               <div className="flex items-center gap-3 mb-3">
                 <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
@@ -375,6 +380,7 @@ export default function LoginPage() {
                 ))}
               </div>
             </div>
+            )}
           </div>
         </div>
       </div>

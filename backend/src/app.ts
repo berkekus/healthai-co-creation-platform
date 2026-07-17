@@ -14,6 +14,7 @@ import aiRoutes from '../routes/aiRoutes'
 import savedSearchRoutes from '../routes/savedSearchRoutes'
 import commentRoutes, { commentRouter } from '../routes/commentRoutes'
 import { errorHandler, notFound } from '../middleware/errorHandler'
+import { isAllowedOrigin } from '../config/origins'
 import passport from 'passport'
 import { initPassport } from './passport'
 
@@ -21,18 +22,9 @@ initPassport()
 
 const app = express()
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'http://localhost:4173',
-  'http://127.0.0.1:4173',
-  process.env.CLIENT_ORIGIN,
-  // Support an optional second production origin (e.g. a second team member's Vercel)
-  process.env.CLIENT_ORIGIN_EXTRA,
-].filter(Boolean) as string[]
-
-// Allow any Vercel preview/production URL for this project
-const vercelPreviewRe = /^https:\/\/healthai-co-creation-platform(-[a-z0-9]+)?(-[a-z0-9]+-[a-z0-9]+-projects)?\.vercel\.app$/
+// Railway / nginx tek proxy hop'u arkasında çalışır; express-rate-limit ve req.ip
+// doğru IP'yi görebilsin diye şart (yoksa v8 X-Forwarded-For hatası fırlatır).
+app.set('trust proxy', 1)
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
@@ -40,8 +32,8 @@ app.use(helmet({
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true)
-    if (allowedOrigins.includes(origin) || vercelPreviewRe.test(origin)) return cb(null, true)
-    cb(new Error(`CORS: origin ${origin} not allowed`))
+    if (isAllowedOrigin(origin)) return cb(null, true)
+    cb(Object.assign(new Error('Origin not allowed'), { statusCode: 403 }))
   },
   credentials: true,
 }))

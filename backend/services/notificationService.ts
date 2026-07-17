@@ -1,5 +1,18 @@
 import Notification, { NotificationType } from '../models/Notification'
+import User, { INotifPrefs } from '../models/User'
 import { makeError } from '../utils/AppError'
+
+// Kullanıcının kapattığı kategorilerde bildirim üretilmez.
+// account_activity (güvenlik bildirimleri) bilinçli olarak her zaman gönderilir.
+const PREF_BY_TYPE: Partial<Record<NotificationType, keyof INotifPrefs>> = {
+  meeting_request:   'meetingRequests',
+  meeting_accepted:  'meetingUpdates',
+  meeting_declined:  'meetingUpdates',
+  meeting_cancelled: 'meetingUpdates',
+  meeting_completed: 'meetingUpdates',
+  interest_received: 'interestReceived',
+  message_received:  'messages',
+}
 
 export async function pushNotification(data: {
   userId: string
@@ -8,6 +21,11 @@ export async function pushNotification(data: {
   body: string
   linkTo?: string
 }) {
+  const prefKey = PREF_BY_TYPE[data.type]
+  if (prefKey) {
+    const user = await User.findById(data.userId).select('notifPrefs').lean()
+    if (user && user.notifPrefs?.[prefKey] === false) return null
+  }
   return Notification.create({ ...data, isRead: false })
 }
 

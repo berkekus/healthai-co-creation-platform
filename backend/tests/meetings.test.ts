@@ -165,3 +165,35 @@ describe('POST /api/meetings/:id/cancel', () => {
     expect(res.status).toBe(400)
   })
 })
+
+// Regression (K4): meeting detayını yalnızca taraflar (veya admin) okuyabilir
+describe('GET /api/meetings/:id — access control', () => {
+  it('returns 200 for a participant', async () => {
+    const owner = await createUser({ role: 'healthcare_professional' })
+    const requester = await createUser()
+    const post = await createPost(owner.token)
+    await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
+    const meetingRes = await requestMeeting(requester.token, post.id)
+    const meetingId = meetingRes.body.data.id
+
+    const res = await api
+      .get(`/api/meetings/${meetingId}`)
+      .set('Authorization', `Bearer ${requester.token}`)
+    expect(res.status).toBe(200)
+  })
+
+  it('returns 403 for an unrelated authenticated user (IDOR)', async () => {
+    const owner = await createUser({ role: 'healthcare_professional' })
+    const requester = await createUser()
+    const stranger = await createUser()
+    const post = await createPost(owner.token)
+    await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
+    const meetingRes = await requestMeeting(requester.token, post.id)
+    const meetingId = meetingRes.body.data.id
+
+    const res = await api
+      .get(`/api/meetings/${meetingId}`)
+      .set('Authorization', `Bearer ${stranger.token}`)
+    expect(res.status).toBe(403)
+  })
+})

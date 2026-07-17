@@ -183,6 +183,8 @@ npm run seed:demo-messages
 | `JWT_SECRET` | Required in production |
 | `JWT_EXPIRES_IN` | Token lifetime |
 | `CLIENT_ORIGIN` | Frontend URL for CORS |
+| `APP_BASE_URL` | Frontend URL used in email links |
+| `API_BASE_URL` | Public backend URL (OAuth callbacks) |
 | `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Optional email delivery |
 | `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret |
 | `GEMINI_API_KEY` | Optional AI drafting support |
@@ -193,7 +195,6 @@ npm run seed:demo-messages
 | --- | --- |
 | `VITE_API_URL` | Backend API base URL |
 | `VITE_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key |
-| `VITE_GEMINI_API_KEY` | Optional AI assistant support |
 
 ---
 
@@ -255,13 +256,7 @@ npm run seed:demo-messages
 
 ## Demo Accounts
 
-After seeding, the login page includes Dev Access buttons for demo users.
-
-| Email | Password | Role |
-| --- | --- | --- |
-| `elif.kaya@istanbul.edu.tr` | `HealthAI2026!` | Healthcare Professional |
-| `mert.aydin@metu.edu.tr` | `HealthAI2026!` | Engineer |
-| `admin@healthai.edu` | `Admin1234!` | Admin |
+After seeding, the login page shows Dev Access quick-login buttons **in local development builds only** (they are excluded from production bundles). Seed account credentials live in the seed scripts under `backend/scripts/` — do not reuse them in any public deployment.
 
 ---
 

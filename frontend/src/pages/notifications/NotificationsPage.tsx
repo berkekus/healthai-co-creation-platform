@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Calendar, Check, FileText, Filter, Shield, Star, Users } from 'lucide-react'
+import { Bell, Calendar, Check, FileText, Filter, MessageCircle, Shield, Star, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
@@ -34,6 +34,7 @@ function getIconStyle(type: NotificationType): { Icon: typeof Bell; bg: string; 
   if (type === 'meeting_request' || type === 'meeting_accepted' || type === 'meeting_completed') return { Icon: Calendar, bg: '#E8F4F7', color: '#6FB8C4' }
   if (type === 'partner_found') return { Icon: Users, bg: '#E8F4F7', color: '#6FB8C4' }
   if (type === 'interest_received') return { Icon: Star, bg: '#E3DCD2', color: '#36213E' }
+  if (type === 'message_received') return { Icon: MessageCircle, bg: '#E8F4F7', color: '#6FB8C4' }
   if (type === 'post_closed' || type === 'post_status_changed') return { Icon: FileText, bg: '#E8F4F7', color: '#6FB8C4' }
   if (type === 'account_activity') return { Icon: Shield, bg: '#EEF0F3', color: '#36213E' }
   return { Icon: Bell, bg: '#EEF0F3', color: '#6F6878' }

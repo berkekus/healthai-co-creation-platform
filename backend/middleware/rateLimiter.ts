@@ -35,3 +35,10 @@ export const notificationCreateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 30,
 })
+
+// /api/ai/* — Gemini maliyet/kota koruması: 10 istek/dk per IP
+export const aiLimiter = rateLimit({
+  ...baseOptions,
+  windowMs: 60 * 1000,
+  max: 10,
+})

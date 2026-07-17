@@ -63,7 +63,7 @@ export const requestMeeting = asyncHandler<AuthenticatedRequest>(async (req, res
 })
 
 export const getMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const meeting = await meetingService.getMeetingById(req.params.id)
+  const meeting = await meetingService.getMeetingById(req.params.id, req.userId, req.userRole === 'admin')
   res.json({ success: true, data: meeting })
 })
 

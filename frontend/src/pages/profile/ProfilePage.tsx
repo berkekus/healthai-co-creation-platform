@@ -10,10 +10,10 @@ import api from '../../lib/api'
 import { useAuthStore } from '../../store/authStore'
 import type { User } from '../../types/auth.types'
 import { profileSchema, type ProfileFormData } from '../../utils/validators'
+import { API_ORIGIN } from '../../lib/env'
 
 const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'
 const ERROR_SHADOW = '0 0 0 3px rgba(220,38,38,0.18)'
-const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
 
 const EXPERTISE_TAGS = [
   // Clinical domains
@@ -683,7 +683,7 @@ export default function ProfilePage() {
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <a
-                href={`${(import.meta.env.VITE_API_URL ?? 'http://localhost:5001/api').replace(/\/api$/, '')}/api/auth/github`}
+                href={`${API_ORIGIN}/api/auth/github`}
                 className="flex items-center gap-4 rounded-2xl border border-[#D5DAE0] bg-white p-5 transition hover:border-hai-teal hover:bg-[#F8FBFC]"
               >
                 <svg className="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="currentColor">
@@ -701,7 +701,7 @@ export default function ProfilePage() {
               </a>
 
               <a
-                href={`${(import.meta.env.VITE_API_URL ?? 'http://localhost:5001/api').replace(/\/api$/, '')}/api/auth/linkedin`}
+                href={`${API_ORIGIN}/api/auth/linkedin`}
                 className="flex items-center gap-4 rounded-2xl border border-[#D5DAE0] bg-white p-5 transition hover:border-hai-teal hover:bg-[#F8FBFC]"
               >
                 <svg className="h-6 w-6 shrink-0 text-[#0077B5]" viewBox="0 0 24 24" fill="currentColor">

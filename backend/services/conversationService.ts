@@ -96,7 +96,7 @@ export async function sendMessage(conversationId: string, senderId: string, send
 
     pushNotification({
       userId: otherId,
-      type: 'meeting_request',
+      type: 'message_received',
       title: `New message from ${senderName}`,
       body: trimmed.length > 60 ? trimmed.slice(0, 60) + '…' : trimmed,
       linkTo: `/messages/${conversationId}`,

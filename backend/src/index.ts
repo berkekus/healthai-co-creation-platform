@@ -21,6 +21,11 @@ if ((process.env.JWT_SECRET as string).length < 32) {
   process.exit(1)
 }
 
+// Turnstile secret yoksa doğrulama sessizce geçer (fail-open) — prod'da görünür uyarı bas
+if (process.env.NODE_ENV === 'production' && !process.env.TURNSTILE_SECRET_KEY) {
+  logger.warn('TURNSTILE_SECRET_KEY is not set — CAPTCHA verification is DISABLED in production')
+}
+
 const PORT = process.env.PORT || 5000
 
 const httpServer = http.createServer(app)
@@ -32,3 +37,19 @@ connectDB().then(() => {
     logger.info({ port: PORT }, 'Server running')
   })
 })
+
+process.on('unhandledRejection', (err) => {
+  logger.error({ err }, 'Unhandled promise rejection')
+})
+
+async function shutdown(signal: string) {
+  logger.info({ signal }, 'Shutting down gracefully')
+  httpServer.close(() => undefined)
+  try {
+    const mongoose = (await import('mongoose')).default
+    await mongoose.connection.close()
+  } catch { /* already closed */ }
+  process.exit(0)
+}
+process.on('SIGTERM', () => { void shutdown('SIGTERM') })
+process.on('SIGINT', () => { void shutdown('SIGINT') })

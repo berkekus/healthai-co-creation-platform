@@ -47,6 +47,7 @@ JWT_EXPIRES_IN=7d
 PORT=5000
 CLIENT_ORIGIN=https://your-app.vercel.app
 APP_BASE_URL=https://your-app.vercel.app
+API_BASE_URL=https://your-service.up.railway.app
 TURNSTILE_SECRET_KEY=<cloudflare-turnstile-secret>
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -61,7 +62,7 @@ LINKEDIN_CLIENT_ID=<optional>
 LINKEDIN_CLIENT_SECRET=<optional>
 ```
 
-> **Not:** `CLIENT_ORIGIN` ve `APP_BASE_URL` deploy ettikten sonra Vercel URL'inizi alınca güncelleyin.
+> **Not:** `CLIENT_ORIGIN` ve `APP_BASE_URL` (frontend/Vercel URL'i) deploy sonrası Vercel URL'inizle güncellenir. `API_BASE_URL` ise **backend'in kendi Railway URL'idir** — OAuth callback'leri bu adrese gelir.
 
 ### 2.3 Domain
 Railway otomatik bir subdomain verir: `https://your-service.up.railway.app`  
@@ -84,8 +85,9 @@ Deploy sonrası: `https://your-service.up.railway.app/api/health`
 ```env
 VITE_API_URL=https://your-service.up.railway.app/api
 VITE_TURNSTILE_SITE_KEY=<cloudflare-turnstile-site-key>
-VITE_GEMINI_API_KEY=<google-ai-studio-key>
 ```
+
+> Gemini anahtarı yalnızca **backend**'e (Railway) konur; frontend'e asla eklenmez.
 
 ### 3.3 Build ayarları
 Vercel otomatik algılar ama manuel girilmesi gerekirse:

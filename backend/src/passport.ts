@@ -2,9 +2,19 @@ import passport from 'passport'
 import { Strategy as GitHubStrategy, Profile as GitHubProfile } from 'passport-github2'
 import { Strategy as LinkedInStrategy, Profile as LinkedInProfile } from 'passport-linkedin-oauth2'
 import jwt from 'jsonwebtoken'
+import crypto from 'crypto'
+import bcrypt from 'bcryptjs'
 import User from '../models/User'
 
-const APP_BASE = process.env.APP_BASE_URL ?? 'http://localhost:5001'
+// OAuth callback'leri BACKEND'in public URL'ine gelir. APP_BASE_URL (frontend, e-posta
+// linkleri için) ile karışmaması adına önce API_BASE_URL okunur.
+const APP_BASE = process.env.API_BASE_URL ?? process.env.APP_BASE_URL ?? 'http://localhost:5000'
+
+// OAuth kullanıcıları şifreyle giriş yapamaz; alan yine de bcrypt hash'i olarak saklanır
+// (düz metin / tahmin edilebilir değer asla yazılmaz).
+async function unusablePassword(): Promise<string> {
+  return bcrypt.hash(crypto.randomBytes(32).toString('hex'), 12)
+}
 
 export function initPassport(): void {
   if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
@@ -31,7 +41,7 @@ export function initPassport(): void {
             user = await User.create({
               name: profile.displayName || profile.username || 'GitHub User',
               email,
-              password: Math.random().toString(36),
+              password: await unusablePassword(),
               role: 'engineer',
               institution: '',
               city: '',
@@ -73,7 +83,7 @@ export function initPassport(): void {
             user = await User.create({
               name: profile.displayName || 'LinkedIn User',
               email,
-              password: Math.random().toString(36),
+              password: await unusablePassword(),
               role: 'healthcare_professional',
               institution: '',
               city: '',

@@ -6,6 +6,8 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['./tests/setup.ts'],
     testTimeout: 30000,
+    // dist/ altındaki derlenmiş test kopyalarını asla koşma
+    exclude: ['**/node_modules/**', '**/dist/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],

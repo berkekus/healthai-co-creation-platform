@@ -1,8 +1,11 @@
 import { Router } from 'express'
 import { rankPostMatches, improvePost, translateText, getProfileScore, getMeetingSummary } from '../controllers/aiController'
 import { protect } from '../middleware/authMiddleware'
+import { aiLimiter } from '../middleware/rateLimiter'
 
 const router = Router()
+
+router.use(aiLimiter)
 
 router.post('/matches', protect, rankPostMatches)
 router.post('/improve-post', protect, improvePost)

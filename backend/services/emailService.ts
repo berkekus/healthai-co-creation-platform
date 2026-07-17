@@ -1,5 +1,6 @@
 import nodemailer, { Transporter } from 'nodemailer'
 import logger from '../src/logger'
+import { escapeHtml } from '../utils/escapeHtml'
 
 let transporter: Transporter | null = null
 
@@ -50,7 +51,7 @@ export async function sendVerificationEmail(to: string, token: string, name: str
   const verifyUrl = `${APP_URL}/verify-email?token=${encodeURIComponent(token)}`
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;">
-      <h1 style="color: #36213E;">Welcome to HEALTH AI, ${name}!</h1>
+      <h1 style="color: #36213E;">Welcome to HEALTH AI, ${escapeHtml(name)}!</h1>
       <p>Click the button below to verify your account. This link will expire in 24 hours.</p>
       <p style="margin: 32px 0;">
         <a href="${verifyUrl}" style="background: #36213E; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
@@ -70,7 +71,7 @@ export async function sendPasswordResetEmail(to: string, token: string, name: st
   const resetUrl = `${APP_URL}/reset-password?token=${encodeURIComponent(token)}`
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;">
-      <h1 style="color: #36213E;">Reset your password, ${name}</h1>
+      <h1 style="color: #36213E;">Reset your password, ${escapeHtml(name)}</h1>
       <p>We received a request to reset the password for your HEALTH AI account. Click the button below to set a new password. This link will expire in <strong>1 hour</strong>.</p>
       <p style="margin: 32px 0;">
         <a href="${resetUrl}" style="background: #36213E; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
@@ -90,7 +91,7 @@ export async function sendAccountDeletedEmail(to: string, name: string): Promise
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;">
       <h1 style="color: #36213E;">Account deleted</h1>
-      <p>Hi ${name},</p>
+      <p>Hi ${escapeHtml(name)},</p>
       <p>Your HEALTH AI account and personal data have been permanently deleted, as requested under GDPR Article 17 (Right to erasure).</p>
       <p>Audit logs related to your account are retained for 24 months as required by our security policy.</p>
       <p style="color: #999; font-size: 12px; margin-top: 32px;">— The HEALTH AI team</p>

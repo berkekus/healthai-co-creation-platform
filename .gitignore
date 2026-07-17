@@ -28,3 +28,9 @@ graphify-out/cache/
 graphify-out/manifest.json
 graphify-out/cost.json
 
+
+# Runtime artifacts
+*.log
+backend/uploads/
+.DS_Store
+frontend/tsconfig.tsbuildinfo

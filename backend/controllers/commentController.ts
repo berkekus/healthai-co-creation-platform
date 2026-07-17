@@ -2,6 +2,7 @@ import { AuthenticatedRequest } from '../middleware/authMiddleware'
 import { asyncHandler } from '../utils/asyncHandler'
 import { makeError } from '../utils/AppError'
 import Comment from '../models/Comment'
+import Post from '../models/Post'
 
 const PAGE_SIZE = 20
 
@@ -30,6 +31,16 @@ export const createComment = asyncHandler<AuthenticatedRequest>(async (req, res)
   }
   if (content.trim().length > 500) {
     throw makeError('Comment too long (max 500 characters)', 400)
+  }
+
+  const postExists = await Post.exists({ _id: postId })
+  if (!postExists) throw makeError('Post not found', 404)
+
+  if (parentId) {
+    const parent = await Comment.findById(parentId).select('postId')
+    if (!parent || parent.postId.toString() !== postId) {
+      throw makeError('parentId must reference a comment on the same post', 400)
+    }
   }
 
   const comment = await Comment.create({

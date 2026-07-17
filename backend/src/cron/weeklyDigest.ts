@@ -4,6 +4,8 @@ import Meeting from '../../models/Meeting'
 import Message from '../../models/Message'
 import Conversation from '../../models/Conversation'
 import logger from '../logger'
+import { escapeHtml } from '../../utils/escapeHtml'
+import { escapeRegExp } from '../../utils/escapeRegExp'
 
 const APP_URL = process.env.APP_BASE_URL ?? process.env.CLIENT_ORIGIN ?? 'http://localhost:5173'
 
@@ -20,12 +22,12 @@ async function buildDigestHtml(user: {
       status: 'active',
       createdAt: { $gte: oneWeekAgo },
       expertiseRequired: user.expertiseTags.length > 0
-        ? { $in: user.expertiseTags.map(t => new RegExp(t, 'i')) }
+        ? { $in: user.expertiseTags.map(t => new RegExp(escapeRegExp(t), 'i')) }
         : undefined,
     }).sort({ createdAt: -1 }).limit(5).lean(),
 
     Meeting.find({
-      $or: [{ requesterId: user.email }, { ownerEmail: user.email }],
+      $or: [{ requesterEmail: user.email }, { ownerEmail: user.email }],
       status: { $in: ['confirmed', 'pending', 'time_proposed'] },
     }).limit(5).lean(),
 
@@ -53,7 +55,7 @@ async function buildDigestHtml(user: {
       <h1 style="color:#6FB8C4;font-size:22px;font-weight:900;margin:0">Your Weekly Digest</h1>
     </div>
     <div style="padding:32px">
-      <p style="color:#374151;font-size:15px">Hi ${user.name},</p>
+      <p style="color:#374151;font-size:15px">Hi ${escapeHtml(user.name)},</p>
       <p style="color:#6F6878;font-size:14px">Here's what happened on the platform this week.</p>
 
       ${unreadCount > 0 ? `
@@ -68,7 +70,7 @@ async function buildDigestHtml(user: {
       <h2 style="color:#36213E;font-size:15px;font-weight:900;margin:24px 0 12px">Upcoming Meetings (${upcomingMeetings.length})</h2>
       ${upcomingMeetings.map(m => `
         <div style="border:1px solid #E5E7EB;border-radius:10px;padding:12px 16px;margin-bottom:8px">
-          <p style="margin:0;font-size:13px;font-weight:700;color:#36213E">${m.postTitle}</p>
+          <p style="margin:0;font-size:13px;font-weight:700;color:#36213E">${escapeHtml(m.postTitle)}</p>
           <p style="margin:4px 0 0;font-size:12px;color:#6F6878">Status: ${m.status}</p>
         </div>`).join('')}
       <a href="${APP_URL}/meetings" style="display:inline-block;margin-top:4px;font-size:12px;font-weight:700;color:#6FB8C4">View all meetings →</a>` : ''}
@@ -77,8 +79,8 @@ async function buildDigestHtml(user: {
       <h2 style="color:#36213E;font-size:15px;font-weight:900;margin:24px 0 12px">New Posts Matching Your Expertise (${newPosts.length})</h2>
       ${newPosts.map(p => `
         <div style="border:1px solid #E5E7EB;border-radius:10px;padding:12px 16px;margin-bottom:8px">
-          <p style="margin:0;font-size:13px;font-weight:700;color:#36213E">${p.title}</p>
-          <p style="margin:4px 0 0;font-size:12px;color:#6F6878">${p.domain} · ${p.city}, ${p.country}</p>
+          <p style="margin:0;font-size:13px;font-weight:700;color:#36213E">${escapeHtml(p.title)}</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#6F6878">${escapeHtml(p.domain)} · ${escapeHtml(p.city)}, ${escapeHtml(p.country)}</p>
           <a href="${APP_URL}/posts/${p._id}" style="display:inline-block;margin-top:6px;font-size:12px;font-weight:700;color:#6FB8C4">View post →</a>
         </div>`).join('')}` : ''}
 

@@ -53,6 +53,34 @@ describe('POST /api/auth/register', () => {
     })
     expect(res.status).toBe(400)
   })
+
+  // Regression (K1): self-register asla admin rolü veremez
+  it('returns 400 when trying to register with role admin', async () => {
+    const res = await api.post('/api/auth/register').send({
+      name: 'Evil Admin',
+      email: uniqueEmail(),
+      password: 'password123',
+      role: 'admin',
+      institution: 'Uni',
+      city: 'Istanbul',
+      country: 'Turkey',
+    })
+    expect(res.status).toBe(400)
+  })
+
+  // Regression (Y7): .edu zorunluluğu backend'de de geçerli
+  it('returns 400 for non-.edu email addresses', async () => {
+    const res = await api.post('/api/auth/register').send({
+      name: 'Gmail User',
+      email: `user-${Date.now()}@gmail.com`,
+      password: 'password123',
+      role: 'engineer',
+      institution: 'Uni',
+      city: 'Istanbul',
+      country: 'Turkey',
+    })
+    expect(res.status).toBe(400)
+  })
 })
 
 describe('POST /api/auth/login', () => {

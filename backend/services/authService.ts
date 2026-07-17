@@ -6,10 +6,15 @@ import User, { IUser } from '../models/User'
 import Post from '../models/Post'
 import Meeting from '../models/Meeting'
 import Notification from '../models/Notification'
+import Conversation from '../models/Conversation'
+import Message from '../models/Message'
+import Comment from '../models/Comment'
+import SavedSearch from '../models/SavedSearch'
 import { sendVerificationEmail, sendAccountDeletedEmail, sendPasswordResetEmail } from './emailService'
 import { pushNotification } from './notificationService'
 import { deleteAvatarFile } from '../middleware/uploadMiddleware'
 import { makeError } from '../utils/AppError'
+import { escapeRegExp } from '../utils/escapeRegExp'
 import logger from '../src/logger'
 
 const SALT_ROUNDS = 12
@@ -202,9 +207,10 @@ export async function getAllUsers(opts: {
   if (isVerified === 'false') query.isVerified = false
   if (isVerified === 'true') query.isVerified = true
   if (search) {
+    const safe = escapeRegExp(search)
     query.$or = [
-      { name:  { $regex: search, $options: 'i' } },
-      { email: { $regex: search, $options: 'i' } },
+      { name:  { $regex: safe, $options: 'i' } },
+      { email: { $regex: safe, $options: 'i' } },
     ]
   }
 
@@ -244,21 +250,31 @@ export async function changePassword(userId: string, oldPassword: string, newPas
 }
 
 export async function exportUserData(userId: string) {
-  const [user, posts, meetings, logs] = await Promise.all([
+  const [user, posts, meetings, comments, savedSearches, notifications, logs] = await Promise.all([
     User.findById(userId).lean(),
     Post.find({ authorId: userId }).lean(),
     Meeting.find({ $or: [{ requesterId: userId }, { ownerId: userId }] }).lean(),
+    Comment.find({ authorId: userId }).lean(),
+    SavedSearch.find({ userId }).lean(),
+    Notification.find({ userId }).lean(),
     (await import('./logService')).getLogs({ userId, limit: 200 }),
   ])
   if (!user) throw makeError('User not found', 404)
 
-  const { password: _pw, verifyToken: _vt, verifyTokenExpires: _vte, ...safeUser } = user as Record<string, unknown>
+  // Kullanıcının kendi gönderdiği mesajlar (Art. 20 kapsamı)
+  const messages = await Message.find({ senderId: userId }).lean()
+
+  const { password: _pw, verifyToken: _vt, verifyTokenExpires: _vte, resetToken: _rt, resetTokenExpires: _rte, ...safeUser } = user as Record<string, unknown>
   return {
     exportedAt: new Date().toISOString(),
     gdprNote: 'Exported per GDPR Article 20 — Right to Data Portability.',
     profile: safeUser,
     posts,
     meetings,
+    comments,
+    messages,
+    savedSearches,
+    notifications,
     auditLogs: logs.logs,
   }
 }
@@ -267,7 +283,7 @@ async function cascadeDeleteUser(
   userId: string,
   user: IUser,
   notifyBody: string,
-  session: mongoose.ClientSession
+  session?: mongoose.ClientSession
 ) {
   const activeMeetings = await Meeting.find(
     { $or: [{ requesterId: userId }, { ownerId: userId }], status: { $in: ['pending', 'time_proposed', 'confirmed'] } },
@@ -288,14 +304,43 @@ async function cascadeDeleteUser(
     }).catch(() => {})
   }))
 
+  // Konuşmalar bu üründe toplantıya bağlı 1:1'dir; taraflardan biri silinince
+  // konuşma ve tüm mesajları da silinir (GDPR Art. 17 kapsamı).
+  const convIds = (await Conversation.find({ participants: userId }, null, { session }).select('_id'))
+    .map(c => c._id)
+
   await Promise.all([
     Meeting.updateMany({ requesterId: userId }, { $set: { requesterName: 'Deleted user', requesterEmail: '' } }, { session }),
     Meeting.updateMany({ ownerId: userId }, { $set: { ownerName: 'Deleted user', ownerEmail: '' } }, { session }),
     Post.deleteMany({ authorId: userId }, { session }),
     Notification.deleteMany({ userId }, { session }),
+    Message.deleteMany({ conversationId: { $in: convIds } }, { session }),
+    Conversation.deleteMany({ _id: { $in: convIds } }, { session }),
+    Comment.deleteMany({ authorId: userId }, { session }),
+    SavedSearch.deleteMany({ userId }, { session }),
   ])
 
   await user.deleteOne({ session })
+}
+
+// Transaction yalnızca replica set'te (Atlas) çalışır; standalone Mongo'da
+// (lokal geliştirme) transaction'sız sıralı silmeye düşer.
+async function runCascadeDelete(userId: string, user: IUser, notifyBody: string) {
+  const session = await mongoose.startSession()
+  try {
+    await session.withTransaction(async () => {
+      await cascadeDeleteUser(userId, user, notifyBody, session)
+    })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : ''
+    const txUnsupported = msg.includes('Transaction numbers are only allowed') ||
+      (err as { codeName?: string })?.codeName === 'IllegalOperation'
+    if (!txUnsupported) throw err
+    logger.warn('MongoDB transactions unsupported (standalone?) — falling back to non-transactional cascade delete')
+    await cascadeDeleteUser(userId, user, notifyBody)
+  } finally {
+    await session.endSession()
+  }
 }
 
 export async function deleteAccount(userId: string, password: string) {
@@ -307,18 +352,7 @@ export async function deleteAccount(userId: string, password: string) {
 
   const { email: userEmail, name: userName, avatarUrl } = user
 
-  const session = await mongoose.startSession()
-  try {
-    await session.withTransaction(async () => {
-      await cascadeDeleteUser(
-        userId, user,
-        'Karşı taraf hesabını sildiği için "{title}" görüşmesi iptal edildi.',
-        session
-      )
-    })
-  } finally {
-    await session.endSession()
-  }
+  await runCascadeDelete(userId, user, 'Karşı taraf hesabını sildiği için "{title}" görüşmesi iptal edildi.')
 
   if (avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(avatarUrl)
 
@@ -336,18 +370,7 @@ export async function deleteUserByAdmin(userId: string) {
 
   const { email, name, avatarUrl } = user
 
-  const session = await mongoose.startSession()
-  try {
-    await session.withTransaction(async () => {
-      await cascadeDeleteUser(
-        userId, user,
-        'Karşı taraf hesabı silindiği için "{title}" görüşmesi iptal edildi.',
-        session
-      )
-    })
-  } finally {
-    await session.endSession()
-  }
+  await runCascadeDelete(userId, user, 'Karşı taraf hesabı silindiği için "{title}" görüşmesi iptal edildi.')
 
   if (avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(avatarUrl)
 

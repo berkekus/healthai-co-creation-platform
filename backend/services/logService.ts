@@ -1,4 +1,5 @@
 import Log from '../models/Log'
+import { escapeRegExp } from '../utils/escapeRegExp'
 
 export async function createLog(data: {
   userId?: string
@@ -24,7 +25,7 @@ export async function getLogs(filters: {
   const query: Record<string, unknown> = {}
 
   if (filters.userId) query.userId = filters.userId
-  if (filters.action) query.action = { $regex: filters.action, $options: 'i' }
+  if (filters.action) query.action = { $regex: escapeRegExp(filters.action), $options: 'i' }
   if (filters.result) query.result = filters.result
   if (filters.from || filters.to) {
     const fromDate = filters.from ? new Date(filters.from) : undefined
