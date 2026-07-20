@@ -34,7 +34,9 @@ Global rate limit applies to the entire `/api/auth` prefix.
 
 ### POST `/api/auth/register`
 
-Create a new account. Returns token immediately (no email verification step).
+Create a new account. No token is issued — the user must verify their email first
+(`POST /verify-email`). Only institutional `.edu` (or `.edu.xx`) addresses are accepted.
+`admin` is **not** a valid self-register role; admin accounts are created via seed scripts only.
 
 **Body**
 ```json
@@ -42,7 +44,7 @@ Create a new account. Returns token immediately (no email verification step).
   "name": "Dr. Jane Smith",
   "email": "jane@university.edu",
   "password": "password123",
-  "role": "engineer | healthcare_professional | admin",
+  "role": "engineer | healthcare_professional",
   "institution": "Charité Berlin",
   "city": "Berlin",
   "country": "Germany"
@@ -353,7 +355,10 @@ Request a meeting on a published post. Rate-limited per user.
 
 ### GET `/api/meetings/:id` 🔒
 
+Only the meeting's requester, owner, or an admin may read it.
+
 **Response 200** — `{ "success": true, "data": { ...meeting } }`
+**Errors** — `403` not a participant · `404` not found
 
 ---
 

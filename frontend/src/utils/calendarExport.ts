@@ -20,7 +20,10 @@ export function downloadICS(meeting: Meeting) {
   const { date, time } = meeting.confirmedSlot
   const dtStart = toICSDate(date, time)
   const dtEnd   = addOneHour(date, time)
-  const now     = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15) + 'Z'
+  // \W ile tire, iki nokta ve nokta temizlenir. Bu karakterleri köşeli parantezli
+  // karakter sınıfıyla yazmayın: Tailwind içerik tarayıcısı o metni
+  // arbitrary-property sınıfı sanıp geçersiz CSS üretiyor (build'de css-syntax-error uyarısı).
+  const now     = new Date().toISOString().replace(/\W/g, '').slice(0, 15) + 'Z'
 
   const lines = [
     'BEGIN:VCALENDAR',

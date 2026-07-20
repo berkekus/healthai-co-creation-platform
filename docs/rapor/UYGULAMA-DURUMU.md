@@ -1,5 +1,7 @@
 # Uygulama Durumu — Yamalar ve Ertelenen İşler
 
+> **Tur 2 güncellemesi:** Push sonrası ikinci analiz/test turu yapıldı — 4 yeni düzeltme (CSS uyarısı kök nedeni, socket abonelik sızıntısı, API.md güncellemeleri, admin şifre script'i env desteği) ve i18n bulgusu için [ANALIZ-TUR-2.md](ANALIZ-TUR-2.md)'ye bakın.
+
 **Tarih:** 17 Temmuz 2026
 **Bağlam:** [ANALIZ-RAPORU.md](ANALIZ-RAPORU.md) bulgularından lokal testi etkilemeyen tüm yamalar uygulandı; tamamen deploy'a özgü işler bilinçli olarak ertelendi ve aşağıda listelendi.
 

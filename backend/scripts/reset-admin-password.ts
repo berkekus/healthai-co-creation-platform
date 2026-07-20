@@ -4,8 +4,9 @@ dotenv.config()
 import bcrypt from 'bcryptjs'
 import mongoose from 'mongoose'
 
-const NEW_PASSWORD = 'Admin1234!'
-const ADMIN_EMAIL  = 'admin@healthai.edu'
+// Kullanım: ADMIN_NEW_PASSWORD=... [ADMIN_EMAIL=...] npx ts-node-dev --transpile-only scripts/reset-admin-password.ts
+const NEW_PASSWORD = process.env.ADMIN_NEW_PASSWORD ?? 'Admin1234!'   // prod'da mutlaka env ile verin
+const ADMIN_EMAIL  = process.env.ADMIN_EMAIL ?? 'admin@healthai.edu'
 
 async function main() {
   await mongoose.connect(process.env.MONGO_URI as string)

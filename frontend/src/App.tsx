@@ -37,11 +37,9 @@ export default function App() {
   useEffect(() => {
     if (!isAuthenticated) return
     // Small delay to ensure socket is connected after login/hydrate
-    const t = setTimeout(() => {
-      const unsubscribe = subscribeToSocketMessages()
-      return unsubscribe
-    }, 500)
-    return () => clearTimeout(t)
+    let unsubscribe: (() => void) | undefined
+    const t = setTimeout(() => { unsubscribe = subscribeToSocketMessages() }, 500)
+    return () => { clearTimeout(t); unsubscribe?.() }
   }, [isAuthenticated])
 
   return <AppRouter />
