@@ -30,7 +30,7 @@ Findings from an end-to-end manual/automated pass over the running frontend (bac
 | # | Area | File | Issue |
 |---|---|---|---|
 | 10 | Dead code | `frontend/src/components/ui/ThemeToggle.tsx`, `frontend/src/store/themeStore.ts` | A full dark-mode system exists (store + toggle component + dozens of `dark:` Tailwind classes throughout the app) but `ThemeToggle` is never imported/rendered anywhere. Users have no way to switch themes despite the styling being built for it. |
-| 11 | Code quality | `frontend/src/pages/admin/AdminPage.tsx:205-208` | `UserGrowthChart`'s `yTicks = [0, Math.round(maxVal * 0.5), maxVal]` can contain duplicate values when `maxVal` is small (0 or 1 — common early in the platform's life / narrow date ranges). Since the JSX uses `key={v}`, React logs a "duplicate key" warning and gridline labels risk being dropped/duplicated. Use `key={i}` (the map index) instead of `key={v}`. |
+| 11 | Code quality | `frontend/src/pages/admin/AdminPage.tsx:205-208` | ~~`UserGrowthChart`'s `yTicks = [0, Math.round(maxVal * 0.5), maxVal]` can contain duplicate values when `maxVal` is small (0 or 1 — common early in the platform's life / narrow date ranges). Since the JSX uses `key={v}`, React logs a "duplicate key" warning and gridline labels risk being dropped/duplicated.~~ **Fixed 2026-08-23** — switched to `key={i}` (map index). Verified: no more duplicate-key warning on `/admin`. |
 
 ---
 

@@ -202,10 +202,10 @@ function UserGrowthChart({ users, days }: { users: User[]; days: number }) {
           <stop offset="100%" stopColor="#4f46e5" stopOpacity="0" />
         </linearGradient>
       </defs>
-      {yTicks.map(v => {
+      {yTicks.map((v, i) => {
         const y = pT + plotH - (v / maxVal) * plotH
         return (
-          <g key={v}>
+          <g key={i}>
             <line x1={pL} y1={y} x2={pL + plotW} y2={y} stroke="#f0f1f3" strokeWidth="1" />
             <text x={pL - 6} y={y + 4} textAnchor="end" fontSize="9" fill="#b0b7c3">{v}</text>
           </g>
