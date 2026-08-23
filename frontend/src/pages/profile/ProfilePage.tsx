@@ -43,6 +43,12 @@ const ROLE_ICON: Record<string, string> = {
   admin: 'admin_panel_settings',
 }
 
+function splitName(fullName?: string): { firstName: string; lastName: string } {
+  const parts = (fullName ?? '').trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return { firstName: '', lastName: '' }
+  return { firstName: parts[0], lastName: parts.slice(1).join(' ') }
+}
+
 const resolveAvatar = (url?: string | null) => {
   if (!url) return null
   if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`
@@ -510,7 +516,7 @@ export default function ProfilePage() {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormData>({
     resolver: zodResolver(createProfileSchema(t)),
     defaultValues: {
-      name: user?.name ?? '',
+      ...splitName(user?.name),
       institution: user?.institution ?? '',
       city: user?.city ?? '',
       country: user?.country ?? '',
@@ -545,7 +551,8 @@ export default function ProfilePage() {
   }
 
   const onSubmit = async (data: ProfileFormData) => {
-    await updateProfile({ ...data, expertiseTags: tags })
+    const { firstName, lastName, ...rest } = data
+    await updateProfile({ ...rest, name: `${firstName.trim()} ${lastName.trim()}`, expertiseTags: tags })
     setSaved(true)
     setIsEditing(false)
     setTimeout(() => setSaved(false), 2500)
@@ -553,7 +560,7 @@ export default function ProfilePage() {
 
   const handleCancel = () => {
     reset({
-      name: user.name ?? '',
+      ...splitName(user.name),
       institution: user.institution ?? '',
       city: user.city ?? '',
       country: user.country ?? '',
@@ -683,9 +690,14 @@ export default function ProfilePage() {
             <Section id="identity" icon="badge" title={t('profile.identity')}>
               {isEditing ? (
                 <div className="grid gap-4">
-                  <FormField label={t('profile.fields.fullName')} error={errors.name?.message} required>
-                    <input {...register('name')} type="text" style={inputStyle(errors.name?.message)} onFocus={onInputFocus(!!errors.name)} onBlur={onInputBlur(!!errors.name)} />
-                  </FormField>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <FormField label={t('profile.fields.firstName')} error={errors.firstName?.message} required>
+                      <input {...register('firstName')} type="text" autoComplete="given-name" style={inputStyle(errors.firstName?.message)} onFocus={onInputFocus(!!errors.firstName)} onBlur={onInputBlur(!!errors.firstName)} />
+                    </FormField>
+                    <FormField label={t('profile.fields.lastName')} error={errors.lastName?.message} required>
+                      <input {...register('lastName')} type="text" autoComplete="family-name" style={inputStyle(errors.lastName?.message)} onFocus={onInputFocus(!!errors.lastName)} onBlur={onInputBlur(!!errors.lastName)} />
+                    </FormField>
+                  </div>
                   <FormField label={t('profile.fields.institution')} error={errors.institution?.message} required>
                     <input {...register('institution')} type="text" style={inputStyle(errors.institution?.message)} onFocus={onInputFocus(!!errors.institution)} onBlur={onInputBlur(!!errors.institution)} />
                   </FormField>
