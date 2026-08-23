@@ -237,6 +237,89 @@ function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm:
   )
 }
 
+function ChangePasswordCard() {
+  const { t } = useTranslation()
+  const { changePassword } = useAuthStore()
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setSuccess(false)
+    if (newPassword.length < 8) { setError(t('profile.password.minLength')); return }
+    if (newPassword !== confirmPassword) { setError(t('profile.password.mismatch')); return }
+    setSubmitting(true)
+    try {
+      await changePassword(currentPassword, newPassword)
+      setSuccess(true)
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not update password.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="mb-5 rounded-[22px] bg-white/82 p-6 shadow-[0_28px_74px_-60px_rgba(54,33,62,0.36)]">
+      <div className="flex items-start gap-5">
+        <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E8F4F7] text-hai-plum">
+          <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>password</span>
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 font-headline text-lg font-bold leading-tight text-hai-plum">{t('profile.password.title')}</div>
+          <p className="mb-4 text-sm leading-relaxed text-neutral-600">{t('profile.password.desc')}</p>
+          <form onSubmit={handleSubmit} className="grid max-w-[420px] gap-3">
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={e => setCurrentPassword(e.target.value)}
+              placeholder={t('profile.password.current')}
+              autoComplete="current-password"
+              required
+              className="rounded-xl border border-neutral-200 bg-hai-offwhite px-4 py-2.5 text-sm font-semibold text-hai-plum outline-none transition-all focus:border-hai-teal focus:bg-white"
+            />
+            <input
+              type="password"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              placeholder={t('profile.password.new')}
+              autoComplete="new-password"
+              required
+              className="rounded-xl border border-neutral-200 bg-hai-offwhite px-4 py-2.5 text-sm font-semibold text-hai-plum outline-none transition-all focus:border-hai-teal focus:bg-white"
+            />
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              placeholder={t('profile.password.confirm')}
+              autoComplete="new-password"
+              required
+              className="rounded-xl border border-neutral-200 bg-hai-offwhite px-4 py-2.5 text-sm font-semibold text-hai-plum outline-none transition-all focus:border-hai-teal focus:bg-white"
+            />
+            {error && <div role="alert" className="text-sm font-semibold text-red-600">{error}</div>}
+            {success && <div className="text-sm font-semibold text-hai-teal">{t('profile.password.success')}</div>}
+            <button
+              type="submit"
+              disabled={submitting || !currentPassword || !newPassword || !confirmPassword}
+              className="inline-flex w-fit items-center gap-2 rounded-full bg-hai-plum px-5 py-2.5 text-xs font-black text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {submitting ? t('profile.password.updating') : t('profile.password.submit')}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const NOTIF_KEYS: { key: keyof import('../../types/auth.types').NotifPrefs; labelKey: string; descKey: string }[] = [
   { key: 'meetingRequests',  labelKey: 'profile.notifOptions.meetingRequests',  descKey: 'profile.notifOptions.meetingRequestsDesc' },
   { key: 'meetingUpdates',   labelKey: 'profile.notifOptions.meetingUpdates',   descKey: 'profile.notifOptions.meetingUpdatesDesc' },
@@ -727,6 +810,8 @@ export default function ProfilePage() {
             </div>
 
             {exportSuccess && <div className="mb-4 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 p-3.5 text-sm font-bold text-hai-plum">{t('profile.data.export')}</div>}
+
+            <ChangePasswordCard />
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div className="rounded-[22px] bg-white/82 p-6 shadow-[0_28px_74px_-60px_rgba(54,33,62,0.36)]">

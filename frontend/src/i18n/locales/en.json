@@ -402,6 +402,18 @@
       "weeklyDigest": "Weekly email digest",
       "weeklyDigestDesc": "Receive a weekly summary of new posts matching your expertise, upcoming meetings, and unread messages"
     },
+    "password": {
+      "title": "Change password",
+      "desc": "Use a strong password you don't use anywhere else.",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Update password",
+      "updating": "Updating...",
+      "success": "Password updated successfully.",
+      "mismatch": "New passwords do not match.",
+      "minLength": "New password must be at least 8 characters."
+    },
     "data": {
       "title": "Data & Account",
       "export": "Export my data",
