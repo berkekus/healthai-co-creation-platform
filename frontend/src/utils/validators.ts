@@ -43,7 +43,8 @@ export function createLoginSchema(t: TFunction) {
 
 export function createRegisterSchema(t: TFunction) {
   return z.object({
-    name:        z.string().min(2, t('validators.register.nameMin')),
+    firstName:   z.string().min(2, t('validators.register.firstNameMin')),
+    lastName:    z.string().min(2, t('validators.register.lastNameMin')),
     email:       z
       .string()
       .min(1, t('validators.emailRequired'))
