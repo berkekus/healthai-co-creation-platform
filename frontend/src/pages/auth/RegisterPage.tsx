@@ -41,7 +41,7 @@ export default function RegisterPage() {
 
   const nextStep = async () => {
     const fields: (keyof RegisterFormData)[][] = [
-      ['name', 'email', 'password', 'confirm'],
+      ['firstName', 'lastName', 'email', 'password', 'confirm'],
       ['role'],
       ['institution', 'city', 'country'],
     ]
@@ -70,7 +70,7 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterFormData) => {
     await registerUser({
-      name: data.name,
+      name: `${data.firstName.trim()} ${data.lastName.trim()}`,
       email: data.email,
       password: data.password,
       role: data.role,
@@ -214,23 +214,40 @@ export default function RegisterPage() {
               {step === 0 && (
                 <div className="flex flex-col gap-4">
 
-                  <div>
-                    <label className="block text-sm font-bold text-[#18203a] mb-2">
-                      {t('authPage.register.nameLabel')} <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
-                        <User size={15} strokeWidth={1.8} />
-                      </span>
-                      <input
-                        {...register('name')}
-                        type="text"
-                        placeholder={t('authPage.register.namePlaceholder')}
-                        autoComplete="name"
-                        className={`${inputCls(!!errors.name)} pl-11 pr-4`}
-                      />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-bold text-[#18203a] mb-2">
+                        {t('authPage.register.firstNameLabel')} <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
+                          <User size={15} strokeWidth={1.8} />
+                        </span>
+                        <input
+                          {...register('firstName')}
+                          type="text"
+                          placeholder={t('authPage.register.firstNamePlaceholder')}
+                          autoComplete="given-name"
+                          className={`${inputCls(!!errors.firstName)} pl-11 pr-4`}
+                        />
+                      </div>
+                      {errors.firstName && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.firstName.message}</p>}
                     </div>
-                    {errors.name && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.name.message}</p>}
+                    <div>
+                      <label className="block text-sm font-bold text-[#18203a] mb-2">
+                        {t('authPage.register.lastNameLabel')} <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          {...register('lastName')}
+                          type="text"
+                          placeholder={t('authPage.register.lastNamePlaceholder')}
+                          autoComplete="family-name"
+                          className={`${inputCls(!!errors.lastName)} px-4`}
+                        />
+                      </div>
+                      {errors.lastName && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.lastName.message}</p>}
+                    </div>
                   </div>
 
                   <div>
