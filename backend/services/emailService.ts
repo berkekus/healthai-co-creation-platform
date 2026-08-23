@@ -22,8 +22,22 @@ function getTransporter(): Transporter | null {
 const FROM = process.env.SMTP_FROM ?? '"HEALTH AI" <noreply@healthai.local>'
 const APP_URL = (process.env.APP_BASE_URL ?? process.env.CLIENT_ORIGIN ?? 'http://localhost:5173').replace(/\/+$/, '')
 
+async function sendViaResendApi(to: string, subject: string, html: string): Promise<void> {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ from: FROM, to, subject, html }),
+  })
+  if (!res.ok) {
+    throw new Error(`Resend API error ${res.status}: ${await res.text()}`)
+  }
+}
+
 async function send(to: string, subject: string, html: string): Promise<void> {
-  // Always extract and log links in dev so they're visible even if SMTP fails
+  // Always extract and log links in dev so they're visible even if sending fails
   if (process.env.NODE_ENV !== 'production') {
     const links = [...html.matchAll(/href="([^"]+)"/g)].map(m => m[1]).filter(u => u.startsWith('http'))
     if (links.length) {
@@ -31,15 +45,26 @@ async function send(to: string, subject: string, html: string): Promise<void> {
     }
   }
 
+  // Prefer Resend's HTTPS API — many PaaS hosts (e.g. Render) block outbound SMTP ports entirely
+  if (process.env.RESEND_API_KEY) {
+    try {
+      await sendViaResendApi(to, subject, html)
+      logger.info({ to, subject }, '[EMAIL] Sent successfully (Resend API)')
+    } catch (err) {
+      logger.error({ err, to, subject }, '[EMAIL] Resend API send failed — link still logged to console above')
+    }
+    return
+  }
+
   const t = getTransporter()
   if (!t) {
-    logger.warn({ to, subject }, '[EMAIL] SMTP not configured — link logged to console above')
+    logger.warn({ to, subject }, '[EMAIL] No email provider configured — link logged to console above')
     return
   }
 
   try {
     await t.sendMail({ from: FROM, to, subject, html })
-    logger.info({ to, subject }, '[EMAIL] Sent successfully')
+    logger.info({ to, subject }, '[EMAIL] Sent successfully (SMTP)')
   } catch (err) {
     logger.error({ err, to, subject }, '[EMAIL] SMTP send failed — link still logged to console above')
     // Do NOT re-throw: registration/password-reset must succeed even if email fails
