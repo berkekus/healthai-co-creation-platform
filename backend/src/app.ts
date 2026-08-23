@@ -28,8 +28,9 @@ const allowedOrigins = [
   'http://localhost:4173',
   'http://127.0.0.1:4173',
   process.env.CLIENT_ORIGIN,
-  // Support an optional second production origin (e.g. a second team member's Vercel)
-  process.env.CLIENT_ORIGIN_EXTRA,
+  // Support extra production origins (e.g. a custom domain's apex + www, or a
+  // second team member's Vercel), comma-separated
+  ...(process.env.CLIENT_ORIGIN_EXTRA?.split(',').map(s => s.trim()) ?? []),
 ].filter(Boolean) as string[]
 
 // Allow any Vercel preview/production URL for this project
