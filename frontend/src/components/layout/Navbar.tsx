@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Bell, Calendar, FileText, Menu, Star, Users, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
+import { Bell, Calendar, FileText, Menu, MessageSquare, Star, Users, X, LogOut, User, Settings, LayoutDashboard } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
@@ -45,6 +45,8 @@ function NotifIcon({ type }: { type: NotificationType }) {
       return <span className={`${base} bg-[#E8F4F7]`}><Users size={15} className="text-[#8AC6D0]" /></span>
     case 'interest_received':
       return <span className={`${base} bg-[#E8F4F7]`}><Star size={15} className="text-[#8AC6D0]" /></span>
+    case 'new_message':
+      return <span className={`${base} bg-[#E8F4F7]`}><MessageSquare size={15} className="text-[#8AC6D0]" /></span>
     default:
       return <span className={`${base} bg-[#EEF0F3]`}><Bell size={15} className="text-[#6F6878]" /></span>
   }

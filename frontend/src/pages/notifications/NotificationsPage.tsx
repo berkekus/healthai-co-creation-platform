@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Calendar, Check, FileText, Filter, Shield, Star, Users } from 'lucide-react'
+import { Bell, Calendar, Check, FileText, Filter, MessageSquare, Shield, Star, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
@@ -14,7 +14,7 @@ const MEETING_TYPES: NotificationType[] = [
 const POST_TYPES: NotificationType[] = [
   'post_closed', 'post_status_changed', 'partner_found', 'interest_received',
 ]
-const SYSTEM_TYPES: NotificationType[] = ['account_activity']
+const SYSTEM_TYPES: NotificationType[] = ['account_activity', 'new_message']
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime()
@@ -36,6 +36,7 @@ function getIconStyle(type: NotificationType): { Icon: typeof Bell; bg: string; 
   if (type === 'interest_received') return { Icon: Star, bg: '#E3DCD2', color: '#36213E' }
   if (type === 'post_closed' || type === 'post_status_changed') return { Icon: FileText, bg: '#E8F4F7', color: '#6FB8C4' }
   if (type === 'account_activity') return { Icon: Shield, bg: '#EEF0F3', color: '#36213E' }
+  if (type === 'new_message') return { Icon: MessageSquare, bg: '#E8F4F7', color: '#6FB8C4' }
   return { Icon: Bell, bg: '#EEF0F3', color: '#6F6878' }
 }
 

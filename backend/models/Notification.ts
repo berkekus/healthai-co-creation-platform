@@ -11,6 +11,7 @@ export type NotificationType =
   | 'partner_found'
   | 'interest_received'
   | 'account_activity'
+  | 'new_message'
 
 export interface INotification extends Document {
   userId: Types.ObjectId
@@ -39,6 +40,7 @@ const NotificationSchema = new Schema<INotification>(
         'partner_found',
         'interest_received',
         'account_activity',
+        'new_message',
       ],
       required: true,
     },
