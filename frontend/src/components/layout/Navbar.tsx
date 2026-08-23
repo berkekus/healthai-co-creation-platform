@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import LanguageToggle from '../ui/LanguageToggle'
-import ThemeToggle from '../ui/ThemeToggle'
 import { Badge, IconButton } from '../ui'
 import { ROUTES } from '../../constants/routes'
 import type { NotificationType, Notification } from '../../types/common.types'
@@ -357,8 +356,7 @@ export default function Navbar() {
             />
           )}
 
-          {/* Theme + language toggles — always far right */}
-          <ThemeToggle />
+          {/* Language toggle — always far right */}
           <LanguageToggle />
         </div>
       </div>

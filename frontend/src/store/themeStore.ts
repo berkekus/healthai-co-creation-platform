@@ -8,9 +8,9 @@ interface ThemeState {
 }
 
 function getInitialTheme(): Theme {
-  const stored = localStorage.getItem('theme')
-  if (stored === 'light' || stored === 'dark') return stored
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  // Dark mode is temporarily disabled platform-wide — always start in light mode,
+  // regardless of stored preference or OS setting.
+  return 'light'
 }
 
 function applyTheme(theme: Theme) {
