@@ -77,7 +77,7 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
 
   return (
     <aside className="group/sb flex flex-col bg-white border-r border-[#eaecf0] shrink-0 overflow-x-hidden w-[56px] hover:w-[220px] transition-all duration-200">
-      <nav className="flex-1 py-3 flex flex-col gap-0.5 px-2 overflow-y-auto">
+      <nav className="flex-1 py-3 flex flex-col gap-0.5 px-2 overflow-y-auto overflow-x-hidden">
         {navItems.map(item => {
           const isActive = item.id === view
           const isDisabled = !mainViews.has(item.id as AdminView) && !item.route

@@ -29,7 +29,6 @@
       "createHcpAccount": "Create HCP Account"
     },
     "hero": {
-      "kicker": "SENG 384 · Spring 2026 · v0.1",
       "titleLine1": "Healthcare co-creation,",
       "titleLine2": "without the silos.",
       "subtitle": "A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional .edu verification and an immutable audit trail."
