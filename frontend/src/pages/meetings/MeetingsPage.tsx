@@ -175,8 +175,7 @@ function Hero({ total }: { total: number }) {
         </div>
 
         <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-[var(--primary)] md:text-8xl">
-          Your <span className="text-[var(--accent-strong)]">meetings</span>
-          <span className="text-[var(--primary)]">.</span>
+          {t('meetingsPage.title')}
         </h1>
 
         <p className="mt-5 max-w-[650px] text-lg leading-8 text-[var(--muted)]">

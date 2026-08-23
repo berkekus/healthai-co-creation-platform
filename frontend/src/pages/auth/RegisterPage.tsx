@@ -4,8 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Building2, ChevronDown, Eye, EyeOff, Lock, Mail, MapPin, Shield, User, Users } from 'lucide-react'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
-import { registerSchema, type RegisterFormData } from '../../utils/validators'
+import { createRegisterSchema, type RegisterFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
 import { EU_COUNTRIES } from '../../constants/config'
 
@@ -13,6 +14,7 @@ type Step = 0 | 1 | 2
 type PreselectedRole = 'engineer' | 'healthcare_professional'
 
 export default function RegisterPage() {
+  const { t } = useTranslation()
   const { register: registerUser, isLoading, error, clearError } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
@@ -25,7 +27,7 @@ export default function RegisterPage() {
   const captchaRef = useRef<TurnstileInstance>(null)
 
   const { register, handleSubmit, formState: { errors }, trigger, watch, setValue } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(createRegisterSchema(t)),
     mode: 'onBlur',
   })
 
@@ -52,9 +54,19 @@ export default function RegisterPage() {
     }
   }
 
-  const displaySteps = preselectedRole ? ['Account', 'Institution'] : ['Account', 'Role', 'Institution']
+  const displaySteps = preselectedRole
+    ? [t('authPage.register.steps.account'), t('authPage.register.steps.institution')]
+    : [t('authPage.register.steps.account'), t('authPage.register.steps.role'), t('authPage.register.steps.institution')]
   const displayStep = preselectedRole ? (step === 0 ? 0 : 1) : step
-  const roleLabel = preselectedRole === 'engineer' ? 'Engineer' : 'Healthcare Professional'
+  const roleLabel = preselectedRole === 'engineer'
+    ? t('common.role.engineer')
+    : t('common.role.healthcare_professional')
+
+  // First sentence becomes the clickable Privacy Policy link, the rest stays plain text.
+  const gdprConsentFull = t('authPage.register.gdprConsent')
+  const gdprSplitIndex = gdprConsentFull.indexOf('. ')
+  const gdprConsentLink = gdprSplitIndex === -1 ? gdprConsentFull : gdprConsentFull.slice(0, gdprSplitIndex + 1)
+  const gdprConsentRest = gdprSplitIndex === -1 ? '' : gdprConsentFull.slice(gdprSplitIndex + 2)
 
   const onSubmit = async (data: RegisterFormData) => {
     await registerUser({
@@ -106,14 +118,13 @@ export default function RegisterPage() {
 
           <div className="relative z-10 px-9 pt-10">
             <p className="text-xs font-bold tracking-[0.16em] uppercase text-[#4ca8cc] mb-5 font-headline">
-              Co-Creation Platform
+              {t('authPage.platform')}
             </p>
             <h2 className="font-headline font-black text-3xl xl:text-4xl leading-tight text-[#152d5a]">
-              Building the future<br />of healthcare,<br />
-              <span className="text-[#3db8d8]">together.</span>
+              {t('authPage.tagline')}
             </h2>
             <p className="mt-4 text-sm text-[#5a88a4] leading-relaxed font-body max-w-[260px]">
-              Connect with clinicians and engineers<br />to create real-world impact.
+              {t('authPage.desc')}
             </p>
           </div>
 
@@ -128,11 +139,11 @@ export default function RegisterPage() {
           </div>
 
           <div className="relative z-10 flex items-center justify-center gap-4 px-6 pb-8 text-xs font-semibold text-[#5a88a4]">
-            <div className="flex items-center gap-1.5"><Shield size={11} strokeWidth={2} />Secure &amp; Compliant</div>
+            <div className="flex items-center gap-1.5"><Shield size={11} strokeWidth={2} />{t('authPage.secure')}</div>
             <div className="w-px h-3 bg-[#9ac0d8]/50" />
-            <div className="flex items-center gap-1.5"><Lock size={11} strokeWidth={2} />Built in Europe</div>
+            <div className="flex items-center gap-1.5"><Lock size={11} strokeWidth={2} />{t('authPage.europe')}</div>
             <div className="w-px h-3 bg-[#9ac0d8]/50" />
-            <div className="flex items-center gap-1.5"><Users size={11} strokeWidth={2} />Zero Patient Data</div>
+            <div className="flex items-center gap-1.5"><Users size={11} strokeWidth={2} />{t('authPage.noPatient')}</div>
           </div>
         </div>
 
@@ -141,12 +152,12 @@ export default function RegisterPage() {
 
           {/* Top bar */}
           <div className="flex items-center justify-end mb-8 shrink-0">
-            <span className="text-sm text-[#9ca3b0] mr-3">Already have an account?</span>
+            <span className="text-sm text-[#9ca3b0] mr-3">{t('authPage.register.alreadyHave')}</span>
             <Link
               to={ROUTES.LOGIN}
               className="px-4 py-2 rounded-full border border-[#dde2ea] text-sm font-bold text-[#18203a] hover:border-[#3db8d8] hover:text-[#3db8d8] transition-colors"
             >
-              Sign in →
+              {t('authPage.register.signIn')}
             </Link>
           </div>
 
@@ -154,10 +165,10 @@ export default function RegisterPage() {
 
             {/* Heading */}
             <h1 className="font-headline font-black text-4xl sm:text-4xl leading-tight tracking-normal text-[#18203a] mb-2">
-              Create your account<span className="text-[#3db8d8]">.</span>
+              {t('authPage.register.heading')}
             </h1>
             <p className="text-sm text-[#7a8399] mb-8 font-body">
-              Join the directory and start collaborating.
+              {t('authPage.register.sub')}
             </p>
 
             {/* Step indicator */}
@@ -205,7 +216,7 @@ export default function RegisterPage() {
 
                   <div>
                     <label className="block text-sm font-bold text-[#18203a] mb-2">
-                      Full name <span className="text-red-500">*</span>
+                      {t('authPage.register.nameLabel')} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
@@ -214,7 +225,7 @@ export default function RegisterPage() {
                       <input
                         {...register('name')}
                         type="text"
-                        placeholder="Dr. Jane Smith"
+                        placeholder={t('authPage.register.namePlaceholder')}
                         autoComplete="name"
                         className={`${inputCls(!!errors.name)} pl-11 pr-4`}
                       />
@@ -224,8 +235,8 @@ export default function RegisterPage() {
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-bold text-[#18203a]">Institutional email <span className="text-red-500">*</span></label>
-                      <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#a0a8ba]">.edu only</span>
+                      <label className="text-sm font-bold text-[#18203a]">{t('authPage.register.emailLabel')} <span className="text-red-500">*</span></label>
+                      <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#a0a8ba]">{t('authPage.register.emailHint')}</span>
                     </div>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
@@ -234,7 +245,7 @@ export default function RegisterPage() {
                       <input
                         {...register('email')}
                         type="email"
-                        placeholder="you@university.edu"
+                        placeholder={t('authPage.register.emailPlaceholder')}
                         autoComplete="email"
                         className={`${inputCls(!!errors.email)} pl-11 pr-4`}
                       />
@@ -244,8 +255,8 @@ export default function RegisterPage() {
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-bold text-[#18203a]">Password <span className="text-red-500">*</span></label>
-                      <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#a0a8ba]">min. 8 characters</span>
+                      <label className="text-sm font-bold text-[#18203a]">{t('authPage.register.passwordLabel')} <span className="text-red-500">*</span></label>
+                      <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#a0a8ba]">{t('authPage.register.passwordHint')}</span>
                     </div>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
@@ -258,7 +269,7 @@ export default function RegisterPage() {
                         autoComplete="new-password"
                         className={`${inputCls(!!errors.password)} pl-11 pr-12`}
                       />
-                      <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] hover:text-[#6a7590] transition-colors" aria-label={showPassword ? 'Hide' : 'Show'}>
+                      <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] hover:text-[#6a7590] transition-colors" aria-label={showPassword ? t('authPage.register.hidePassword') : t('authPage.register.showPassword')}>
                         {showPassword ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
                       </button>
                     </div>
@@ -267,7 +278,7 @@ export default function RegisterPage() {
 
                   <div>
                     <label className="block text-sm font-bold text-[#18203a] mb-2">
-                      Confirm password <span className="text-red-500">*</span>
+                      {t('authPage.register.confirmLabel')} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
@@ -280,7 +291,7 @@ export default function RegisterPage() {
                         autoComplete="new-password"
                         className={`${inputCls(!!errors.confirm)} pl-11 pr-12`}
                       />
-                      <button type="button" onClick={() => setShowConfirm(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] hover:text-[#6a7590] transition-colors" aria-label={showConfirm ? 'Hide' : 'Show'}>
+                      <button type="button" onClick={() => setShowConfirm(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] hover:text-[#6a7590] transition-colors" aria-label={showConfirm ? t('authPage.register.hidePassword') : t('authPage.register.showPassword')}>
                         {showConfirm ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
                       </button>
                     </div>
@@ -291,7 +302,7 @@ export default function RegisterPage() {
                     <div className="flex items-center gap-2.5 rounded-[14px] border border-[#3db8d8]/30 bg-[#edf9fc] px-4 py-3">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#3db8d8] text-xs font-black text-white">✓</span>
                       <span className="text-sm font-semibold text-[#1c6278]">
-                        Registering as: <span className="font-black">{roleLabel}</span>
+                        {t('authPage.register.registeringAs')} <span className="font-black">{roleLabel}</span>
                       </span>
                     </div>
                   )}
@@ -301,7 +312,7 @@ export default function RegisterPage() {
                     onClick={nextStep}
                     className="mt-2 w-full py-[15px] rounded-full bg-[#1c1230] text-white text-base font-black tracking-normal font-headline hover:bg-[#110b1e] transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)]"
                   >
-                    Continue →
+                    {t('authPage.register.continueBtn')}
                   </button>
                 </div>
               )}
@@ -311,12 +322,12 @@ export default function RegisterPage() {
                 <div className="flex flex-col gap-5">
                   <div>
                     <label className="block text-sm font-bold text-[#18203a] mb-3">
-                      I am a… <span className="text-red-500">*</span>
+                      {t('authPage.register.roleQuestion')} <span className="text-red-500">*</span>
                     </label>
                     <div className="flex flex-col gap-3">
                       {([
-                        ['engineer', 'Engineer', 'ML, software, biomedical, robotics, signal processing…'],
-                        ['healthcare_professional', 'Healthcare Professional', 'Clinician, doctor, nurse, researcher, health admin…'],
+                        ['engineer', t('common.role.engineer'), t('authPage.register.engineerDesc')],
+                        ['healthcare_professional', t('common.role.healthcare_professional'), t('authPage.register.healthcareDesc')],
                       ] as const).map(([value, title, desc]) => {
                         const selected = role === value
                         return (
@@ -344,10 +355,10 @@ export default function RegisterPage() {
 
                   <div className="flex gap-3">
                     <button type="button" onClick={() => setStep(0)} className="flex-1 py-[15px] rounded-full border border-[#dde2ea] bg-white text-[#18203a] font-bold text-base hover:border-[#3db8d8] transition-colors font-headline">
-                      ← Back
+                      {t('authPage.register.backBtn')}
                     </button>
                     <button type="button" onClick={nextStep} className="flex-[2] py-[15px] rounded-full bg-[#1c1230] text-white font-black text-base hover:bg-[#110b1e] transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)] font-headline">
-                      Continue →
+                      {t('authPage.register.continueBtn')}
                     </button>
                   </div>
                 </div>
@@ -359,7 +370,7 @@ export default function RegisterPage() {
 
                   <div>
                     <label className="block text-sm font-bold text-[#18203a] mb-2">
-                      Institution <span className="text-red-500">*</span>
+                      {t('authPage.register.institutionLabel')} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
@@ -368,7 +379,7 @@ export default function RegisterPage() {
                       <input
                         {...register('institution')}
                         type="text"
-                        placeholder="Charité – Universitätsmedizin Berlin"
+                        placeholder={t('authPage.register.institutionPlaceholder')}
                         className={`${inputCls(!!errors.institution)} pl-11 pr-4`}
                       />
                     </div>
@@ -377,7 +388,7 @@ export default function RegisterPage() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-bold text-[#18203a] mb-2">City <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-bold text-[#18203a] mb-2">{t('authPage.register.cityLabel')} <span className="text-red-500">*</span></label>
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
                           <MapPin size={15} strokeWidth={1.8} />
@@ -385,20 +396,20 @@ export default function RegisterPage() {
                         <input
                           {...register('city')}
                           type="text"
-                          placeholder="Berlin"
+                          placeholder={t('authPage.register.cityPlaceholder')}
                           className={`${inputCls(!!errors.city)} pl-11 pr-4`}
                         />
                       </div>
                       {errors.city && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.city.message}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-[#18203a] mb-2">Country <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-bold text-[#18203a] mb-2">{t('authPage.register.countryLabel')} <span className="text-red-500">*</span></label>
                       <div className="relative">
                         <select
                           {...register('country')}
                           className={`${inputCls(!!errors.country)} appearance-none px-4 pr-9`}
                         >
-                          <option value="">Select…</option>
+                          <option value="">{t('authPage.register.countryPlaceholder')}</option>
                           {EU_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#b8c0cc]">
@@ -409,7 +420,9 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  {/* GDPR */}
+                  {/* GDPR — the translated consent sentence is split on its first
+                      ". " so the first sentence ("...agree to the Privacy Policy.")
+                      becomes the clickable link and the rest stays plain text. */}
                   <label className="flex gap-3 items-start cursor-pointer mt-1" onClick={() => setGdprAccepted(g => !g)}>
                     <div className={`mt-0.5 w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                       gdprAccepted ? 'bg-[#3db8d8] border-[#3db8d8]' : 'bg-white border-[#c8cedd] hover:border-[#3db8d8]'
@@ -421,15 +434,14 @@ export default function RegisterPage() {
                       )}
                     </div>
                     <span className="text-sm text-[#6a7590] leading-relaxed font-body">
-                      I have read and agree to the{' '}
                       <Link
                         to={ROUTES.PRIVACY}
                         className="font-bold text-[#18203a] hover:text-[#3db8d8] transition-colors"
                         onClick={e => e.stopPropagation()}
                       >
-                        Privacy Policy
+                        {gdprConsentLink}
                       </Link>
-                      . I understand that my data will be processed in accordance with GDPR.
+                      {' '}{gdprConsentRest}
                     </span>
                   </label>
 
@@ -447,7 +459,7 @@ export default function RegisterPage() {
 
                   <div className="flex gap-3 mt-2">
                     <button type="button" onClick={() => setStep(preselectedRole ? 0 : 1)} className="flex-1 py-[15px] rounded-full border border-[#dde2ea] bg-white text-[#18203a] font-bold text-base hover:border-[#3db8d8] transition-colors font-headline">
-                      ← Back
+                      {t('authPage.register.backBtn')}
                     </button>
                     <button
                       type="submit"
@@ -457,10 +469,10 @@ export default function RegisterPage() {
                       {isLoading ? (
                         <>
                           <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Creating…
+                          {t('authPage.register.submitting')}
                         </>
                       ) : (
-                        <>Create account →</>
+                        <>{t('authPage.register.submit')}</>
                       )}
                     </button>
                   </div>

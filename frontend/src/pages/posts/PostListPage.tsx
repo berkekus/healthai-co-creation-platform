@@ -18,6 +18,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import api from '../../lib/api'
 import { Skeleton, SkeletonLine, SkeletonPill } from '../../components/ui/Skeleton'
 import {
@@ -37,14 +38,14 @@ import { useAuthStore } from '../../store/authStore'
 import { usePostStore } from '../../store/postStore'
 import { useSmartSuggestions } from '../../lib/gemini'
 import { computeMatchReasons, getCombinedMatchScore } from '../../utils/matchPosts'
-import type { CollaborationType, CommitmentLevel, Post, PostAuthorRole, PostStatus, ProjectStage } from '../../types/post.types'
+import type { Post, PostAuthorRole, PostStatus, ProjectStage } from '../../types/post.types'
 
 type PostedBy = 'Anyone' | 'Engineer' | 'Healthcare Professional'
 
-const POSTED_BY_SHORT: Record<PostedBy, string> = {
-  'Anyone': 'Anyone',
-  'Engineer': 'Engineer',
-  'Healthcare Professional': 'Clinician',
+function postedByShortLabel(t: TFunction, value: PostedBy): string {
+  if (value === 'Engineer') return t('posts.postedByOptions.engineer')
+  if (value === 'Healthcare Professional') return t('posts.postedByOptions.clinician')
+  return t('posts.postedByOptions.anyone')
 }
 type SortMode = 'best' | 'recent' | 'oldest' | 'expiring'
 type ViewMode = 'list' | 'grid'
@@ -76,42 +77,8 @@ interface DirectoryPost {
 }
 
 const domainOptions = ['Cardiology', 'Orthopedics', 'Clinical Pharmacy', 'Public Health & Epidemiology', 'Endocrinology & Diabetes']
-const stageOptions: { value: ProjectStage; label: string }[] = [
-  { value: 'idea', label: 'Idea' },
-  { value: 'concept_validation', label: 'Concept Validation' },
-  { value: 'prototype', label: 'Prototype' },
-  { value: 'pilot', label: 'Pilot' },
-  { value: 'pre_deployment', label: 'Pre-deployment' },
-]
-const statusOptions: { value: PostStatus; label: string }[] = [
-  { value: 'active', label: 'Active' },
-  { value: 'meeting_scheduled', label: 'Meeting Scheduled' },
-  { value: 'partner_found', label: 'Partner Found' },
-  { value: 'expired', label: 'Expired' },
-  { value: 'draft', label: 'Draft' },
-]
-
-const stageLabels: Record<ProjectStage, string> = {
-  idea: 'Idea',
-  concept_validation: 'Concept Validation',
-  prototype: 'Prototype',
-  pilot: 'Pilot',
-  pre_deployment: 'Pre-deployment',
-}
-
-const typeLabels: Record<CollaborationType, string> = {
-  advisor: 'Advisor',
-  co_founder: 'Co-Founder',
-  research_partner: 'Research Partner',
-  contract: 'Contract',
-}
-
-const commitmentLabels: Record<CommitmentLevel, string> = {
-  flexible: 'Flexible',
-  low: 'Light advisory',
-  medium: 'Part-time',
-  high: 'High commitment',
-}
+const stageValues: ProjectStage[] = ['idea', 'concept_validation', 'prototype', 'pilot', 'pre_deployment']
+const statusValues: PostStatus[] = ['active', 'meeting_scheduled', 'partner_found', 'expired', 'draft']
 
 export default function PostListPage() {
   const { t } = useTranslation()
@@ -148,7 +115,7 @@ export default function PostListPage() {
   const activeFilterCount = [domain, stage, status, location.trim(), postedBy !== 'Anyone' ? postedBy : ''].filter(Boolean).length
 
   const directoryPosts = useMemo(() => {
-    const source = posts.map(post => toDirectoryPost(post, user, suggestions.get(post.id)))
+    const source = posts.map(post => toDirectoryPost(post, user, t, suggestions.get(post.id)))
     const query = search.trim().toLowerCase()
 
     return source
@@ -177,7 +144,7 @@ export default function PostListPage() {
         if (sort === 'expiring') return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime()
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       })
-  }, [domain, location, postedBy, posts, search, sort, stage, status, suggestions, user])
+  }, [domain, location, postedBy, posts, search, sort, stage, status, suggestions, user, t])
 
   const clearFilters = () => {
     setSearch('')
@@ -196,8 +163,8 @@ export default function PostListPage() {
     if (postedBy !== 'Anyone') filterParts.push(postedBy)
     if (location.trim()) filterParts.push(location.trim())
     if (search.trim()) filterParts.push(`"${search.trim()}"`)
-    const defaultName = filterParts.length > 0 ? filterParts.join(' · ') : 'All posts'
-    const name = window.prompt('Name this saved search:', defaultName)
+    const defaultName = filterParts.length > 0 ? filterParts.join(' · ') : t('posts.saveSearchDefaultName')
+    const name = window.prompt(t('posts.saveSearchPromptTitle'), defaultName)
     if (!name) return
     try {
       await api.post('/saved-searches', {
@@ -210,9 +177,9 @@ export default function PostListPage() {
           authorRole: postedBy === 'Engineer' ? 'engineer' : postedBy === 'Healthcare Professional' ? 'healthcare_professional' : undefined,
         },
       })
-      window.alert(`Search "${name.trim()}" saved! You'll be notified when new matching posts are published.`)
+      window.alert(t('posts.saveSearchSuccess', { name: name.trim() }))
     } catch {
-      window.alert('Could not save search. Try again.')
+      window.alert(t('posts.saveSearchError'))
     }
   }
 
@@ -228,7 +195,7 @@ export default function PostListPage() {
   )
 
   const deletePost = async (postId: string) => {
-    if (!window.confirm('Delete this post? This action cannot be undone.')) return
+    if (!window.confirm(t('posts.confirmDelete'))) return
     setDeletingPostId(postId)
     try {
       await remove(postId)
@@ -275,7 +242,7 @@ export default function PostListPage() {
             className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-black text-[var(--primary)] shadow-sm transition hover:border-[var(--accent)]"
           >
             <SlidersHorizontal size={15} />
-            Filters
+            {t('posts.filters')}
             {activeFilterCount > 0 && (
               <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[var(--primary)] px-1 text-xs font-black text-white">
                 {activeFilterCount}
@@ -292,7 +259,7 @@ export default function PostListPage() {
               onClick={clearFilters}
               className="text-xs font-bold text-[var(--muted)] transition hover:text-[var(--primary)]"
             >
-              Clear all
+              {t('posts.clearAll')}
             </button>
           )}
         </div>
@@ -356,37 +323,25 @@ function setPostededBySafe(setter: (value: PostedBy) => void) {
 }
 
 function PageHeader({ search, onSearch, mineOnly }: { search: string; onSearch: (value: string) => void; mineOnly: boolean }) {
+  const { t } = useTranslation()
   return (
     <header className="mb-[52px]">
       <div className="mb-5 inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--muted)]">
         <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
-        {mineOnly ? '05 My Posts' : '05 Directory'}
+        {mineOnly ? t('posts.heroBadgeMine') : t('posts.heroBadgeAll')}
       </div>
 
       <div className="directory-header-grid grid grid-cols-1 gap-10 xl:items-end">
         <div>
-          <h1 className="font-headline text-4xl sm:text-6xl font-black leading-tight tracking-normal md:text-7xl">
-            {mineOnly ? (
-              <>
-                <span className="text-[var(--primary)]">Your </span>
-                <span className="text-[#8AC6D0]">posts</span>
-              </>
-            ) : (
-              <>
-                <span className="text-[var(--primary)]">Collaboration </span>
-                <span className="text-[#8AC6D0]">opportunities</span>
-              </>
-            )}
-            <span className="text-[var(--primary)]">.</span>
+          <h1 className="font-headline text-4xl sm:text-6xl font-black leading-tight tracking-normal text-[var(--primary)] md:text-7xl">
+            {mineOnly ? t('posts.heroTitleMine') : t('posts.heroTitleAll')}
           </h1>
           <p className="mt-5 text-lg font-semibold leading-8 text-[var(--muted)]">
-            {mineOnly
-              ? 'Review, open, and manage the opportunities you have published.'
-              : 'Browse & connect with clinicians and engineers working on real healthcare solutions.'}
+            {mineOnly ? t('posts.heroDescMine') : t('posts.heroDescAll')}
           </p>
           {mineOnly && (
             <Link to={ROUTES.POSTS} className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
-              View full directory
+              {t('posts.viewFullDirectory')}
               <ChevronRight size={15} />
             </Link>
           )}
@@ -399,6 +354,7 @@ function PageHeader({ search, onSearch, mineOnly }: { search: string; onSearch: 
 }
 
 function SearchAndAction({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-4 max-sm:flex-col max-sm:items-stretch">
       <div className="relative min-w-0 flex-1">
@@ -409,7 +365,7 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
           type="search"
           value={value}
           onChange={e => onChange(e.target.value)}
-          placeholder="Search by title, expertise, or keyword..."
+          placeholder={t('posts.searchPlaceholder')}
           className="w-full rounded-full border border-transparent bg-[#EEF0F3] py-5 pl-14 pr-6 text-base font-semibold text-[var(--text)] outline-none transition placeholder:text-[#9CA3AF] hover:border-[var(--border)] hover:bg-white focus:border-[var(--accent)] focus:bg-white"
         />
       </div>
@@ -421,7 +377,7 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
         icon={<Plus size={16} strokeWidth={2.6} />}
         className="shrink-0 py-5 px-7 text-sm"
       >
-        Post opportunity
+        {t('dashboard.postOpportunity')}
       </ButtonLink>
     </div>
   )
@@ -459,6 +415,7 @@ function FilterSidebar({
   /** Controlled by mobile toggle; always visible on xl+ via CSS */
   open?: boolean
 }) {
+  const { t } = useTranslation()
   return (
     // On desktop (≥1281px, .directory-body-grid is 2-col) the sidebar is always
     // in view. Below that breakpoint it collapses to a toggle-driven panel.
@@ -469,30 +426,30 @@ function FilterSidebar({
       <div className="mb-9 flex items-center justify-between">
         <div className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--primary)]">
           <SlidersHorizontal size={15} />
-          Filters
+          {t('posts.filters')}
         </div>
       </div>
 
       <div className="space-y-8">
-        <FilterSelect label="Domain" value={domain} placeholder="All domains" onChange={onDomain}>
+        <FilterSelect label={t('posts.domain')} value={domain} placeholder={t('posts.allDomains')} onChange={onDomain}>
           {domainOptions.map(option => (
             <option key={option} value={option}>{option}</option>
           ))}
         </FilterSelect>
-        <FilterSelect label="Project stage" value={stage} placeholder="All stages" onChange={onStage}>
-          {stageOptions.map(option => (
-            <option key={option.value} value={option.value}>{option.label}</option>
+        <FilterSelect label={t('posts.stageFilterLabel')} value={stage} placeholder={t('posts.allStages')} onChange={onStage}>
+          {stageValues.map(value => (
+            <option key={value} value={value}>{t(`posts.stage.${value}`)}</option>
           ))}
         </FilterSelect>
-        <FilterSelect label="Status" value={status} placeholder="All statuses" onChange={onStatus}>
-          {statusOptions.map(option => (
-            <option key={option.value} value={option.value}>{option.label}</option>
+        <FilterSelect label={t('posts.statusFilterLabel')} value={status} placeholder={t('posts.allStatuses')} onChange={onStatus}>
+          {statusValues.map(value => (
+            <option key={value} value={value}>{t(`posts.status.${value}`)}</option>
           ))}
         </FilterSelect>
         <SegmentedControl active={postedBy} onChange={onPostedBy} />
 
         <div>
-          <FilterLabel>Location</FilterLabel>
+          <FilterLabel>{t('posts.location')}</FilterLabel>
           <div className="overflow-hidden rounded-[14px] border border-[var(--border)] bg-white">
             {location && (
               <div className="border-b border-[var(--border)] px-4 py-2.5">
@@ -500,7 +457,7 @@ function FilterSidebar({
                   onClick={() => onLocation('')}
                   className="inline-flex items-center gap-2 rounded-full bg-[var(--tag-bg)] px-3 py-1 text-xs font-black text-[var(--tag-text)] transition hover:text-[var(--primary)]"
                 >
-                  Near me · {location}
+                  {t('posts.nearMe', { location })}
                   <span className="text-sm">×</span>
                 </button>
               </div>
@@ -509,7 +466,7 @@ function FilterSidebar({
               <TextInput
                 value={location}
                 onChange={event => onLocation(event.target.value)}
-                placeholder="Search city or country..."
+                placeholder={t('posts.searchLocationPlaceholder')}
                 list="location-suggestions"
                 autoComplete="off"
                 className="h-12 rounded-none border-0 text-[var(--text)]"
@@ -525,7 +482,7 @@ function FilterSidebar({
       {hasActiveFilters && (
         <div className="mt-10 border-t border-[var(--border)] pt-7">
           <Button onClick={onClear} variant="ghost" size="sm" icon={<RotateCcw size={17} />} className="-ml-4 text-[var(--muted)] hover:text-[var(--primary)]">
-            Clear filters
+            {t('posts.clearFilters')}
           </Button>
         </div>
       )}
@@ -567,22 +524,23 @@ function FilterLabel({ children }: { children: ReactNode }) {
 }
 
 function SegmentedControl({ active, onChange }: { active: PostedBy; onChange: (value: PostedBy) => void }) {
+  const { t } = useTranslation()
   return (
     <div>
-      <FilterLabel>Posted by</FilterLabel>
+      <FilterLabel>{t('posts.postedBy')}</FilterLabel>
       <div className="grid grid-cols-3 rounded-[14px] border border-[var(--border)] bg-white p-1" style={{ height: 46 }}>
         {(['Anyone', 'Engineer', 'Healthcare Professional'] as PostedBy[]).map(item => (
           <button
             key={item}
             onClick={() => onChange(item)}
-            title={item}
+            title={postedByShortLabel(t, item)}
             className={`rounded-[11px] text-xs font-black transition ${
               active === item
                 ? 'bg-[var(--primary)] text-white shadow-[0_10px_24px_-16px_rgba(45,24,56,0.8)]'
                 : 'text-[var(--text)] hover:bg-[var(--tag-bg)]'
             }`}
           >
-            {POSTED_BY_SHORT[item]}
+            {postedByShortLabel(t, item)}
           </button>
         ))}
       </div>
@@ -627,45 +585,46 @@ function PostList({
   onDelete: (postId: string) => void
   deletingPostId: string | null
 }) {
+  const { t } = useTranslation()
   return (
     <SectionCard className="border-[var(--border)] shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)]">
       <div className="border-b border-[var(--border)] px-7 py-5">
         <div className="flex items-center justify-between gap-6">
           <div>
             <div className="text-base font-black text-[var(--muted)]">
-              {isLoading ? 'Loading opportunities...' : mineOnly ? `${totalPosts} posts found` : `${totalPosts} opportunities found`}
+              {isLoading ? t('posts.loadingOpportunities') : mineOnly ? t('posts.postsFoundCount', { count: totalPosts }) : t('posts.opportunitiesFoundCount', { count: totalPosts })}
             </div>
             {mineOnly ? (
               <Badge variant="soft" className="mt-2 py-2" icon={<FileText size={14} />}>
-                Your published and draft opportunities
+                {t('posts.yourPublishedDraft')}
               </Badge>
             ) : (
               <Badge variant={aiError ? 'soft' : 'ai'} className="mt-2 py-2" icon={<Sparkles size={14} />}>
-                {isMatching ? 'AI matching in progress' : aiError ? 'AI fallback ranking active' : 'AI-ranked for your profile'}
+                {isMatching ? t('posts.aiMatchingInProgress') : aiError ? t('posts.aiFallbackActive') : t('posts.aiRankedForProfile')}
               </Badge>
             )}
           </div>
 
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3 text-sm font-black text-[var(--muted)]">
-              <span>Sort by</span>
+              <span>{t('meetingsPage.sortBy')}</span>
               <div className="relative">
                 <select
                   value={sort}
                   onChange={event => onSort(event.target.value as SortMode)}
                   className="appearance-none bg-transparent pr-6 text-[var(--text)] outline-none focus:ring-2 focus:ring-[var(--accent)]/25"
                 >
-                  <option value="best">AI best match</option>
-                  <option value="recent">Most recent</option>
-                  <option value="oldest">Oldest</option>
-                  <option value="expiring">Expiring soon</option>
+                  <option value="best">{t('posts.sort.best')}</option>
+                  <option value="recent">{t('posts.sort.recent')}</option>
+                  <option value="oldest">{t('posts.sort.oldest')}</option>
+                  <option value="expiring">{t('posts.sort.expiring')}</option>
                 </select>
                 <ChevronDown size={15} className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2" />
               </div>
             </div>
             <div className="flex items-center gap-2">
               <IconButton
-                label="Grid view"
+                label={t('posts.gridView')}
                 aria-pressed={viewMode === 'grid'}
                 onClick={() => onViewMode('grid')}
                 icon={<Grid2X2 size={17} />}
@@ -674,7 +633,7 @@ function PostList({
                 className={viewMode === 'grid' ? 'bg-[var(--accent-soft)] text-[var(--primary)]' : 'text-[var(--muted)] hover:bg-[var(--tag-bg)] hover:text-[var(--primary)]'}
               />
               <IconButton
-                label="List view"
+                label={t('posts.listView')}
                 aria-pressed={viewMode === 'list'}
                 onClick={() => onViewMode('list')}
                 icon={<List size={18} />}
@@ -693,7 +652,7 @@ function PostList({
         <DirectoryEmptyState mineOnly={mineOnly} />
       ) : totalPosts === 0 ? (
         <div className="flex flex-col items-center gap-4 px-7 py-16 text-center">
-          <p className="text-base font-semibold text-[var(--muted)]">No opportunities match your filters.</p>
+          <p className="text-base font-semibold text-[var(--muted)]">{t('posts.noMatchFilters')}</p>
           <Button
             onClick={onClear}
             variant="outline"
@@ -701,7 +660,7 @@ function PostList({
             icon={<RotateCcw size={14} />}
             className="border-[var(--border)] text-[var(--primary)] hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
           >
-            Reset filters
+            {t('posts.resetFilters')}
           </Button>
         </div>
       ) : (
@@ -770,18 +729,19 @@ function PostListSkeleton() {
 }
 
 function DirectoryEmptyState({ mineOnly }: { mineOnly: boolean }) {
+  const { t } = useTranslation()
   return (
     <UiEmptyState
       icon={<FileText size={28} strokeWidth={1.5} />}
-      title={mineOnly ? 'No posts yet' : 'No opportunities yet'}
-      description={mineOnly ? 'Your published and draft opportunities will appear here.' : 'Be the first to post a collaboration opportunity.'}
+      title={mineOnly ? t('posts.emptyState.postsTitle') : t('posts.emptyState.opportunitiesTitle')}
+      description={mineOnly ? t('posts.emptyState.postsDesc') : t('posts.emptyState.opportunitiesDesc')}
       action={(
         <ButtonLink
           to={ROUTES.POST_CREATE}
           variant="primary"
           icon={<Plus size={16} strokeWidth={2.6} />}
         >
-          Post an opportunity
+          {t('dashboard.postOpportunity')}
         </ButtonLink>
       )}
     />
@@ -803,6 +763,7 @@ function PostRow({
   onDelete: (postId: string) => void
   isDeleting: boolean
 }) {
+  const { t } = useTranslation()
   return (
     <article
       className={`post-row block transition hover:bg-[#F3F4F6] ${compact ? 'post-row-compact' : ''} ${isLast ? '' : 'border-b border-[var(--border)]'}`}
@@ -822,7 +783,7 @@ function PostRow({
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] ${post.hasAI ? 'bg-[#36213E] text-white' : 'bg-[#D8EFF2] text-[#36213E]'}`}>
               <Sparkles size={14} />
-              {post.hasAI ? 'AI match' : 'Profile match'} · {post.matchScore}%
+              {post.hasAI ? t('posts.aiMatch') : t('posts.profileMatch')} · {post.matchScore}%
             </div>
             {post.aiReason && (
               <div className="rounded-full bg-[#E8F4F7] px-4 py-2 text-xs font-black text-[#36213E]">
@@ -872,7 +833,7 @@ function PostRow({
               icon={<Trash2 size={13} />}
               className="h-8 border-[#F0C8CC] text-[#B64B55] hover:bg-[#F7EDEE]"
             >
-              {isDeleting ? 'Deleting' : 'Delete'}
+              {isDeleting ? t('messagesPage.deleting') : t('common.delete')}
             </Button>
           )}
         </div>
@@ -920,6 +881,7 @@ function Pagination({
   totalPosts: number
   onPage: (page: number) => void
 }) {
+  const { t } = useTranslation()
   if (totalPages <= 1) return null
 
   const start = (page - 1) * POSTS_PER_PAGE + 1
@@ -928,13 +890,13 @@ function Pagination({
   return (
     <div className="flex flex-col gap-4 border-t border-[var(--border)] px-7 py-5 sm:flex-row sm:items-center sm:justify-between">
       <div className="text-sm font-bold text-[var(--muted)]">
-        Showing {start}-{end} of {totalPosts}
+        {t('posts.showingRange', { start, end, total: totalPosts })}
       </div>
       <div className="flex items-center gap-2">
         <IconButton
           onClick={() => onPage(Math.max(1, page - 1))}
           disabled={page === 1}
-          label="Previous page"
+          label={t('posts.prevPage')}
           icon={<ChevronLeft size={17} />}
           variant="outline"
           className="border-[var(--border)] text-[var(--primary)] hover:border-[var(--accent)]"
@@ -959,7 +921,7 @@ function Pagination({
         <IconButton
           onClick={() => onPage(Math.min(totalPages, page + 1))}
           disabled={page === totalPages}
-          label="Next page"
+          label={t('posts.nextPage')}
           icon={<ChevronRight size={17} />}
           variant="outline"
           className="border-[var(--border)] text-[var(--primary)] hover:border-[var(--accent)]"
@@ -972,6 +934,7 @@ function Pagination({
 function toDirectoryPost(
   post: Post,
   user: ReturnType<typeof useAuthStore.getState>['user'],
+  t: TFunction,
   aiSuggestion?: { reason: string; score: number } | null,
 ): DirectoryPost {
   const days = Math.ceil((new Date(post.expiryDate).getTime() - Date.now()) / 86400000)
@@ -982,7 +945,7 @@ function toDirectoryPost(
   const tags = Array.from(new Set([
     ...filteredReasons.slice(0, 2),
     post.domain,
-    statusLabel(post.status),
+    t(`posts.status.${post.status}`, { defaultValue: post.status }),
   ].filter(Boolean)))
   return {
     id: post.id,
@@ -992,10 +955,10 @@ function toDirectoryPost(
     description: post.description,
     author: post.authorName,
     location: `${post.city}, ${formatCountry(post.country)}`,
-    daysLeft: days > 0 && post.status === 'active' ? `${days}D LEFT` : undefined,
-    stage: stageLabels[post.projectStage],
-    type: typeLabels[post.collaborationType],
-    commitment: commitmentLabels[post.levelOfCommitment ?? 'flexible'],
+    daysLeft: days > 0 && post.status === 'active' ? t('posts.daysLeft', { count: days }) : undefined,
+    stage: t(`posts.stage.${post.projectStage}`, { defaultValue: post.projectStage }),
+    type: t(`posts.collab.${post.collaborationType}`, { defaultValue: post.collaborationType }),
+    commitment: t(`posts.commitment.${post.levelOfCommitment ?? 'flexible'}`, { defaultValue: post.levelOfCommitment ?? 'flexible' }),
     domain: post.domain,
     projectStage: post.projectStage,
     status: post.status,
@@ -1014,16 +977,6 @@ function initials(name: string) {
   return name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
 }
 
-function statusLabel(status: PostStatus) {
-  const labels: Record<PostStatus, string> = {
-    draft: 'Draft',
-    active: 'Active',
-    meeting_scheduled: 'Meeting Scheduled',
-    partner_found: 'Partner Found',
-    expired: 'Expired',
-  }
-  return labels[status]
-}
 
 function buildPageRange(page: number, total: number): (number | '…')[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)

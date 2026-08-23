@@ -115,7 +115,7 @@ async function notifySavedSearchSubscribers(post: IPost) {
     pushNotification({
       userId: search.userId.toString(),
       type: 'interest_received',
-      title: 'New post matches your saved search',
+      title: 'Kayıtlı aramanızla eşleşen yeni ilan',
       body: `"${search.name}" — ${post.title}`,
       linkTo: `/posts/${post.id}`,
     }).catch(() => {})

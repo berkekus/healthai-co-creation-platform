@@ -29,7 +29,6 @@
       "createHcpAccount": "Create HCP Account"
     },
     "hero": {
-      "kicker": "SENG 384 · Spring 2026 · v0.1",
       "titleLine1": "Healthcare co-creation,",
       "titleLine2": "without the silos.",
       "subtitle": "A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional .edu verification and an immutable audit trail."
@@ -132,6 +131,14 @@
     "browse": "Browse Posts",
     "myPosts": "My Posts",
     "newPost": "New post",
+    "heroBadgeAll": "05 Directory",
+    "heroBadgeMine": "05 My Posts",
+    "heroTitleAll": "Collaboration opportunities.",
+    "heroTitleMine": "Your posts.",
+    "heroDescAll": "Browse & connect with clinicians and engineers working on real healthcare solutions.",
+    "heroDescMine": "Review, open, and manage the opportunities you have published.",
+    "viewFullDirectory": "View full directory",
+    "searchPlaceholder": "Search by title, expertise, or keyword...",
     "filters": "Filters",
     "search": "Search posts…",
     "domain": "Domain",
@@ -194,25 +201,103 @@
     },
     "form": {
       "title": "Post title",
+      "titlePlaceholder": "e.g. AI-powered glucose monitoring system",
       "domain": "Domain",
+      "domainPlaceholder": "Select a domain",
       "expertise": "Expertise required",
+      "expertisePlaceholder": "e.g. Signal processing, Embedded ML, Clinical validation",
+      "expertiseHint": "Add the technical or clinical expertise you're seeking.",
       "description": "Project summary",
+      "descriptionPlaceholder": "Describe your project goal, what you've built so far, and what you need from a collaborator.",
+      "minChars": "Min. 50 characters.",
       "stage": "Project stage",
       "collab": "Collaboration type",
+      "collabPlaceholder": "Select type",
+      "commitment": "Level of commitment",
+      "commitmentFlexible": "Flexible / to be agreed",
+      "commitmentLow": "Light advisory (1-2 hrs/week)",
+      "commitmentMedium": "Part-time collaboration (3-6 hrs/week)",
+      "commitmentHigh": "High commitment / focused sprint",
       "confidentiality": "Confidentiality level",
       "country": "Country",
+      "countryPlaceholder": "Select country",
       "city": "City",
+      "cityPlaceholder": "Select city",
+      "cityPlaceholderNoCountry": "Select country first",
       "expiry": "Listing expiry date",
       "save": "Save draft",
       "publish": "Publish",
       "aiAssist": "AI Assist",
       "improving": "Improving…",
+      "aiError": "AI assist is temporarily unavailable. Try again shortly.",
       "aiSuggestions": "AI suggestions — review before applying",
+      "suggestionTitle": "Title",
+      "suggestionDescription": "Description",
+      "suggestionExpertise": "Expertise tags",
       "applyAll": "Apply all suggestions",
       "publicPitch": "Public Pitch",
       "publicPitchDesc": "Short idea summary visible to all members",
       "meetingOnly": "Details in Meeting Only",
-      "meetingOnlyDesc": "Only title and domain are public; full details shared under NDA"
+      "meetingOnlyDesc": "Only title and domain are public; full details shared under NDA",
+      "gdprNoticeTitle": "GDPR Notice",
+      "gdprNoticeLine2": "File uploads are not permitted on this platform - technical details belong in meetings under NDA.",
+      "sections": {
+        "basicsTitle": "The basics",
+        "basicsSubtitle": "A clear title and domain help the right people find you.",
+        "lookingForTitle": "What you're looking for",
+        "lookingForSubtitle": "Describe the collaboration without revealing confidential details.",
+        "collaborateTitle": "How you want to collaborate",
+        "collaborateSubtitle": "Set expectations on project stage, engagement type, and confidentiality.",
+        "whereWhenTitle": "Where & when",
+        "whereWhenSubtitle": "Location helps with in-person meetings; the expiry date closes the post automatically.",
+        "reviewTitle": "Review & publish",
+        "reviewSubtitle": "Review your details before making your post visible."
+      }
+    },
+    "allDomains": "All domains",
+    "stageFilterLabel": "Project stage",
+    "allStages": "All stages",
+    "statusFilterLabel": "Status",
+    "allStatuses": "All statuses",
+    "clearAll": "Clear all",
+    "nearMe": "Near me · {{location}}",
+    "searchLocationPlaceholder": "Search city or country...",
+    "postedByOptions": {
+      "anyone": "Anyone",
+      "engineer": "Engineer",
+      "clinician": "Clinician"
+    },
+    "loadingOpportunities": "Loading opportunities...",
+    "postsFoundCount": "{{count}} posts found",
+    "opportunitiesFoundCount": "{{count}} opportunities found",
+    "yourPublishedDraft": "Your published and draft opportunities",
+    "aiMatchingInProgress": "AI matching in progress",
+    "aiFallbackActive": "AI fallback ranking active",
+    "aiRankedForProfile": "AI-ranked for your profile",
+    "gridView": "Grid view",
+    "listView": "List view",
+    "noMatchFilters": "No opportunities match your filters.",
+    "resetFilters": "Reset filters",
+    "emptyState": {
+      "postsTitle": "No posts yet",
+      "postsDesc": "Your published and draft opportunities will appear here.",
+      "opportunitiesTitle": "No opportunities yet",
+      "opportunitiesDesc": "Be the first to post a collaboration opportunity."
+    },
+    "aiMatch": "AI match",
+    "profileMatch": "Profile match",
+    "showingRange": "Showing {{start}}-{{end}} of {{total}}",
+    "prevPage": "Previous page",
+    "nextPage": "Next page",
+    "saveSearchPromptTitle": "Name this saved search:",
+    "saveSearchDefaultName": "All posts",
+    "saveSearchSuccess": "Search \"{{name}}\" saved! You'll be notified when new matching posts are published.",
+    "saveSearchError": "Could not save search. Try again.",
+    "commitment": {
+      "flexible": "Flexible",
+      "low": "Light advisory",
+      "medium": "Part-time",
+      "high": "High commitment"
     }
   },
   "meetings": {
@@ -396,7 +481,7 @@
     "europe": "Built in Europe",
     "noPatient": "Zero Patient Data",
     "login": {
-      "heading": "Welcome back.",
+      "heading": "Welcome back",
       "sub": "Sign in with your institutional .edu account.",
       "tooMany": "Too many failed attempts",
       "waitSeconds": "Please wait {{count}}s before trying again.",
@@ -454,7 +539,7 @@
       "submit": "Create account →"
     },
     "forgot": {
-      "heading": "Forgot your password?",
+      "heading": "Forgot your password",
       "sub": "Enter your institutional email and we'll send you a reset link.",
       "emailLabel": "Institutional email",
       "emailPlaceholder": "you@university.edu",
@@ -467,7 +552,7 @@
       "backToSignIn2": "Back to sign in →"
     },
     "reset": {
-      "heading": "Set a new password.",
+      "heading": "Set a new password",
       "sub": "Choose a strong password with at least 8 characters.",
       "newLabel": "New password",
       "confirmLabel": "Confirm password",
@@ -492,7 +577,7 @@
       "failTitle": "Verification failed.",
       "failDesc": "The link is invalid or has expired.",
       "alreadyVerified": "Already verified? Sign in →",
-      "checkTitle": "Check your inbox.",
+      "checkTitle": "Check your inbox",
       "checkDesc": "We've sent a verification link to {{email}}",
       "checkSub": "Click the link to activate your account before signing in. The link expires in 24 hours.",
       "didntGet": "Didn't get the email?",
@@ -601,7 +686,7 @@
   "errors": {
     "notFound": {
       "code": "404 · Not found",
-      "title": "We can't find that page.",
+      "title": "We can't find that page",
       "desc": "The link may be broken, the post may have been removed, or the page was moved somewhere else entirely. Check the URL or pick one of the shortcuts below.",
       "goBack": "Go back",
       "backHome": "Back to home",
@@ -613,7 +698,7 @@
     },
     "unauthorized": {
       "code": "403 · Access restricted",
-      "title": "You don't have access.",
+      "title": "You don't have access",
       "desc": "This page is restricted to specific roles or account states. If you think this is a mistake, contact a platform administrator.",
       "signedInAs": "Signed in as {{role}}",
       "goBack": "Go back",
@@ -643,24 +728,123 @@
       "logs": "Activity Logs",
       "meetings": "Meetings"
     },
+    "tabsShort": {
+      "overview": "Overview",
+      "users": "Users",
+      "verification": "Verify",
+      "posts": "Posts",
+      "logs": "Logs"
+    },
+    "sidebar": {
+      "security": "Security",
+      "reports": "Reports",
+      "settings": "Settings",
+      "soon": "Soon",
+      "needHelp": "Need help?",
+      "supportBlurb": "Our support team is here to help you.",
+      "contactSupport": "Contact Support"
+    },
     "stats": {
       "totalUsers": "Total Users",
       "activeListings": "Active Listings",
       "meetings": "Meetings",
       "securityEvents": "Security Events"
     },
+    "vsLast7Days": "vs last 7 days",
+    "lastNDays": "Last {{count}} days",
+    "userGrowth": "User growth",
+    "recentUsers": "Recent users",
+    "viewAllUsers": "View all users",
+    "manageUser": "Manage user",
+    "showingUsersRange": "Showing {{from}}–{{to}} of {{total}} users",
     "topDomains": "Top domains",
     "usersByRole": "Users by role",
     "quickActions": "Quick actions",
+    "quickActionsList": {
+      "addUser": "Add new user",
+      "createListing": "Create new listing",
+      "scheduleMeeting": "Schedule meeting",
+      "exportUsers": "Export users CSV"
+    },
     "systemStatus": "System status",
+    "lastChecked": "Last checked: 2 min ago",
     "recentActivity": "Recent activity",
+    "noRecentActivity": "No recent activity",
     "viewAll": "View all",
     "allOperational": "All systems operational",
     "verification": {
       "title": "Verification Queue",
       "pending": "users awaiting manual verification",
       "verify": "Verify",
-      "noPending": "No users pending verification"
+      "noPending": "No users pending verification",
+      "loading": "Loading…",
+      "columns": {
+        "user": "User",
+        "role": "Role",
+        "institution": "Institution",
+        "registered": "Registered"
+      }
+    },
+    "users": {
+      "title": "Users",
+      "registeredCount": "{{count}} registered members",
+      "searchPlaceholder": "Search name, email, institution…",
+      "shownCount": "{{shown}} of {{total}} shown",
+      "columns": {
+        "user": "User",
+        "role": "Role",
+        "institution": "Institution",
+        "status": "Status",
+        "lastActive": "Last Active",
+        "actions": "Actions"
+      },
+      "active": "Active",
+      "suspended": "Suspended",
+      "suspend": "Suspend",
+      "reinstate": "Reinstate",
+      "delete": "Delete",
+      "deleteConfirm": "Permanently delete \"{{name}}\"? This cannot be undone.",
+      "suspendError": "Could not update suspension status.",
+      "deleteError": "Could not delete account.",
+      "suspendedNotifTitle": "Account suspended",
+      "suspendedNotifBody": "Your account has been suspended.",
+      "pageRange": "{{from}}–{{to}} of {{total}}"
+    },
+    "posts": {
+      "title": "Posts & Listings",
+      "totalCount": "{{count}} total listings",
+      "columns": {
+        "title": "Title",
+        "author": "Author",
+        "domain": "Domain",
+        "status": "Status",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "remove": "Remove",
+      "removedNotifTitle": "Post removed",
+      "removedNotifBody": "One of your posts was removed by an administrator."
+    },
+    "logs": {
+      "title": "Activity Logs",
+      "subtitle": "Tamper-resistant · Retention 24 months",
+      "allActions": "All actions",
+      "allResults": "All results",
+      "success": "Success",
+      "failure": "Failure",
+      "clear": "Clear",
+      "entryCount": "{{shown}} of {{total}} entries",
+      "exportCsv": "Export CSV",
+      "columns": {
+        "timestamp": "Timestamp",
+        "user": "User",
+        "role": "Role",
+        "action": "Action",
+        "target": "Target",
+        "result": "Result",
+        "ip": "IP"
+      },
+      "footerNotice": "Logs are tamper-resistant · No deletion permitted · Retention 24 months"
     }
   },
   "common": {
@@ -702,6 +886,35 @@
       "engineer": "Engineer",
       "healthcare_professional": "Healthcare Professional",
       "admin": "Administrator"
+    }
+  },
+  "validators": {
+    "cityRequired": "City is required",
+    "countryRequired": "Country is required",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Enter a valid email address",
+    "passwordRequired": "Password is required",
+    "register": {
+      "nameMin": "Full name must be at least 2 characters",
+      "eduOnly": "Only institutional .edu email addresses are accepted. Personal email providers are not permitted.",
+      "passwordMin8": "Password must be at least 8 characters",
+      "confirmRequired": "Please confirm your password",
+      "roleRequired": "Please select a role",
+      "institutionRequired": "Institution name is required",
+      "passwordMismatch": "Passwords do not match"
+    },
+    "post": {
+      "titleMin": "Title must be at least 5 characters",
+      "domainRequired": "Please select a medical domain",
+      "expertiseMin": "Describe the expertise required",
+      "descriptionMin": "Description must be at least 50 characters",
+      "expiryRequired": "Expiry date is required",
+      "expiryFuture": "Expiry date must be in the future"
+    },
+    "profile": {
+      "nameMin": "Name must be at least 2 characters",
+      "institutionRequired": "Institution is required",
+      "bioMax": "Bio must be under 400 characters"
     }
   }
 }

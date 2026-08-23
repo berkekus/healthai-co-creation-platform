@@ -6,14 +6,17 @@ import { Eye, EyeOff, Lock, Mail, Shield, Users, Stethoscope, Wrench, ShieldChec
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
-import { loginSchema, type LoginFormData } from '../../utils/validators'
+import { createLoginSchema, type LoginFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
 
-const DEV_ACCOUNTS = [
+// Dev-only quick-login shortcuts — never shipped in a production build.
+// import.meta.env.DEV is statically false in `vite build`, so this whole
+// array (and the credentials in it) is dead-code-eliminated from the bundle.
+const DEV_ACCOUNTS = import.meta.env.DEV ? [
   { label: 'Doctor',    email: 'elif.kaya@istanbul.edu.tr', password: 'HealthAI2026!', icon: Stethoscope, color: '#0ea5e9' },
   { label: 'Engineer',  email: 'mert.aydin@metu.edu.tr',   password: 'HealthAI2026!', icon: Wrench,      color: '#8b5cf6' },
   { label: 'Admin',     email: 'admin@healthai.edu',        password: 'Admin1234!',    icon: ShieldCheck, color: '#f97316' },
-] as const
+] : []
 
 const RATE_LIMIT_AFTER = 3
 const COOLDOWN_SEC = 60
@@ -36,7 +39,7 @@ export default function LoginPage() {
   const captchaRef = useRef<TurnstileInstance>(null)
 
   const { register, handleSubmit, formState: { errors }, setFocus } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(createLoginSchema(t)),
   })
 
   useEffect(() => { setFocus('email') }, [setFocus])
@@ -343,38 +346,40 @@ export default function LoginPage() {
               </Link>
             </p>
 
-            {/* Dev quick-login */}
-            <div className="mt-8">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
-                <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#c5cad6] dark:text-[rgb(var(--text-secondary))] font-headline">Dev Access</span>
-                <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
-              </div>
-              {!captchaToken && (
-                <p className="mb-2 text-center text-[10px] text-[#c5cad6] font-semibold">
-                  Complete the security check above to enable quick login
-                </p>
-              )}
-              <div className="flex gap-2">
-                {DEV_ACCOUNTS.map(({ label, email, password, icon: Icon, color }) => (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => quickLogin(email, password)}
-                    disabled={isLoading || !captchaToken}
-                    className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-                  >
-                    <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: `${color}18` }}
+            {/* Dev quick-login — dev builds only, stripped from production */}
+            {import.meta.env.DEV && (
+              <div className="mt-8">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
+                  <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#c5cad6] dark:text-[rgb(var(--text-secondary))] font-headline">Dev Access</span>
+                  <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
+                </div>
+                {!captchaToken && (
+                  <p className="mb-2 text-center text-[10px] text-[#c5cad6] font-semibold">
+                    Complete the security check above to enable quick login
+                  </p>
+                )}
+                <div className="flex gap-2">
+                  {DEV_ACCOUNTS.map(({ label, email, password, icon: Icon, color }) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => quickLogin(email, password)}
+                      disabled={isLoading || !captchaToken}
+                      className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                     >
-                      <Icon size={14} strokeWidth={2} style={{ color }} />
-                    </div>
-                    <span className="text-xs font-bold text-[#4a5270] dark:text-[rgb(var(--text-secondary))] font-headline">{label}</span>
-                  </button>
-                ))}
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: `${color}18` }}
+                      >
+                        <Icon size={14} strokeWidth={2} style={{ color }} />
+                      </div>
+                      <span className="text-xs font-bold text-[#4a5270] dark:text-[rgb(var(--text-secondary))] font-headline">{label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

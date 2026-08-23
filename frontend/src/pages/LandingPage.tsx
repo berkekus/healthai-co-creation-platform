@@ -715,10 +715,6 @@ export default function LandingPage() {
               }}
               className="relative text-center max-w-5xl mx-auto px-6 md:px-8 will-change-[transform,filter,opacity]"
             >
-              <div className="landing-hero-chip inline-flex items-center gap-2 backdrop-blur-md border rounded-full px-4 py-1.5 mb-6 text-xs font-mono tracking-[0.16em] uppercase landing-text font-bold">
-                <span className="landing-accent-bg w-1.5 h-1.5 rounded-full animate-pulse" />
-                {t('landing.hero.kicker')}
-              </div>
               <h1
                 id="hero-headline"
                 className="font-headline font-bold landing-text leading-none tracking-normal text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
@@ -1497,7 +1493,6 @@ export default function LandingPage() {
           </div>
           <div className="flex items-end justify-between flex-grow ml-4 md:ml-12 gap-6 flex-wrap">
             <div className="text-xs font-semibold text-hai-teal/80 leading-snug font-mono tracking-[0.12em] max-w-sm">
-              <p>SENG 384 · Spring 2026 · v0.1 · last audited 20·04·2026</p>
               <p>Institutional .edu accounts only. Verification is automated and one-time.</p>
               <p>No file uploads. No patient data. No exceptions.</p>
             </div>

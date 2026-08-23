@@ -1,7 +1,8 @@
 import User from '../models/User'
 import { makeError } from '../utils/AppError'
+import { fetchGeminiContent, extractGeminiText, type GeminiResponse } from '../utils/geminiClient'
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-2.0-flash'
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'
 const MAX_POSTS_TO_ANALYZE = 10
 
 export interface MatchPostInput {
@@ -22,14 +23,6 @@ export interface AIMatchSuggestion {
   reason: string
   score: number
   expertise: string[]
-}
-
-interface GeminiResponse {
-  candidates?: Array<{
-    content?: {
-      parts?: Array<{ text?: string }>
-    }
-  }>
 }
 
 function clampScore(score: unknown) {
@@ -106,15 +99,7 @@ ${JSON.stringify(candidates.map(post => ({
     location: `${post.city}, ${post.country}`,
   })))}`
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.2 },
-    }),
-  })
+  const response = await fetchGeminiContent(GEMINI_MODEL, apiKey, prompt, 0.2)
 
   if (!response.ok) {
     const errBody = await response.text().catch(() => '')
@@ -122,7 +107,7 @@ ${JSON.stringify(candidates.map(post => ({
   }
 
   const payload = await response.json() as GeminiResponse
-  const text = payload.candidates?.[0]?.content?.parts?.map(part => part.text ?? '').join('\n') ?? ''
+  const text = extractGeminiText(payload, '\n')
   const allowedIds = new Set(candidates.map(post => post.id))
   return parseSuggestions(text)
     .filter(item => allowedIds.has(item.postId))

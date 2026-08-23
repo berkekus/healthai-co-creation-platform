@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { usePostStore } from '../../store/postStore'
-import { postCreateSchema, type PostCreateFormData } from '../../utils/validators'
+import { createPostCreateSchema, type PostCreateFormData } from '../../utils/validators'
 import PostFormFields from '../../components/posts/PostFormFields'
 import { postDetail, ROUTES } from '../../constants/routes'
 
@@ -18,7 +18,7 @@ export default function PostCreatePage() {
   const [submitAction, setSubmitAction] = useState<'draft' | 'publish'>('draft')
 
   const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<PostCreateFormData>({
-    resolver: zodResolver(postCreateSchema),
+    resolver: zodResolver(createPostCreateSchema(t)),
     defaultValues: { confidentiality: 'public_pitch', projectStage: 'idea', levelOfCommitment: 'flexible' },
     mode: 'onTouched',
   })

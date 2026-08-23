@@ -48,8 +48,8 @@ export async function requestMeeting(data: {
   pushNotification({
     userId: data.ownerId,
     type: 'meeting_request',
-    title: 'Yeni toplanti istegi',
-    body: `${data.requesterName} "${data.postTitle}" icin toplanti talep etti.`,
+    title: 'Yeni toplantı isteği',
+    body: `${data.requesterName} "${data.postTitle}" için toplantı talep etti.`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
@@ -98,8 +98,8 @@ export async function acceptMeeting(id: string, ownerId: string) {
   pushNotification({
     userId: meeting.requesterId.toString(),
     type: 'meeting_accepted',
-    title: 'Toplanti kabul edildi',
-    body: `${meeting.ownerName} toplanti talebinizi kabul etti. Zaman dilimi onayini bekliyor. "${meeting.postTitle}"`,
+    title: 'Toplantı kabul edildi',
+    body: `${meeting.ownerName} toplantı talebinizi kabul etti. Zaman dilimi onayını bekliyor. "${meeting.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
@@ -174,8 +174,8 @@ export async function confirmMeetingSlot(id: string, ownerId: string, slot: ITim
   pushNotification({
     userId: meeting.requesterId.toString(),
     type: 'meeting_accepted',
-    title: 'Toplanti kabul edildi',
-    body: `${meeting.ownerName} toplanti talebinizi kabul etti. "${meeting.postTitle}"`,
+    title: 'Toplantı kabul edildi',
+    body: `${meeting.ownerName} toplantı talebinizi kabul etti. "${meeting.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
@@ -196,8 +196,8 @@ export async function declineMeeting(id: string, ownerId: string, reason?: strin
   pushNotification({
     userId: meeting!.requesterId.toString(),
     type: 'meeting_declined',
-    title: 'Toplanti reddedildi',
-    body: `${meeting!.ownerName} toplanti talebinizi reddetti. "${meeting!.postTitle}"`,
+    title: 'Toplantı reddedildi',
+    body: `${meeting!.ownerName} toplantı talebinizi reddetti. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
@@ -224,8 +224,8 @@ export async function cancelMeeting(id: string, userId: string, reason?: string)
   pushNotification({
     userId: isRequester ? meeting!.ownerId.toString() : meeting!.requesterId.toString(),
     type: 'meeting_cancelled',
-    title: 'Toplanti iptal edildi',
-    body: `${isRequester ? meeting!.requesterName : meeting!.ownerName} toplanti talebini iptal etti. "${meeting!.postTitle}"`,
+    title: 'Toplantı iptal edildi',
+    body: `${isRequester ? meeting!.requesterName : meeting!.ownerName} toplantı talebini iptal etti. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 

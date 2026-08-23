@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { usePostStore } from '../../store/postStore'
 import { useAuthStore } from '../../store/authStore'
-import { postCreateSchema, type PostCreateFormData } from '../../utils/validators'
+import { createPostCreateSchema, type PostCreateFormData } from '../../utils/validators'
 import PostFormFields from '../../components/posts/PostFormFields'
 import PostStatusBadge from '../../components/posts/PostStatusBadge'
 import { ROUTES, postDetail } from '../../constants/routes'
@@ -20,7 +20,7 @@ export default function PostEditPage() {
   const post = getById(id ?? '')
 
   const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting } } = useForm<PostCreateFormData>({
-    resolver: zodResolver(postCreateSchema),
+    resolver: zodResolver(createPostCreateSchema(t)),
     defaultValues: post ? {
       title: post.title, domain: post.domain, expertiseRequired: post.expertiseRequired,
       description: post.description, projectStage: post.projectStage,

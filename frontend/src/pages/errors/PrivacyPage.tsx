@@ -93,9 +93,7 @@ export default function PrivacyPage() {
       <div className="flex flex-col gap-3">
         <SectionCard index="01" title="Who we are" icon="corporate_fare" tone="mint">
           <p>
-            HEALTH AI Co-Creation Platform is operated as an academic project under{' '}
-            <strong className="text-hai-plum font-body font-bold">SENG 384, Spring 2026</strong>.
-            We connect engineers and healthcare professionals across Europe for structured research collaboration.
+            HEALTH AI Co-Creation Platform connects engineers and healthcare professionals across Europe for structured research collaboration.
           </p>
           <p className="text-sm text-neutral-500">
             Contact:{' '}
@@ -212,7 +210,7 @@ export default function PrivacyPage() {
               <a href="mailto:admin@healthai.edu" className="underline underline-offset-2 text-hai-mint hover:text-white transition-colors">
                 admin@healthai.edu
               </a>{' '}
-              · SENG 384, Spring 2026. You have the right to lodge a complaint with your national data protection authority.
+              . You have the right to lodge a complaint with your national data protection authority.
             </p>
           </div>
         </div>

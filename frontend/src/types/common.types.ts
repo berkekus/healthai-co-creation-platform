@@ -9,6 +9,7 @@ export type NotificationType =
   | 'partner_found'
   | 'interest_received'
   | 'account_activity'
+  | 'new_message'
 
 export interface Notification {
   id: string
