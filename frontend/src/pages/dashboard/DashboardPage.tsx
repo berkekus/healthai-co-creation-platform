@@ -136,10 +136,20 @@ function weekRange(locale: string) {
   return `${fmt(monday)} - ${fmt(sunday)}, ${sunday.getFullYear()}`
 }
 
+const HONORIFIC_PREFIXES = new Set(['dr', 'prof', 'mr', 'mrs', 'ms'])
+
+/** First given name from a full name, skipping a leading honorific like "Dr." or "Prof." */
+function firstNameOf(fullName?: string): string {
+  const parts = fullName?.trim().split(/\s+/) ?? []
+  if (parts.length === 0) return 'there'
+  const isHonorific = HONORIFIC_PREFIXES.has(parts[0].toLowerCase().replace(/\.$/, ''))
+  return (isHonorific && parts[1]) || parts[0]
+}
+
 function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>['user'] }) {
   const { t } = useTranslation()
   const roleLabel = useRoleLabel()
-  const firstName = user?.name?.split(' ')[0] ?? 'there'
+  const firstName = firstNameOf(user?.name)
   return (
     <div className="pt-6">
       <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#36213E] sm:text-6xl">
