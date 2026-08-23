@@ -378,6 +378,8 @@
     "notifPrefs": "Notification preferences",
     "fields": {
       "fullName": "Full name",
+      "firstName": "First name",
+      "lastName": "Last name",
       "institution": "Institution",
       "email": "Professional email",
       "memberSince": "Member since",
@@ -931,6 +933,8 @@
     },
     "profile": {
       "nameMin": "Name must be at least 2 characters",
+      "firstNameMin": "First name must be at least 2 characters",
+      "lastNameMin": "Last name must be at least 2 characters",
       "institutionRequired": "Institution is required",
       "bioMax": "Bio must be under 400 characters"
     }

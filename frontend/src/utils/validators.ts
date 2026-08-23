@@ -24,7 +24,8 @@ export type PostCreateFormData = z.infer<ReturnType<typeof createPostCreateSchem
 
 export function createProfileSchema(t: TFunction) {
   return z.object({
-    name:        z.string().min(2, t('validators.profile.nameMin')),
+    firstName:   z.string().min(2, t('validators.profile.firstNameMin')),
+    lastName:    z.string().min(2, t('validators.profile.lastNameMin')),
     institution: z.string().min(2, t('validators.profile.institutionRequired')),
     city:        z.string().min(1, t('validators.cityRequired')),
     country:     z.string().min(1, t('validators.countryRequired')),
