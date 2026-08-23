@@ -20,7 +20,7 @@ function getTransporter(): Transporter | null {
 }
 
 const FROM = process.env.SMTP_FROM ?? '"HEALTH AI" <noreply@healthai.local>'
-const APP_URL = process.env.APP_BASE_URL ?? process.env.CLIENT_ORIGIN ?? 'http://localhost:5173'
+const APP_URL = (process.env.APP_BASE_URL ?? process.env.CLIENT_ORIGIN ?? 'http://localhost:5173').replace(/\/+$/, '')
 
 async function send(to: string, subject: string, html: string): Promise<void> {
   // Always extract and log links in dev so they're visible even if SMTP fails
