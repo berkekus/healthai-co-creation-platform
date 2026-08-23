@@ -6,7 +6,7 @@ import { Eye, EyeOff, Lock, Mail, Shield, Users, Stethoscope, Wrench, ShieldChec
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
-import { loginSchema, type LoginFormData } from '../../utils/validators'
+import { createLoginSchema, type LoginFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
 
 // Dev-only quick-login shortcuts — never shipped in a production build.
@@ -39,7 +39,7 @@ export default function LoginPage() {
   const captchaRef = useRef<TurnstileInstance>(null)
 
   const { register, handleSubmit, formState: { errors }, setFocus } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(createLoginSchema(t)),
   })
 
   useEffect(() => { setFocus('email') }, [setFocus])

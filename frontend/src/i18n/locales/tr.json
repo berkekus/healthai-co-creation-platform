@@ -202,25 +202,103 @@
     },
     "form": {
       "title": "İlan başlığı",
+      "titlePlaceholder": "örn. Yapay zeka destekli glikoz izleme sistemi",
       "domain": "Alan",
+      "domainPlaceholder": "Bir alan seçin",
       "expertise": "Aranan uzmanlık",
+      "expertisePlaceholder": "örn. Sinyal işleme, Gömülü ML, Klinik doğrulama",
+      "expertiseHint": "Aradığınız teknik veya klinik uzmanlığı ekleyin.",
       "description": "Proje özeti",
+      "descriptionPlaceholder": "Proje hedefinizi, şimdiye kadar neler geliştirdiğinizi ve bir ortaktan neye ihtiyacınız olduğunu açıklayın.",
+      "minChars": "En az 50 karakter.",
       "stage": "Proje aşaması",
       "collab": "İşbirliği türü",
+      "collabPlaceholder": "Tür seçin",
+      "commitment": "Bağlılık düzeyi",
+      "commitmentFlexible": "Esnek / üzerinde anlaşılacak",
+      "commitmentLow": "Hafif danışmanlık (haftada 1-2 saat)",
+      "commitmentMedium": "Yarı zamanlı iş birliği (haftada 3-6 saat)",
+      "commitmentHigh": "Yüksek bağlılık / odaklı sprint",
       "confidentiality": "Gizlilik düzeyi",
       "country": "Ülke",
+      "countryPlaceholder": "Ülke seçin",
       "city": "Şehir",
+      "cityPlaceholder": "Şehir seçin",
+      "cityPlaceholderNoCountry": "Önce ülke seçin",
       "expiry": "İlan bitiş tarihi",
       "save": "Taslak kaydet",
       "publish": "Yayınla",
       "aiAssist": "Yapay Zeka Yardımı",
       "improving": "İyileştiriliyor…",
+      "aiError": "Yapay zeka desteği şu anda kullanılamıyor. Kısa süre sonra tekrar deneyin.",
       "aiSuggestions": "YZ önerileri — uygulamadan önce inceleyin",
+      "suggestionTitle": "Başlık",
+      "suggestionDescription": "Açıklama",
+      "suggestionExpertise": "Uzmanlık etiketleri",
       "applyAll": "Tüm önerileri uygula",
       "publicPitch": "Açık Sunum",
       "publicPitchDesc": "Tüm üyelere görünür kısa fikir özeti",
       "meetingOnly": "Yalnızca Toplantıda Detaylar",
-      "meetingOnlyDesc": "Yalnızca başlık ve alan herkese görünür; tam detaylar NDA kapsamında paylaşılır"
+      "meetingOnlyDesc": "Yalnızca başlık ve alan herkese görünür; tam detaylar NDA kapsamında paylaşılır",
+      "gdprNoticeTitle": "GDPR Bildirimi",
+      "gdprNoticeLine2": "Bu platformda dosya yükleme yapılamaz - teknik detaylar NDA kapsamında toplantılarda paylaşılır.",
+      "sections": {
+        "basicsTitle": "Temel bilgiler",
+        "basicsSubtitle": "Net bir başlık ve alan, doğru kişilerin sizi bulmasına yardımcı olur.",
+        "lookingForTitle": "Ne arıyorsunuz",
+        "lookingForSubtitle": "Gizli detayları paylaşmadan iş birliğini tanımlayın.",
+        "collaborateTitle": "Nasıl iş birliği yapmak istiyorsunuz",
+        "collaborateSubtitle": "Proje aşaması, katılım türü ve gizlilik konusunda beklentileri belirleyin.",
+        "whereWhenTitle": "Nerede & ne zaman",
+        "whereWhenSubtitle": "Konum yüz yüze toplantılara yardımcı olur; bitiş tarihi ilanı otomatik olarak kapatır.",
+        "reviewTitle": "İncele & yayınla",
+        "reviewSubtitle": "İlanınızı görünür yapmadan önce detaylarınızı gözden geçirin."
+      }
+    },
+    "allDomains": "Tüm alanlar",
+    "stageFilterLabel": "Proje aşaması",
+    "allStages": "Tüm aşamalar",
+    "statusFilterLabel": "Durum",
+    "allStatuses": "Tüm durumlar",
+    "clearAll": "Tümünü temizle",
+    "nearMe": "Yakınımda · {{location}}",
+    "searchLocationPlaceholder": "Şehir veya ülke ara...",
+    "postedByOptions": {
+      "anyone": "Herkes",
+      "engineer": "Mühendis",
+      "clinician": "Klinisyen"
+    },
+    "loadingOpportunities": "Fırsatlar yükleniyor...",
+    "postsFoundCount": "{{count}} ilan bulundu",
+    "opportunitiesFoundCount": "{{count}} fırsat bulundu",
+    "yourPublishedDraft": "Yayınlanan ve taslak fırsatlarınız",
+    "aiMatchingInProgress": "YZ eşleştirmesi devam ediyor",
+    "aiFallbackActive": "YZ yedek sıralaması etkin",
+    "aiRankedForProfile": "Profilinize göre YZ sıralı",
+    "gridView": "Izgara görünümü",
+    "listView": "Liste görünümü",
+    "noMatchFilters": "Filtrelerinize uyan fırsat yok.",
+    "resetFilters": "Filtreleri sıfırla",
+    "emptyState": {
+      "postsTitle": "Henüz ilan yok",
+      "postsDesc": "Yayınlanan ve taslak fırsatlarınız burada görünecek.",
+      "opportunitiesTitle": "Henüz fırsat yok",
+      "opportunitiesDesc": "Bir iş birliği fırsatı paylaşan ilk kişi olun."
+    },
+    "aiMatch": "YZ eşleşmesi",
+    "profileMatch": "Profil eşleşmesi",
+    "showingRange": "{{start}}-{{end}} / {{total}} gösteriliyor",
+    "prevPage": "Önceki sayfa",
+    "nextPage": "Sonraki sayfa",
+    "saveSearchPromptTitle": "Bu aramaya bir isim verin:",
+    "saveSearchDefaultName": "Tüm ilanlar",
+    "saveSearchSuccess": "\"{{name}}\" araması kaydedildi! Yeni eşleşen ilanlar yayınlandığında bilgilendirileceksiniz.",
+    "saveSearchError": "Arama kaydedilemedi. Tekrar deneyin.",
+    "commitment": {
+      "flexible": "Esnek",
+      "low": "Hafif danışmanlık",
+      "medium": "Yarı zamanlı",
+      "high": "Yüksek bağlılık"
     }
   },
   "meetings": {
@@ -651,24 +729,123 @@
       "logs": "Aktivite Kayıtları",
       "meetings": "Toplantılar"
     },
+    "tabsShort": {
+      "overview": "Genel Bakış",
+      "users": "Kullanıcılar",
+      "verification": "Doğrula",
+      "posts": "İlanlar",
+      "logs": "Kayıtlar"
+    },
+    "sidebar": {
+      "security": "Güvenlik",
+      "reports": "Raporlar",
+      "settings": "Ayarlar",
+      "soon": "Yakında",
+      "needHelp": "Yardım mı gerekiyor?",
+      "supportBlurb": "Destek ekibimiz size yardımcı olmak için burada.",
+      "contactSupport": "Destek ile İletişime Geç"
+    },
     "stats": {
       "totalUsers": "Toplam Kullanıcı",
       "activeListings": "Aktif İlanlar",
       "meetings": "Toplantılar",
       "securityEvents": "Güvenlik Olayları"
     },
+    "vsLast7Days": "son 7 güne göre",
+    "lastNDays": "Son {{count}} gün",
+    "userGrowth": "Kullanıcı büyümesi",
+    "recentUsers": "Son kullanıcılar",
+    "viewAllUsers": "Tüm kullanıcıları görüntüle",
+    "manageUser": "Kullanıcıyı yönet",
+    "showingUsersRange": "{{total}} kullanıcıdan {{from}}–{{to}} arası gösteriliyor",
     "topDomains": "En çok ilan verilen alanlar",
     "usersByRole": "Role göre kullanıcılar",
     "quickActions": "Hızlı işlemler",
+    "quickActionsList": {
+      "addUser": "Yeni kullanıcı ekle",
+      "createListing": "Yeni ilan oluştur",
+      "scheduleMeeting": "Toplantı planla",
+      "exportUsers": "Kullanıcıları CSV olarak dışa aktar"
+    },
     "systemStatus": "Sistem durumu",
+    "lastChecked": "Son kontrol: 2 dk önce",
     "recentActivity": "Son aktiviteler",
+    "noRecentActivity": "Son aktivite yok",
     "viewAll": "Tümünü gör",
     "allOperational": "Tüm sistemler çalışıyor",
     "verification": {
       "title": "Doğrulama Kuyruğu",
       "pending": "kullanıcı manuel doğrulama bekliyor",
       "verify": "Doğrula",
-      "noPending": "Doğrulama bekleyen kullanıcı yok"
+      "noPending": "Doğrulama bekleyen kullanıcı yok",
+      "loading": "Yükleniyor…",
+      "columns": {
+        "user": "Kullanıcı",
+        "role": "Rol",
+        "institution": "Kurum",
+        "registered": "Kayıt Tarihi"
+      }
+    },
+    "users": {
+      "title": "Kullanıcılar",
+      "registeredCount": "{{count}} kayıtlı üye",
+      "searchPlaceholder": "İsim, e-posta, kurum ara…",
+      "shownCount": "{{total}} kullanıcıdan {{shown}} tanesi gösteriliyor",
+      "columns": {
+        "user": "Kullanıcı",
+        "role": "Rol",
+        "institution": "Kurum",
+        "status": "Durum",
+        "lastActive": "Son Aktif",
+        "actions": "İşlemler"
+      },
+      "active": "Aktif",
+      "suspended": "Askıya Alındı",
+      "suspend": "Askıya al",
+      "reinstate": "Geri yükle",
+      "delete": "Sil",
+      "deleteConfirm": "\"{{name}}\" kalıcı olarak silinsin mi? Bu işlem geri alınamaz.",
+      "suspendError": "Askıya alma durumu güncellenemedi.",
+      "deleteError": "Hesap silinemedi.",
+      "suspendedNotifTitle": "Hesap askıya alındı",
+      "suspendedNotifBody": "Hesabınız askıya alındı.",
+      "pageRange": "{{from}}–{{to}} / {{total}}"
+    },
+    "posts": {
+      "title": "İlanlar",
+      "totalCount": "{{count}} toplam ilan",
+      "columns": {
+        "title": "Başlık",
+        "author": "Yazar",
+        "domain": "Alan",
+        "status": "Durum",
+        "created": "Oluşturulma",
+        "actions": "İşlemler"
+      },
+      "remove": "Kaldır",
+      "removedNotifTitle": "İlan kaldırıldı",
+      "removedNotifBody": "İlanlarınızdan biri bir yönetici tarafından kaldırıldı."
+    },
+    "logs": {
+      "title": "Aktivite Kayıtları",
+      "subtitle": "Değiştirilemez · 24 ay saklanır",
+      "allActions": "Tüm işlemler",
+      "allResults": "Tüm sonuçlar",
+      "success": "Başarılı",
+      "failure": "Başarısız",
+      "clear": "Temizle",
+      "entryCount": "{{total}} kayıttan {{shown}} tanesi",
+      "exportCsv": "CSV olarak dışa aktar",
+      "columns": {
+        "timestamp": "Zaman",
+        "user": "Kullanıcı",
+        "role": "Rol",
+        "action": "İşlem",
+        "target": "Hedef",
+        "result": "Sonuç",
+        "ip": "IP"
+      },
+      "footerNotice": "Kayıtlar değiştirilemez · Silme yapılamaz · 24 ay saklanır"
     }
   },
   "common": {
@@ -710,6 +887,35 @@
       "engineer": "Mühendis",
       "healthcare_professional": "Sağlık Profesyoneli",
       "admin": "Yönetici"
+    }
+  },
+  "validators": {
+    "cityRequired": "Şehir zorunludur",
+    "countryRequired": "Ülke zorunludur",
+    "emailRequired": "E-posta zorunludur",
+    "emailInvalid": "Geçerli bir e-posta adresi girin",
+    "passwordRequired": "Şifre zorunludur",
+    "register": {
+      "nameMin": "Ad Soyad en az 2 karakter olmalı",
+      "eduOnly": "Yalnızca kurumsal .edu e-posta adresleri kabul edilir. Kişisel e-posta sağlayıcılarına izin verilmez.",
+      "passwordMin8": "Şifre en az 8 karakter olmalı",
+      "confirmRequired": "Lütfen şifrenizi onaylayın",
+      "roleRequired": "Lütfen bir rol seçin",
+      "institutionRequired": "Kurum adı zorunludur",
+      "passwordMismatch": "Şifreler eşleşmiyor"
+    },
+    "post": {
+      "titleMin": "Başlık en az 5 karakter olmalı",
+      "domainRequired": "Lütfen bir tıbbi alan seçin",
+      "expertiseMin": "Aranan uzmanlığı açıklayın",
+      "descriptionMin": "Açıklama en az 50 karakter olmalı",
+      "expiryRequired": "Bitiş tarihi zorunludur",
+      "expiryFuture": "Bitiş tarihi gelecekte olmalı"
+    },
+    "profile": {
+      "nameMin": "İsim en az 2 karakter olmalı",
+      "institutionRequired": "Kurum zorunludur",
+      "bioMax": "Biyografi 400 karakterden az olmalı"
     }
   }
 }

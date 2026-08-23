@@ -1,7 +1,8 @@
 import User from '../models/User'
 import { makeError } from '../utils/AppError'
+import { fetchGeminiContent, extractGeminiText, type GeminiResponse } from '../utils/geminiClient'
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-2.0-flash'
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'
 
 export interface ProfileScoreResult {
   score: number
@@ -77,20 +78,12 @@ Rules:
 - If profile is 100% complete, return an empty suggestions array`
 
   try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.1 },
-      }),
-    })
+    const response = await fetchGeminiContent(GEMINI_MODEL, apiKey, prompt, 0.1)
 
     if (!response.ok) return localScore(user)
 
-    const payload = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> }
-    const text = payload.candidates?.[0]?.content?.parts?.map(p => p.text ?? '').join('') ?? ''
+    const payload = await response.json() as GeminiResponse
+    const text = extractGeminiText(payload)
     return parseScoreResponse(text) ?? localScore(user)
   } catch {
     return localScore(user)

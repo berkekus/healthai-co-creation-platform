@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { registerSchema, loginSchema, postCreateSchema, profileSchema } from '../utils/validators'
+import i18n from '../i18n'
+import { createRegisterSchema, createLoginSchema, createPostCreateSchema, createProfileSchema } from '../utils/validators'
+
+// Schemas are built from the real i18n instance (defaults to English in this
+// test environment — no locale/navigator is set), so the message-content
+// assertions below keep checking the same English strings as before.
+const registerSchema = createRegisterSchema(i18n.t)
+const loginSchema = createLoginSchema(i18n.t)
+const postCreateSchema = createPostCreateSchema(i18n.t)
+const profileSchema = createProfileSchema(i18n.t)
 
 // ─── registerSchema ─────────────────────────────────────────────────────────
 

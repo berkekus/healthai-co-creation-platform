@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Controller, useWatch } from 'react-hook-form'
 import type { Control, FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form'
 import { CalendarDays, Lock, ShieldCheck, Sparkles } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { PostCreateFormData } from '../../utils/validators'
 import SearchableSelect from '../ui/SearchableSelect'
 import { COUNTRIES, getCitiesForCountry } from '../../data/locations'
@@ -38,6 +39,7 @@ interface Props {
 }
 
 export default function PostFormFields({ register, control, setValue, errors, minDateStr }: Props) {
+  const { t } = useTranslation()
   const [aiLoading, setAiLoading] = useState(false)
   const [aiResult, setAiResult] = useState<AIResult | null>(null)
   const [aiError, setAiError] = useState<string | null>(null)
@@ -61,7 +63,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
       })
       setAiResult(data.data)
     } catch {
-      setAiError('AI assist is temporarily unavailable. Try again shortly.')
+      setAiError(t('posts.form.aiError'))
     } finally {
       setAiLoading(false)
     }
@@ -87,19 +89,19 @@ export default function PostFormFields({ register, control, setValue, errors, mi
 
   return (
     <div className="space-y-6">
-      <FormSection number="1" title="The basics" subtitle="A clear title and domain help the right people find you.">
+      <FormSection number="1" title={t('posts.form.sections.basicsTitle')} subtitle={t('posts.form.sections.basicsSubtitle')}>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <Field label="Post title" error={errors.title?.message} required>
+          <Field label={t('posts.form.title')} error={errors.title?.message} required>
             <input
               {...register('title')}
               className={baseInput}
-              placeholder="e.g. AI-powered glucose monitoring system"
+              placeholder={t('posts.form.titlePlaceholder')}
             />
           </Field>
-          <Field label="Domain" error={errors.domain?.message} required>
+          <Field label={t('posts.form.domain')} error={errors.domain?.message} required>
             <SelectShell>
               <select {...register('domain')} className={baseSelect} defaultValue="">
-                <option value="">Select a domain</option>
+                <option value="">{t('posts.form.domainPlaceholder')}</option>
                 {MEDICAL_DOMAINS.map(domain => <option key={domain} value={domain}>{domain}</option>)}
               </select>
             </SelectShell>
@@ -107,26 +109,26 @@ export default function PostFormFields({ register, control, setValue, errors, mi
         </div>
       </FormSection>
 
-      <FormSection number="2" title="What you're looking for" subtitle="Describe the collaboration without revealing confidential details.">
+      <FormSection number="2" title={t('posts.form.sections.lookingForTitle')} subtitle={t('posts.form.sections.lookingForSubtitle')}>
         <div className="grid grid-cols-1 gap-x-8 gap-y-5 lg:grid-cols-[minmax(0,1fr)_230px]">
-          <Field label="Expertise required" error={errors.expertiseRequired?.message} required>
+          <Field label={t('posts.form.expertise')} error={errors.expertiseRequired?.message} required>
             <input
               {...register('expertiseRequired')}
               className={baseInput}
-              placeholder="e.g. Signal processing, Embedded ML, Clinical validation"
+              placeholder={t('posts.form.expertisePlaceholder')}
             />
           </Field>
-          <Hint>Add the technical or clinical expertise you're seeking.</Hint>
+          <Hint>{t('posts.form.expertiseHint')}</Hint>
 
-          <Field label="Project summary" error={errors.description?.message} required>
+          <Field label={t('posts.form.description')} error={errors.description?.message} required>
             <textarea
               {...register('description')}
               className={`${baseInput} h-[96px] resize-none py-4 leading-6`}
-              placeholder="Describe your project goal, what you've built so far, and what you need from a collaborator."
+              placeholder={t('posts.form.descriptionPlaceholder')}
             />
           </Field>
           <div className="flex flex-col items-start gap-3 lg:pt-7">
-            <span className="text-sm font-semibold leading-5 text-[#6f6a76]">Min. 50 characters.</span>
+            <span className="text-sm font-semibold leading-5 text-[#6f6a76]">{t('posts.form.minChars')}</span>
             <button
               type="button"
               disabled={aiLoading || (!currentTitle && !currentDescription)}
@@ -134,7 +136,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
               className="inline-flex items-center gap-2 rounded-full bg-[#36213E] px-4 py-2 text-xs font-black text-white hover:bg-black disabled:opacity-50 transition-colors"
             >
               <Sparkles size={13} />
-              {aiLoading ? 'Improving…' : 'AI Assist'}
+              {aiLoading ? t('posts.form.improving') : t('posts.form.aiAssist')}
             </button>
           </div>
         </div>
@@ -148,28 +150,28 @@ export default function PostFormFields({ register, control, setValue, errors, mi
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-black text-[#2d1838]">
                 <Sparkles size={14} />
-                AI suggestions — review before applying
+                {t('posts.form.aiSuggestions')}
               </div>
               <button type="button" onClick={() => setAiResult(null)} className="text-[#9a95a1] hover:text-[#2d1838] transition-colors">✕</button>
             </div>
             {aiResult.improvedTitle && (
               <div className="mb-2">
-                <span className="text-xs font-black uppercase tracking-wide text-[#6f6a76]">Title</span>
+                <span className="text-xs font-black uppercase tracking-wide text-[#6f6a76]">{t('posts.form.suggestionTitle')}</span>
                 <p className="mt-1 text-sm font-semibold text-[#2d1838]">{aiResult.improvedTitle}</p>
               </div>
             )}
             {aiResult.improvedDescription && (
               <div className="mb-2">
-                <span className="text-xs font-black uppercase tracking-wide text-[#6f6a76]">Description</span>
+                <span className="text-xs font-black uppercase tracking-wide text-[#6f6a76]">{t('posts.form.suggestionDescription')}</span>
                 <p className="mt-1 text-sm font-semibold text-[#2d1838]">{aiResult.improvedDescription}</p>
               </div>
             )}
             {aiResult.suggestedExpertise && aiResult.suggestedExpertise.length > 0 && (
               <div className="mb-2">
-                <span className="text-xs font-black uppercase tracking-wide text-[#6f6a76]">Expertise tags</span>
+                <span className="text-xs font-black uppercase tracking-wide text-[#6f6a76]">{t('posts.form.suggestionExpertise')}</span>
                 <div className="mt-1 flex flex-wrap gap-1.5">
-                  {aiResult.suggestedExpertise.map(t => (
-                    <span key={t} className="rounded-full bg-[#36213E]/10 px-2.5 py-0.5 text-xs font-bold text-[#36213E]">{t}</span>
+                  {aiResult.suggestedExpertise.map(tag => (
+                    <span key={tag} className="rounded-full bg-[#36213E]/10 px-2.5 py-0.5 text-xs font-bold text-[#36213E]">{tag}</span>
                   ))}
                 </div>
               </div>
@@ -182,55 +184,55 @@ export default function PostFormFields({ register, control, setValue, errors, mi
               onClick={applyAISuggestions}
               className="rounded-full bg-[#36213E] px-5 py-2 text-xs font-black text-white hover:bg-black transition-colors"
             >
-              Apply all suggestions
+              {t('posts.form.applyAll')}
             </button>
           </div>
         )}
       </FormSection>
 
-      <FormSection number="3" title="How you want to collaborate" subtitle="Set expectations on project stage, engagement type, and confidentiality.">
+      <FormSection number="3" title={t('posts.form.sections.collaborateTitle')} subtitle={t('posts.form.sections.collaborateSubtitle')}>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <Field label="Project stage" error={errors.projectStage?.message} required>
+          <Field label={t('posts.form.stage')} error={errors.projectStage?.message} required>
             <SelectShell>
               <select {...register('projectStage')} className={baseSelect}>
-                <option value="idea">Idea</option>
-                <option value="concept_validation">Concept Validation</option>
-                <option value="prototype">Prototype</option>
-                <option value="pilot">Pilot</option>
-                <option value="pre_deployment">Pre-deployment</option>
+                <option value="idea">{t('posts.stage.idea')}</option>
+                <option value="concept_validation">{t('posts.stage.concept_validation')}</option>
+                <option value="prototype">{t('posts.stage.prototype')}</option>
+                <option value="pilot">{t('posts.stage.pilot')}</option>
+                <option value="pre_deployment">{t('posts.stage.pre_deployment')}</option>
               </select>
             </SelectShell>
           </Field>
 
-          <Field label="Collaboration type" error={errors.collaborationType?.message} required>
+          <Field label={t('posts.form.collab')} error={errors.collaborationType?.message} required>
             <SelectShell>
               <select {...register('collaborationType')} className={baseSelect} defaultValue="">
-                <option value="">Select type</option>
-                <option value="advisor">Advisor</option>
-                <option value="co_founder">Co-Founder</option>
-                <option value="research_partner">Research Partner</option>
-                <option value="contract">Contract Work</option>
+                <option value="">{t('posts.form.collabPlaceholder')}</option>
+                <option value="advisor">{t('posts.collab.advisor')}</option>
+                <option value="co_founder">{t('posts.collab.co_founder')}</option>
+                <option value="research_partner">{t('posts.collab.research_partner')}</option>
+                <option value="contract">{t('posts.collab.contract')}</option>
               </select>
             </SelectShell>
           </Field>
 
-          <Field label="Level of commitment" error={errors.levelOfCommitment?.message} required>
+          <Field label={t('posts.form.commitment')} error={errors.levelOfCommitment?.message} required>
             <SelectShell>
               <select {...register('levelOfCommitment')} className={baseSelect}>
-                <option value="flexible">Flexible / to be agreed</option>
-                <option value="low">Light advisory (1-2 hrs/week)</option>
-                <option value="medium">Part-time collaboration (3-6 hrs/week)</option>
-                <option value="high">High commitment / focused sprint</option>
+                <option value="flexible">{t('posts.form.commitmentFlexible')}</option>
+                <option value="low">{t('posts.form.commitmentLow')}</option>
+                <option value="medium">{t('posts.form.commitmentMedium')}</option>
+                <option value="high">{t('posts.form.commitmentHigh')}</option>
               </select>
             </SelectShell>
           </Field>
         </div>
 
-        <Field label="Confidentiality level" error={errors.confidentiality?.message} required>
+        <Field label={t('posts.form.confidentiality')} error={errors.confidentiality?.message} required>
           <div id={`${radioGroupId}-label`} className="grid grid-cols-1 gap-4 md:grid-cols-2" role="radiogroup">
             {([
-              { value: 'public_pitch', title: 'Public Pitch', desc: 'Short idea summary visible to all members' },
-              { value: 'meeting_only', title: 'Details in Meeting Only', desc: 'Only title and domain are public; full details shared under NDA' },
+              { value: 'public_pitch', title: t('posts.form.publicPitch'), desc: t('posts.form.publicPitchDesc') },
+              { value: 'meeting_only', title: t('posts.form.meetingOnly'), desc: t('posts.form.meetingOnlyDesc') },
             ] as const).map(option => (
               <label
                 key={option.value}
@@ -255,29 +257,29 @@ export default function PostFormFields({ register, control, setValue, errors, mi
         </Field>
       </FormSection>
 
-      <FormSection number="4" title="Where & when" subtitle="Location helps with in-person meetings; the expiry date closes the post automatically.">
+      <FormSection number="4" title={t('posts.form.sections.whereWhenTitle')} subtitle={t('posts.form.sections.whereWhenSubtitle')}>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <Field label="Country" error={errors.country?.message} required>
+          <Field label={t('posts.form.country')} error={errors.country?.message} required>
             <Controller
               name="country"
               control={control}
               render={({ field }) => (
-                <SearchableSelect options={COUNTRIES} value={field.value ?? ''} onChange={field.onChange} placeholder="Select country" error={errors.country?.message} />
+                <SearchableSelect options={COUNTRIES} value={field.value ?? ''} onChange={field.onChange} placeholder={t('posts.form.countryPlaceholder')} error={errors.country?.message} />
               )}
             />
           </Field>
-          <Field label="City" error={errors.city?.message} required>
+          <Field label={t('posts.form.city')} error={errors.city?.message} required>
             <Controller
               name="city"
               control={control}
               render={({ field }) => (
-                <SearchableSelect options={availableCities} value={field.value ?? ''} onChange={field.onChange} placeholder={selectedCountry ? 'Select city' : 'Select country first'} error={errors.city?.message} />
+                <SearchableSelect options={availableCities} value={field.value ?? ''} onChange={field.onChange} placeholder={selectedCountry ? t('posts.form.cityPlaceholder') : t('posts.form.cityPlaceholderNoCountry')} error={errors.city?.message} />
               )}
             />
           </Field>
         </div>
 
-        <Field label="Listing expiry date" error={errors.expiryDate?.message} required>
+        <Field label={t('posts.form.expiry')} error={errors.expiryDate?.message} required>
           <div className="relative">
             <input {...register('expiryDate')} type="date" min={minDateStr} className={`${baseInput} pr-12`} />
             <CalendarDays size={18} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#2d1838]" />
@@ -285,17 +287,17 @@ export default function PostFormFields({ register, control, setValue, errors, mi
         </Field>
       </FormSection>
 
-      <FormSection number="5" title="Review & publish" subtitle="Review your details before making your post visible.">
+      <FormSection number="5" title={t('posts.form.sections.reviewTitle')} subtitle={t('posts.form.sections.reviewSubtitle')}>
         <div className="flex gap-4 rounded-[10px] border border-[#cdeefa] bg-[#eefaff] p-5">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d8f5ff] text-[#2d1838]">
             <ShieldCheck size={20} />
           </span>
           <div>
-            <div className="text-sm font-black text-[#2d1838]">GDPR Notice</div>
+            <div className="text-sm font-black text-[#2d1838]">{t('posts.form.gdprNoticeTitle')}</div>
             <p className="mt-1 text-sm font-semibold leading-5 text-[#4f4a58]">
-              Do not include patient data, identifiable clinical records, or proprietary IP.
+              {t('posts.detail.gdprNotice')}
               <br />
-              File uploads are not permitted on this platform - technical details belong in meetings under NDA.
+              {t('posts.form.gdprNoticeLine2')}
             </p>
           </div>
         </div>

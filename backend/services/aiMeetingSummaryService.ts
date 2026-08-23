@@ -2,8 +2,9 @@ import Meeting from '../models/Meeting'
 import Conversation from '../models/Conversation'
 import Message from '../models/Message'
 import { makeError } from '../utils/AppError'
+import { fetchGeminiContent, extractGeminiText, type GeminiResponse } from '../utils/geminiClient'
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-2.0-flash'
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'
 const MAX_MESSAGES = 60
 
 export interface MeetingSummaryResult {
@@ -88,21 +89,13 @@ Rules:
 - If transcript is empty, infer from the meeting context what would typically be discussed
 - Keep all arrays to 2-4 items maximum`
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.2 },
-    }),
-  })
+  const response = await fetchGeminiContent(GEMINI_MODEL, apiKey, prompt, 0.2)
 
   if (response.status === 429) throw makeError('AI service is temporarily rate-limited. Please try again in a minute.', 429)
   if (!response.ok) throw makeError(`AI service error (${response.status}). Please try again later.`, 502)
 
-  const payload = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> }
-  const text = payload.candidates?.[0]?.content?.parts?.map(p => p.text ?? '').join('') ?? ''
+  const payload = await response.json() as GeminiResponse
+  const text = extractGeminiText(payload)
   const result = parseSummary(text)
   if (!result) throw makeError('Gemini returned an unexpected format', 502)
 

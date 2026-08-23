@@ -1,58 +1,67 @@
 import { z } from 'zod'
+import type { TFunction } from 'i18next'
 
-export const postCreateSchema = z.object({
-  title:             z.string().min(5, 'Title must be at least 5 characters'),
-  domain:            z.string().min(1, 'Please select a medical domain'),
-  expertiseRequired: z.string().min(3, 'Describe the expertise required'),
-  description:       z.string().min(50, 'Description must be at least 50 characters'),
-  projectStage:      z.enum(['idea', 'concept_validation', 'prototype', 'pilot', 'pre_deployment'] as const),
-  collaborationType: z.enum(['advisor', 'co_founder', 'research_partner', 'contract'] as const),
-  levelOfCommitment: z.enum(['flexible', 'low', 'medium', 'high'] as const),
-  confidentiality:   z.enum(['public_pitch', 'meeting_only'] as const),
-  city:              z.string().min(1, 'City is required'),
-  country:           z.string().min(1, 'Country is required'),
-  expiryDate:        z.string().min(1, 'Expiry date is required').refine(
-    v => new Date(v) > new Date(),
-    { message: 'Expiry date must be in the future' }
-  ),
-})
+export function createPostCreateSchema(t: TFunction) {
+  return z.object({
+    title:             z.string().min(5, t('validators.post.titleMin')),
+    domain:            z.string().min(1, t('validators.post.domainRequired')),
+    expertiseRequired: z.string().min(3, t('validators.post.expertiseMin')),
+    description:       z.string().min(50, t('validators.post.descriptionMin')),
+    projectStage:      z.enum(['idea', 'concept_validation', 'prototype', 'pilot', 'pre_deployment'] as const),
+    collaborationType: z.enum(['advisor', 'co_founder', 'research_partner', 'contract'] as const),
+    levelOfCommitment: z.enum(['flexible', 'low', 'medium', 'high'] as const),
+    confidentiality:   z.enum(['public_pitch', 'meeting_only'] as const),
+    city:              z.string().min(1, t('validators.cityRequired')),
+    country:           z.string().min(1, t('validators.countryRequired')),
+    expiryDate:        z.string().min(1, t('validators.post.expiryRequired')).refine(
+      v => new Date(v) > new Date(),
+      { message: t('validators.post.expiryFuture') }
+    ),
+  })
+}
 
-export type PostCreateFormData = z.infer<typeof postCreateSchema>
+export type PostCreateFormData = z.infer<ReturnType<typeof createPostCreateSchema>>
 
-export const profileSchema = z.object({
-  name:        z.string().min(2, 'Name must be at least 2 characters'),
-  institution: z.string().min(2, 'Institution is required'),
-  city:        z.string().min(1, 'City is required'),
-  country:     z.string().min(1, 'Country is required'),
-  bio:         z.string().max(400, 'Bio must be under 400 characters').optional(),
-})
+export function createProfileSchema(t: TFunction) {
+  return z.object({
+    name:        z.string().min(2, t('validators.profile.nameMin')),
+    institution: z.string().min(2, t('validators.profile.institutionRequired')),
+    city:        z.string().min(1, t('validators.cityRequired')),
+    country:     z.string().min(1, t('validators.countryRequired')),
+    bio:         z.string().max(400, t('validators.profile.bioMax')).optional(),
+  })
+}
 
-export type ProfileFormData = z.infer<typeof profileSchema>
+export type ProfileFormData = z.infer<ReturnType<typeof createProfileSchema>>
 
-export const loginSchema = z.object({
-  email:    z.string().min(1, 'Email is required').email('Enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
-})
+export function createLoginSchema(t: TFunction) {
+  return z.object({
+    email:    z.string().min(1, t('validators.emailRequired')).email(t('validators.emailInvalid')),
+    password: z.string().min(1, t('validators.passwordRequired')),
+  })
+}
 
-export const registerSchema = z.object({
-  name:        z.string().min(2, 'Full name must be at least 2 characters'),
-  email:       z
-    .string()
-    .min(1, 'Email is required')
-    .email('Enter a valid email address')
-    .refine(v => /\.edu(\.[a-z]{2,})?$/.test(v), {
-      message: 'Only institutional .edu email addresses are accepted. Personal email providers are not permitted.',
-    }),
-  password:    z.string().min(8, 'Password must be at least 8 characters'),
-  confirm:     z.string().min(1, 'Please confirm your password'),
-  role:        z.enum(['engineer', 'healthcare_professional']).refine(v => !!v, { message: 'Please select a role' }),
-  institution: z.string().min(2, 'Institution name is required'),
-  city:        z.string().min(1, 'City is required'),
-  country:     z.string().min(1, 'Country is required'),
-}).refine(d => d.password === d.confirm, {
-  message: 'Passwords do not match',
-  path: ['confirm'],
-})
+export function createRegisterSchema(t: TFunction) {
+  return z.object({
+    name:        z.string().min(2, t('validators.register.nameMin')),
+    email:       z
+      .string()
+      .min(1, t('validators.emailRequired'))
+      .email(t('validators.emailInvalid'))
+      .refine(v => /\.edu(\.[a-z]{2,})?$/.test(v), {
+        message: t('validators.register.eduOnly'),
+      }),
+    password:    z.string().min(8, t('validators.register.passwordMin8')),
+    confirm:     z.string().min(1, t('validators.register.confirmRequired')),
+    role:        z.enum(['engineer', 'healthcare_professional']).refine(v => !!v, { message: t('validators.register.roleRequired') }),
+    institution: z.string().min(2, t('validators.register.institutionRequired')),
+    city:        z.string().min(1, t('validators.cityRequired')),
+    country:     z.string().min(1, t('validators.countryRequired')),
+  }).refine(d => d.password === d.confirm, {
+    message: t('validators.register.passwordMismatch'),
+    path: ['confirm'],
+  })
+}
 
-export type LoginFormData    = z.infer<typeof loginSchema>
-export type RegisterFormData = z.infer<typeof registerSchema>
+export type LoginFormData    = z.infer<ReturnType<typeof createLoginSchema>>
+export type RegisterFormData = z.infer<ReturnType<typeof createRegisterSchema>>

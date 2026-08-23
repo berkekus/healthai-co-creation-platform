@@ -6,6 +6,8 @@ import {
   Settings, Shield, Trash2, UserCheck, UserMinus, UserPlus,
   Users, X, Search, ChevronDown,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { usePostStore } from '../../store/postStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import { useMeetingStore } from '../../store/meetingStore'
@@ -17,10 +19,8 @@ import { ROUTES } from '../../constants/routes'
 type AdminView = 'overview' | 'users' | 'posts' | 'logs' | 'verification'
 const USERS_PER_PAGE = 20
 
-const ROLE_LABEL: Record<string, string> = {
-  engineer: 'Engineer',
-  healthcare_professional: 'Healthcare Pro',
-  admin: 'Admin',
+function roleLabel(t: TFunction, role: string) {
+  return t(`common.role.${role}`, { defaultValue: role })
 }
 
 const CRITICAL_ACTIONS = new Set(['login_failed', 'register_failed', 'user_suspend', 'post_delete'])
@@ -49,29 +49,30 @@ function downloadCSV(logs: ActivityLog[]) {
   a.click()
 }
 
-function timeAgo(iso: string) {
+function timeAgo(iso: string, t: TFunction) {
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
-  if (m < 1) return 'Just now'
-  if (m < 60) return `${m}m ago`
+  if (m < 1) return t('common.justNow')
+  if (m < 60) return t('common.minutesAgo', { count: m })
   const h = Math.floor(m / 60)
-  if (h < 24) return `${h}h ago`
-  return `${Math.floor(h / 24)}d ago`
+  if (h < 24) return t('common.hoursAgo', { count: h })
+  return t('common.daysAgo', { count: Math.floor(h / 24) })
 }
 
 // ── HOVER-EXPAND SIDEBAR ──────────────────────────────────
 function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: AdminView) => void }) {
+  const { t } = useTranslation()
   const mainViews = new Set<AdminView>(['overview', 'users', 'posts', 'logs', 'verification'])
 
   const navItems: { id: string; label: string; icon: React.ReactNode; route?: string; soon?: true }[] = [
-    { id: 'overview',     label: 'Overview',          icon: <LayoutDashboard size={18} strokeWidth={1.8} /> },
-    { id: 'users',        label: 'Users',              icon: <Users size={18} strokeWidth={1.8} /> },
-    { id: 'verification', label: 'Verification Queue', icon: <UserCheck size={18} strokeWidth={1.8} /> },
-    { id: 'posts',        label: 'Posts & Listings',   icon: <FileText size={18} strokeWidth={1.8} /> },
-    { id: 'logs',         label: 'Activity Logs',      icon: <Clock size={18} strokeWidth={1.8} /> },
-    { id: 'meetings',     label: 'Meetings',           icon: <Calendar size={18} strokeWidth={1.8} />, route: ROUTES.MEETINGS },
-    { id: 'security',     label: 'Security',           icon: <Shield size={18} strokeWidth={1.8} />, soon: true },
-    { id: 'reports',      label: 'Reports',            icon: <BarChart2 size={18} strokeWidth={1.8} />, soon: true },
-    { id: 'settings',     label: 'Settings',           icon: <Settings size={18} strokeWidth={1.8} />, soon: true },
+    { id: 'overview',     label: t('admin.tabs.overview'),     icon: <LayoutDashboard size={18} strokeWidth={1.8} /> },
+    { id: 'users',        label: t('admin.tabs.users'),        icon: <Users size={18} strokeWidth={1.8} /> },
+    { id: 'verification', label: t('admin.tabs.verification'), icon: <UserCheck size={18} strokeWidth={1.8} /> },
+    { id: 'posts',        label: t('admin.tabs.posts'),        icon: <FileText size={18} strokeWidth={1.8} /> },
+    { id: 'logs',         label: t('admin.tabs.logs'),         icon: <Clock size={18} strokeWidth={1.8} /> },
+    { id: 'meetings',     label: t('admin.tabs.meetings'),     icon: <Calendar size={18} strokeWidth={1.8} />, route: ROUTES.MEETINGS },
+    { id: 'security',     label: t('admin.sidebar.security'),  icon: <Shield size={18} strokeWidth={1.8} />, soon: true },
+    { id: 'reports',      label: t('admin.sidebar.reports'),   icon: <BarChart2 size={18} strokeWidth={1.8} />, soon: true },
+    { id: 'settings',     label: t('admin.sidebar.settings'),  icon: <Settings size={18} strokeWidth={1.8} />, soon: true },
   ]
 
   return (
@@ -104,7 +105,7 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
               <span className="text-sm font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 flex-1">{item.label}</span>
               {item.soon && (
                 <span className="text-xs font-black uppercase tracking-[0.12em] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 bg-[#f0f0ff] text-[#a8a4d4] rounded-full px-2 py-0.5">
-                  Yakında
+                  {t('admin.sidebar.soon')}
                 </span>
               )}
             </button>
@@ -116,20 +117,20 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
       <div className="m-2 p-3 bg-[#f8f8ff] rounded-xl border border-[#eeeeff] overflow-hidden">
         <div className="flex items-center gap-2 mb-1">
           <Headphones size={16} strokeWidth={1.8} className="text-[#4f46e5] shrink-0" />
-          <span className="text-xs font-black text-[#18203a] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75">Need help?</span>
+          <span className="text-xs font-black text-[#18203a] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75">{t('admin.sidebar.needHelp')}</span>
         </div>
         <svg viewBox="0 0 80 24" className="w-full opacity-40 mb-2">
           <path d="M0,18 C10,14 15,20 25,12 C35,4 40,16 50,10 C60,4 70,14 80,8"
             fill="none" stroke="#4f46e5" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
         <p className="text-xs text-[#9ca3af] leading-relaxed whitespace-nowrap overflow-hidden opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 mb-2">
-          Our support team is here to help you.
+          {t('admin.sidebar.supportBlurb')}
         </p>
         <a
           href="mailto:support@healthai.edu"
           className="flex items-center gap-1 text-xs font-bold text-[#4f46e5] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 hover:underline"
         >
-          Contact Support <ChevronRight size={12} />
+          {t('admin.sidebar.contactSupport')} <ChevronRight size={12} />
         </a>
       </div>
     </aside>
@@ -137,9 +138,9 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
 }
 
 // ── STAT CARD ─────────────────────────────────────────────
-function StatCard({ label, value, icon, iconBg, iconColor, change, up }: {
+function StatCard({ label, value, icon, iconBg, iconColor, change, up, vsLast7 }: {
   label: string; value: number; icon: React.ReactNode
-  iconBg: string; iconColor: string; change: string; up: boolean | null
+  iconBg: string; iconColor: string; change: string; up: boolean | null; vsLast7: string
 }) {
   return (
     <div className="bg-white rounded-2xl border border-[#eaecf0] p-5">
@@ -152,7 +153,7 @@ function StatCard({ label, value, icon, iconBg, iconColor, change, up }: {
       <div className="text-sm text-[#6b7280] font-semibold mb-1.5">{label}</div>
       <div className={`text-xs font-semibold ${up === true ? 'text-[#22c55e]' : up === false ? 'text-[#ef4444]' : 'text-[#9ca3af]'}`}>
         {up === true ? '↑' : up === false ? '↓' : '—'} {change}
-        <span className="text-[#b0b7c3] font-normal ml-1">vs last 7 days</span>
+        <span className="text-[#b0b7c3] font-normal ml-1">{vsLast7}</span>
       </div>
     </div>
   )
@@ -234,6 +235,7 @@ function MiniSparkline() {
 
 // ── OVERVIEW ──────────────────────────────────────────────
 function VerificationQueueTab() {
+  const { t } = useTranslation()
   const [pending, setPending] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -255,25 +257,25 @@ function VerificationQueueTab() {
   return (
     <div className="p-3 sm:p-6">
       <div className="mb-5">
-        <h1 className="text-xl font-black text-[#18203a]">Verification Queue</h1>
-        <p className="text-sm text-[#9ca3af] mt-0.5">{loading ? '…' : pending.length} users awaiting manual verification</p>
+        <h1 className="text-xl font-black text-[#18203a]">{t('admin.verification.title')}</h1>
+        <p className="text-sm text-[#9ca3af] mt-0.5">{loading ? '…' : pending.length} {t('admin.verification.pending')}</p>
       </div>
       <div className="bg-white rounded-2xl border border-[#eaecf0] overflow-hidden">
         {loading ? (
-          <div className="px-6 py-12 text-center text-sm text-[#9ca3af]">Loading…</div>
+          <div className="px-6 py-12 text-center text-sm text-[#9ca3af]">{t('admin.verification.loading')}</div>
         ) : pending.length === 0 ? (
           <div className="px-6 py-12 text-center">
             <CheckCircle size={32} className="mx-auto text-[#22c55e] mb-3" />
-            <p className="text-sm font-semibold text-[#374151]">No users pending verification</p>
+            <p className="text-sm font-semibold text-[#374151]">{t('admin.verification.noPending')}</p>
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#f3f4f6] bg-[#f9fafb]">
-                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">User</th>
-                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">Role</th>
-                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">Institution</th>
-                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">Registered</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">{t('admin.verification.columns.user')}</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">{t('admin.verification.columns.role')}</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">{t('admin.verification.columns.institution')}</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">{t('admin.verification.columns.registered')}</th>
                 <th className="px-6 py-3" />
               </tr>
             </thead>
@@ -286,7 +288,7 @@ function VerificationQueueTab() {
                   </td>
                   <td className="px-6 py-3.5">
                     <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${u.role === 'healthcare_professional' ? 'bg-[#dbeafe] text-[#2563eb]' : 'bg-[#d1fae5] text-[#059669]'}`}>
-                      {ROLE_LABEL[u.role] ?? u.role}
+                      {roleLabel(t, u.role)}
                     </span>
                   </td>
                   <td className="px-6 py-3.5 text-[#6b7280] max-w-[180px] truncate">{u.institution}</td>
@@ -297,7 +299,7 @@ function VerificationQueueTab() {
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#18203a] text-white text-xs font-bold hover:bg-black transition-colors"
                     >
                       <UserCheck size={13} />
-                      Verify
+                      {t('admin.verification.verify')}
                     </button>
                   </td>
                 </tr>
@@ -329,6 +331,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
   onExportUsers: () => void
   navigateTo: (path: string) => void
 }) {
+  const { t } = useTranslation()
   const [overviewPage, setOverviewPage] = useState(1)
   const [chartDays, setChartDays] = useState(7)
   const [showChartMenu, setShowChartMenu] = useState(false)
@@ -355,10 +358,10 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
   }
 
   const quickActions: { label: string; icon: React.ReactNode; onClick: () => void }[] = [
-    { label: 'Add new user',       icon: <UserPlus size={16} strokeWidth={1.8} />,  onClick: () => onNavigate('users') },
-    { label: 'Create new listing', icon: <Plus size={16} strokeWidth={1.8} />,      onClick: () => onNavigate('posts') },
-    { label: 'Schedule meeting',   icon: <Calendar size={16} strokeWidth={1.8} />,  onClick: () => navigateTo(ROUTES.MEETINGS) },
-    { label: 'Export users CSV',   icon: <Download size={16} strokeWidth={1.8} />,  onClick: onExportUsers },
+    { label: t('admin.quickActionsList.addUser'),       icon: <UserPlus size={16} strokeWidth={1.8} />,  onClick: () => onNavigate('users') },
+    { label: t('admin.quickActionsList.createListing'), icon: <Plus size={16} strokeWidth={1.8} />,      onClick: () => onNavigate('posts') },
+    { label: t('admin.quickActionsList.scheduleMeeting'), icon: <Calendar size={16} strokeWidth={1.8} />,  onClick: () => navigateTo(ROUTES.MEETINGS) },
+    { label: t('admin.quickActionsList.exportUsers'),   icon: <Download size={16} strokeWidth={1.8} />,  onClick: onExportUsers },
   ]
 
   return (
@@ -366,8 +369,8 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-black text-[#18203a]">Welcome back, Admin 👋</h1>
-          <p className="text-sm text-[#9ca3af] mt-0.5">Here's what's happening on HealthAI today.</p>
+          <h1 className="text-xl font-black text-[#18203a]">{t('admin.welcome')}</h1>
+          <p className="text-sm text-[#9ca3af] mt-0.5">{t('admin.subtitle')}</p>
         </div>
         <div className="relative">
           <button
@@ -388,7 +391,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                     d === dateRangeDays ? 'bg-[#eeecff] text-[#4f46e5]' : 'text-[#374151] hover:bg-[#f5f5ff]'
                   }`}
                 >
-                  Last {d} days
+                  {t('admin.lastNDays', { count: d })}
                 </button>
               ))}
             </div>
@@ -398,10 +401,10 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
 
       {/* Stats — 4-column grid */}
       <div className="grid grid-cols-4 gap-4">
-        <StatCard label="Total Users"     value={totalUsers}   icon={<Users size={20} strokeWidth={1.8} />}    iconBg="#ede9fe" iconColor="#7c3aed" change={stats ? `+${stats.newUsersLast30} (30d)` : '…'}  up={true} />
-        <StatCard label="Active Listings" value={activePosts}  icon={<FileText size={20} strokeWidth={1.8} />} iconBg="#dbeafe" iconColor="#2563eb" change={stats ? `+${stats.newPostsLast30} (30d)` : '…'}   up={true} />
-        <StatCard label="Meetings"        value={meetingCount} icon={<Calendar size={20} strokeWidth={1.8} />} iconBg="#fef3c7" iconColor="#d97706" change={stats ? `${stats.meetingCompletionRate}% done` : '…'}  up={true} />
-        <StatCard label="Security Events" value={failedLogins} icon={<Shield size={20} strokeWidth={1.8} />}   iconBg="#fee2e2" iconColor="#dc2626" change="last 200 logs"   up={null} />
+        <StatCard label={t('admin.stats.totalUsers')}     value={totalUsers}   icon={<Users size={20} strokeWidth={1.8} />}    iconBg="#ede9fe" iconColor="#7c3aed" change={stats ? `+${stats.newUsersLast30} (30d)` : '…'}  up={true} vsLast7={t('admin.vsLast7Days')} />
+        <StatCard label={t('admin.stats.activeListings')} value={activePosts}  icon={<FileText size={20} strokeWidth={1.8} />} iconBg="#dbeafe" iconColor="#2563eb" change={stats ? `+${stats.newPostsLast30} (30d)` : '…'}   up={true} vsLast7={t('admin.vsLast7Days')} />
+        <StatCard label={t('admin.stats.meetings')}        value={meetingCount} icon={<Calendar size={20} strokeWidth={1.8} />} iconBg="#fef3c7" iconColor="#d97706" change={stats ? `${stats.meetingCompletionRate}% done` : '…'}  up={true} vsLast7={t('admin.vsLast7Days')} />
+        <StatCard label={t('admin.stats.securityEvents')} value={failedLogins} icon={<Shield size={20} strokeWidth={1.8} />}   iconBg="#fee2e2" iconColor="#dc2626" change="last 200 logs"   up={null} vsLast7={t('admin.vsLast7Days')} />
       </div>
 
       {/* Main + Right panel */}
@@ -411,13 +414,13 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
           {/* User Growth card — compact */}
           <div className="bg-white rounded-2xl border border-[#eaecf0] p-5">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-base font-black text-[#18203a]">User growth</h3>
+              <h3 className="text-base font-black text-[#18203a]">{t('admin.userGrowth')}</h3>
               <div className="relative">
                 <button
                   onClick={() => setShowChartMenu(v => !v)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#eaecf0] text-xs font-semibold text-[#6b7280] hover:border-[#4f46e5] transition-colors"
                 >
-                  Last {chartDays} days <ChevronDown size={12} />
+                  {t('admin.lastNDays', { count: chartDays })} <ChevronDown size={12} />
                 </button>
                 {showChartMenu && (
                   <div className="absolute right-0 top-9 z-20 bg-white rounded-xl border border-[#eaecf0] shadow-lg overflow-hidden min-w-[120px]">
@@ -429,7 +432,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                           d === chartDays ? 'bg-[#eeecff] text-[#4f46e5]' : 'text-[#374151] hover:bg-[#f5f5ff]'
                         }`}
                       >
-                        Last {d} days
+                        {t('admin.lastNDays', { count: d })}
                       </button>
                     ))}
                   </div>
@@ -442,13 +445,13 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
           {/* Recent Users */}
           <div className="bg-white rounded-2xl border border-[#eaecf0] overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#f3f4f6]">
-              <h3 className="text-base font-black text-[#18203a]">Recent users</h3>
-              <button onClick={() => onNavigate('users')} className="text-sm font-bold text-[#4f46e5] hover:underline">View all users</button>
+              <h3 className="text-base font-black text-[#18203a]">{t('admin.recentUsers')}</h3>
+              <button onClick={() => onNavigate('users')} className="text-sm font-bold text-[#4f46e5] hover:underline">{t('admin.viewAllUsers')}</button>
             </div>
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#f3f4f6]">
-                  {['User', 'Role', 'Institution', 'Status', 'Joined', 'Actions'].map(h => (
+                  {[t('admin.verification.columns.user'), t('admin.verification.columns.role'), t('admin.verification.columns.institution'), t('admin.posts.columns.status'), t('admin.posts.columns.created'), t('admin.posts.columns.actions')].map(h => (
                     <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-[#9ca3af] px-6 py-3 bg-[#fafafa]">{h}</th>
                   ))}
                 </tr>
@@ -470,13 +473,13 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                       <td className="px-6 py-3.5">
                         <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${
                           u.role === 'healthcare_professional' ? 'bg-[#dbeafe] text-[#2563eb]' : 'bg-[#d1fae5] text-[#059669]'
-                        }`}>{ROLE_LABEL[u.role] ?? u.role}</span>
+                        }`}>{roleLabel(t, u.role)}</span>
                       </td>
                       <td className="px-6 py-3.5 text-sm text-[#6b7280] max-w-[160px] truncate">{u.institution}</td>
                       <td className="px-6 py-3.5">
                         <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${u.isSuspended ? 'text-[#ef4444]' : 'text-[#22c55e]'}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${u.isSuspended ? 'bg-[#ef4444]' : 'bg-[#22c55e]'}`} />
-                          {u.isSuspended ? 'Suspended' : 'Active'}
+                          {u.isSuspended ? t('admin.users.suspended') : t('admin.users.active')}
                         </span>
                       </td>
                       <td className="px-6 py-3.5 text-sm text-[#9ca3af]">
@@ -486,7 +489,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                         <button
                           onClick={() => onNavigate('users')}
                           className="p-1.5 rounded-lg hover:bg-[#f3f4f6] text-[#9ca3af] hover:text-[#4f46e5] transition-colors"
-                          title="Manage user"
+                          title={t('admin.manageUser')}
                         >
                           <span className="text-lg leading-none">⋯</span>
                         </button>
@@ -498,7 +501,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
             </table>
             <div className="px-6 py-3.5 border-t border-[#f3f4f6] flex items-center justify-between text-xs text-[#9ca3af]">
               <span>
-                Showing {Math.min((overviewPage - 1) * PAGE_SIZE + 1, totalUsers)}–{Math.min(overviewPage * PAGE_SIZE, totalUsers)} of {totalUsers} users
+                {t('admin.showingUsersRange', { from: Math.min((overviewPage - 1) * PAGE_SIZE + 1, totalUsers), to: Math.min(overviewPage * PAGE_SIZE, totalUsers), total: totalUsers })}
               </span>
               <div className="flex items-center gap-1">
                 <button
@@ -531,7 +534,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
         <div className="w-[272px] shrink-0 bg-white rounded-2xl border border-[#eaecf0] overflow-hidden">
           {/* Quick Actions */}
           <div className="px-5 pt-5 pb-4">
-            <h3 className="text-sm font-black text-[#18203a] mb-3">Quick actions</h3>
+            <h3 className="text-sm font-black text-[#18203a] mb-3">{t('admin.quickActions')}</h3>
             <div className="space-y-1">
               {quickActions.map(a => (
                 <button key={a.label} onClick={a.onClick}
@@ -554,7 +557,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
           {stats && (
             <>
               <div className="px-5 py-4">
-                <h3 className="text-sm font-black text-[#18203a] mb-3">Top domains</h3>
+                <h3 className="text-sm font-black text-[#18203a] mb-3">{t('admin.topDomains')}</h3>
                 <div className="space-y-2">
                   {stats.postsByDomain.slice(0, 5).map(({ domain, count }) => {
                     const max = stats.postsByDomain[0]?.count ?? 1
@@ -575,11 +578,11 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
               </div>
               <div className="border-t border-[#f3f4f6]" />
               <div className="px-5 py-4">
-                <h3 className="text-sm font-black text-[#18203a] mb-2.5">Users by role</h3>
+                <h3 className="text-sm font-black text-[#18203a] mb-2.5">{t('admin.usersByRole')}</h3>
                 <div className="space-y-1.5">
                   {Object.entries(stats.usersByRole).filter(([r]) => r !== 'admin').map(([role, count]) => (
                     <div key={role} className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-[#374151] capitalize">{role.replace('_', ' ')}</span>
+                      <span className="font-semibold text-[#374151]">{roleLabel(t, role)}</span>
                       <span className={`px-2 py-0.5 rounded-full font-bold ${role === 'healthcare_professional' ? 'bg-[#dbeafe] text-[#2563eb]' : 'bg-[#d1fae5] text-[#059669]'}`}>{count}</span>
                     </div>
                   ))}
@@ -591,15 +594,15 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
 
           {/* System Status */}
           <div className="px-5 py-4">
-            <h3 className="text-sm font-black text-[#18203a] mb-2.5">System status</h3>
+            <h3 className="text-sm font-black text-[#18203a] mb-2.5">{t('admin.systemStatus')}</h3>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CheckCircle size={15} className="text-[#22c55e]" />
-                <span className="text-xs font-semibold text-[#22c55e]">All systems operational</span>
+                <span className="text-xs font-semibold text-[#22c55e]">{t('admin.allOperational')}</span>
               </div>
               <MiniSparkline />
             </div>
-            <p className="text-xs text-[#9ca3af] mt-1.5">Last checked: 2 min ago</p>
+            <p className="text-xs text-[#9ca3af] mt-1.5">{t('admin.lastChecked')}</p>
           </div>
 
           <div className="border-t border-[#f3f4f6]" />
@@ -607,8 +610,8 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
           {/* Recent Activity */}
           <div className="px-5 py-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-black text-[#18203a]">Recent activity</h3>
-              <button onClick={() => onNavigate('logs')} className="text-xs font-bold text-[#4f46e5] hover:underline">View all</button>
+              <h3 className="text-sm font-black text-[#18203a]">{t('admin.recentActivity')}</h3>
+              <button onClick={() => onNavigate('logs')} className="text-xs font-bold text-[#4f46e5] hover:underline">{t('admin.viewAll')}</button>
             </div>
             <div className="space-y-3">
               {recentLogs.length > 0 ? recentLogs.map(log => {
@@ -622,11 +625,11 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                       <div className="text-xs font-semibold text-[#374151] leading-snug capitalize">{log.action.replace(/_/g, ' ')}</div>
                       <div className="text-xs text-[#9ca3af] truncate">{log.userEmail}</div>
                     </div>
-                    <span className="text-xs text-[#b0b7c3] whitespace-nowrap shrink-0">{timeAgo(log.timestamp)}</span>
+                    <span className="text-xs text-[#b0b7c3] whitespace-nowrap shrink-0">{timeAgo(log.timestamp, t)}</span>
                   </div>
                 )
               }) : (
-                <p className="text-sm text-[#b0b7c3]">No recent activity</p>
+                <p className="text-sm text-[#b0b7c3]">{t('admin.noRecentActivity')}</p>
               )}
             </div>
           </div>
@@ -638,6 +641,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
 
 // ── MAIN ──────────────────────────────────────────────────
 export default function AdminPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [view, setView] = useState<AdminView>('overview')
   const [users, setUsers] = useState<User[]>([])
@@ -704,25 +708,25 @@ export default function AdminPage() {
     try {
       await api.patch(`/auth/users/${userId}/suspend`, { isSuspended: next })
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, isSuspended: next } : u))
-      if (next) push({ userId, type: 'post_closed', title: 'Account suspended', body: 'Your account has been suspended.', isRead: false })
+      if (next) push({ userId, type: 'post_closed', title: t('admin.users.suspendedNotifTitle'), body: t('admin.users.suspendedNotifBody'), isRead: false })
     } catch (err: unknown) {
-      alert((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Could not update suspension status.')
+      alert((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.suspendError'))
     }
   }
 
   const handleDeleteUser = async (userId: string, userName: string) => {
-    if (!window.confirm(`Permanently delete "${userName}"? This cannot be undone.`)) return
+    if (!window.confirm(t('admin.users.deleteConfirm', { name: userName }))) return
     try {
       await api.delete(`/auth/users/${userId}`)
       setUsers(prev => prev.filter(u => u.id !== userId))
     } catch (err: unknown) {
-      alert((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Could not delete account.')
+      alert((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.deleteError'))
     }
   }
 
   const handleRemovePost = async (postId: string, ownerId: string) => {
     await removePost(postId)
-    push({ userId: ownerId, type: 'post_closed', title: 'Post removed', body: 'One of your posts was removed by an administrator.', isRead: false, linkTo: '/posts' })
+    push({ userId: ownerId, type: 'post_closed', title: t('admin.posts.removedNotifTitle'), body: t('admin.posts.removedNotifBody'), isRead: false, linkTo: '/posts' })
   }
 
   const totalNonAdmin = users.filter(u => u.role !== 'admin').length
@@ -730,11 +734,11 @@ export default function AdminPage() {
   const selectCls = 'bg-white border border-[#eaecf0] rounded-xl px-3 py-2 text-sm text-[#374151] font-semibold outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 transition-colors cursor-pointer'
 
   const mobileNavItems: { id: AdminView; label: string; icon: React.ReactNode }[] = [
-    { id: 'overview',     label: 'Overview',  icon: <LayoutDashboard size={18} strokeWidth={1.8} /> },
-    { id: 'users',        label: 'Users',     icon: <Users size={18} strokeWidth={1.8} /> },
-    { id: 'verification', label: 'Verify',    icon: <UserCheck size={18} strokeWidth={1.8} /> },
-    { id: 'posts',        label: 'Posts',     icon: <FileText size={18} strokeWidth={1.8} /> },
-    { id: 'logs',         label: 'Logs',      icon: <Clock size={18} strokeWidth={1.8} /> },
+    { id: 'overview',     label: t('admin.tabsShort.overview'),     icon: <LayoutDashboard size={18} strokeWidth={1.8} /> },
+    { id: 'users',        label: t('admin.tabsShort.users'),        icon: <Users size={18} strokeWidth={1.8} /> },
+    { id: 'verification', label: t('admin.tabsShort.verification'), icon: <UserCheck size={18} strokeWidth={1.8} /> },
+    { id: 'posts',        label: t('admin.tabsShort.posts'),        icon: <FileText size={18} strokeWidth={1.8} /> },
+    { id: 'logs',         label: t('admin.tabsShort.logs'),         icon: <Clock size={18} strokeWidth={1.8} /> },
   ]
 
   return (
@@ -784,8 +788,8 @@ export default function AdminPage() {
           <div className="p-3 sm:p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h1 className="text-xl font-black text-[#18203a]">Users</h1>
-                <p className="text-sm text-[#9ca3af]">{totalNonAdmin} registered members</p>
+                <h1 className="text-xl font-black text-[#18203a]">{t('admin.users.title')}</h1>
+                <p className="text-sm text-[#9ca3af]">{t('admin.users.registeredCount', { count: totalNonAdmin })}</p>
               </div>
             </div>
             <div className="bg-white rounded-2xl border border-[#eaecf0] overflow-hidden">
@@ -793,16 +797,16 @@ export default function AdminPage() {
                 <div className="relative flex-1 min-w-[220px]">
                   <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
                   <input type="search" value={userQuery} onChange={e => setUserQuery(e.target.value)}
-                    placeholder="Search name, email, institution…"
+                    placeholder={t('admin.users.searchPlaceholder')}
                     className="w-full bg-[#f8f9fb] border border-[#eaecf0] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#374151] outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 transition-colors" />
                 </div>
-                <span className="text-xs text-[#9ca3af] font-semibold">{filteredUsers.length} of {totalNonAdmin} shown</span>
+                <span className="text-xs text-[#9ca3af] font-semibold">{t('admin.users.shownCount', { shown: filteredUsers.length, total: totalNonAdmin })}</span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[820px]">
                   <thead>
                     <tr className="border-b border-[#f3f4f6]">
-                      {['User', 'Role', 'Institution', 'Status', 'Last Active', 'Actions'].map(h => (
+                      {[t('admin.users.columns.user'), t('admin.users.columns.role'), t('admin.users.columns.institution'), t('admin.users.columns.status'), t('admin.users.columns.lastActive'), t('admin.users.columns.actions')].map(h => (
                         <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-[#9ca3af] px-6 py-3 bg-[#fafafa]">{h}</th>
                       ))}
                     </tr>
@@ -824,13 +828,13 @@ export default function AdminPage() {
                           <td className="px-6 py-3.5">
                             <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${
                               u.role === 'healthcare_professional' ? 'bg-[#dbeafe] text-[#2563eb]' : 'bg-[#d1fae5] text-[#059669]'
-                            }`}>{ROLE_LABEL[u.role] ?? u.role}</span>
+                            }`}>{roleLabel(t, u.role)}</span>
                           </td>
                           <td className="px-6 py-3.5 text-sm text-[#6b7280] max-w-[180px] truncate">{u.institution}</td>
                           <td className="px-6 py-3.5">
                             <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${u.isSuspended ? 'text-[#ef4444]' : 'text-[#22c55e]'}`}>
                               <span className={`w-1.5 h-1.5 rounded-full ${u.isSuspended ? 'bg-[#ef4444]' : 'bg-[#22c55e]'}`} />
-                              {u.isSuspended ? 'Suspended' : 'Active'}
+                              {u.isSuspended ? t('admin.users.suspended') : t('admin.users.active')}
                             </span>
                           </td>
                           <td className="px-6 py-3.5 text-xs text-[#9ca3af]">
@@ -843,10 +847,10 @@ export default function AdminPage() {
                                 : 'border-[#fee2e2] bg-[#fff7f7] text-[#dc2626] hover:bg-[#fee2e2]'
                               }`}>
                                 {u.isSuspended ? <UserCheck size={13} /> : <UserMinus size={13} />}
-                                {u.isSuspended ? 'Reinstate' : 'Suspend'}
+                                {u.isSuspended ? t('admin.users.reinstate') : t('admin.users.suspend')}
                               </button>
                               <button onClick={() => handleDeleteUser(u.id, u.name)}
-                                className="p-1.5 rounded-lg border border-[#fee2e2] text-[#dc2626] hover:bg-[#fee2e2] transition-colors" title="Delete">
+                                className="p-1.5 rounded-lg border border-[#fee2e2] text-[#dc2626] hover:bg-[#fee2e2] transition-colors" title={t('admin.users.delete')}>
                                 <Trash2 size={14} />
                               </button>
                             </div>
@@ -860,7 +864,7 @@ export default function AdminPage() {
               {usersTotalPages > 1 && (
                 <div className="flex items-center justify-between border-t border-[#f3f4f6] px-6 py-3">
                   <span className="text-xs text-[#9ca3af] font-semibold">
-                    {(usersCurrentPage - 1) * USERS_PER_PAGE + 1}–{Math.min(filteredUsers.length, usersCurrentPage * USERS_PER_PAGE)} of {filteredUsers.length}
+                    {t('admin.users.pageRange', { from: (usersCurrentPage - 1) * USERS_PER_PAGE + 1, to: Math.min(filteredUsers.length, usersCurrentPage * USERS_PER_PAGE), total: filteredUsers.length })}
                   </span>
                   <div className="flex items-center gap-1.5">
                     <button
@@ -901,15 +905,15 @@ export default function AdminPage() {
         {view === 'posts' && (
           <div className="p-3 sm:p-6">
             <div className="mb-5">
-              <h1 className="text-xl font-black text-[#18203a]">Posts & Listings</h1>
-              <p className="text-sm text-[#9ca3af]">{posts.length} total listings</p>
+              <h1 className="text-xl font-black text-[#18203a]">{t('admin.posts.title')}</h1>
+              <p className="text-sm text-[#9ca3af]">{t('admin.posts.totalCount', { count: posts.length })}</p>
             </div>
             <div className="bg-white rounded-2xl border border-[#eaecf0] overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[820px]">
                   <thead>
                     <tr className="border-b border-[#f3f4f6]">
-                      {['Title', 'Author', 'Domain', 'Status', 'Created', 'Actions'].map(h => (
+                      {[t('admin.posts.columns.title'), t('admin.posts.columns.author'), t('admin.posts.columns.domain'), t('admin.posts.columns.status'), t('admin.posts.columns.created'), t('admin.posts.columns.actions')].map(h => (
                         <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-[#9ca3af] px-6 py-3 bg-[#fafafa]">{h}</th>
                       ))}
                     </tr>
@@ -930,7 +934,7 @@ export default function AdminPage() {
                             : p.status === 'partner_found'     ? 'bg-[#ede9fe] text-[#7c3aed]'
                             : p.status === 'meeting_scheduled' ? 'bg-[#fef3c7] text-[#d97706]'
                             : 'bg-[#f3f4f6] text-[#9ca3af]'
-                          }`}>{p.status.replace(/_/g, ' ')}</span>
+                          }`}>{t(`posts.status.${p.status}`, { defaultValue: p.status.replace(/_/g, ' ') })}</span>
                         </td>
                         <td className="px-6 py-3.5 text-xs text-[#9ca3af]">
                           {new Date(p.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
@@ -938,7 +942,7 @@ export default function AdminPage() {
                         <td className="px-6 py-3.5">
                           <button onClick={() => handleRemovePost(p.id, p.authorId)}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#fee2e2] bg-[#fff7f7] text-[#dc2626] text-xs font-bold hover:bg-[#fee2e2] transition-colors">
-                            <Trash2 size={13} /> Remove
+                            <Trash2 size={13} /> {t('admin.posts.remove')}
                           </button>
                         </td>
                       </tr>
@@ -954,37 +958,37 @@ export default function AdminPage() {
         {view === 'logs' && (
           <div className="p-3 sm:p-6">
             <div className="mb-5">
-              <h1 className="text-xl font-black text-[#18203a]">Activity Logs</h1>
-              <p className="text-sm text-[#9ca3af]">Tamper-resistant · Retention 24 months</p>
+              <h1 className="text-xl font-black text-[#18203a]">{t('admin.logs.title')}</h1>
+              <p className="text-sm text-[#9ca3af]">{t('admin.logs.subtitle')}</p>
             </div>
             <div className="bg-white rounded-2xl border border-[#eaecf0] overflow-hidden">
               <div className="px-6 py-4 border-b border-[#f3f4f6] flex items-center gap-3 flex-wrap">
                 <select value={logAction} onChange={e => setLogAction(e.target.value)} className={selectCls}>
-                  <option value="">All actions</option>
+                  <option value="">{t('admin.logs.allActions')}</option>
                   {uniqueActions.map(a => <option key={a} value={a}>{a}</option>)}
                 </select>
                 <select value={logResult} onChange={e => setLogResult(e.target.value)} className={selectCls}>
-                  <option value="">All results</option>
-                  <option value="success">Success</option>
-                  <option value="failure">Failure</option>
+                  <option value="">{t('admin.logs.allResults')}</option>
+                  <option value="success">{t('admin.logs.success')}</option>
+                  <option value="failure">{t('admin.logs.failure')}</option>
                 </select>
                 {(logAction || logResult) && (
                   <button onClick={() => { setLogAction(''); setLogResult('') }}
                     className="flex items-center gap-1 text-xs font-bold text-[#9ca3af] hover:text-[#374151] transition-colors">
-                    <X size={13} /> Clear
+                    <X size={13} /> {t('admin.logs.clear')}
                   </button>
                 )}
-                <span className="text-xs text-[#9ca3af] font-semibold">{logsLoading ? 'Loading…' : `${filteredLogs.length} of ${logs.length} entries`}</span>
+                <span className="text-xs text-[#9ca3af] font-semibold">{logsLoading ? t('admin.verification.loading') : t('admin.logs.entryCount', { shown: filteredLogs.length, total: logs.length })}</span>
                 <button onClick={() => downloadCSV(filteredLogs)}
                   className="ml-auto flex items-center gap-2 bg-[#18203a] text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition-colors">
-                  <Download size={14} /> Export CSV
+                  <Download size={14} /> {t('admin.logs.exportCsv')}
                 </button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[920px]">
                   <thead>
                     <tr className="border-b border-[#f3f4f6]">
-                      {['Timestamp', 'User', 'Role', 'Action', 'Target', 'Result', 'IP'].map(h => (
+                      {[t('admin.logs.columns.timestamp'), t('admin.logs.columns.user'), t('admin.logs.columns.role'), t('admin.logs.columns.action'), t('admin.logs.columns.target'), t('admin.logs.columns.result'), t('admin.logs.columns.ip')].map(h => (
                         <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-[#9ca3af] px-6 py-3 bg-[#fafafa]">{h}</th>
                       ))}
                     </tr>
@@ -996,7 +1000,7 @@ export default function AdminPage() {
                           {new Date(log.timestamp).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                         </td>
                         <td className="px-6 py-3 text-xs text-[#374151] font-mono whitespace-nowrap">{log.userEmail}</td>
-                        <td className="px-6 py-3 text-xs text-[#9ca3af] uppercase tracking-[0.12em]">{ROLE_LABEL[log.role] ?? log.role}</td>
+                        <td className="px-6 py-3 text-xs text-[#9ca3af] uppercase tracking-[0.12em]">{roleLabel(t, log.role)}</td>
                         <td className="px-6 py-3">
                           <span className={`text-xs font-semibold ${CRITICAL_ACTIONS.has(log.action) ? 'text-[#dc2626] font-bold' : 'text-[#374151]'}`}>
                             {CRITICAL_ACTIONS.has(log.action) && '⚠ '}{log.action}
@@ -1010,7 +1014,7 @@ export default function AdminPage() {
                             log.result === 'success' ? 'bg-[#d1fae5] text-[#059669]' : 'bg-[#fee2e2] text-[#dc2626]'
                           }`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${log.result === 'success' ? 'bg-[#22c55e]' : 'bg-[#ef4444]'}`} />
-                            {log.result}
+                            {log.result === 'success' ? t('admin.logs.success') : t('admin.logs.failure')}
                           </span>
                         </td>
                         <td className="px-6 py-3 text-xs text-[#9ca3af] font-mono whitespace-nowrap">
@@ -1023,7 +1027,7 @@ export default function AdminPage() {
               </div>
               <div className="px-6 py-3 border-t border-[#f3f4f6] flex items-center gap-2 bg-[#fafafa]">
                 <Shield size={13} className="text-[#9ca3af]" />
-                <span className="text-xs text-[#9ca3af] font-semibold">Logs are tamper-resistant · No deletion permitted · Retention 24 months</span>
+                <span className="text-xs text-[#9ca3af] font-semibold">{t('admin.logs.footerNotice')}</span>
               </div>
             </div>
           </div>

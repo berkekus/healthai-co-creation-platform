@@ -9,7 +9,7 @@ import { ROUTES } from '../../constants/routes'
 import api from '../../lib/api'
 import { useAuthStore } from '../../store/authStore'
 import type { User } from '../../types/auth.types'
-import { profileSchema, type ProfileFormData } from '../../utils/validators'
+import { createProfileSchema, type ProfileFormData } from '../../utils/validators'
 
 const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'
 const ERROR_SHADOW = '0 0 0 3px rgba(220,38,38,0.18)'
@@ -425,7 +425,7 @@ export default function ProfilePage() {
   const [avatarError, setAvatarError] = useState<string | null>(null)
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(createProfileSchema(t)),
     defaultValues: {
       name: user?.name ?? '',
       institution: user?.institution ?? '',

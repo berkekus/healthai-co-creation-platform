@@ -4,6 +4,7 @@ import * as aiMatchService from '../services/aiMatchService'
 import * as aiProfileScoreService from '../services/aiProfileScoreService'
 import * as aiMeetingSummaryService from '../services/aiMeetingSummaryService'
 import { makeError } from '../utils/AppError'
+import { fetchGeminiContent, extractGeminiText, type GeminiResponse } from '../utils/geminiClient'
 
 export const rankPostMatches = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const posts = Array.isArray(req.body.posts) ? req.body.posts : []
@@ -21,22 +22,14 @@ export const translateText = asyncHandler<AuthenticatedRequest>(async (req, res)
     return
   }
   const lang = targetLang === 'tr' ? 'Turkish' : 'English'
-  const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-2.0-flash'
+  const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'
 
   const prompt = `Translate the following text to ${lang}. Return ONLY the translated text, no explanations, no quotes:\n\n${text.slice(0, 2000)}`
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.1 },
-    }),
-  })
+  const response = await fetchGeminiContent(GEMINI_MODEL, apiKey, prompt, 0.1)
   if (!response.ok) throw makeError(`Gemini ${response.status}`, 502)
 
-  const payload = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> }
-  const translated = payload.candidates?.[0]?.content?.parts?.map(p => p.text ?? '').join('') ?? ''
+  const payload = await response.json() as GeminiResponse
+  const translated = extractGeminiText(payload)
   res.json({ success: true, data: { translated: translated.trim() } })
 })
 
@@ -50,7 +43,7 @@ export const improvePost = asyncHandler<AuthenticatedRequest>(async (req, res) =
     return
   }
 
-  const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-2.0-flash'
+  const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'
   const prompt = `You are helping a user improve a healthcare-AI collaboration post.
 Return ONLY valid JSON (no markdown, no prose) in this exact shape:
 {
@@ -72,23 +65,15 @@ Rules:
 - If a field is already good, return it unchanged.
 - Do NOT include patient data or IP.`
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.3 },
-    }),
-  })
+  const response = await fetchGeminiContent(GEMINI_MODEL, apiKey, prompt, 0.3)
 
   if (!response.ok) {
     const errBody = await response.text().catch(() => '')
     throw makeError(`Gemini ${response.status}: ${errBody.slice(0, 200)}`, 502)
   }
 
-  const payload = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> }
-  const text = payload.candidates?.[0]?.content?.parts?.map(p => p.text ?? '').join('') ?? ''
+  const payload = await response.json() as GeminiResponse
+  const text = extractGeminiText(payload)
   const jsonMatch = text.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw makeError('Gemini returned an unexpected format', 502)
 
