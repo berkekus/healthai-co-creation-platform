@@ -1,0 +1,176 @@
+[
+  {
+    "_id": "69efd12ab3ee2fd2695f0980",
+    "type": "meeting_request",
+    "title": "Yeni toplanti istegi",
+    "body": "Dr. Mehmet Arslan \"testt\" icin toplanti talep etti."
+  },
+  {
+    "_id": "69efd333e5d0e4c1445c3f97",
+    "type": "meeting_request",
+    "title": "Yeni toplanti istegi",
+    "body": "Ahmet Yilmaz \"deneme\" icin toplanti talep etti."
+  },
+  {
+    "_id": "69f0e462ef1c4e6cf95dd11b",
+    "type": "meeting_request",
+    "title": "Yeni toplanti istegi",
+    "body": "Ahmet Yilmaz \"AI-powered Continuous Glucose Monitoring\" icin toplanti talep etti."
+  },
+  {
+    "_id": "69f1cdad40bdb589bd34de07",
+    "type": "meeting_request",
+    "title": "Yeni toplanti istegi",
+    "body": "Ahmet Yilmaz \"deneme\" icin toplanti talep etti."
+  },
+  {
+    "_id": "69f1d82cb6109e6451e8447f",
+    "type": "meeting_request",
+    "title": "Yeni toplanti istegi",
+    "body": "İzzettin Berke Kuş \"deneme\" icin toplanti talep etti."
+  },
+  {
+    "_id": "69f27204b11e6a878e606cfa",
+    "type": "meeting_request",
+    "title": "Yeni toplanti istegi",
+    "body": "Smoke Doctor \"Smoke Test Post\" icin toplanti talep etti."
+  },
+  {
+    "_id": "69fc6fff0c92e31da4a03593",
+    "type": "meeting_request",
+    "title": "Yeni toplanti istegi",
+    "body": "Dr. Elif Kaya \"Federated learning baseline for multi-hospital stroke outcome prediction\" icin toplanti talep etti."
+  },
+  {
+    "_id": "69fc72530c92e31da4a037f2",
+    "type": "meeting_request",
+    "title": "Yeni toplanti istegi",
+    "body": "Ahmet Yilmaz \"Explainable ECG quality filter before rhythm classification\" icin toplanti talep etti."
+  },
+  {
+    "_id": "69fc8211b35375cfb024a726",
+    "type": "meeting_request",
+    "title": "Yeni toplanti istegi",
+    "body": "Mert Aydın \"Patient-friendly explanation layer for CGM pattern summaries\" icin toplanti talep etti."
+  },
+  {
+    "_id": "69ffc039ded244b3443a78f4",
+    "type": "meeting_request",
+    "title": "Yeni toplanti istegi",
+    "body": "Mert Aydın \"Bone density estimation from plain X-ray: feasibility review\" icin toplanti talep etti."
+  },
+  {
+    "_id": "69ffc12cded244b3443a7947",
+    "type": "meeting_request",
+    "title": "Yeni toplanti istegi",
+    "body": "Mert Aydın \"Explainable ECG quality filter before rhythm classification\" icin toplanti talep etti."
+  },
+  {
+    "_id": "6a6b3a5b8e592931838799f2",
+    "type": "meeting_request",
+    "title": "Yeni toplanti istegi",
+    "body": "Mert Aydın \"Diabetes insulin adjustment assistant for outpatient education visits\" icin toplanti talep etti."
+  },
+  {
+    "_id": "69fc7005eecb857deee09e3d",
+    "type": "meeting_accepted",
+    "title": "Toplanti kabul edildi",
+    "body": "Mert Aydın toplanti talebinizi kabul etti. \"Federated learning baseline for multi-hospital stroke outcome prediction\""
+  },
+  {
+    "_id": "69fc72892d2215e7e3c8c22f",
+    "type": "meeting_accepted",
+    "title": "Toplanti kabul edildi",
+    "body": "Dr. Elif Kaya toplanti talebinizi kabul etti. \"Explainable ECG quality filter before rhythm classification\""
+  },
+  {
+    "_id": "69fc826db35375cfb024a7eb",
+    "type": "meeting_accepted",
+    "title": "Toplanti kabul edildi",
+    "body": "Dr. Elif Kaya toplanti talebinizi kabul etti. \"Patient-friendly explanation layer for CGM pattern summaries\""
+  },
+  {
+    "_id": "69ffc1c0a10e941ce42c5ed2",
+    "type": "meeting_accepted",
+    "title": "Toplanti kabul edildi",
+    "body": "Dr. Elif Kaya toplanti talebinizi kabul etti. \"Explainable ECG quality filter before rhythm classification\""
+  },
+  {
+    "_id": "69fc404268ca56dcda9cf52f",
+    "type": "meeting_declined",
+    "title": "Toplanti reddedildi",
+    "body": "Mert Aydin toplanti talebinizi reddetti. \"Federated learning baseline for multi-hospital stroke outcome prediction\""
+  },
+  {
+    "_id": "69f1c738bad0f44da9612c29",
+    "type": "meeting_cancelled",
+    "title": "Toplanti iptal edildi",
+    "body": "Ahmet Yilmaz toplanti talebini iptal etti. \"AI-powered Continuous Glucose Monitoring\""
+  },
+  {
+    "_id": "69f1c739bad0f44da9612c34",
+    "type": "meeting_cancelled",
+    "title": "Toplanti iptal edildi",
+    "body": "Ahmet Yilmaz toplanti talebini iptal etti. \"deneme\""
+  },
+  {
+    "_id": "69f1c739bad0f44da9612c3d",
+    "type": "meeting_cancelled",
+    "title": "Toplanti iptal edildi",
+    "body": "Ahmet Yilmaz toplanti talebini iptal etti. \"deneme\""
+  },
+  {
+    "_id": "69fbcad352552306814e8adb",
+    "type": "meeting_cancelled",
+    "title": "Toplanti iptal edildi",
+    "body": "Ahmet Yilmaz toplanti talebini iptal etti. \"Home-based heart failure monitoring from wearable vitals\""
+  },
+  {
+    "_id": "69fc72a12d2215e7e3c8c237",
+    "type": "meeting_cancelled",
+    "title": "Toplanti iptal edildi",
+    "body": "Dr. Elif Kaya toplanti talebini iptal etti. \"Explainable ECG quality filter before rhythm classification\""
+  },
+  {
+    "_id": "69fc4841d1934ef350e85827",
+    "type": "meeting_request",
+    "title": "New message from Mert Aydın",
+    "body": "Merhaba"
+  },
+  {
+    "_id": "69fc48d094c26d485d9f13cf",
+    "type": "meeting_request",
+    "title": "New message from Dr. Elif Kaya",
+    "body": "merhaba"
+  },
+  {
+    "_id": "69fc48ded1934ef350e858c1",
+    "type": "meeting_request",
+    "title": "New message from Mert Aydın",
+    "body": "nasılsınız elif hanım"
+  },
+  {
+    "_id": "69fc48f594c26d485d9f13eb",
+    "type": "meeting_request",
+    "title": "New message from Dr. Elif Kaya",
+    "body": "iyiyim berke hanım"
+  },
+  {
+    "_id": "69fc48fe94c26d485d9f13f5",
+    "type": "meeting_request",
+    "title": "New message from Dr. Elif Kaya",
+    "body": "admin paneli düzeltiyorum"
+  },
+  {
+    "_id": "69fc701b0c92e31da4a035f0",
+    "type": "meeting_request",
+    "title": "New message from Dr. Elif Kaya",
+    "body": "merhaba"
+  },
+  {
+    "_id": "69ffc1dba10e941ce42c5f15",
+    "type": "meeting_request",
+    "title": "New message from Dr. Elif Kaya",
+    "body": "Hi,"
+  }
+]
