@@ -402,6 +402,18 @@
       "weeklyDigest": "Haftalık e-posta özeti",
       "weeklyDigestDesc": "Uzmanlığınıza uygun yeni gönderiler, yaklaşan toplantılar ve okunmamış mesajların haftalık özetini alın"
     },
+    "password": {
+      "title": "Şifreyi değiştir",
+      "desc": "Başka hiçbir yerde kullanmadığın güçlü bir şifre seç.",
+      "current": "Mevcut şifre",
+      "new": "Yeni şifre",
+      "confirm": "Yeni şifreyi onayla",
+      "submit": "Şifreyi güncelle",
+      "updating": "Güncelleniyor...",
+      "success": "Şifre başarıyla güncellendi.",
+      "mismatch": "Yeni şifreler eşleşmiyor.",
+      "minLength": "Yeni şifre en az 8 karakter olmalı."
+    },
     "data": {
       "title": "Veri ve Hesap",
       "export": "Verilerimi dışa aktar",
