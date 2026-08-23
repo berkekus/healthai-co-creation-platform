@@ -396,7 +396,7 @@
     "europe": "Avrupa'da Üretildi",
     "noPatient": "Sıfır Hasta Verisi",
     "login": {
-      "heading": "Tekrar hoş geldiniz.",
+      "heading": "Tekrar hoş geldiniz",
       "sub": "Kurumsal .edu hesabınızla giriş yapın.",
       "tooMany": "Çok fazla başarısız deneme",
       "waitSeconds": "Lütfen {{count}} saniye bekleyin.",
@@ -454,7 +454,7 @@
       "submit": "Hesap oluştur →"
     },
     "forgot": {
-      "heading": "Şifrenizi mi unuttunuz?",
+      "heading": "Şifrenizi mi unuttunuz",
       "sub": "Kurumsal e-postanızı girin, size sıfırlama bağlantısı gönderelim.",
       "emailLabel": "Kurumsal e-posta",
       "emailPlaceholder": "siz@universite.edu",
@@ -467,7 +467,7 @@
       "backToSignIn2": "Girişe dön →"
     },
     "reset": {
-      "heading": "Yeni şifre belirleyin.",
+      "heading": "Yeni şifre belirleyin",
       "sub": "En az 8 karakterden oluşan güçlü bir şifre seçin.",
       "newLabel": "Yeni şifre",
       "confirmLabel": "Şifreyi onayla",
@@ -492,7 +492,7 @@
       "failTitle": "Doğrulama başarısız.",
       "failDesc": "Bağlantı geçersiz veya süresi dolmuş.",
       "alreadyVerified": "Zaten doğrulandı mı? Giriş yap →",
-      "checkTitle": "Gelen kutunuzu kontrol edin.",
+      "checkTitle": "Gelen kutunuzu kontrol edin",
       "checkDesc": "{{email}} adresine doğrulama bağlantısı gönderdik",
       "checkSub": "Hesabınızı etkinleştirmek için bağlantıya tıklayın. Bağlantı 24 saat geçerlidir.",
       "didntGet": "E-postayı almadınız mı?",
@@ -601,7 +601,7 @@
   "errors": {
     "notFound": {
       "code": "404 · Bulunamadı",
-      "title": "Bu sayfayı bulamıyoruz.",
+      "title": "Bu sayfayı bulamıyoruz",
       "desc": "Bağlantı bozuk olabilir, ilan kaldırılmış ya da sayfa başka bir yere taşınmış olabilir. URL'yi kontrol edin veya aşağıdaki kısayollardan birini kullanın.",
       "goBack": "Geri git",
       "backHome": "Ana sayfaya dön",
@@ -613,7 +613,7 @@
     },
     "unauthorized": {
       "code": "403 · Erişim kısıtlandı",
-      "title": "Erişim izniniz yok.",
+      "title": "Erişim izniniz yok",
       "desc": "Bu sayfa belirli roller veya hesap durumlarıyla sınırlıdır. Hata olduğunu düşünüyorsanız platform yöneticisiyle iletişime geçin.",
       "signedInAs": "{{role}} olarak giriş yapıldı",
       "goBack": "Geri git",

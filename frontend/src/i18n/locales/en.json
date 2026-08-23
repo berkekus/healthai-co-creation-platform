@@ -396,7 +396,7 @@
     "europe": "Built in Europe",
     "noPatient": "Zero Patient Data",
     "login": {
-      "heading": "Welcome back.",
+      "heading": "Welcome back",
       "sub": "Sign in with your institutional .edu account.",
       "tooMany": "Too many failed attempts",
       "waitSeconds": "Please wait {{count}}s before trying again.",
@@ -454,7 +454,7 @@
       "submit": "Create account →"
     },
     "forgot": {
-      "heading": "Forgot your password?",
+      "heading": "Forgot your password",
       "sub": "Enter your institutional email and we'll send you a reset link.",
       "emailLabel": "Institutional email",
       "emailPlaceholder": "you@university.edu",
@@ -467,7 +467,7 @@
       "backToSignIn2": "Back to sign in →"
     },
     "reset": {
-      "heading": "Set a new password.",
+      "heading": "Set a new password",
       "sub": "Choose a strong password with at least 8 characters.",
       "newLabel": "New password",
       "confirmLabel": "Confirm password",
@@ -492,7 +492,7 @@
       "failTitle": "Verification failed.",
       "failDesc": "The link is invalid or has expired.",
       "alreadyVerified": "Already verified? Sign in →",
-      "checkTitle": "Check your inbox.",
+      "checkTitle": "Check your inbox",
       "checkDesc": "We've sent a verification link to {{email}}",
       "checkSub": "Click the link to activate your account before signing in. The link expires in 24 hours.",
       "didntGet": "Didn't get the email?",
@@ -601,7 +601,7 @@
   "errors": {
     "notFound": {
       "code": "404 · Not found",
-      "title": "We can't find that page.",
+      "title": "We can't find that page",
       "desc": "The link may be broken, the post may have been removed, or the page was moved somewhere else entirely. Check the URL or pick one of the shortcuts below.",
       "goBack": "Go back",
       "backHome": "Back to home",
@@ -613,7 +613,7 @@
     },
     "unauthorized": {
       "code": "403 · Access restricted",
-      "title": "You don't have access.",
+      "title": "You don't have access",
       "desc": "This page is restricted to specific roles or account states. If you think this is a mistake, contact a platform administrator.",
       "signedInAs": "Signed in as {{role}}",
       "goBack": "Go back",
