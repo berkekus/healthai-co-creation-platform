@@ -356,37 +356,25 @@ function setPostededBySafe(setter: (value: PostedBy) => void) {
 }
 
 function PageHeader({ search, onSearch, mineOnly }: { search: string; onSearch: (value: string) => void; mineOnly: boolean }) {
+  const { t } = useTranslation()
   return (
     <header className="mb-[52px]">
       <div className="mb-5 inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.16em] text-[var(--muted)]">
         <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
-        {mineOnly ? '05 My Posts' : '05 Directory'}
+        {mineOnly ? t('posts.heroBadgeMine') : t('posts.heroBadgeAll')}
       </div>
 
       <div className="directory-header-grid grid grid-cols-1 gap-10 xl:items-end">
         <div>
-          <h1 className="font-headline text-4xl sm:text-6xl font-black leading-tight tracking-normal md:text-7xl">
-            {mineOnly ? (
-              <>
-                <span className="text-[var(--primary)]">Your </span>
-                <span className="text-[#8AC6D0]">posts</span>
-              </>
-            ) : (
-              <>
-                <span className="text-[var(--primary)]">Collaboration </span>
-                <span className="text-[#8AC6D0]">opportunities</span>
-              </>
-            )}
-            <span className="text-[var(--primary)]">.</span>
+          <h1 className="font-headline text-4xl sm:text-6xl font-black leading-tight tracking-normal text-[var(--primary)] md:text-7xl">
+            {mineOnly ? t('posts.heroTitleMine') : t('posts.heroTitleAll')}
           </h1>
           <p className="mt-5 text-lg font-semibold leading-8 text-[var(--muted)]">
-            {mineOnly
-              ? 'Review, open, and manage the opportunities you have published.'
-              : 'Browse & connect with clinicians and engineers working on real healthcare solutions.'}
+            {mineOnly ? t('posts.heroDescMine') : t('posts.heroDescAll')}
           </p>
           {mineOnly && (
             <Link to={ROUTES.POSTS} className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
-              View full directory
+              {t('posts.viewFullDirectory')}
               <ChevronRight size={15} />
             </Link>
           )}
@@ -399,6 +387,7 @@ function PageHeader({ search, onSearch, mineOnly }: { search: string; onSearch: 
 }
 
 function SearchAndAction({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-4 max-sm:flex-col max-sm:items-stretch">
       <div className="relative min-w-0 flex-1">
@@ -409,7 +398,7 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
           type="search"
           value={value}
           onChange={e => onChange(e.target.value)}
-          placeholder="Search by title, expertise, or keyword..."
+          placeholder={t('posts.searchPlaceholder')}
           className="w-full rounded-full border border-transparent bg-[#EEF0F3] py-5 pl-14 pr-6 text-base font-semibold text-[var(--text)] outline-none transition placeholder:text-[#9CA3AF] hover:border-[var(--border)] hover:bg-white focus:border-[var(--accent)] focus:bg-white"
         />
       </div>
@@ -421,7 +410,7 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
         icon={<Plus size={16} strokeWidth={2.6} />}
         className="shrink-0 py-5 px-7 text-sm"
       >
-        Post opportunity
+        {t('dashboard.postOpportunity')}
       </ButtonLink>
     </div>
   )
