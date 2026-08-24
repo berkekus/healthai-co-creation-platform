@@ -133,6 +133,8 @@ export const useAuthStore = create<AuthState>()((set) => ({
     try {
       await api.delete('/auth/me', { data: { password } })
       localStorage.removeItem('token')
+      sessionStorage.removeItem('token')
+      disconnectSocket()
       set({ user: null, isAuthenticated: false, isLoading: false })
     } catch (err) {
       set({ isLoading: false, error: (err as Error).message })

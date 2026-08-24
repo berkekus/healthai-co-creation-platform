@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import crypto from 'crypto'
-import { api, createUser, uniqueEmail } from './helpers'
+import { api, createPost, createUser, uniqueEmail } from './helpers'
 import User from '../models/User'
+import Meeting from '../models/Meeting'
+import Post from '../models/Post'
 
 describe('POST /api/auth/register', () => {
   it('returns 201 with user; requiresVerification true; no token issued', async () => {
@@ -99,13 +101,13 @@ describe('PUT /api/auth/me/password', () => {
     expect(res.status).toBe(200)
   })
 
-  it('returns 401 when old password is wrong', async () => {
+  it('returns 400 when old password is wrong', async () => {
     const { token } = await createUser()
     const res = await api
       .put('/api/auth/me/password')
       .set('Authorization', `Bearer ${token}`)
       .send({ oldPassword: 'wrongoldpassword', newPassword: 'newpassword456' })
-    expect(res.status).toBe(401)
+    expect(res.status).toBe(400)
   })
 
   it('returns 400 when new password is too short', async () => {
@@ -183,13 +185,54 @@ describe('DELETE /api/auth/me', () => {
     expect(gone).toBeNull()
   })
 
-  it('returns 401 with wrong password', async () => {
-    const { token } = await createUser()
+  it('deletes owned data and safely anonymizes an active meeting', async () => {
+    const account = await createUser()
+    const owner = await createUser({ role: 'healthcare_professional' })
+    const ownerPost = await createPost(owner.token)
+    const ownedPost = await createPost(account.token)
+
+    await api
+      .post(`/api/posts/${ownerPost.id}/publish`)
+      .set('Authorization', `Bearer ${owner.token}`)
+
+    const meetingRes = await api
+      .post('/api/meetings')
+      .set('Authorization', `Bearer ${account.token}`)
+      .send({
+        postId: ownerPost.id,
+        message: 'I am interested in collaborating on this health AI project.',
+        ndaAccepted: true,
+        proposedSlots: [
+          { date: '2026-09-01', time: '10:00' },
+          { date: '2026-09-02', time: '11:00' },
+          { date: '2026-09-03', time: '14:00' },
+        ],
+      })
+    expect(meetingRes.status).toBe(201)
+
+    const res = await api
+      .delete('/api/auth/me')
+      .set('Authorization', `Bearer ${account.token}`)
+      .send({ password: account.password })
+    expect(res.status).toBe(200)
+
+    expect(await User.exists({ email: account.email.toLowerCase() })).toBeNull()
+    expect(await Post.findById(ownedPost.id)).toBeNull()
+
+    const retainedMeeting = await Meeting.findById(meetingRes.body.data.id)
+    expect(retainedMeeting?.status).toBe('cancelled')
+    expect(retainedMeeting?.requesterName).toBe('Deleted user')
+    expect(retainedMeeting?.requesterEmail).toBe('')
+  })
+
+  it('returns 400 with wrong password and keeps the account', async () => {
+    const { token, email } = await createUser()
     const res = await api
       .delete('/api/auth/me')
       .set('Authorization', `Bearer ${token}`)
       .send({ password: 'wrongpassword' })
-    expect(res.status).toBe(401)
+    expect(res.status).toBe(400)
+    expect(await User.exists({ email: email.toLowerCase() })).not.toBeNull()
   })
 
   it('returns 400 when password is missing', async () => {
