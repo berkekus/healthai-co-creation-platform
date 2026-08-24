@@ -281,37 +281,39 @@ export default function PostListPage() {
             onClear={clearFilters}
             open={filterOpen}
           />
-          {hasActiveFilters && user && (
-            <div className="mb-4 flex justify-end">
-              <button
-                type="button"
-                onClick={saveCurrentSearch}
-                className="inline-flex items-center gap-2 rounded-full border border-[#D5DAE0] bg-white px-4 py-2 text-xs font-black text-hai-plum hover:bg-hai-mint/30 transition-colors"
-              >
-                <Bookmark size={13} />
-                {t('posts.saveSearch')}
-              </button>
-            </div>
-          )}
-          <PostList
-            posts={paginatedPosts}
-            totalPosts={directoryPosts.length}
-            mineOnly={mineOnly}
-            isLoading={isLoading && posts.length === 0}
-            isMatching={isMatching}
-            aiError={Boolean(user && !isMatching && posts.length > 0 && suggestions.size === 0)}
-            hasActiveFilters={hasActiveFilters}
-            sort={sort}
-            viewMode={viewMode}
-            onSort={v => { setSort(v); localStorage.setItem('postList_sort', v) }}
-            onViewMode={v => { setViewMode(v); localStorage.setItem('postList_view', v) }}
-            onClear={clearFilters}
-            page={currentPage}
-            totalPages={totalPages}
-            onPage={setPage}
-            onDelete={deletePost}
-            deletingPostId={deletingPostId}
-          />
+          <div className="min-w-0">
+            {hasActiveFilters && user && (
+              <div className="mb-4 flex justify-end">
+                <button
+                  type="button"
+                  onClick={saveCurrentSearch}
+                  className="inline-flex items-center gap-2 rounded-full border border-[#D5DAE0] bg-white px-4 py-2 text-xs font-black text-hai-plum hover:bg-hai-mint/30 transition-colors"
+                >
+                  <Bookmark size={13} />
+                  {t('posts.saveSearch')}
+                </button>
+              </div>
+            )}
+            <PostList
+              posts={paginatedPosts}
+              totalPosts={directoryPosts.length}
+              mineOnly={mineOnly}
+              isLoading={isLoading && posts.length === 0}
+              isMatching={isMatching}
+              aiError={Boolean(user && !isMatching && posts.length > 0 && suggestions.size === 0)}
+              hasActiveFilters={hasActiveFilters}
+              sort={sort}
+              viewMode={viewMode}
+              onSort={v => { setSort(v); localStorage.setItem('postList_sort', v) }}
+              onViewMode={v => { setViewMode(v); localStorage.setItem('postList_view', v) }}
+              onClear={clearFilters}
+              page={currentPage}
+              totalPages={totalPages}
+              onPage={setPage}
+              onDelete={deletePost}
+              deletingPostId={deletingPostId}
+            />
+          </div>
         </section>
       </div>
     </main>
