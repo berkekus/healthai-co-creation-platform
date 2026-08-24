@@ -141,7 +141,22 @@ Update own profile. All fields optional.
 
 **Response 200** — `{ "success": true, "message": "Password updated" }`
 
-**Errors** — `400` missing fields / new password < 8 chars · `401` wrong old password
+**Errors** — `400` missing fields / new password < 8 chars / wrong old password
+
+---
+
+### DELETE `/api/auth/me` 🔒
+
+Permanently delete the authenticated account after confirming the current password.
+
+**Body**
+```json
+{ "password": "password123" }
+```
+
+**Response 200** — `{ "success": true, "message": "Account permanently deleted" }`
+
+**Errors** — `400` missing or incorrect password · `401` invalid or expired authentication token
 
 ---
 

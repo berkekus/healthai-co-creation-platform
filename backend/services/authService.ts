@@ -230,7 +230,7 @@ export async function changePassword(userId: string, oldPassword: string, newPas
   if (!user) throw makeError('User not found', 404)
 
   const match = await bcrypt.compare(oldPassword, user.password)
-  if (!match) throw makeError('Current password is incorrect', 401)
+  if (!match) throw makeError('Current password is incorrect', 400)
 
   user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
   await user.save()
@@ -265,7 +265,6 @@ export async function exportUserData(userId: string) {
 
 async function cascadeDeleteUser(
   userId: string,
-  user: IUser,
   notifyBody: string,
   session: mongoose.ClientSession
 ) {
@@ -275,27 +274,46 @@ async function cascadeDeleteUser(
     { session }
   )
 
-  await Promise.all(activeMeetings.map(async (m) => {
+  const cancellationNotifications: Array<Parameters<typeof pushNotification>[0]> = []
+
+  // MongoDB does not support parallel operations on the same transaction
+  // session. Keep these writes sequential so the transaction can be retried
+  // safely by withTransaction().
+  for (const m of activeMeetings) {
     m.status = 'cancelled'
     await m.save({ session })
     const otherUserId = m.requesterId.toString() === userId ? m.ownerId.toString() : m.requesterId.toString()
-    pushNotification({
+    cancellationNotifications.push({
       userId: otherUserId,
       type: 'meeting_cancelled',
       title: 'Toplantı iptal edildi',
       body: notifyBody.replace('{title}', m.postTitle),
       linkTo: '/meetings',
-    }).catch(() => {})
-  }))
+    })
+  }
 
-  await Promise.all([
-    Meeting.updateMany({ requesterId: userId }, { $set: { requesterName: 'Deleted user', requesterEmail: '' } }, { session }),
-    Meeting.updateMany({ ownerId: userId }, { $set: { ownerName: 'Deleted user', ownerEmail: '' } }, { session }),
-    Post.deleteMany({ authorId: userId }, { session }),
-    Notification.deleteMany({ userId }, { session }),
-  ])
+  await Meeting.updateMany(
+    { requesterId: userId },
+    { $set: { requesterName: 'Deleted user', requesterEmail: '' } },
+    { session }
+  )
+  await Meeting.updateMany(
+    { ownerId: userId },
+    { $set: { ownerName: 'Deleted user', ownerEmail: '' } },
+    { session }
+  )
+  await Post.deleteMany({ authorId: userId }, { session })
+  await Notification.deleteMany({ userId }, { session })
 
-  await user.deleteOne({ session })
+  // Use a fresh model query instead of reusing a document instance across a
+  // possible transaction retry. Mongoose document.deleteOne() marks the
+  // instance as deleted and may skip a later retry.
+  const deletion = await User.deleteOne({ _id: userId }, { session })
+  if (deletion.deletedCount !== 1) {
+    throw makeError('Account could not be deleted. Please try again.', 409)
+  }
+
+  return cancellationNotifications
 }
 
 export async function deleteAccount(userId: string, password: string) {
@@ -303,21 +321,28 @@ export async function deleteAccount(userId: string, password: string) {
   if (!user) throw makeError('User not found', 404)
 
   const match = await bcrypt.compare(password, user.password)
-  if (!match) throw makeError('Incorrect password', 401)
+  // This is a failed confirmation inside an authenticated request, not an
+  // invalid JWT. Returning 400 prevents the client from ending the session.
+  if (!match) throw makeError('Incorrect password', 400)
 
   const { email: userEmail, name: userName, avatarUrl } = user
 
   const session = await mongoose.startSession()
+  let cancellationNotifications: Array<Parameters<typeof pushNotification>[0]> = []
   try {
     await session.withTransaction(async () => {
-      await cascadeDeleteUser(
-        userId, user,
+      cancellationNotifications = await cascadeDeleteUser(
+        userId,
         'Karşı taraf hesabını sildiği için "{title}" görüşmesi iptal edildi.',
         session
       )
     })
   } finally {
     await session.endSession()
+  }
+
+  for (const notification of cancellationNotifications) {
+    pushNotification(notification).catch(() => {})
   }
 
   if (avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(avatarUrl)
@@ -337,16 +362,21 @@ export async function deleteUserByAdmin(userId: string) {
   const { email, name, avatarUrl } = user
 
   const session = await mongoose.startSession()
+  let cancellationNotifications: Array<Parameters<typeof pushNotification>[0]> = []
   try {
     await session.withTransaction(async () => {
-      await cascadeDeleteUser(
-        userId, user,
+      cancellationNotifications = await cascadeDeleteUser(
+        userId,
         'Karşı taraf hesabı silindiği için "{title}" görüşmesi iptal edildi.',
         session
       )
     })
   } finally {
     await session.endSession()
+  }
+
+  for (const notification of cancellationNotifications) {
+    pushNotification(notification).catch(() => {})
   }
 
   if (avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(avatarUrl)
