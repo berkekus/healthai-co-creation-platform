@@ -67,18 +67,21 @@ function Logo({ inverted = false }: { inverted?: boolean }) {
   // On dark sections both marks flatten to white — the EU mono-white variant.
   const invert = inverted ? { filter: 'brightness(0) invert(1)' } : undefined
   return (
-    <div className="flex items-center gap-2.5">
+    <div className="flex items-center gap-2.5 shrink-0">
+      {/* The HealthAI lockup is ~4.6:1, so at 375px it alone fills the brand's
+          share of the nav. Below sm the Erasmus+ mark would push the wordmark
+          under the sign-up button, so it only joins from sm up. */}
       <img
         src="/images/erasmus-logo.png"
         alt="Erasmus+"
-        className="h-11 w-auto"
+        className="hidden sm:block h-9 md:h-11 w-auto"
         style={invert}
       />
-      <span aria-hidden className={`h-6 w-px ${inverted ? 'bg-white/30' : 'bg-neutral-200'}`} />
+      <span aria-hidden className={`hidden sm:block h-6 w-px ${inverted ? 'bg-white/30' : 'bg-neutral-200'}`} />
       <img
         src="/images/healthailogo.svg"
         alt="HealthAI"
-        className="h-7 w-auto"
+        className="h-5 sm:h-6 md:h-7 w-auto"
         style={invert}
       />
     </div>
@@ -111,7 +114,10 @@ function TopNav() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 md:px-12 py-5 bg-transparent font-body">
+      {/* px steps down under sm: the brand mark is a fixed-ratio image now, so
+          unlike the old text wordmark it cannot reflow when the right-hand
+          cluster crowds it — the extra 16px keeps a visible gap at 375px. */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center gap-3 px-4 sm:px-6 md:px-12 py-5 bg-transparent font-body">
         <Logo />
 
         {/* Center pill — hidden below lg */}
@@ -693,8 +699,7 @@ export default function LandingPage() {
             items-start + large top padding (instead of items-center) —
             pins the hero copy near the upper third of the viewport so
             that as the foreground slab rises it *never clips* the
-            headline. The full "Healthcare co-creation, without the
-            silos." headline stays readable through the entire blur
+            headline. Both lines stay readable through the entire blur
             lifecycle; the card climbs over empty teal space below it
             before starting to encroach on the copy.
           */}
