@@ -14,7 +14,8 @@ const profileSchema = createProfileSchema(i18n.t)
 
 describe('registerSchema', () => {
   const valid = {
-    name: 'Alice Smith',
+    firstName: 'Alice',
+    lastName: 'Smith',
     email: 'alice@university.edu',
     password: 'password123',
     confirm: 'password123',
@@ -28,10 +29,19 @@ describe('registerSchema', () => {
     expect(registerSchema.safeParse(valid).success).toBe(true)
   })
 
-  it('rejects non-.edu email', () => {
+  it('rejects a non-institutional email', () => {
     const result = registerSchema.safeParse({ ...valid, email: 'alice@gmail.com' })
     expect(result.success).toBe(false)
-    expect(JSON.stringify(result)).toContain('.edu')
+    expect(JSON.stringify(result)).toContain('.edu or .gov')
+  })
+
+  it.each([
+    'alice@agency.gov',
+    'alice@nhs.gov.uk',
+    'alice@bogazici.edu.tr',
+    'ALICE@UNIVERSITY.EDU',
+  ])('accepts institutional email %s', (email) => {
+    expect(registerSchema.safeParse({ ...valid, email }).success).toBe(true)
   })
 
   it('rejects password shorter than 8 characters', () => {
@@ -45,8 +55,8 @@ describe('registerSchema', () => {
     expect(JSON.stringify(result)).toContain('Passwords do not match')
   })
 
-  it('rejects name shorter than 2 characters', () => {
-    const result = registerSchema.safeParse({ ...valid, name: 'A' })
+  it('rejects first name shorter than 2 characters', () => {
+    const result = registerSchema.safeParse({ ...valid, firstName: 'A' })
     expect(result.success).toBe(false)
   })
 
@@ -125,7 +135,8 @@ describe('postCreateSchema', () => {
 
 describe('profileSchema', () => {
   const valid = {
-    name: 'Alice Smith',
+    firstName: 'Alice',
+    lastName: 'Smith',
     institution: 'Test University',
     city: 'Istanbul',
     country: 'Turkey',
@@ -144,7 +155,7 @@ describe('profileSchema', () => {
     expect(profileSchema.safeParse({ ...valid, bio: longBio }).success).toBe(false)
   })
 
-  it('rejects name shorter than 2 characters', () => {
-    expect(profileSchema.safeParse({ ...valid, name: 'A' }).success).toBe(false)
+  it('rejects first name shorter than 2 characters', () => {
+    expect(profileSchema.safeParse({ ...valid, firstName: 'A' }).success).toBe(false)
   })
 })

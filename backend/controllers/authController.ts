@@ -8,7 +8,9 @@ import { deleteAvatarFile } from '../middleware/uploadMiddleware'
 import { verifyTurnstile } from '../utils/verifyTurnstile'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const EDU_EMAIL_RE = /\.edu(\.[a-z]{2,})?$/i
+// Institutional domains: .edu / .gov, optionally with a country suffix
+// (edu.tr, gov.uk, …). Kept in sync with the frontend register schema.
+const INSTITUTIONAL_EMAIL_RE = /\.(edu|gov)(\.[a-z]{2,})?$/i
 const VALID_ROLES = ['engineer', 'healthcare_professional', 'admin'] as const
 
 export const register = asyncHandler(async (req, res) => {
@@ -28,8 +30,8 @@ export const register = asyncHandler(async (req, res) => {
     res.status(400).json({ success: false, message: 'Invalid email format' })
     return
   }
-  if (!EDU_EMAIL_RE.test(email)) {
-    res.status(400).json({ success: false, message: 'Only institutional .edu email addresses are accepted. Personal email providers are not permitted.' })
+  if (!INSTITUTIONAL_EMAIL_RE.test(email)) {
+    res.status(400).json({ success: false, message: 'Only institutional .edu or .gov email addresses are accepted. Personal email providers are not permitted.' })
     return
   }
   if (!VALID_ROLES.includes(role)) {

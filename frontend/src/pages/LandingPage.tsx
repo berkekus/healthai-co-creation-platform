@@ -64,17 +64,23 @@ function Icon({ name, className = '', filled = false }: { name: string; classNam
 
 // ── Logo ────────────────────────────────────────────────────────────
 function Logo({ inverted = false }: { inverted?: boolean }) {
+  // On dark sections both marks flatten to white — the EU mono-white variant.
+  const invert = inverted ? { filter: 'brightness(0) invert(1)' } : undefined
   return (
     <div className="flex items-center gap-2.5">
       <img
-        src="/images/healthailogo.svg"
-        alt="HealthAI logo"
-        className="h-9 w-auto"
-        style={inverted ? { filter: 'brightness(0) invert(1)' } : undefined}
+        src="/images/erasmus-logo.png"
+        alt="Erasmus+"
+        className="h-11 w-auto"
+        style={invert}
       />
-      <span className={`text-xl font-black tracking-normal font-headline ${inverted ? 'text-white' : 'landing-text'}`}>
-        HealthAI
-      </span>
+      <span aria-hidden className={`h-6 w-px ${inverted ? 'bg-white/30' : 'bg-neutral-200'}`} />
+      <img
+        src="/images/healthailogo.svg"
+        alt="HealthAI"
+        className="h-7 w-auto"
+        style={invert}
+      />
     </div>
   )
 }

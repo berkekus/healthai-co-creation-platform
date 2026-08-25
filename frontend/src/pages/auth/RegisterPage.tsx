@@ -111,9 +111,8 @@ export default function RegisterPage() {
             style={{ background: 'radial-gradient(ellipse at 50% 72%, rgba(255,255,255,0.72) 0%, rgba(180,218,242,0.28) 50%, transparent 70%)' }}
           />
 
-          <div className="relative z-10 flex items-center gap-2.5 px-9 pt-9">
-            <img src="/images/healthailogo.svg" alt="HealthAI logo" className="h-6 w-auto" />
-            <span className="font-headline font-black text-lg tracking-normal text-[#1a3463]">healthai.</span>
+          <div className="relative z-10 flex items-center px-9 pt-9">
+            <img src="/images/healthailogo.svg" alt="HealthAI" className="h-7 w-auto" />
           </div>
 
           <div className="relative z-10 px-9 pt-10">

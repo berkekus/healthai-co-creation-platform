@@ -55,6 +55,30 @@ describe('POST /api/auth/register', () => {
     })
     expect(res.status).toBe(400)
   })
+
+  const registerWith = (email: string) => api.post('/api/auth/register').send({
+    name: 'Institutional User',
+    email,
+    password: 'password123',
+    role: 'engineer',
+    institution: 'Test Uni',
+    city: 'Istanbul',
+    country: 'Turkey',
+  })
+
+  it.each(['gov', 'gov.uk', 'edu', 'edu.tr'])(
+    'accepts an institutional .%s address',
+    async (suffix) => {
+      const res = await registerWith(`inst-${Date.now()}-${suffix.replace('.', '')}@agency.${suffix}`)
+      expect(res.status).toBe(201)
+    },
+  )
+
+  it('returns 400 for a personal email provider', async () => {
+    const res = await registerWith(`personal-${Date.now()}@gmail.com`)
+    expect(res.status).toBe(400)
+    expect(res.body.message).toContain('.edu or .gov')
+  })
 })
 
 describe('POST /api/auth/login', () => {

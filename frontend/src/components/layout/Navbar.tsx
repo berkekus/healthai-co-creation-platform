@@ -211,12 +211,12 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 h-[76px] bg-white/90 backdrop-blur-md border-b border-[#E3E7EC] font-body">
       <div className="max-w-[1640px] mx-auto h-full px-6 md:px-10 2xl:px-0 flex items-center justify-between gap-8">
 
-        {/* Brand */}
-        <Link to={ROUTES.HOME} className="flex items-center gap-2 shrink-0">
-          <img src="/images/healthailogo.svg" alt="HealthAI logo" className="h-8 w-auto" />
-          <span className="text-lg font-black tracking-normal font-headline text-[#36213E]">
-            HealthAI
-          </span>
+        {/* Brand — Erasmus+ funding mark sits left of the HealthAI lockup */}
+        <Link to={ROUTES.HOME} className="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0">
+          <img src="/images/erasmus-logo.png" alt="Erasmus+" className="h-8 sm:h-9 md:h-11 w-auto" />
+          {/* Divider is dropped under sm so the brand still clears the right cluster at 320px */}
+          <span aria-hidden className="hidden sm:block h-6 w-px bg-neutral-200" />
+          <img src="/images/healthailogo.svg" alt="HealthAI" className="h-5 sm:h-6 md:h-7 w-auto" />
         </Link>
 
         <nav className="hidden md:flex flex-1 items-center justify-center gap-3">

@@ -50,8 +50,8 @@ export function createRegisterSchema(t: TFunction) {
       .string()
       .min(1, t('validators.emailRequired'))
       .email(t('validators.emailInvalid'))
-      .refine(v => /\.edu(\.[a-z]{2,})?$/.test(v), {
-        message: t('validators.register.eduOnly'),
+      .refine(v => /\.(edu|gov)(\.[a-z]{2,})?$/i.test(v), {
+        message: t('validators.register.institutionalOnly'),
       }),
     password:    z.string().min(8, t('validators.register.passwordMin8')),
     confirm:     z.string().min(1, t('validators.register.confirmRequired')),

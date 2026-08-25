@@ -103,9 +103,8 @@ export default function LoginPage() {
           />
 
           {/* Logo */}
-          <div className="relative z-10 flex items-center gap-2.5 px-9 pt-9">
-            <img src="/images/healthailogo.svg" alt="HealthAI logo" className="h-6 w-auto" />
-            <span className="font-headline font-black text-lg tracking-normal text-[#1a3463]">healthai.</span>
+          <div className="relative z-10 flex items-center px-9 pt-9">
+            <img src="/images/healthailogo.svg" alt="HealthAI" className="h-7 w-auto" />
           </div>
 
           {/* Copy block */}
