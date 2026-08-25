@@ -154,6 +154,16 @@ const seedUsers: SeedUser[] = [
     bio: 'Psychiatrist following first-episode psychosis patients, interested in what happens in the weeks between appointments.',
     expertiseTags: ['Mental Health', 'Early Intervention', 'Ecological Momentary Assessment', 'Patient Engagement'],
   },
+  {
+    name: 'Dr. Ingrid Larsson',
+    email: 'ingrid.larsson@ki.se',
+    role: 'healthcare_professional',
+    institution: 'Karolinska Institutet, Infectious Diseases',
+    city: 'Stockholm',
+    country: 'Sweden',
+    bio: 'Infectious disease physician running an antimicrobial stewardship programme and arguing with prescribers for a living.',
+    expertiseTags: ['Infectious Diseases', 'Antimicrobial Stewardship', 'Clinical Decision Support', 'Alert Fatigue'],
+  },
 ]
 
 type PostSeed = Pick<IPost,
@@ -501,12 +511,32 @@ const posts: PostSeed[] = [
     interestCount: 4,
     meetingCount: 1,
   },
+  {
+    authorEmail: 'ingrid.larsson@ki.se',
+    title: 'Antibiotic stewardship prompts that prescribers will not learn to ignore',
+    domain: 'Infectious Diseases',
+    expertiseRequired: 'Alert fatigue research, interruptive versus passive prompt design, prescriber workflow observation',
+    description: 'Our stewardship prompts fire inside the prescribing system and are dismissed within two seconds, which is a design failure rather than a clinician failure. Before rebuilding anything I want to understand which prompts changed a prescription and which were reflexively cleared, from our own audit logs going back eighteen months. I am looking for someone who takes alert fatigue seriously as a research problem and would rather show me that fewer prompts work better than build me a cleverer one.',
+    projectStage: 'concept_validation',
+    collaborationType: 'research_partner',
+    confidentiality: 'meeting_only',
+    city: 'Stockholm',
+    country: 'Sweden',
+    status: 'active',
+    daysAgo: 8,
+    expiresInDays: 78,
+    interestCount: 6,
+    meetingCount: 1,
+  },
 ]
 
 const badPostPattern = /(test|smoke|deneme|lorem|ipsum|asdf|qwer|dummy|sample|fake)/i
 const repeatedTextPattern = /(.)\1{12,}/
 const legacyDemoTitles = [
   'AI-powered Continuous Glucose Monitoring',
+  // Predates this seed and skews the directory to 11 engineer / 9 clinician
+  // posts, which is the one thing a visitor counting the split would notice.
+  'AI-assisted wound assessment for home care patients',
 ]
 
 function dateDaysAgo(days: number) {
