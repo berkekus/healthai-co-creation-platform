@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { createLoginSchema, type LoginFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
+import { prewarmBackend } from '../../lib/prewarm'
+import { useSlowRequestHint } from '../../hooks/useSlowRequestHint'
 
 // Dev-only quick-login shortcuts — never shipped in a production build.
 // import.meta.env.DEV is statically false in `vite build`, so this whole
@@ -41,6 +43,11 @@ export default function LoginPage() {
   const { register, handleSubmit, formState: { errors }, setFocus } = useForm<LoginFormData>({
     resolver: zodResolver(createLoginSchema(t)),
   })
+
+  // Wake the sleeping API container while the user is still typing, so the
+  // login POST doesn't have to absorb the cold start.
+  useEffect(() => { prewarmBackend() }, [])
+  const isSlow = useSlowRequestHint(isLoading)
 
   useEffect(() => { setFocus('email') }, [setFocus])
   useEffect(() => {
@@ -335,6 +342,12 @@ export default function LoginPage() {
                   t('authPage.login.submit')
                 )}
               </button>
+
+              {isSlow && (
+                <p role="status" className="-mt-1 text-center text-xs font-semibold text-neutral-500">
+                  {t('authPage.wakingServer')}
+                </p>
+              )}
             </form>
 
             {/* Footer */}

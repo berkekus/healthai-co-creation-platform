@@ -494,6 +494,7 @@
     "secure": "Güvenli & Uyumlu",
     "europe": "Avrupa'da Üretildi",
     "noPatient": "Sıfır Hasta Verisi",
+    "wakingServer": "Sunucu uyanıyor — uzun bir aradan sonraki ilk istek bir dakikayı bulabilir.",
     "login": {
       "heading": "Tekrar hoş geldiniz",
       "sub": "Kurumsal .edu veya .gov hesabınızla giriş yapın.",

@@ -494,6 +494,7 @@
     "secure": "Secure & Compliant",
     "europe": "Built in Europe",
     "noPatient": "Zero Patient Data",
+    "wakingServer": "Waking the server — the first request after a quiet spell can take up to a minute.",
     "login": {
       "heading": "Welcome back",
       "sub": "Sign in with your institutional .edu or .gov account.",

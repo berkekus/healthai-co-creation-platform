@@ -9,6 +9,8 @@ import { useAuthStore } from '../../store/authStore'
 import { createRegisterSchema, type RegisterFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
 import { EU_COUNTRIES } from '../../constants/config'
+import { prewarmBackend } from '../../lib/prewarm'
+import { useSlowRequestHint } from '../../hooks/useSlowRequestHint'
 
 type Step = 0 | 1 | 2
 type PreselectedRole = 'engineer' | 'healthcare_professional'
@@ -32,6 +34,11 @@ export default function RegisterPage() {
   })
 
   const role = watch('role')
+
+  // Wake the sleeping API container while the user works through the form, so
+  // the register POST doesn't have to absorb the cold start.
+  useEffect(() => { prewarmBackend() }, [])
+  const isSlow = useSlowRequestHint(isLoading)
 
   useEffect(() => () => { clearError() }, [clearError])
 
@@ -492,6 +499,12 @@ export default function RegisterPage() {
                       )}
                     </button>
                   </div>
+
+                  {isSlow && (
+                    <p role="status" className="text-center text-xs font-semibold text-neutral-500">
+                      {t('authPage.wakingServer')}
+                    </p>
+                  )}
                 </div>
               )}
 
