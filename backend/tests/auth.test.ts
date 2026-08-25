@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import crypto from 'crypto'
+import jwt from 'jsonwebtoken'
 import { api, createPost, createUser, uniqueEmail } from './helpers'
 import User from '../models/User'
 import Meeting from '../models/Meeting'
@@ -310,5 +311,74 @@ describe('POST /api/auth/forgot-password + reset-password', () => {
   it('returns 400 when new password is too short', async () => {
     const res = await api.post('/api/auth/reset-password').send({ token: 'sometoken', newPassword: 'short' })
     expect(res.status).toBe(400)
+  })
+})
+
+describe('OAuth account linking', () => {
+  const withGithubConfigured = async (fn: () => Promise<void>) => {
+    process.env.GITHUB_CLIENT_ID = 'test-client-id'
+    process.env.GITHUB_CLIENT_SECRET = 'test-client-secret'
+    try { await fn() } finally {
+      delete process.env.GITHUB_CLIENT_ID
+      delete process.env.GITHUB_CLIENT_SECRET
+    }
+  }
+
+  it('requires authentication to start a link', async () => {
+    const res = await api.get('/api/auth/github/link-url')
+    expect(res.status).toBe(401)
+  })
+
+  it('reports the provider as unavailable when it has no credentials', async () => {
+    const { token } = await createUser()
+    const res = await api.get('/api/auth/github/link-url').set('Authorization', `Bearer ${token}`)
+    expect(res.status).toBe(503)
+  })
+
+  it('sends the browser back to the profile instead of erroring when unconfigured', async () => {
+    const res = await api.get('/api/auth/github')
+    expect(res.status).toBe(302)
+    expect(res.headers.location).toContain('oauth_error=not_configured')
+  })
+
+  it('issues a start url whose state token names the caller and the provider', async () => {
+    await withGithubConfigured(async () => {
+      const { token, user } = await createUser()
+      const res = await api.get('/api/auth/github/link-url').set('Authorization', `Bearer ${token}`)
+      expect(res.status).toBe(200)
+
+      const url = new URL(res.body.data.url as string)
+      expect(url.pathname).toBe('/api/auth/github')
+
+      const state = url.searchParams.get('state')
+      expect(state).toBeTruthy()
+
+      const payload = jwt.verify(state as string, process.env.JWT_SECRET as string) as {
+        uid: string; provider: string; purpose: string
+      }
+      expect(payload.purpose).toBe('oauth-link')
+      expect(payload.provider).toBe('github')
+      expect(payload.uid).toBe(user.id)
+    })
+  })
+
+  it('disconnects a linked provider', async () => {
+    const { token, user } = await createUser()
+    await User.findByIdAndUpdate(user.id, { $set: { githubId: 'gh-123', githubUsername: 'octocat' } })
+
+    const res = await api.delete('/api/auth/github/link').set('Authorization', `Bearer ${token}`)
+    expect(res.status).toBe(200)
+
+    const after = await User.findById(user.id).lean()
+    expect(after?.githubId).toBeUndefined()
+    expect(after?.githubUsername).toBeUndefined()
+  })
+
+  it('keeps the callback from minting an account when the state is missing', async () => {
+    const before = await User.countDocuments()
+    const res = await api.get('/api/auth/github/callback?code=irrelevant')
+    // Unconfigured provider: passport has no strategy, so this must not 2xx.
+    expect(res.status).not.toBe(200)
+    expect(await User.countDocuments()).toBe(before)
   })
 })

@@ -20,7 +20,6 @@ export const ROUTES = {
   PRIVACY:          '/privacy',
   NOT_FOUND:        '/404',
   UNAUTHORIZED:     '/unauthorized',
-  OAUTH_CALLBACK:   '/oauth-callback',
 } as const
 
 export function postDetail(id: string) { return `/posts/${id}` }

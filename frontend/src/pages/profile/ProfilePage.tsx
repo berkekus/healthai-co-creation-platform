@@ -497,6 +497,142 @@ function ProfileCompletionCard({ user, onSaved }: { user: User; onSaved?: boolea
   )
 }
 
+// ── Connected accounts ──────────────────────────────────────────────────────
+
+type Provider = 'github' | 'linkedin'
+
+const GITHUB_PATH = 'M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z'
+const LINKEDIN_PATH = 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z'
+
+/** Callback outcomes the API can hand back on ?oauth_error=. */
+const LINK_ERRORS: Record<string, string> = {
+  no_session:     'That link request expired. Please try again.',
+  already_linked: 'That account is already connected to another HealthAI profile.',
+  user_gone:      'Your session is no longer valid. Please sign in again.',
+  not_configured: 'Sign-in with this provider is not enabled on the server yet.',
+  server_error:   'Something went wrong on our side. Please try again.',
+  failed:         'The connection was cancelled or refused.',
+}
+
+function ConnectedAccounts({ user }: { user: User }) {
+  const [busy, setBusy] = useState<Provider | null>(null)
+  const [notice, setNotice] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null)
+
+  // The provider sends the browser back to /profile with the outcome in the
+  // query string. Read it once, then strip it so a refresh doesn't replay it.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const linked = params.get('linked')
+    const failure = params.get('oauth_error')
+    if (!linked && !failure) return
+
+    if (linked) {
+      setNotice({ kind: 'ok', text: `${linked === 'github' ? 'GitHub' : 'LinkedIn'} connected.` })
+      // The linked ids live on the user record, so pull a fresh copy.
+      void useAuthStore.getState().hydrate()
+    } else if (failure) {
+      setNotice({ kind: 'err', text: LINK_ERRORS[failure] ?? LINK_ERRORS.failed })
+    }
+    window.history.replaceState({}, '', window.location.pathname)
+  }, [])
+
+  /**
+   * The callback arrives as a plain browser navigation with no Authorization
+   * header, so the API cannot tell who is linking from the redirect alone. We
+   * ask it (authenticated) for a start URL carrying a short-lived token that
+   * names this account, then hand the browser over.
+   */
+  const connect = async (provider: Provider) => {
+    setBusy(provider)
+    setNotice(null)
+    try {
+      const { data } = await api.get<{ success: boolean; data: { url: string } }>(`/auth/${provider}/link-url`)
+      window.location.href = data.data.url
+    } catch (err) {
+      setNotice({ kind: 'err', text: (err as Error).message })
+      setBusy(null)
+    }
+  }
+
+  const disconnect = async (provider: Provider) => {
+    setBusy(provider)
+    setNotice(null)
+    try {
+      await api.delete(`/auth/${provider}/link`)
+      await useAuthStore.getState().hydrate()
+      setNotice({ kind: 'ok', text: `${provider === 'github' ? 'GitHub' : 'LinkedIn'} disconnected.` })
+    } catch (err) {
+      setNotice({ kind: 'err', text: (err as Error).message })
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const tiles: { provider: Provider; label: string; path: string; className: string; connectedAs: string | null }[] = [
+    {
+      provider: 'github', label: 'GitHub', path: GITHUB_PATH, className: '',
+      connectedAs: user.githubId ? (user.githubUsername ? `@${user.githubUsername}` : 'Connected') : null,
+    },
+    {
+      provider: 'linkedin', label: 'LinkedIn', path: LINKEDIN_PATH, className: 'text-[#0077B5]',
+      connectedAs: user.linkedinId ? 'Connected' : null,
+    },
+  ]
+
+  return (
+    <section className="border-b border-[#E3E7EC] py-9">
+      <div className="mb-5 flex items-center gap-4">
+        <span className="material-symbols-outlined text-xl text-hai-plum">link</span>
+        <h2 className="font-headline text-xl font-black text-hai-plum">Connected Accounts</h2>
+      </div>
+
+      {notice && (
+        <div
+          role="status"
+          className={`mb-4 rounded-xl px-4 py-3 text-sm font-semibold ${
+            notice.kind === 'ok'
+              ? 'bg-hai-mint/40 text-hai-plum'
+              : 'bg-red-50 text-red-700'
+          }`}
+        >
+          {notice.text}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {tiles.map(({ provider, label, path, className, connectedAs }) => (
+          <div
+            key={provider}
+            className="flex items-center gap-4 rounded-2xl border border-[#D5DAE0] bg-white p-5"
+          >
+            <svg className={`h-6 w-6 shrink-0 ${className}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <path d={path} />
+            </svg>
+            <div className="min-w-0">
+              <p className="text-sm font-black text-hai-plum">{label}</p>
+              <p className="truncate text-xs font-semibold text-[#9CA3AF]">
+                {connectedAs ?? `Connect your ${label} account`}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => (connectedAs ? disconnect(provider) : connect(provider))}
+              disabled={busy !== null}
+              className={`ml-auto shrink-0 rounded-full px-4 py-2 text-xs font-black transition disabled:opacity-50 ${
+                connectedAs
+                  ? 'border border-[#D5DAE0] text-[#6F6878] hover:border-red-300 hover:text-red-600'
+                  : 'bg-hai-plum text-white hover:bg-black'
+              }`}
+            >
+              {busy === provider ? '…' : connectedAs ? 'Disconnect' : 'Connect'}
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function ProfilePage() {
   const { t } = useTranslation()
   const { user, updateProfile, uploadAvatar, deleteAccount } = useAuthStore()
@@ -770,50 +906,7 @@ export default function ProfilePage() {
 
           <NotifPrefsSection />
 
-          {/* Connected Accounts */}
-          <section className="border-b border-[#E3E7EC] py-9">
-            <div className="mb-5 flex items-center gap-4">
-              <span className="material-symbols-outlined text-xl text-hai-plum">link</span>
-              <h2 className="font-headline text-xl font-black text-hai-plum">Connected Accounts</h2>
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <a
-                href={`${(import.meta.env.VITE_API_URL ?? 'http://localhost:5001/api').replace(/\/api$/, '')}/api/auth/github`}
-                className="flex items-center gap-4 rounded-2xl border border-[#D5DAE0] bg-white p-5 transition hover:border-hai-teal hover:bg-[#F8FBFC]"
-              >
-                <svg className="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-                </svg>
-                <div>
-                  <p className="text-sm font-black text-hai-plum">GitHub</p>
-                  <p className="text-xs font-semibold text-[#9CA3AF]">
-                    {user.githubUsername ? `Connected as @${user.githubUsername}` : 'Connect your GitHub account'}
-                  </p>
-                </div>
-                {user.githubUsername && (
-                  <span className="ml-auto material-symbols-outlined text-sm text-hai-teal" style={{ fontVariationSettings: '"FILL" 1' }}>verified</span>
-                )}
-              </a>
-
-              <a
-                href={`${(import.meta.env.VITE_API_URL ?? 'http://localhost:5001/api').replace(/\/api$/, '')}/api/auth/linkedin`}
-                className="flex items-center gap-4 rounded-2xl border border-[#D5DAE0] bg-white p-5 transition hover:border-hai-teal hover:bg-[#F8FBFC]"
-              >
-                <svg className="h-6 w-6 shrink-0 text-[#0077B5]" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                </svg>
-                <div>
-                  <p className="text-sm font-black text-hai-plum">LinkedIn</p>
-                  <p className="text-xs font-semibold text-[#9CA3AF]">
-                    {user.linkedinId ? 'Connected' : 'Connect your LinkedIn account'}
-                  </p>
-                </div>
-                {user.linkedinId && (
-                  <span className="ml-auto material-symbols-outlined text-sm text-hai-teal" style={{ fontVariationSettings: '"FILL" 1' }}>verified</span>
-                )}
-              </a>
-            </div>
-          </section>
+          <ConnectedAccounts user={user} />
 
           <section id="data-account" className="py-9">
             <div className="mb-5 flex items-center gap-4">

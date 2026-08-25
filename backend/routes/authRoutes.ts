@@ -13,7 +13,9 @@ import { asyncHandler } from '../utils/asyncHandler'
 import { recalculateBadges, BADGE_META } from '../services/badgeService'
 import User from '../models/User'
 import passport from 'passport'
-import { makeOAuthToken } from '../src/passport'
+import {
+  makeLinkToken, isProviderConfigured, providerStartUrl, type OAuthProvider,
+} from '../src/passport'
 import type { IUser } from '../models/User'
 
 const router = Router()
@@ -45,30 +47,79 @@ router.patch('/users/:id/verify', protect, adminOnly, asyncHandler<Authenticated
 }))
 router.delete('/users/:id', protect, adminOnly, deleteUser)
 
-// OAuth — GitHub
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN ?? 'http://localhost:5173'
-const oauthRedirect = (token: string) => `${CLIENT_ORIGIN}/oauth-callback?token=${token}`
+// ─── OAuth account linking ──────────────────────────────────────────────────
+// Linking only: these routes attach a provider identity to the signed-in
+// account. They never create or sign in a user — see src/passport.ts for why.
 
-router.get('/github', passport.authenticate('github', { session: false }))
-router.get('/github/callback',
-  passport.authenticate('github', { session: false, failureRedirect: `${CLIENT_ORIGIN}/login?error=oauth` }),
-  (req, res) => {
-    const user = req.user as IUser
-    const token = makeOAuthToken(user.id as string)
-    res.redirect(oauthRedirect(token))
-  }
-)
+const CLIENT_ORIGIN = (process.env.CLIENT_ORIGIN ?? 'http://localhost:5173').replace(/\/+$/, '')
+const linkResult = (params: string) => `${CLIENT_ORIGIN}/profile?${params}`
 
-// OAuth — LinkedIn
-router.get('/linkedin', passport.authenticate('linkedin', { session: false }))
-router.get('/linkedin/callback',
-  passport.authenticate('linkedin', { session: false, failureRedirect: `${CLIENT_ORIGIN}/login?error=oauth` }),
-  (req, res) => {
-    const user = req.user as IUser
-    const token = makeOAuthToken(user.id as string)
-    res.redirect(oauthRedirect(token))
-  }
-)
+const PROVIDERS: OAuthProvider[] = ['github', 'linkedin']
+
+for (const provider of PROVIDERS) {
+  /**
+   * Step 1 — the profile page asks (with its bearer token) where to send the
+   * browser. The reply carries a short-lived token naming the caller, which the
+   * provider echoes back to us as `state`; that is how the callback, which has
+   * no session of its own, learns whose account to link.
+   */
+  router.get(`/${provider}/link-url`, protect, asyncHandler(async (req, res) => {
+    if (!isProviderConfigured(provider)) {
+      res.status(503).json({
+        success: false,
+        message: `${provider} sign-in is not configured on this server.`,
+      })
+      return
+    }
+    const userId = (req as AuthenticatedRequest).userId
+    res.json({ success: true, data: { url: providerStartUrl(provider, makeLinkToken(userId, provider)) } })
+  }))
+
+  // Step 2 — hand off to the provider, forwarding the state token untouched.
+  router.get(`/${provider}`, (req, res, next) => {
+    if (!isProviderConfigured(provider)) {
+      res.redirect(linkResult(`oauth_error=not_configured&provider=${provider}`))
+      return
+    }
+    passport.authenticate(provider, {
+      session: false,
+      state: String(req.query.state ?? ''),
+    } as passport.AuthenticateOptions)(req, res, next)
+  })
+
+  /**
+   * Step 3 — the provider comes back. A custom callback (rather than
+   * `failureRedirect`) so the reason for a refusal survives into the redirect
+   * and the profile page can say something specific.
+   */
+  router.get(`/${provider}/callback`, (req, res, next) => {
+    passport.authenticate(
+      provider,
+      { session: false },
+      (err: Error | null, user: IUser | false, info?: { code?: string }) => {
+        if (err) {
+          res.redirect(linkResult(`oauth_error=server_error&provider=${provider}`))
+          return
+        }
+        if (!user) {
+          res.redirect(linkResult(`oauth_error=${info?.code ?? 'failed'}&provider=${provider}`))
+          return
+        }
+        res.redirect(linkResult(`linked=${provider}`))
+      },
+    )(req, res, next)
+  })
+
+  /** Detach a linked provider. */
+  router.delete(`/${provider}/link`, protect, asyncHandler(async (req, res) => {
+    const userId = (req as AuthenticatedRequest).userId
+    const unset = provider === 'github'
+      ? { githubId: '', githubUsername: '' }
+      : { linkedinId: '', linkedinProfileUrl: '' }
+    await User.findByIdAndUpdate(userId, { $unset: unset })
+    res.json({ success: true, message: `${provider} disconnected` })
+  }))
+}
 
 // Badge endpoints
 router.get('/users/:id/badges', protect, asyncHandler(async (req, res) => {
