@@ -843,9 +843,11 @@ export default function ProfilePage() {
                   <FieldRow label={t('profile.fields.fullName')}>{user.name}</FieldRow>
                   <FieldRow label={t('profile.fields.institution')}>{user.institution}</FieldRow>
                   <FieldRow label={t('profile.fields.email')}>
-                    <span className="inline-flex flex-wrap items-center gap-2">
-                      {user.email}
-                      <span className="rounded-full bg-[#E8F4F7] px-2 py-0.5 text-xs font-black uppercase tracking-[0.12em] text-[#6F6878]">.edu only</span>
+                    <span className="inline-flex min-w-0 flex-wrap items-center gap-2">
+                      {/* Institutional addresses run long; without break-all one
+                          of them widens the whole page on a narrow screen. */}
+                      <span className="break-all">{user.email}</span>
+                      <span className="shrink-0 rounded-full bg-[#E8F4F7] px-2 py-0.5 text-xs font-black uppercase tracking-[0.12em] text-[#6F6878]">.edu / .gov</span>
                     </span>
                   </FieldRow>
                   <FieldRow label={t('profile.fields.memberSince')}>{memberSince}</FieldRow>
