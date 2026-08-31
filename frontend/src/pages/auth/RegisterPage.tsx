@@ -2,13 +2,13 @@ import { useRef, useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Building2, ChevronDown, Eye, EyeOff, Lock, Mail, MapPin, Shield, User, Users } from 'lucide-react'
+import { Building2, Eye, EyeOff, Lock, Mail, Shield, User, Users } from 'lucide-react'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { createRegisterSchema, type RegisterFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
-import { EU_COUNTRIES } from '../../constants/config'
+import CountryCityPicker from '../../components/ui/CountryCityPicker'
 import { prewarmBackend } from '../../lib/prewarm'
 import { useSlowRequestHint } from '../../hooks/useSlowRequestHint'
 
@@ -409,39 +409,21 @@ export default function RegisterPage() {
                     {errors.institution && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.institution.message}</p>}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-sm font-bold text-[#18203a] mb-2">{t('authPage.register.cityLabel')} <span className="text-red-500">*</span></label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
-                          <MapPin size={15} strokeWidth={1.8} />
-                        </span>
-                        <input
-                          {...register('city')}
-                          type="text"
-                          placeholder={t('authPage.register.cityPlaceholder')}
-                          className={`${inputCls(!!errors.city)} pl-11 pr-4`}
-                        />
-                      </div>
-                      {errors.city && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.city.message}</p>}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-[#18203a] mb-2">{t('authPage.register.countryLabel')} <span className="text-red-500">*</span></label>
-                      <div className="relative">
-                        <select
-                          {...register('country')}
-                          className={`${inputCls(!!errors.country)} appearance-none px-4 pr-9`}
-                        >
-                          <option value="">{t('authPage.register.countryPlaceholder')}</option>
-                          {EU_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#b8c0cc]">
-                          <ChevronDown size={15} strokeWidth={1.8} />
-                        </span>
-                      </div>
-                      {errors.country && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.country.message}</p>}
-                    </div>
-                  </div>
+                  <CountryCityPicker
+                    country={watch('country') ?? ''}
+                    city={watch('city') ?? ''}
+                    onCountryChange={v => setValue('country', v, { shouldValidate: true })}
+                    onCityChange={v => setValue('city', v, { shouldValidate: true })}
+                    countryLabel={<label className="block text-sm font-bold text-[#18203a] mb-2">{t('authPage.register.countryLabel')} <span className="text-red-500">*</span></label>}
+                    cityLabel={<label className="block text-sm font-bold text-[#18203a] mb-2">{t('authPage.register.cityLabel')} <span className="text-red-500">*</span></label>}
+                    countryError={errors.country?.message}
+                    cityError={errors.city?.message}
+                    countryPlaceholder={t('authPage.register.countryPlaceholder')}
+                    cityPlaceholder={t('authPage.register.cityPlaceholder')}
+                    cityLockedPlaceholder={t('authPage.register.cityPlaceholderNoCountry')}
+                    cityFreeTextPlaceholder={t('authPage.register.cityFreeText')}
+                    inputClassName={`${inputCls(!!errors.city)} px-4`}
+                  />
 
                   {/* GDPR — the translated consent sentence is split on its first
                       ". " so the first sentence ("...agree to the Privacy Policy.")

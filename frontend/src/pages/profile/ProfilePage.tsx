@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import PageWrapper from '../../components/layout/PageWrapper'
 import FormField, { inputStyle } from '../../components/ui/FormField'
+import CountryCityPicker from '../../components/ui/CountryCityPicker'
 import { ROUTES } from '../../constants/routes'
 import api from '../../lib/api'
 import { useAuthStore } from '../../store/authStore'
@@ -649,7 +650,7 @@ export default function ProfilePage() {
   const [avatarUploading, setAvatarUploading] = useState(false)
   const [avatarError, setAvatarError] = useState<string | null>(null)
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormData>({
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<ProfileFormData>({
     resolver: zodResolver(createProfileSchema(t)),
     defaultValues: {
       ...splitName(user?.name),
@@ -857,14 +858,20 @@ export default function ProfilePage() {
 
             <Section id="location" icon="location_on" title={t('profile.location')}>
               {isEditing ? (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField label={t('profile.fields.city')} error={errors.city?.message} required>
-                    <input {...register('city')} type="text" style={inputStyle(errors.city?.message)} onFocus={onInputFocus(!!errors.city)} onBlur={onInputBlur(!!errors.city)} />
-                  </FormField>
-                  <FormField label={t('profile.fields.country')} error={errors.country?.message} required>
-                    <input {...register('country')} type="text" style={inputStyle(errors.country?.message)} onFocus={onInputFocus(!!errors.country)} onBlur={onInputBlur(!!errors.country)} />
-                  </FormField>
-                </div>
+                <CountryCityPicker
+                  country={watch('country') ?? ''}
+                  city={watch('city') ?? ''}
+                  onCountryChange={v => setValue('country', v, { shouldValidate: true })}
+                  onCityChange={v => setValue('city', v, { shouldValidate: true })}
+                  countryLabel={<span className="mb-1.5 block text-sm font-bold text-hai-plum">{t('profile.fields.country')}<span className="ml-0.5 text-red-600">*</span></span>}
+                  cityLabel={<span className="mb-1.5 block text-sm font-bold text-hai-plum">{t('profile.fields.city')}<span className="ml-0.5 text-red-600">*</span></span>}
+                  countryError={errors.country?.message}
+                  cityError={errors.city?.message}
+                  countryPlaceholder={t('authPage.register.countryPlaceholder')}
+                  cityPlaceholder={t('authPage.register.cityPlaceholder')}
+                  cityLockedPlaceholder={t('authPage.register.cityPlaceholderNoCountry')}
+                  cityFreeTextPlaceholder={t('authPage.register.cityFreeText')}
+                />
               ) : (
                 <div className="grid gap-3">
                   <FieldRow label={t('profile.fields.city')}>{user.city || <span className="text-neutral-400">{t('common.noData')}</span>}</FieldRow>
