@@ -1,15 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
 import SearchableSelect from '../components/ui/SearchableSelect'
 import CountryCityPicker from '../components/ui/CountryCityPicker'
-
-vi.mock('../lib/locations', () => ({
-  loadCities: vi.fn(async (country: string) =>
-    country === 'Turkey' ? ['Ankara', 'İstanbul', 'İzmir'] :
-    country === 'Germany' ? ['Berlin', 'Hamburg', 'München'] :
-    country === 'Monaco' ? [] : []),
-  knownCountry: () => true,
-}))
 
 const openAndType = (text: string) => {
   fireEvent.click(screen.getAllByRole('button')[0])
@@ -36,7 +28,7 @@ describe('SearchableSelect', () => {
     expect(screen.queryByPlaceholderText('Search…')).not.toBeInTheDocument()
   })
 
-  it('caps how many options it renders so a 14k-city country cannot lock the page', () => {
+  it('caps how many options it renders', () => {
     const many = Array.from({ length: 500 }, (_, i) => `City ${i}`)
     render(<SearchableSelect options={many} value="" onChange={() => {}} />)
 
@@ -50,7 +42,7 @@ describe('CountryCityPicker', () => {
   const setup = (country = '', city = '') => {
     const onCountryChange = vi.fn()
     const onCityChange = vi.fn()
-    const view = render(
+    render(
       <CountryCityPicker
         country={country}
         city={city}
@@ -60,31 +52,39 @@ describe('CountryCityPicker', () => {
         cityLabel={<span>City</span>}
       />,
     )
-    return { ...view, onCountryChange, onCityChange }
+    return { onCountryChange, onCityChange }
   }
-
-  beforeEach(() => { vi.clearAllMocks() })
-  afterEach(() => { vi.restoreAllMocks() })
 
   it('leaves the city control disabled until a country is chosen', () => {
     setup()
     const [, cityButton] = screen.getAllByRole('button')
     expect(cityButton).toBeDisabled()
-    expect(cityButton).toHaveTextContent('Select a country first')
+    expect(cityButton).toHaveTextContent('Select country first')
   })
 
-  it('enables the city control and offers that country only', async () => {
+  it('offers real cities for the chosen country, not its districts', () => {
     setup('Turkey')
     const [, cityButton] = screen.getAllByRole('button')
-    await waitFor(() => expect(cityButton).not.toBeDisabled())
+    expect(cityButton).not.toBeDisabled()
 
     fireEvent.click(cityButton)
-    await waitFor(() => expect(screen.getByText('İstanbul')).toBeInTheDocument())
+    expect(screen.getByText('Istanbul')).toBeInTheDocument()
+    expect(screen.getByText('Ankara')).toBeInTheDocument()
+    // Districts of Istanbul must not be offered as cities.
+    expect(screen.queryByText('Beşiktaş')).not.toBeInTheDocument()
+    expect(screen.queryByText('Kadıköy')).not.toBeInTheDocument()
+    // Nor may another country's cities leak in.
     expect(screen.queryByText('Berlin')).not.toBeInTheDocument()
   })
 
-  it('clears the city when the country changes, so no one ends up in Berlin, Turkey', async () => {
-    const { onCountryChange, onCityChange } = setup('Turkey', 'İstanbul')
+  it('keeps the list short enough to scan', () => {
+    setup('Turkey')
+    fireEvent.click(screen.getAllByRole('button')[1])
+    expect(screen.getAllByRole('listitem').length).toBeLessThan(60)
+  })
+
+  it('clears the city when the country changes, so no one ends up in Berlin, Turkey', () => {
+    const { onCountryChange, onCityChange } = setup('Turkey', 'Istanbul')
 
     fireEvent.click(screen.getAllByRole('button')[0])
     fireEvent.change(screen.getByPlaceholderText('Search…'), { target: { value: 'Germany' } })
@@ -94,15 +94,14 @@ describe('CountryCityPicker', () => {
     expect(onCityChange).toHaveBeenCalledWith('')
   })
 
-  it('keeps a stored city that predates the list rather than dropping it', async () => {
+  it('keeps a stored city that predates the list rather than dropping it', () => {
     setup('Turkey', 'Some Old Value')
     const [, cityButton] = screen.getAllByRole('button')
-    await waitFor(() => expect(cityButton).not.toBeDisabled())
     expect(cityButton).toHaveTextContent('Some Old Value')
   })
 
-  it('falls back to free text for a country with no city data', async () => {
-    setup('Monaco')
-    await waitFor(() => expect(screen.getByPlaceholderText('Enter your city')).toBeInTheDocument())
+  it('falls back to free text for a country with no city list', () => {
+    setup('Andorra')
+    expect(screen.getByPlaceholderText('Enter your city')).toBeInTheDocument()
   })
 })
