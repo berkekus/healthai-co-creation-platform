@@ -113,6 +113,15 @@ function TopNav() {
     { href: '#trust',     label: t('landing.nav.trust') },
   ]
 
+  // Signed in, the marketing anchors and "Request Access" are the wrong offer —
+  // that button led back to account creation for someone who already has an
+  // account. Show the three places they actually came for instead.
+  const appLinks = [
+    { to: ROUTES.DASHBOARD, label: t('nav.dashboard') },
+    { to: ROUTES.POSTS,     label: t('nav.browse') },
+    { to: ROUTES.MEETINGS,  label: t('nav.meetings') },
+  ]
+
   return (
     <>
       {/* px steps down under sm: the brand mark is a fixed-ratio image now, so
@@ -124,39 +133,47 @@ function TopNav() {
         {/* Center pill — hidden below lg */}
         <div className="hidden lg:flex items-center bg-white/25 backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
           <div className="flex items-center bg-white rounded-full h-full">
-            <div className="flex items-center px-1">
-              {anchorLinks.map((link, i) => (
-                <span key={link.href} className="flex items-center">
-                  {i > 0 && <NavDivider />}
-                  <a href={link.href} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{link.label}</a>
-                </span>
-              ))}
-              <NavDivider />
-              <Link to={ROUTES.ABOUT} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">
-                {t('nav.about')}
-              </Link>
-            </div>
-            <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
-              <Link
-                to={ROUTES.REGISTER}
-                className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out will-change-transform"
-              >
-                {t('landing.actions.requestAccess')}
-              </Link>
-            </div>
+            {user ? (
+              <div className="flex items-center px-1">
+                {appLinks.map((link, i) => (
+                  <span key={link.to} className="flex items-center">
+                    {i > 0 && <NavDivider />}
+                    <Link to={link.to} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{link.label}</Link>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center px-1">
+                  {anchorLinks.map((link, i) => (
+                    <span key={link.href} className="flex items-center">
+                      {i > 0 && <NavDivider />}
+                      <a href={link.href} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{link.label}</a>
+                    </span>
+                  ))}
+                  <NavDivider />
+                  <Link to={ROUTES.ABOUT} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">
+                    {t('nav.about')}
+                  </Link>
+                </div>
+                <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
+                  <Link
+                    to={ROUTES.REGISTER}
+                    className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out will-change-transform"
+                  >
+                    {t('landing.actions.requestAccess')}
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* Right cluster */}
         <div className="flex items-center gap-2 md:gap-3">
-          {user ? (
-            <Link
-              to={ROUTES.DASHBOARD}
-              className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
-            >
-              {t('landing.actions.goToDashboard')} →
-            </Link>
-          ) : (
+          {/* Signed in, the pill already carries Dashboard — a second button
+              for it here would just be the same link twice. */}
+          {!user && (
             <>
               <Link
                 to={ROUTES.LOGIN}
@@ -174,8 +191,9 @@ function TopNav() {
           )}
           <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] backdrop-blur-md hover:bg-white" />
 
-          {/* Mobile hamburger — only visible below lg where center pill is hidden */}
-          {!user && (
+          {/* Mobile hamburger — below lg the centre pill is hidden, so this is the
+              only way to the nav; signed-in users need it just as much. */}
+          {(
             <button
               onClick={() => setMobileMenuOpen(o => !o)}
               aria-label="Toggle navigation menu"
@@ -192,8 +210,21 @@ function TopNav() {
       </nav>
 
       {/* Mobile dropdown menu — anchor links + CTA */}
-      {mobileMenuOpen && !user && (
+      {mobileMenuOpen && (
         <div className="lg:hidden fixed top-[72px] inset-x-4 z-40 rounded-2xl bg-white/95 backdrop-blur-md border border-white/60 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.35)] py-3 font-body">
+          {user ? (
+            appLinks.map(link => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-5 py-3 text-sm font-semibold text-neutral-800 hover:bg-black/5 transition-colors rounded-xl mx-2"
+              >
+                {link.label}
+              </Link>
+            ))
+          ) : (
+          <>
           {anchorLinks.map(link => (
             <a
               key={link.href}
@@ -227,6 +258,8 @@ function TopNav() {
               {t('landing.actions.signUp')}
             </Link>
           </div>
+          </>
+          )}
         </div>
       )}
     </>

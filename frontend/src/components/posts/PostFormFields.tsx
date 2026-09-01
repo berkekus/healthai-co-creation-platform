@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Controller, useWatch } from 'react-hook-form'
+import { MEDICAL_DOMAINS } from '../../constants/config'
 import type { Control, FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form'
 import { CalendarDays, Lock, ShieldCheck, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -9,14 +10,6 @@ import SearchableSelect from '../ui/SearchableSelect'
 import { COUNTRIES, getCitiesForCountry } from '../../data/locations'
 import api from '../../lib/api'
 
-const MEDICAL_DOMAINS = [
-  'Cardiology','Oncology','Radiology & Imaging','Neurology','Orthopedics',
-  'Dermatology','Ophthalmology','Pediatrics','Psychiatry & Mental Health',
-  'Emergency Medicine','Intensive Care (ICU)','Surgical Robotics',
-  'Genomics & Precision Medicine','Rehabilitation & Physio','Clinical Pharmacy',
-  'Public Health & Epidemiology','Pathology & Lab Diagnostics',
-  'Endocrinology & Diabetes','Remote Patient Monitoring','Mental Health AI',
-]
 
 const baseInput =
   'h-14 w-full rounded-[10px] border border-[#d7dbe3] bg-white px-4 text-sm font-semibold text-[#2d1838] outline-none transition placeholder:text-[#9a95a1] focus:border-[#66c8e7] focus:ring-4 focus:ring-[#66c8e7]/20'

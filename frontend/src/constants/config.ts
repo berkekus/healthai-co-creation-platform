@@ -2,12 +2,14 @@ export const SESSION_TIMEOUT_MS = 30 * 60 * 1000  // 30 minutes
 export const SESSION_WARN_MS   = 60 * 1000         // warn 1 minute before
 
 export const MEDICAL_DOMAINS = [
-  'Cardiology', 'Oncology', 'Radiology & Imaging', 'Neurology', 'Orthopedics',
-  'Dermatology', 'Ophthalmology', 'Pediatrics', 'Psychiatry & Mental Health',
-  'Emergency Medicine', 'Intensive Care (ICU)', 'Surgical Robotics',
-  'Genomics & Precision Medicine', 'Rehabilitation & Physio', 'Clinical Pharmacy',
-  'Public Health & Epidemiology', 'Pathology & Lab Diagnostics',
-  'Endocrinology & Diabetes', 'Remote Patient Monitoring', 'Mental Health AI',
+  'Cardiology', 'Oncology', 'Neurology', 'Orthopedics', 'Radiology',
+  'Dermatology', 'Ophthalmology', 'Pediatrics', 'Mental Health',
+  'Emergency Medicine', 'Intensive Care', 'Pulmonology', 'Nephrology',
+  'Infectious Diseases', 'Pathology', 'Endocrinology & Diabetes',
+  'Clinical Pharmacy', 'Public Health & Epidemiology',
+  'Geriatrics & Rehabilitation', 'Physical Therapy and Rehabilitation',
+  'Nursing', 'Surgical Robotics', 'Genomics & Precision Medicine',
+  'Remote Patient Monitoring',
 ] as const
 
 export const ENGINEERING_DOMAINS = [
