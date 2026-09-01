@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { createRegisterSchema, type RegisterFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
+import { TURNSTILE_SITE_KEY, captchaConfigured, captchaBlocks } from '../../lib/turnstile'
 import CountryCityPicker from '../../components/ui/CountryCityPicker'
 import { prewarmBackend } from '../../lib/prewarm'
 import { useSlowRequestHint } from '../../hooks/useSlowRequestHint'
@@ -452,14 +453,14 @@ export default function RegisterPage() {
 
                   {/* Turnstile */}
                   <div className="flex justify-center">
-                    <Turnstile
+                    {captchaConfigured && (<Turnstile
                       ref={captchaRef}
-                      siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                      siteKey={TURNSTILE_SITE_KEY as string}
                       onSuccess={setCaptchaToken}
                       onExpire={() => setCaptchaToken(null)}
                       onError={() => setCaptchaToken(null)}
                       options={{ theme: 'light', size: 'normal' }}
-                    />
+                    />)}
                   </div>
 
                   <div className="flex gap-3 mt-2">
@@ -468,7 +469,7 @@ export default function RegisterPage() {
                     </button>
                     <button
                       type="submit"
-                      disabled={isLoading || !gdprAccepted || !captchaToken}
+                      disabled={isLoading || !gdprAccepted || captchaBlocks(captchaToken)}
                       className="flex-[2] py-[15px] rounded-full bg-[#1c1230] text-white font-black text-base hover:bg-[#110b1e] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)] font-headline flex items-center justify-center gap-2"
                     >
                       {isLoading ? (

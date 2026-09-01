@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
+import { TURNSTILE_SITE_KEY, captchaConfigured, captchaBlocks } from '../../lib/turnstile'
 import PageWrapper from '../../components/layout/PageWrapper'
 import api from '../../lib/api'
 
@@ -91,19 +92,19 @@ export default function ForgotPasswordPage() {
           </div>
 
           <div className="flex justify-center">
-            <Turnstile
+            {captchaConfigured && (<Turnstile
               ref={captchaRef}
-              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+              siteKey={TURNSTILE_SITE_KEY as string}
               onSuccess={setCaptchaToken}
               onExpire={() => setCaptchaToken(null)}
               onError={() => setCaptchaToken(null)}
               options={{ theme: 'light', size: 'normal' }}
-            />
+            />)}
           </div>
 
           <button
             type="submit"
-            disabled={status === 'loading' || !email.trim() || !captchaToken}
+            disabled={status === 'loading' || !email.trim() || captchaBlocks(captchaToken)}
             className="mt-2 w-full py-3.5 rounded-full bg-hai-plum text-white font-bold text-base hover:bg-black disabled:bg-neutral-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2.5"
           >
             {status === 'loading' ? (

@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { createLoginSchema, type LoginFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
+import { TURNSTILE_SITE_KEY, captchaConfigured, captchaBlocks } from '../../lib/turnstile'
 import { prewarmBackend } from '../../lib/prewarm'
 import { useSlowRequestHint } from '../../hooks/useSlowRequestHint'
 
@@ -81,7 +82,7 @@ export default function LoginPage() {
   }
 
   const quickLogin = (email: string, password: string) => {
-    if (isLoading || !captchaToken) return
+    if (isLoading || captchaBlocks(captchaToken)) return
     quickLoginRef.current = true
     login({ email, password, captchaToken: captchaToken ?? undefined, rememberMe: true })
   }
@@ -305,14 +306,14 @@ export default function LoginPage() {
 
               {/* Turnstile */}
               <div className="flex flex-col items-center gap-2">
-                <Turnstile
+                {captchaConfigured && (<Turnstile
                   ref={captchaRef}
-                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                  siteKey={TURNSTILE_SITE_KEY as string}
                   onSuccess={token => { setCaptchaToken(token); setCaptchaError(false) }}
                   onExpire={() => setCaptchaToken(null)}
                   onError={() => { setCaptchaToken(null); setCaptchaError(true) }}
                   options={{ theme: 'light', size: 'normal' }}
-                />
+                />)}
                 {captchaError && (
                   <div role="alert" className="flex items-center gap-2 text-xs font-semibold text-red-600">
                     <span>{t('authPage.login.captchaFailed')}</span>
@@ -330,7 +331,7 @@ export default function LoginPage() {
               {/* Sign in button */}
               <button
                 type="submit"
-                disabled={isLoading || cooldown > 0 || !captchaToken}
+                disabled={isLoading || cooldown > 0 || captchaBlocks(captchaToken)}
                 className="mt-2 w-full flex items-center justify-center gap-2 py-[15px] rounded-full bg-[#1c1230] text-white text-base font-black tracking-normal font-headline hover:bg-[#110b1e] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)]"
               >
                 {isLoading ? (
@@ -377,7 +378,7 @@ export default function LoginPage() {
                       key={label}
                       type="button"
                       onClick={() => quickLogin(email, password)}
-                      disabled={isLoading || !captchaToken}
+                      disabled={isLoading || captchaBlocks(captchaToken)}
                       className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                     >
                       <div
