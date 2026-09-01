@@ -17,6 +17,7 @@ export const ROUTES = {
   ADMIN:            '/admin',
   MESSAGES:         '/messages',
   CONVERSATION:     '/messages/:id',
+  ABOUT:            '/about',
   PRIVACY:          '/privacy',
   NOT_FOUND:        '/404',
   UNAUTHORIZED:     '/unauthorized',

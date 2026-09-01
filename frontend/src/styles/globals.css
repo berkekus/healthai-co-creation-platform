@@ -674,14 +674,6 @@ a[href],
   background: var(--primary);
 }
 
-@keyframes institutionMarquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-.institution-marquee {
-  animation: institutionMarquee 54s linear infinite;
-}
-
 /* hero title reveal */
 @keyframes rev {
   to { opacity: 1; transform: translateY(0); }
@@ -816,7 +808,6 @@ a[href],
 }
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer { animation: none; background-image: none; }
-  .institution-marquee { animation: none; }
   .cities-inner { animation: none; }
 }
 

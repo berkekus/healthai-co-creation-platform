@@ -5,6 +5,7 @@
     "meetings": "Meetings",
     "admin": "Admin",
     "home": "Home",
+    "about": "About",
     "signIn": "Sign in",
     "signUp": "Sign Up",
     "profile": "Profile",
@@ -29,8 +30,8 @@
       "createHcpAccount": "Create HCP Account"
     },
     "hero": {
-      "titleLine1": "Healthcare co-creation,",
-      "titleLine2": "from idea to collaboration.",
+      "titleLine1": "European HealthTech",
+      "titleLine2": "Co-Creation & Innovation Platform",
       "subtitle": "A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional .edu verification and an immutable audit trail."
     },
     "directory": {

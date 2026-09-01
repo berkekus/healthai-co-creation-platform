@@ -19,6 +19,7 @@ export default function Footer() {
         </div>
 
         <div className="flex items-center flex-wrap gap-x-6 gap-y-2 text-xs font-mono tracking-[0.12em] uppercase text-[#dff8ff]/70">
+          <Link to={ROUTES.ABOUT} className="hover:text-white transition-colors">About</Link>
           <Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Privacy Policy</Link>
           <Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">GDPR Rights</Link>
           <span>© 2026</span>
