@@ -3,24 +3,60 @@ import { useState, useRef, useEffect } from 'react'
 const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'
 const ERROR_SHADOW  = '0 0 0 3px rgba(220,38,38,0.18)'
 
+/**
+ * A country can carry ~14k cities, and putting that many <li> in the DOM locks
+ * the browser up. Only ever render this many; the search box is how you reach
+ * the rest.
+ */
+const MAX_RENDERED = 100
+
+/**
+ * Folds accents so a search matches what people actually type: "Izmir" has to
+ * find "İzmir", "Krakow" has to find "Kraków", "Munchen" has to find "München".
+ *
+ * Turkish dotted İ needs handling before the generic strip — lowercasing it
+ * yields "i̇", an i with a combining dot that NFD would leave behind as its own
+ * character, so the plain fold alone would not match a typed "i".
+ */
+function fold(s: string): string {
+  return s
+    .replace(/İ/g, 'I')
+    .replace(/ı/g, 'i')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+}
+
 interface Props {
   options: string[]
   value: string
   onChange: (value: string) => void
   placeholder?: string
   error?: string
+  /** Greys the control out and refuses to open — e.g. city before a country is picked. */
+  disabled?: boolean
+  /** Shown in place of the list while options are still being fetched. */
+  loading?: boolean
 }
 
-export default function SearchableSelect({ options, value, onChange, placeholder = 'Select…', error }: Props) {
+export default function SearchableSelect({
+  options, value, onChange, placeholder = 'Select…', error, disabled = false, loading = false,
+}: Props) {
   const [open, setOpen]   = useState(false)
   const [query, setQuery] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
   const searchRef    = useRef<HTMLInputElement>(null)
   const listRef      = useRef<HTMLUListElement>(null)
 
-  const filtered = query.trim()
-    ? options.filter(o => o.toLowerCase().includes(query.toLowerCase()))
-    : options
+  const needle = fold(query.trim())
+  const filtered = needle ? options.filter(o => fold(o).includes(needle)) : options
+  const shown = filtered.slice(0, MAX_RENDERED)
+  const hiddenCount = filtered.length - shown.length
+
+  // A control that becomes disabled while open would otherwise keep its list up.
+  useEffect(() => {
+    if (disabled) setOpen(false)
+  }, [disabled])
 
   useEffect(() => {
     if (open) {
@@ -42,7 +78,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
 
   const triggerStyle: React.CSSProperties = {
     width: '100%',
-    background: '#FFFFFF',
+    background: disabled ? '#F5F5F4' : '#FFFFFF',
     border: `1.5px solid ${error ? '#DC2626' : open ? '#36213E' : '#E5E5E5'}`,
     borderRadius: 12,
     padding: '12px 40px 12px 16px',
@@ -53,7 +89,8 @@ export default function SearchableSelect({ options, value, onChange, placeholder
     outline: 'none',
     boxShadow: open ? (error ? ERROR_SHADOW : FOCUS_SHADOW) : 'none',
     transition: 'border-color 200ms, box-shadow 200ms',
-    cursor: 'pointer',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    opacity: disabled ? 0.65 : 1,
     textAlign: 'left',
     boxSizing: 'border-box',
     display: 'flex',
@@ -69,8 +106,11 @@ export default function SearchableSelect({ options, value, onChange, placeholder
       <button
         type="button"
         style={triggerStyle}
-        onClick={() => setOpen(o => !o)}
+        disabled={disabled}
+        aria-disabled={disabled}
+        onClick={() => { if (!disabled) setOpen(o => !o) }}
         onFocus={e => {
+          if (disabled) return
           (e.currentTarget as HTMLButtonElement).style.borderColor = error ? '#DC2626' : '#36213E'
           ;(e.currentTarget as HTMLButtonElement).style.boxShadow = error ? ERROR_SHADOW : FOCUS_SHADOW
         }}
@@ -81,6 +121,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
           }
         }}
         onKeyDown={e => {
+          if (disabled) return
           if (e.key === 'Escape') setOpen(false)
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(o => !o) }
         }}
@@ -119,25 +160,34 @@ export default function SearchableSelect({ options, value, onChange, placeholder
             ref={listRef}
             className="max-h-56 overflow-y-auto py-1 overscroll-contain"
           >
-            {filtered.length === 0 ? (
+            {loading ? (
+              <li className="px-4 py-3 text-sm text-neutral-400 font-body">Loading…</li>
+            ) : filtered.length === 0 ? (
               <li className="px-4 py-3 text-sm text-neutral-400 font-body">
                 No results for "{query}"
               </li>
             ) : (
-              filtered.map(opt => (
-                <li
-                  key={opt}
-                  onMouseDown={e => e.preventDefault()}
-                  onClick={() => { onChange(opt); setOpen(false) }}
-                  className={`px-4 py-2.5 cursor-pointer text-sm font-body transition-colors ${
-                    opt === value
-                      ? 'bg-hai-mint/60 text-hai-plum font-bold'
-                      : 'text-neutral-700 hover:bg-hai-offwhite hover:text-hai-plum'
-                  }`}
-                >
-                  {opt}
-                </li>
-              ))
+              <>
+                {shown.map(opt => (
+                  <li
+                    key={opt}
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={() => { onChange(opt); setOpen(false) }}
+                    className={`px-4 py-2.5 cursor-pointer text-sm font-body transition-colors ${
+                      opt === value
+                        ? 'bg-hai-mint/60 text-hai-plum font-bold'
+                        : 'text-neutral-700 hover:bg-hai-offwhite hover:text-hai-plum'
+                    }`}
+                  >
+                    {opt}
+                  </li>
+                ))}
+                {hiddenCount > 0 && (
+                  <li className="px-4 py-2.5 text-xs font-semibold text-neutral-400 font-body">
+                    +{hiddenCount.toLocaleString()} more — keep typing to narrow
+                  </li>
+                )}
+              </>
             )}
           </ul>
         </div>

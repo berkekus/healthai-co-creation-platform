@@ -5,6 +5,7 @@
     "meetings": "Reuniões",
     "admin": "Administração",
     "home": "Início",
+    "about": "Sobre",
     "signIn": "Entrar",
     "signUp": "Criar conta",
     "profile": "Perfil",
@@ -29,8 +30,8 @@
       "createHcpAccount": "Criar conta de profissional de saúde"
     },
     "hero": {
-      "titleLine1": "Cocriação em saúde,",
-      "titleLine2": "da ideia à colaboração.",
+      "titleLine1": "European HealthTech",
+      "titleLine2": "Co-Creation & Innovation Platform",
       "subtitle": "Um diretório estruturado e nativo de GDPR onde clínicos e engenheiros europeus publicam, combinam e se reúnem — tudo com verificação institucional .edu e trilha de auditoria imutável."
     },
     "directory": {

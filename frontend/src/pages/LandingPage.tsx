@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, useMotionTemplate, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../constants/routes'
+import FundingNotice from '../components/layout/FundingNotice'
 import { useAuthStore } from '../store/authStore'
 import LanguageToggle from '../components/ui/LanguageToggle'
 
@@ -130,6 +131,10 @@ function TopNav() {
                   <a href={link.href} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{link.label}</a>
                 </span>
               ))}
+              <NavDivider />
+              <Link to={ROUTES.ABOUT} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">
+                {t('nav.about')}
+              </Link>
             </div>
             <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
               <Link
@@ -199,6 +204,13 @@ function TopNav() {
               {link.label}
             </a>
           ))}
+          <Link
+            to={ROUTES.ABOUT}
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-5 py-3 text-sm font-semibold text-neutral-800 hover:bg-black/5 transition-colors rounded-xl mx-2"
+          >
+            {t('nav.about')}
+          </Link>
           <div className="mx-2 mt-2 pt-2 border-t border-neutral-200 flex gap-2">
             <Link
               to={ROUTES.LOGIN}
@@ -801,44 +813,6 @@ export default function LandingPage() {
             >
 
             {/* ── Pathway cards ─────────────────────────────── */}
-            <div className="relative mb-10 overflow-hidden py-3">
-              <div className="mb-5 flex items-center justify-center gap-3">
-                <Icon name="verified_user" className="landing-accent-2 text-xl" filled />
-                <p className="landing-muted font-mono text-xs font-black uppercase tracking-[0.16em]">
-                  {t('landing.directory.verifiedNetwork')}
-                </p>
-              </div>
-              <div className="relative overflow-hidden">
-                <div className="landing-fade-left pointer-events-none absolute inset-y-0 left-0 z-10 w-24" />
-                <div className="landing-fade-right pointer-events-none absolute inset-y-0 right-0 z-10 w-24" />
-                <div className="institution-marquee flex w-max items-center">
-                  {[...Array(2)].map((_, groupIndex) => (
-                    <div key={groupIndex} className="flex shrink-0 items-center gap-8 px-4">
-                      {[
-                        'Cankaya University',
-                        'METU',
-                        'ITU',
-                        'Bogazici University',
-                        'Ege University Hospital',
-                        'Hacettepe University Hospital',
-                        'Charite Berlin',
-                        'KU Leuven',
-                        'TU Delft',
-                        'ETH Zurich',
-                        'University of Helsinki',
-                        'Karolinska Institutet',
-                      ].map((name) => (
-                        <span key={`${groupIndex}-${name}`} className="landing-muted flex items-center gap-8 font-mono text-xs font-black uppercase tracking-[0.12em]">
-                          {name}
-                          <span className="landing-accent-2-bg h-1 w-1 rounded-full" />
-                        </span>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
             <div className="relative mb-12">
               <div className="landing-directory-shell relative rounded-[32px] border px-5 pb-6 pt-5 md:px-7 md:pb-7 md:pt-7">
                 <div className="mb-5 flex items-center justify-between px-1">
@@ -1457,6 +1431,7 @@ export default function LandingPage() {
               <li><a href="#directory" className="hover:text-white transition-colors">Directory</a></li>
               <li><a href="#how" className="hover:text-white transition-colors">How it works</a></li>
               <li><a href="#trust" className="hover:text-white transition-colors">Trust &amp; GDPR</a></li>
+              <li><Link to={ROUTES.ABOUT} className="hover:text-white transition-colors">About</Link></li>
               <li><Link to={ROUTES.LOGIN} className="hover:text-white transition-colors">Sign in</Link></li>
             </ul>
           </div>
@@ -1497,8 +1472,13 @@ export default function LandingPage() {
           </span>
         </div>
 
+        {/* Erasmus+ funding acknowledgement */}
+        <div className="px-6 md:px-16 lg:px-24 pt-8 mt-6 relative z-10 w-full border-t border-hai-teal/20">
+          <FundingNotice tone="plum" />
+        </div>
+
         {/* Bottom strip */}
-        <div className="px-6 md:px-16 lg:px-24 py-8 mt-6 flex justify-between items-end relative z-10 w-full text-hai-teal gap-8 flex-wrap border-t border-hai-teal/20">
+        <div className="px-6 md:px-16 lg:px-24 py-8 mt-2 flex justify-between items-end relative z-10 w-full text-hai-teal gap-8 flex-wrap">
           <div className="text-xs font-semibold text-hai-teal font-mono tracking-[0.12em]">
             2026<br />Copyright<br />HealthAI
           </div>

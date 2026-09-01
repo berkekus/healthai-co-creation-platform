@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ROUTES } from '../../constants/routes'
+import FundingNotice from './FundingNotice'
 
 export default function Footer() {
   return (
@@ -19,9 +20,16 @@ export default function Footer() {
         </div>
 
         <div className="flex items-center flex-wrap gap-x-6 gap-y-2 text-xs font-mono tracking-[0.12em] uppercase text-[#dff8ff]/70">
+          <Link to={ROUTES.ABOUT} className="hover:text-white transition-colors">About</Link>
           <Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Privacy Policy</Link>
           <Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">GDPR Rights</Link>
           <span>© 2026</span>
+        </div>
+      </div>
+
+      <div className="border-t border-white/10">
+        <div className="max-w-[1640px] mx-auto px-6 md:px-10 2xl:px-0 py-6">
+          <FundingNotice />
         </div>
       </div>
     </footer>

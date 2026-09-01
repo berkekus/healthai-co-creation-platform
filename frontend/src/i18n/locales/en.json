@@ -5,6 +5,7 @@
     "meetings": "Meetings",
     "admin": "Admin",
     "home": "Home",
+    "about": "About",
     "signIn": "Sign in",
     "signUp": "Sign Up",
     "profile": "Profile",
@@ -29,8 +30,8 @@
       "createHcpAccount": "Create HCP Account"
     },
     "hero": {
-      "titleLine1": "Healthcare co-creation,",
-      "titleLine2": "from idea to collaboration.",
+      "titleLine1": "European HealthTech",
+      "titleLine2": "Co-Creation & Innovation Platform",
       "subtitle": "A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional .edu verification and an immutable audit trail."
     },
     "directory": {
@@ -550,7 +551,9 @@
       "institutionLabel": "Institution",
       "institutionPlaceholder": "Charité – Universitätsmedizin Berlin",
       "cityLabel": "City",
-      "cityPlaceholder": "Berlin",
+      "cityPlaceholder": "Select city",
+      "cityPlaceholderNoCountry": "Select country first",
+      "cityFreeText": "Enter your city",
       "countryLabel": "Country",
       "countryPlaceholder": "Select…",
       "gdprConsent": "I have read and agree to the Privacy Policy. I understand that my data will be processed in accordance with GDPR.",

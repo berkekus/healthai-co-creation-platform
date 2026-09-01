@@ -245,6 +245,16 @@ export default function Navbar() {
               >
                 {t('nav.home')}
               </Link>
+              <Link
+                to={ROUTES.ABOUT}
+                className={`px-5 py-2.5 rounded-full text-sm font-bold transition-colors duration-200 ease-in-out ${
+                  isActive(ROUTES.ABOUT)
+                    ? 'bg-hai-mint/55 text-hai-plum'
+                    : 'text-neutral-600 hover:text-neutral-900 hover:bg-black/5'
+                }`}
+              >
+                {t('nav.about')}
+              </Link>
             </div>
           )}
         </nav>
