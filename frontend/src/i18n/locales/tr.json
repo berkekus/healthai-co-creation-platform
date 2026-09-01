@@ -5,6 +5,7 @@
     "meetings": "Toplantılar",
     "admin": "Yönetim",
     "home": "Ana Sayfa",
+    "about": "Hakkında",
     "signIn": "Giriş Yap",
     "signUp": "Kayıt Ol",
     "profile": "Profil",
@@ -29,8 +30,8 @@
       "createHcpAccount": "Sağlık Profesyoneli Hesabı Oluştur"
     },
     "hero": {
-      "titleLine1": "Sağlıkta ortak yaratım,",
-      "titleLine2": "fikirden iş birliğine.",
+      "titleLine1": "European HealthTech",
+      "titleLine2": "Co-Creation & Innovation Platform",
       "subtitle": "Avrupalı klinisyenlerin ve mühendislerin yayınladığı, eşleştiği ve buluştuğu; kurumsal .edu doğrulaması ve değiştirilemez denetim kaydıyla desteklenen, GDPR uyumlu yapılandırılmış bir dizin."
     },
     "directory": {

@@ -26,6 +26,7 @@ const NotificationsPage  = lazy(() => import('../pages/notifications/Notificatio
 const ConversationsPage  = lazy(() => import('../pages/messages/ConversationsPage'))
 const ConversationPage   = lazy(() => import('../pages/messages/ConversationPage'))
 const AdminPage          = lazy(() => import('../pages/admin/AdminPage'))
+const AboutPage          = lazy(() => import('../pages/AboutPage'))
 const PrivacyPage        = lazy(() => import('../pages/errors/PrivacyPage'))
 const NotFoundPage       = lazy(() => import('../pages/errors/NotFoundPage'))
 const UnauthorizedPage   = lazy(() => import('../pages/errors/UnauthorizedPage'))
@@ -55,6 +56,7 @@ export default function AppRouter() {
             <Route path={ROUTES.VERIFY_EMAIL}     element={<VerifyEmailPage />} />
             <Route path={ROUTES.FORGOT_PASSWORD}  element={<ForgotPasswordPage />} />
             <Route path={ROUTES.RESET_PASSWORD}   element={<ResetPasswordPage />} />
+            <Route path={ROUTES.ABOUT}        element={<AboutPage />} />
             <Route path={ROUTES.PRIVACY}      element={<PrivacyPage />} />
             <Route path={ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
             <Route path={ROUTES.NOT_FOUND}    element={<NotFoundPage />} />

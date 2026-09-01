@@ -5,6 +5,7 @@
     "meetings": "Vergaderingen",
     "admin": "Beheer",
     "home": "Home",
+    "about": "Over",
     "signIn": "Inloggen",
     "signUp": "Registreren",
     "profile": "Profiel",
@@ -29,8 +30,8 @@
       "createHcpAccount": "Zorgprofessionalaccount maken"
     },
     "hero": {
-      "titleLine1": "Co-creatie in de zorg,",
-      "titleLine2": "van idee tot samenwerking.",
+      "titleLine1": "European HealthTech",
+      "titleLine2": "Co-Creation & Innovation Platform",
       "subtitle": "Een gestructureerde, GDPR-native directory waar Europese clinici en ingenieurs publiceren, matchen en afspreken — allemaal met institutionele .edu-verificatie en een onveranderlijk auditspoor."
     },
     "directory": {
