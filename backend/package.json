@@ -13,7 +13,8 @@
     "smoke": "ts-node-dev --transpile-only scripts/smoke-test.ts",
     "seed:realistic-posts": "ts-node-dev --transpile-only scripts/seed-realistic-posts.ts",
     "seed:realistic-meetings": "ts-node-dev --transpile-only scripts/seed-realistic-meetings.ts",
-    "seed:demo-messages": "ts-node-dev --transpile-only scripts/seed-demo-messages.ts"
+    "seed:demo-messages": "ts-node-dev --transpile-only scripts/seed-demo-messages.ts",
+    "reset-password": "ts-node-dev --transpile-only scripts/reset-admin-password.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

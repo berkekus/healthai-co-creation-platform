@@ -4,25 +4,61 @@ dotenv.config()
 import bcrypt from 'bcryptjs'
 import mongoose from 'mongoose'
 
-const NEW_PASSWORD = 'Admin1234!'
-const ADMIN_EMAIL  = 'admin@healthai.edu'
+/**
+ * Resets an account's password.
+ *
+ *   npm run reset-password -- <email> <new-password>
+ *
+ * The password is an argument rather than a constant so a working credential
+ * never sits in the repository — the previous version of this script carried
+ * one, alongside an admin address that no longer exists.
+ *
+ * Cost 12 matches authService, so a hash written here behaves like one written
+ * by the app itself.
+ */
+const SALT_ROUNDS = 12
 
 async function main() {
-  await mongoose.connect(process.env.MONGO_URI as string)
-  console.log('MongoDB connected')
+  const [email, password] = process.argv.slice(2)
 
-  const hashed = await bcrypt.hash(NEW_PASSWORD, 10)
-  const result = await mongoose.connection
-    .collection('users')
-    .updateOne({ email: ADMIN_EMAIL }, { $set: { password: hashed } })
-
-  if (result.matchedCount === 0) {
-    console.error(`User not found: ${ADMIN_EMAIL}`)
-  } else {
-    console.log(`Password reset OK → ${NEW_PASSWORD}`)
+  if (!email || !password) {
+    console.error('Usage: npm run reset-password -- <email> <new-password>')
+    process.exit(1)
   }
+  if (password.length < 8) {
+    console.error('Refusing: the app requires at least 8 characters, so a shorter one would lock the account out of its own login form.')
+    process.exit(1)
+  }
+
+  await mongoose.connect(process.env.MONGO_URI as string)
+
+  const users = mongoose.connection.collection('users')
+  const existing = await users.findOne({ email: email.toLowerCase() })
+  if (!existing) {
+    console.error(`No such user: ${email}`)
+    await mongoose.disconnect()
+    process.exit(1)
+  }
+
+  await users.updateOne(
+    { _id: existing._id },
+    { $set: { password: await bcrypt.hash(password, SALT_ROUNDS), updatedAt: new Date() } },
+  )
+
+  // Never print the password: this output ends up in terminals and CI logs.
+  console.log(JSON.stringify({
+    email: existing.email,
+    role: existing.role,
+    isVerified: existing.isVerified,
+    isSuspended: existing.isSuspended,
+    passwordReset: true,
+  }, null, 2))
 
   await mongoose.disconnect()
 }
 
-main().catch((e) => { console.error(e); process.exit(1) })
+main().catch(async err => {
+  console.error(err)
+  await mongoose.disconnect()
+  process.exit(1)
+})
