@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, useMotionTemplate, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../constants/routes'
+import FundingNotice from '../components/layout/FundingNotice'
 import { useAuthStore } from '../store/authStore'
 import LanguageToggle from '../components/ui/LanguageToggle'
 
@@ -1471,8 +1472,13 @@ export default function LandingPage() {
           </span>
         </div>
 
+        {/* Erasmus+ funding acknowledgement */}
+        <div className="px-6 md:px-16 lg:px-24 pt-8 mt-6 relative z-10 w-full border-t border-hai-teal/20">
+          <FundingNotice tone="plum" />
+        </div>
+
         {/* Bottom strip */}
-        <div className="px-6 md:px-16 lg:px-24 py-8 mt-6 flex justify-between items-end relative z-10 w-full text-hai-teal gap-8 flex-wrap border-t border-hai-teal/20">
+        <div className="px-6 md:px-16 lg:px-24 py-8 mt-2 flex justify-between items-end relative z-10 w-full text-hai-teal gap-8 flex-wrap">
           <div className="text-xs font-semibold text-hai-teal font-mono tracking-[0.12em]">
             2026<br />Copyright<br />HealthAI
           </div>
