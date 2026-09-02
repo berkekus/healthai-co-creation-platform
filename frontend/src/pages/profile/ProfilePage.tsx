@@ -661,6 +661,12 @@ export default function ProfilePage() {
     },
   })
 
+  // The authenticated user can arrive after this page mounts. Mirror the saved
+  // tags when not editing so they are not rendered as an empty local array.
+  useEffect(() => {
+    if (!isEditing) setTags(user?.expertiseTags ?? [])
+  }, [isEditing, user?.expertiseTags])
+
   if (!user) return null
 
   const initials = user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
@@ -689,10 +695,14 @@ export default function ProfilePage() {
 
   const onSubmit = async (data: ProfileFormData) => {
     const { firstName, lastName, ...rest } = data
-    await updateProfile({ ...rest, name: `${firstName.trim()} ${lastName.trim()}`, expertiseTags: tags })
-    setSaved(true)
-    setIsEditing(false)
-    setTimeout(() => setSaved(false), 2500)
+    try {
+      await updateProfile({ ...rest, name: `${firstName.trim()} ${lastName.trim()}`, expertiseTags: tags })
+      setSaved(true)
+      setIsEditing(false)
+      setTimeout(() => setSaved(false), 2500)
+    } catch {
+      // Auth store retains the server error; stay in edit mode so the user can retry.
+    }
   }
 
   const handleCancel = () => {
