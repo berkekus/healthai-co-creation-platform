@@ -343,7 +343,7 @@ function MeetingRow({
   const partner = isOwner ? meeting.requesterName : meeting.ownerName
   const partnerEmail = isOwner ? meeting.requesterEmail : meeting.ownerEmail
   const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
-  const shouldChooseSlot = meeting.status === 'pending' && isOwner && meeting.proposedSlots.length > 0
+  const shouldChooseSlot = meeting.status === 'time_proposed' && isOwner && meeting.proposedSlots.length > 0
   const canAccept = meeting.status === 'pending' && isOwner
   const canChooseSlot = meeting.status === 'time_proposed' && isOwner && meeting.proposedSlots.length > 0
 
