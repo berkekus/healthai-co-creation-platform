@@ -9,8 +9,9 @@ import { verifyTurnstile } from '../utils/verifyTurnstile'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 // Institutional domains: .edu / .gov, optionally with a country suffix
-// (edu.tr, gov.uk, …). Kept in sync with the frontend register schema.
+// (edu.tr, gov.uk, …). Keep this rule for a future institutional-only rollout.
 const INSTITUTIONAL_EMAIL_RE = /\.(edu|gov)(\.[a-z]{2,})?$/i
+const REQUIRE_INSTITUTIONAL_EMAIL = process.env.REQUIRE_INSTITUTIONAL_EMAIL === 'true'
 // Administration is granted only through a controlled operator action, never
 // by a public registration request.
 const REGISTRABLE_ROLES = ['engineer', 'healthcare_professional'] as const
@@ -32,7 +33,7 @@ export const register = asyncHandler(async (req, res) => {
     res.status(400).json({ success: false, message: 'Invalid email format' })
     return
   }
-  if (!INSTITUTIONAL_EMAIL_RE.test(email)) {
+  if (REQUIRE_INSTITUTIONAL_EMAIL && !INSTITUTIONAL_EMAIL_RE.test(email)) {
     res.status(400).json({ success: false, message: 'Only institutional .edu or .gov email addresses are accepted. Personal email providers are not permitted.' })
     return
   }

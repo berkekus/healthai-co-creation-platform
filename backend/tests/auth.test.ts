@@ -88,10 +88,9 @@ describe('POST /api/auth/register', () => {
     },
   )
 
-  it('returns 400 for a personal email provider', async () => {
+  it('accepts a personal email provider while the institutional-only flag is disabled', async () => {
     const res = await registerWith(`personal-${Date.now()}@gmail.com`)
-    expect(res.status).toBe(400)
-    expect(res.body.message).toContain('.edu or .gov')
+    expect(res.status).toBe(201)
   })
 })
 

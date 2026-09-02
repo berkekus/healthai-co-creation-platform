@@ -29,10 +29,9 @@ describe('registerSchema', () => {
     expect(registerSchema.safeParse(valid).success).toBe(true)
   })
 
-  it('rejects a non-institutional email', () => {
+  it('accepts a personal email while the institutional-only flag is disabled', () => {
     const result = registerSchema.safeParse({ ...valid, email: 'alice@gmail.com' })
-    expect(result.success).toBe(false)
-    expect(JSON.stringify(result)).toContain('.edu or .gov')
+    expect(result.success).toBe(true)
   })
 
   it.each([

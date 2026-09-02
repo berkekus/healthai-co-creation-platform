@@ -1,6 +1,11 @@
 import { z } from 'zod'
 import type { TFunction } from 'i18next'
 
+// Kept for a future institutional-only rollout. The backend uses the matching
+// REQUIRE_INSTITUTIONAL_EMAIL environment variable.
+const REQUIRE_INSTITUTIONAL_EMAIL = import.meta.env.VITE_REQUIRE_INSTITUTIONAL_EMAIL === 'true'
+const INSTITUTIONAL_EMAIL_RE = /\.(edu|gov)(\.[a-z]{2,})?$/i
+
 export function createPostCreateSchema(t: TFunction) {
   return z.object({
     title:             z.string().min(5, t('validators.post.titleMin')),
@@ -43,16 +48,15 @@ export function createLoginSchema(t: TFunction) {
 }
 
 export function createRegisterSchema(t: TFunction) {
+  const email = z.string().min(1, t('validators.emailRequired')).email(t('validators.emailInvalid'))
+  const registerEmail = REQUIRE_INSTITUTIONAL_EMAIL
+    ? email.refine(value => INSTITUTIONAL_EMAIL_RE.test(value), { message: t('validators.register.institutionalOnly') })
+    : email
+
   return z.object({
     firstName:   z.string().min(2, t('validators.register.firstNameMin')),
     lastName:    z.string().min(2, t('validators.register.lastNameMin')),
-    email:       z
-      .string()
-      .min(1, t('validators.emailRequired'))
-      .email(t('validators.emailInvalid'))
-      .refine(v => /\.(edu|gov)(\.[a-z]{2,})?$/i.test(v), {
-        message: t('validators.register.institutionalOnly'),
-      }),
+    email:       registerEmail,
     password:    z.string().min(8, t('validators.register.passwordMin8')),
     confirm:     z.string().min(1, t('validators.register.confirmRequired')),
     role:        z.enum(['engineer', 'healthcare_professional']).refine(v => !!v, { message: t('validators.register.roleRequired') }),
