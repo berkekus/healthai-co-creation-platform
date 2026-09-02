@@ -475,7 +475,7 @@ function MeetingRow({
             {canAccept && !shouldChooseSlot && (
               <ActionButton disabled={busy} onClick={onAccept} tone="primary">
                 <Check size={14} />
-                {tRow('meetingsPage.accept')}
+                {tRow('meetings.accept')}
               </ActionButton>
             )}
             {meeting.status === 'pending' && !isOwner && (
