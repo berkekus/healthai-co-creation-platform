@@ -17,6 +17,8 @@ export interface Notification {
   type: NotificationType
   title: string
   body: string
+  contentKey?: string
+  metadata?: Record<string, string>
   isRead: boolean
   createdAt: string
   linkTo?: string

@@ -48,6 +48,8 @@ export async function requestMeeting(data: {
   pushNotification({
     userId: data.ownerId,
     type: 'meeting_request',
+    contentKey: 'meeting_request',
+    metadata: { actorName: data.requesterName, postTitle: data.postTitle },
     title: 'Yeni toplantı isteği',
     body: `${data.requesterName} "${data.postTitle}" için toplantı talep etti.`,
     linkTo: `/meetings`,
@@ -100,6 +102,8 @@ export async function acceptMeeting(id: string, ownerId: string) {
   pushNotification({
     userId: meeting.requesterId.toString(),
     type: 'meeting_accepted',
+    contentKey: 'meeting_accepted_waiting',
+    metadata: { actorName: meeting.ownerName, postTitle: meeting.postTitle },
     title: 'Toplantı kabul edildi',
     body: `${meeting.ownerName} toplantı talebinizi kabul etti. Zaman dilimi onayını bekliyor. "${meeting.postTitle}"`,
     linkTo: `/meetings`,
@@ -150,6 +154,8 @@ export async function confirmMeetingSlot(id: string, ownerId: string, slot: ITim
     pushNotification({
       userId: m.requesterId.toString(),
       type: 'meeting_declined',
+      contentKey: 'meeting_auto_declined',
+      metadata: { postTitle: m.postTitle },
       title: 'Toplantı isteği iptal edildi',
       body: `"${m.postTitle}" için başka bir toplantı onaylandığından talebiniz otomatik olarak iptal edildi.`,
       linkTo: `/meetings`,
@@ -176,6 +182,8 @@ export async function confirmMeetingSlot(id: string, ownerId: string, slot: ITim
   pushNotification({
     userId: meeting.requesterId.toString(),
     type: 'meeting_accepted',
+    contentKey: 'meeting_accepted',
+    metadata: { actorName: meeting.ownerName, postTitle: meeting.postTitle },
     title: 'Toplantı kabul edildi',
     body: `${meeting.ownerName} toplantı talebinizi kabul etti. "${meeting.postTitle}"`,
     linkTo: `/meetings`,
@@ -198,6 +206,8 @@ export async function declineMeeting(id: string, ownerId: string, reason?: strin
   pushNotification({
     userId: meeting!.requesterId.toString(),
     type: 'meeting_declined',
+    contentKey: 'meeting_declined',
+    metadata: { actorName: meeting!.ownerName, postTitle: meeting!.postTitle },
     title: 'Toplantı reddedildi',
     body: `${meeting!.ownerName} toplantı talebinizi reddetti. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
@@ -226,6 +236,8 @@ export async function cancelMeeting(id: string, userId: string, reason?: string)
   pushNotification({
     userId: isRequester ? meeting!.ownerId.toString() : meeting!.requesterId.toString(),
     type: 'meeting_cancelled',
+    contentKey: 'meeting_cancelled',
+    metadata: { actorName: isRequester ? meeting!.requesterName : meeting!.ownerName, postTitle: meeting!.postTitle },
     title: 'Toplantı iptal edildi',
     body: `${isRequester ? meeting!.requesterName : meeting!.ownerName} toplantı talebini iptal etti. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
@@ -249,6 +261,8 @@ export async function rescheduleMeeting(id: string, requesterId: string, propose
   pushNotification({
     userId: meeting!.ownerId.toString(),
     type: 'meeting_cancelled',
+    contentKey: 'meeting_reschedule_requested',
+    metadata: { actorName: meeting!.requesterName, postTitle: meeting!.postTitle },
     title: 'Toplantı yeniden zamanlanma isteği',
     body: `${meeting!.requesterName} toplantıyı yeniden zamanlamak istiyor. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
@@ -276,6 +290,8 @@ export async function completeMeeting(id: string, userId: string) {
   pushNotification({
     userId: isRequester ? meeting!.ownerId.toString() : meeting!.requesterId.toString(),
     type: 'meeting_completed',
+    contentKey: 'meeting_completed',
+    metadata: { actorName: isRequester ? meeting!.requesterName : meeting!.ownerName, postTitle: meeting!.postTitle },
     title: 'Görüşme tamamlandı',
     body: `${isRequester ? meeting!.requesterName : meeting!.ownerName} görüşmeyi tamamlandı olarak işaretledi. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,

@@ -240,6 +240,8 @@ export async function changePassword(userId: string, oldPassword: string, newPas
   pushNotification({
     userId: user.id as string,
     type: 'account_activity',
+    contentKey: 'password_changed',
+    metadata: {},
     title: 'Şifre değiştirildi',
     body: 'Hesabınızın şifresi başarıyla değiştirildi. Bu işlemi siz yapmadıysanız hemen destek ekibiyle iletişime geçin.',
   }).catch(() => {})
@@ -432,6 +434,8 @@ export async function resetPassword(token: string, newPassword: string) {
   pushNotification({
     userId: user.id as string,
     type: 'account_activity',
+    contentKey: 'password_reset',
+    metadata: {},
     title: 'Şifre sıfırlandı',
     body: 'Hesabınızın şifresi başarıyla sıfırlandı. Bu işlemi siz yapmadıysanız hemen destek ekibiyle iletişime geçin.',
   }).catch(() => {})

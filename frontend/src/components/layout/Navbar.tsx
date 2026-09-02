@@ -8,6 +8,7 @@ import LanguageToggle from '../ui/LanguageToggle'
 import { Badge, IconButton } from '../ui'
 import { ROUTES } from '../../constants/routes'
 import type { NotificationType, Notification } from '../../types/common.types'
+import { getNotificationContent } from '../../utils/notificationContent'
 
 const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
 const resolveAvatar = (url?: string) => {
@@ -90,8 +91,9 @@ function NotifDropdown({
         </div>
       ) : (
         <ul>
-          {items.map(n => (
-            <li key={n.id}>
+          {items.map(n => {
+            const content = getNotificationContent(n, t)
+            return <li key={n.id}>
               <button
                 onClick={() => onNavigate(n.linkTo)}
                 className="flex w-full cursor-pointer items-start gap-3 px-5 py-3.5 text-left transition-colors hover:bg-[#F3F4F6]"
@@ -99,9 +101,9 @@ function NotifDropdown({
                 <NotifIcon type={n.type} />
                 <div className="min-w-0 flex-1">
                   <p className={`text-sm leading-snug ${n.isRead ? 'font-semibold text-[#6F6878]' : 'font-black text-[#36213E]'}`}>
-                    {n.title}
+                    {content.title}
                   </p>
-                  <p className="mt-0.5 truncate text-xs font-semibold text-[#6F6878]">{n.body}</p>
+                  <p className="mt-0.5 truncate text-xs font-semibold text-[#6F6878]">{content.body}</p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2 pt-0.5">
                   <span className="whitespace-nowrap text-xs font-semibold text-[#6F6878]">{timeAgo(n.createdAt)}</span>
@@ -109,7 +111,7 @@ function NotifDropdown({
                 </div>
               </button>
             </li>
-          ))}
+          })}
         </ul>
       )}
 

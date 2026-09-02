@@ -667,6 +667,64 @@
     "enableBtn": "Enable Notifications",
     "noMore": "No more notifications"
   },
+  "notificationContent": {
+    "meeting_request": {
+      "title": "New meeting request",
+      "body": "{{actorName}} requested a meeting for \"{{postTitle}}\"."
+    },
+    "meeting_accepted": {
+      "title": "Meeting accepted",
+      "body": "{{actorName}} accepted your meeting request for \"{{postTitle}}\"."
+    },
+    "meeting_accepted_waiting": {
+      "title": "Meeting accepted",
+      "body": "{{actorName}} accepted your meeting request for \"{{postTitle}}\". A time slot is awaiting confirmation."
+    },
+    "meeting_declined": {
+      "title": "Meeting request declined",
+      "body": "{{actorName}} declined your meeting request for \"{{postTitle}}\"."
+    },
+    "meeting_auto_declined": {
+      "title": "Meeting request cancelled",
+      "body": "Your request for \"{{postTitle}}\" was automatically cancelled because another meeting was confirmed."
+    },
+    "meeting_cancelled": {
+      "title": "Meeting cancelled",
+      "body": "{{actorName}} cancelled the meeting request for \"{{postTitle}}\"."
+    },
+    "meeting_reschedule_requested": {
+      "title": "Reschedule request",
+      "body": "{{actorName}} would like to reschedule the meeting for \"{{postTitle}}\"."
+    },
+    "meeting_completed": {
+      "title": "Meeting completed",
+      "body": "{{actorName}} marked the meeting for \"{{postTitle}}\" as completed."
+    },
+    "partner_found": {
+      "title": "Collaboration completed",
+      "body": "A collaboration partner has already been found for \"{{postTitle}}\"."
+    },
+    "post_interest_received": {
+      "title": "New interest",
+      "body": "{{actorName}} is interested in your post \"{{postTitle}}\"."
+    },
+    "saved_search_match": {
+      "title": "New post matches your saved search",
+      "body": "\"{{postTitle}}\" matches your saved search \"{{searchName}}\"."
+    },
+    "new_message": {
+      "title": "New message from {{actorName}}",
+      "body": "{{messagePreview}}"
+    },
+    "password_changed": {
+      "title": "Password changed",
+      "body": "Your password was changed successfully. Contact support immediately if this was not you."
+    },
+    "password_reset": {
+      "title": "Password reset",
+      "body": "Your password was reset successfully. Contact support immediately if this was not you."
+    }
+  },
   "messagesPage": {
     "title": "Messages.",
     "desc": "Collaborate privately with your partner after a meeting is confirmed.",

@@ -667,6 +667,64 @@
     "enableBtn": "Bildirimleri Etkinleştir",
     "noMore": "Daha fazla bildirim yok"
   },
+  "notificationContent": {
+    "meeting_request": {
+      "title": "Yeni toplantı isteği",
+      "body": "{{actorName}}, \"{{postTitle}}\" için toplantı talep etti."
+    },
+    "meeting_accepted": {
+      "title": "Toplantı kabul edildi",
+      "body": "{{actorName}}, \"{{postTitle}}\" için toplantı talebinizi kabul etti."
+    },
+    "meeting_accepted_waiting": {
+      "title": "Toplantı kabul edildi",
+      "body": "{{actorName}}, \"{{postTitle}}\" için toplantı talebinizi kabul etti. Zaman dilimi onayı bekleniyor."
+    },
+    "meeting_declined": {
+      "title": "Toplantı isteği reddedildi",
+      "body": "{{actorName}}, \"{{postTitle}}\" için toplantı talebinizi reddetti."
+    },
+    "meeting_auto_declined": {
+      "title": "Toplantı isteği iptal edildi",
+      "body": "\"{{postTitle}}\" için başka bir toplantı onaylandığından talebiniz otomatik olarak iptal edildi."
+    },
+    "meeting_cancelled": {
+      "title": "Toplantı iptal edildi",
+      "body": "{{actorName}}, \"{{postTitle}}\" için toplantı talebini iptal etti."
+    },
+    "meeting_reschedule_requested": {
+      "title": "Yeniden zamanlama isteği",
+      "body": "{{actorName}}, \"{{postTitle}}\" için toplantıyı yeniden zamanlamak istiyor."
+    },
+    "meeting_completed": {
+      "title": "Görüşme tamamlandı",
+      "body": "{{actorName}}, \"{{postTitle}}\" için görüşmeyi tamamlandı olarak işaretledi."
+    },
+    "partner_found": {
+      "title": "İş birliği tamamlandı",
+      "body": "\"{{postTitle}}\" için bir iş birliği ortağı bulundu."
+    },
+    "post_interest_received": {
+      "title": "Yeni ilgi",
+      "body": "{{actorName}}, \"{{postTitle}}\" başlıklı ilanınla ilgileniyor."
+    },
+    "saved_search_match": {
+      "title": "Kayıtlı aramanla eşleşen yeni ilan",
+      "body": "\"{{postTitle}}\", \"{{searchName}}\" kayıtlı aramanla eşleşiyor."
+    },
+    "new_message": {
+      "title": "{{actorName}} yeni bir mesaj gönderdi",
+      "body": "{{messagePreview}}"
+    },
+    "password_changed": {
+      "title": "Şifre değiştirildi",
+      "body": "Hesabının şifresi başarıyla değiştirildi. Bu işlemi sen yapmadıysan hemen destek ekibiyle iletişime geç."
+    },
+    "password_reset": {
+      "title": "Şifre sıfırlandı",
+      "body": "Hesabının şifresi başarıyla sıfırlandı. Bu işlemi sen yapmadıysan hemen destek ekibiyle iletişime geç."
+    }
+  },
   "messagesPage": {
     "title": "Mesajlar.",
     "desc": "Toplantı onaylandıktan sonra ortağınızla özel iletişim kurun.",

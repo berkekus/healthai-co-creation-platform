@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import type { Notification, NotificationType } from '../../types/common.types'
+import { getNotificationContent } from '../../utils/notificationContent'
 
 type FilterTab = 'all' | 'unread' | 'meetings' | 'posts' | 'system'
 
@@ -187,6 +188,7 @@ export default function NotificationsPage() {
             ) : (
               filtered.map(n => {
                 const { Icon, bg, color } = getIconStyle(n.type)
+                const content = getNotificationContent(n, t)
                 return (
                   <button
                     type="button"
@@ -214,9 +216,9 @@ export default function NotificationsPage() {
                       <div className={`text-sm leading-snug ${
                         n.isRead ? 'text-[#36213E] font-semibold' : 'text-[#36213E] font-bold'
                       }`}>
-                        {n.title}
+                        {content.title}
                       </div>
-                      <div className="text-sm text-[#6F6878] mt-0.5 truncate">{n.body}</div>
+                      <div className="text-sm text-[#6F6878] mt-0.5 truncate">{content.body}</div>
                     </div>
 
                     {/* Time + dot */}

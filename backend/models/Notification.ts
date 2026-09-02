@@ -18,6 +18,8 @@ export interface INotification extends Document {
   type: NotificationType
   title: string
   body: string
+  contentKey?: string
+  metadata?: Record<string, string>
   isRead: boolean
   linkTo?: string
   createdAt: Date
@@ -46,6 +48,10 @@ const NotificationSchema = new Schema<INotification>(
     },
     title: { type: String, required: true, trim: true },
     body: { type: String, required: true, trim: true },
+    // Keep the message data separate from its display language. This lets the
+    // client render the same notification in the user's selected language.
+    contentKey: { type: String, trim: true },
+    metadata: { type: Schema.Types.Mixed },
     isRead: { type: Boolean, default: false },
     linkTo: { type: String },
   },

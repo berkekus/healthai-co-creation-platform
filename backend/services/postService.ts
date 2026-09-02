@@ -118,6 +118,8 @@ async function notifySavedSearchSubscribers(post: IPost) {
     pushNotification({
       userId: search.userId.toString(),
       type: 'interest_received',
+      contentKey: 'saved_search_match',
+      metadata: { searchName: search.name, postTitle: post.title },
       title: 'Kayıtlı aramanızla eşleşen yeni ilan',
       body: `"${search.name}" — ${post.title}`,
       linkTo: `/posts/${post.id}`,
@@ -155,6 +157,8 @@ export async function markPartnerFound(id: string, requesterId: string) {
     pushNotification({
       userId: meeting.requesterId.toString(),
       type: 'partner_found',
+      contentKey: 'partner_found',
+      metadata: { postTitle: post.title },
       title: 'İşbirliği tamamlandı',
       body: `"${post.title}" için zaten bir işbirliği ortağı bulundu.`,
       linkTo: `/posts/${id}`,
@@ -183,6 +187,8 @@ export async function expressInterest(id: string, requesterId: string, requester
   pushNotification({
     userId: post.authorId.toString(),
     type: 'interest_received',
+    contentKey: 'post_interest_received',
+    metadata: { actorName: requesterName, postTitle: post.title },
     title: 'Yeni ilgi',
     body: `${requesterName} "${post.title}" postunuza ilgi gösterdi.`,
     linkTo: `/posts/${id}`,

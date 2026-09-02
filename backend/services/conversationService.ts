@@ -97,6 +97,8 @@ export async function sendMessage(conversationId: string, senderId: string, send
     pushNotification({
       userId: otherId,
       type: 'new_message',
+      contentKey: 'new_message',
+      metadata: { actorName: senderName, messagePreview: trimmed.length > 60 ? trimmed.slice(0, 60) + '…' : trimmed },
       title: `${senderName} yeni bir mesaj gönderdi`,
       body: trimmed.length > 60 ? trimmed.slice(0, 60) + '…' : trimmed,
       linkTo: `/messages/${conversationId}`,
