@@ -76,7 +76,7 @@ interface DirectoryPost {
   hasAI: boolean
 }
 
-const domainOptions = ['Cardiology', 'Orthopedics', 'Clinical Pharmacy', 'Public Health & Epidemiology', 'Endocrinology & Diabetes']
+const domainOptions = ['Cardiology', 'Orthopedics', 'Clinical Pharmacy', 'Public Health & Epidemiology', 'Endocrinology & Diabetes', 'Bioethics']
 const stageValues: ProjectStage[] = ['idea', 'concept_validation', 'prototype', 'pilot', 'pre_deployment']
 const statusValues: PostStatus[] = ['active', 'meeting_scheduled', 'partner_found', 'expired', 'draft']
 

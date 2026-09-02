@@ -43,7 +43,7 @@ export const createPost = asyncHandler<AuthenticatedRequest>(async (req, res) =>
 })
 
 export const getPost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const post = await postService.getPostById(req.params.id)
+  const post = await postService.getPostById(req.params.id, req.userId, req.userRole === 'admin')
   res.json({ success: true, data: post })
 })
 

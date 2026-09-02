@@ -65,6 +65,22 @@ describe('POST /api/meetings', () => {
   })
 })
 
+describe('GET /api/meetings/:id', () => {
+  it('does not expose a meeting to an unrelated user', async () => {
+    const owner = await createUser({ role: 'healthcare_professional' })
+    const requester = await createUser()
+    const outsider = await createUser()
+    const post = await createPost(owner.token)
+    await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
+    const meeting = await requestMeeting(requester.token, post.id)
+
+    const res = await api
+      .get(`/api/meetings/${meeting.body.data.id}`)
+      .set('Authorization', `Bearer ${outsider.token}`)
+    expect(res.status).toBe(403)
+  })
+})
+
 describe('POST /api/meetings/:id/decline', () => {
   it('declines a pending meeting', async () => {
     const owner = await createUser({ role: 'healthcare_professional' })

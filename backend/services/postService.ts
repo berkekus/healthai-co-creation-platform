@@ -38,9 +38,12 @@ export async function createPost(data: {
   return post
 }
 
-export async function getPostById(id: string) {
+export async function getPostById(id: string, requesterId: string, isAdmin: boolean) {
   const post = await Post.findById(id)
   if (!post) throw makeError('Post not found', 404)
+  if (post.status === 'draft' && !isAdmin && post.authorId.toString() !== requesterId) {
+    throw makeError('Forbidden', 403)
+  }
   return post
 }
 

@@ -25,7 +25,7 @@ function hashToken(token: string): string {
 
 function signToken(user: IUser): string {
   return jwt.sign(
-    { id: user.id as string, role: user.role },
+    { id: user.id as string, role: user.role, tokenVersion: user.tokenVersion ?? 0 },
     process.env.JWT_SECRET as string,
     { expiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as jwt.SignOptions['expiresIn'] }
   )
@@ -233,6 +233,8 @@ export async function changePassword(userId: string, oldPassword: string, newPas
   if (!match) throw makeError('Current password is incorrect', 400)
 
   user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
+  user.passwordChangedAt = new Date()
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1
   await user.save()
 
   pushNotification({
@@ -421,6 +423,8 @@ export async function resetPassword(token: string, newPassword: string) {
   if (!user) throw makeError('Invalid or expired password reset token', 400)
 
   user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
+  user.passwordChangedAt = new Date()
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1
   user.resetToken = undefined
   user.resetTokenExpires = undefined
   await user.save()

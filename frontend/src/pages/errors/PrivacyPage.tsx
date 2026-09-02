@@ -99,7 +99,7 @@ export default function PrivacyPage() {
             Contact:{' '}
             <span className="inline-flex items-center gap-1 bg-hai-offwhite rounded-full px-2.5 py-0.5 font-mono text-xs text-hai-plum font-bold">
               <span className="material-symbols-outlined text-sm">mail</span>
-              admin@healthai.edu
+              admin@healthcocreate.com
             </span>
           </p>
         </SectionCard>
@@ -168,7 +168,7 @@ export default function PrivacyPage() {
             <BulletRow label="Portability (Art. 20):">Export your data as JSON via Profile → Export my data.</BulletRow>
             <BulletRow label="Erasure (Art. 17):">Delete your account via Profile → Delete account. Security logs cannot be deleted per retention policy.</BulletRow>
             <BulletRow label="Rectification (Art. 16):">Edit your profile at any time.</BulletRow>
-            <BulletRow label="Objection (Art. 21):">Contact <span className="font-mono bg-hai-offwhite text-hai-plum px-1 rounded font-bold">admin@healthai.edu</span> to object to processing.</BulletRow>
+            <BulletRow label="Objection (Art. 21):">Contact <span className="font-mono bg-hai-offwhite text-hai-plum px-1 rounded font-bold">admin@healthcocreate.com</span> to object to processing.</BulletRow>
           </div>
         </SectionCard>
 
@@ -207,8 +207,8 @@ export default function PrivacyPage() {
             </div>
             <p className="text-sm leading-relaxed text-hai-offwhite/85">
               Email{' '}
-              <a href="mailto:admin@healthai.edu" className="underline underline-offset-2 text-hai-mint hover:text-white transition-colors">
-                admin@healthai.edu
+              <a href="mailto:admin@healthcocreate.com" className="underline underline-offset-2 text-hai-mint hover:text-white transition-colors">
+                admin@healthcocreate.com
               </a>{' '}
               . You have the right to lodge a complaint with your national data protection authority.
             </p>

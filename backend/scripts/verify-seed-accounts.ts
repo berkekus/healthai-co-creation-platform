@@ -4,7 +4,7 @@ dotenv.config()
 import mongoose from 'mongoose'
 
 const SEED_EMAILS = [
-  'admin@healthai.edu',
+  'admin@healthcocreate.com',
   'elif.kaya@istanbul.edu.tr',
   'mert.aydin@metu.edu.tr',
 ]

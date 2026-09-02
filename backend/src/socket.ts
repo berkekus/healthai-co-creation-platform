@@ -2,10 +2,12 @@ import { Server as HttpServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
 import jwt from 'jsonwebtoken'
 import logger from './logger'
+import User from '../models/User'
 
 interface JwtPayload {
   id: string
   role: string
+  tokenVersion?: number
 }
 
 let io: SocketServer | null = null
@@ -27,11 +29,16 @@ export function initSocket(httpServer: HttpServer): SocketServer {
     transports: ['websocket', 'polling'],
   })
 
-  io.use((socket, next) => {
+  io.use(async (socket, next) => {
     const token = socket.handshake.auth.token as string | undefined
     if (!token) return next(new Error('Authentication required'))
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload
+      const user = await User.findById(decoded.id).select('isSuspended tokenVersion').lean()
+      if (!user || user.isSuspended) return next(new Error('Invalid token'))
+      if ((decoded.tokenVersion ?? 0) !== user.tokenVersion) {
+        return next(new Error('Session expired'))
+      }
       socket.data.userId = decoded.id
       next()
     } catch {

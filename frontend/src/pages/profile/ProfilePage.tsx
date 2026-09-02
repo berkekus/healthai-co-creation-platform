@@ -22,7 +22,7 @@ const EXPERTISE_TAGS = [
   'Geriatrics & Rehabilitation', 'Endocrinology & Diabetes', 'Gastroenterology',
   'Public Health & Epidemiology', 'Clinical Pharmacy', 'Mental Health',
   'Infectious Diseases', 'Pediatrics', 'Dermatology', 'Ophthalmology',
-  'Emergency Medicine', 'Surgery', 'Pulmonology', 'Nephrology', 'Rheumatology',
+  'Emergency Medicine', 'Surgery', 'Pulmonology', 'Nephrology', 'Rheumatology', 'Bioethics',
   // Engineering / tech
   'AI/ML', 'Deep Learning', 'Natural Language Processing', 'Computer Vision',
   'Federated Learning', 'Wearables', 'Digital Health', 'mHealth',

@@ -56,9 +56,11 @@ export async function requestMeeting(data: {
   return meeting
 }
 
-export async function getMeetingById(id: string) {
+export async function getMeetingById(id: string, requesterId: string, isAdmin: boolean) {
   const meeting = await Meeting.findById(id)
   if (!meeting) throw makeError('Meeting not found', 404)
+  const isParticipant = meeting.requesterId.toString() === requesterId || meeting.ownerId.toString() === requesterId
+  if (!isAdmin && !isParticipant) throw makeError('Forbidden', 403)
   return (await withEmails([meeting]))[0]
 }
 

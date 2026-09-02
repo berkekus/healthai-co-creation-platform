@@ -7,7 +7,7 @@ export const MEDICAL_DOMAINS = [
   'Emergency Medicine', 'Intensive Care (ICU)', 'Surgical Robotics',
   'Genomics & Precision Medicine', 'Rehabilitation & Physio', 'Clinical Pharmacy',
   'Public Health & Epidemiology', 'Pathology & Lab Diagnostics',
-  'Endocrinology & Diabetes', 'Remote Patient Monitoring', 'Mental Health AI',
+  'Endocrinology & Diabetes', 'Remote Patient Monitoring', 'Mental Health AI', 'Bioethics',
 ] as const
 
 export const ENGINEERING_DOMAINS = [

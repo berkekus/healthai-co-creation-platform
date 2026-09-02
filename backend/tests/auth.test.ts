@@ -57,6 +57,19 @@ describe('POST /api/auth/register', () => {
     expect(res.status).toBe(400)
   })
 
+  it('does not allow a public registration to choose the admin role', async () => {
+    const res = await api.post('/api/auth/register').send({
+      name: 'Attempted Admin',
+      email: uniqueEmail(),
+      password: 'password123',
+      role: 'admin',
+      institution: 'Test Uni',
+      city: 'Istanbul',
+      country: 'Turkey',
+    })
+    expect(res.status).toBe(400)
+  })
+
   const registerWith = (email: string) => api.post('/api/auth/register').send({
     name: 'Institutional User',
     email,
@@ -142,6 +155,23 @@ describe('PUT /api/auth/me/password', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({ oldPassword: password, newPassword: 'short' })
     expect(res.status).toBe(400)
+  })
+
+  it('invalidates the previous session after a password change', async () => {
+    const { token, password, email } = await createUser()
+    const change = await api
+      .put('/api/auth/me/password')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ oldPassword: password, newPassword: 'newpassword456' })
+    expect(change.status).toBe(200)
+
+    const previousSession = await api.get('/api/auth/me').set('Authorization', `Bearer ${token}`)
+    expect(previousSession.status).toBe(401)
+
+    const login = await api.post('/api/auth/login').send({ email, password: 'newpassword456' })
+    expect(login.status).toBe(200)
+    const newSession = await api.get('/api/auth/me').set('Authorization', `Bearer ${login.body.data.token}`)
+    expect(newSession.status).toBe(200)
   })
 })
 

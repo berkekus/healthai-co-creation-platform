@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Eye, EyeOff, Lock, Mail, Shield, Users, Stethoscope, Wrench, ShieldCheck } from 'lucide-react'
+import { Eye, EyeOff, Lock, Mail, Shield, Users, Stethoscope, Wrench } from 'lucide-react'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
@@ -18,7 +18,6 @@ import { useSlowRequestHint } from '../../hooks/useSlowRequestHint'
 const DEV_ACCOUNTS = import.meta.env.DEV ? [
   { label: 'Doctor',    email: 'elif.kaya@istanbul.edu.tr', password: 'HealthAI2026!', icon: Stethoscope, color: '#0ea5e9' },
   { label: 'Engineer',  email: 'mert.aydin@metu.edu.tr',   password: 'HealthAI2026!', icon: Wrench,      color: '#8b5cf6' },
-  { label: 'Admin',     email: 'admin@healthai.edu',        password: 'Admin1234!',    icon: ShieldCheck, color: '#f97316' },
 ] : []
 
 const RATE_LIMIT_AFTER = 3

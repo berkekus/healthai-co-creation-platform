@@ -33,6 +33,15 @@ describe('GET /api/posts — draft scoping', () => {
     const ids = res.body.data.posts.map((p: { id: string }) => p.id)
     expect(ids).not.toContain(post.id)
   })
+
+  it('does not expose a draft through its direct URL to another user', async () => {
+    const owner = await createUser()
+    const viewer = await createUser()
+    const post = await createPost(owner.token)
+
+    const res = await api.get(`/api/posts/${post.id}`).set('Authorization', `Bearer ${viewer.token}`)
+    expect(res.status).toBe(403)
+  })
 })
 
 describe('GET /api/posts — pagination', () => {

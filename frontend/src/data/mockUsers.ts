@@ -64,7 +64,7 @@ export const mockUsers: User[] = [
   {
     id: 'u5',
     name: 'Admin User',
-    email: 'admin@healthai.edu',
+    email: 'admin@healthcocreate.com',
     role: 'admin',
     institution: 'HEALTH AI Platform',
     city: 'Amsterdam',
@@ -83,5 +83,4 @@ export const MOCK_CREDENTIALS: Record<string, string> = {
   'm.rossi@polimi.edu':    'password123',
   'i.larsson@ki.edu':      'password123',
   'k.nakamura@tum.edu':    'password123',
-  'admin@healthai.edu':    'admin123',
 }

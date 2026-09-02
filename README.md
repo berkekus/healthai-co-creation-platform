@@ -262,7 +262,6 @@ After seeding, the login page includes Dev Access buttons for demo users.
 | --- | --- | --- |
 | `elif.kaya@istanbul.edu.tr` | `HealthAI2026!` | Healthcare Professional |
 | `mert.aydin@metu.edu.tr` | `HealthAI2026!` | Engineer |
-| `admin@healthai.edu` | `Admin1234!` | Admin |
 
 ---
 
