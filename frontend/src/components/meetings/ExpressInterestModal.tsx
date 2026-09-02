@@ -99,6 +99,8 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
   }
 
   const filledCount = slots.filter(s => s.date && s.time).length
+  const remainingSlots = Math.max(0, 3 - filledCount)
+  const canSubmit = filledCount >= 3
 
   return (
     <div
@@ -160,13 +162,14 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
                 onChange={e => setMessage(e.target.value)}
                 placeholder="Describe your relevant experience and what you can bring to this collaboration…"
                 rows={6}
+                maxLength={500}
                 className={`${inputCls} resize-y leading-relaxed`}
               />
               <div className={`inline-flex items-center gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold ${
                 message.length >= 20 ? 'text-neutral-500' : 'text-hai-plum/60'
               }`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${message.length >= 20 ? 'bg-hai-teal' : 'bg-hai-cream'}`} />
-                {message.length} / 20 min characters
+                Minimum 20 characters · {message.length} / 500
               </div>
             </div>
           )}
@@ -217,6 +220,12 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
                   {filledCount} / 3 filled
                 </span>
               </div>
+
+              {!canSubmit && (
+                <p className="text-sm font-semibold text-neutral-500" role="status">
+                  Add {remainingSlots} more valid time {remainingSlots === 1 ? 'slot' : 'slots'} before sending your request.
+                </p>
+              )}
 
               <div className="flex flex-col gap-3 max-w-md mx-auto w-full">
                 {slots.map((slot, i) => (
@@ -311,7 +320,8 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
           ) : (
             <button
               onClick={handleSubmit}
-              className="px-6 py-2.5 rounded-full bg-hai-plum text-white text-sm font-bold hover:bg-black transition-colors inline-flex items-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]"
+              disabled={!canSubmit}
+              className="px-6 py-2.5 rounded-full bg-hai-plum text-white text-sm font-bold hover:bg-black transition-colors inline-flex items-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-hai-plum"
             >
               <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: '"FILL" 1' }}>send</span>
               Send request

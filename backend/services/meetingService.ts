@@ -6,6 +6,32 @@ import { createConversation } from './conversationService'
 import { recalculateBadges } from './badgeService'
 import { makeError } from '../utils/AppError'
 
+const MAX_MEETING_MESSAGE_LENGTH = 500
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/
+
+function assertValidProposedSlots(slots: ITimeSlot[]) {
+  if (!Array.isArray(slots) || slots.length < 3) {
+    throw makeError('At least 3 time slots are required', 400)
+  }
+
+  const seen = new Set<string>()
+  for (const slot of slots) {
+    if (!slot || !DATE_RE.test(slot.date) || !TIME_RE.test(slot.time)) {
+      throw makeError('Each proposed time slot must include a valid date and time', 400)
+    }
+
+    const dateTime = new Date(`${slot.date}T${slot.time}:00`)
+    if (Number.isNaN(dateTime.getTime()) || dateTime <= new Date()) {
+      throw makeError('Proposed time slots must be in the future', 400)
+    }
+
+    const key = `${slot.date}T${slot.time}`
+    if (seen.has(key)) throw makeError('Proposed time slots must be unique', 400)
+    seen.add(key)
+  }
+}
+
 async function withEmails(meetings: IMeeting[]) {
   const ids = [...new Set(meetings.flatMap(m => [m.requesterId.toString(), m.ownerId.toString()]))]
   const users = await User.find({ _id: { $in: ids } }).select('_id email').lean()
@@ -32,7 +58,8 @@ export async function requestMeeting(data: {
 }) {
   if (!data.ndaAccepted) throw makeError('NDA must be accepted', 400)
   if (typeof data.message !== 'string' || data.message.length < 20) throw makeError('Message must be at least 20 characters', 400)
-  if (!Array.isArray(data.proposedSlots) || data.proposedSlots.length < 3) throw makeError('At least 3 time slots are required', 400)
+  if (data.message.length > MAX_MEETING_MESSAGE_LENGTH) throw makeError(`Message must be no more than ${MAX_MEETING_MESSAGE_LENGTH} characters`, 400)
+  assertValidProposedSlots(data.proposedSlots)
 
   // Prevent duplicate active requests from the same requester
   const existing = await Meeting.exists({
@@ -247,9 +274,7 @@ export async function cancelMeeting(id: string, userId: string, reason?: string)
 }
 
 export async function rescheduleMeeting(id: string, requesterId: string, proposedSlots: ITimeSlot[]) {
-  if (!Array.isArray(proposedSlots) || proposedSlots.length < 3) {
-    throw makeError('At least 3 proposed slots are required', 400)
-  }
+  assertValidProposedSlots(proposedSlots)
   const meeting = await Meeting.findOneAndUpdate(
     { _id: id, requesterId, status: 'confirmed' },
     { $set: { status: 'time_proposed', proposedSlots, confirmedSlot: undefined } },

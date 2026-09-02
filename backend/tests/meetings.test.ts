@@ -2,6 +2,9 @@ import { describe, it, expect } from 'vitest'
 import { api, createUser, createPost } from './helpers'
 
 async function requestMeeting(requesterToken: string, postId: string) {
+  const futureDate = (daysFromNow: number) =>
+    new Date(Date.now() + daysFromNow * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+
   return api
     .post('/api/meetings')
     .set('Authorization', `Bearer ${requesterToken}`)
@@ -10,9 +13,9 @@ async function requestMeeting(requesterToken: string, postId: string) {
       message: 'I am very interested in collaborating on this project with you.',
       ndaAccepted: true,
       proposedSlots: [
-        { date: '2026-05-01', time: '10:00' },
-        { date: '2026-05-02', time: '11:00' },
-        { date: '2026-05-03', time: '14:00' },
+        { date: futureDate(2), time: '10:00' },
+        { date: futureDate(3), time: '11:00' },
+        { date: futureDate(4), time: '14:00' },
       ],
     })
 }
@@ -29,6 +32,40 @@ describe('POST /api/meetings', () => {
     const res = await requestMeeting(requester.token, post.id)
     expect(res.status).toBe(201)
     expect(res.body.data.status).toBe('pending')
+  })
+
+  it('rejects incomplete, duplicate, or past proposed slots', async () => {
+    const owner = await createUser({ role: 'healthcare_professional' })
+    const requester = await createUser()
+    const post = await createPost(owner.token)
+    await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
+
+    const duplicateDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+    const duplicateRes = await api
+      .post('/api/meetings')
+      .set('Authorization', `Bearer ${requester.token}`)
+      .send({
+        postId: post.id,
+        message: 'I am very interested in collaborating on this project with you.',
+        ndaAccepted: true,
+        proposedSlots: [
+          { date: duplicateDate, time: '10:00' },
+          { date: duplicateDate, time: '10:00' },
+          { date: duplicateDate, time: '11:00' },
+        ],
+      })
+    expect(duplicateRes.status).toBe(400)
+
+    const invalidRes = await api
+      .post('/api/meetings')
+      .set('Authorization', `Bearer ${requester.token}`)
+      .send({
+        postId: post.id,
+        message: 'I am very interested in collaborating on this project with you.',
+        ndaAccepted: true,
+        proposedSlots: [{ date: '', time: '' }, { date: '', time: '' }, { date: '', time: '' }],
+      })
+    expect(invalidRes.status).toBe(400)
   })
 
   it('returns 409 when requester already has a pending meeting for the same post', async () => {
@@ -121,7 +158,7 @@ describe('Concurrent accept race condition', () => {
     await api.post(`/api/posts/${post.id}/publish`).set('Authorization', `Bearer ${owner.token}`)
     const meetingRes = await requestMeeting(requester.token, post.id)
     const meetingId = meetingRes.body.data.id
-    const slot = { date: '2026-06-01', time: '10:00' }
+    const slot = { date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10), time: '10:00' }
 
     // Fire two accept requests simultaneously
     const [r1, r2] = await Promise.all([
