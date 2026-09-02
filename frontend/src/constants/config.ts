@@ -8,6 +8,9 @@ export const MEDICAL_DOMAINS = [
   'Genomics & Precision Medicine', 'Rehabilitation & Physio', 'Clinical Pharmacy',
   'Public Health & Epidemiology', 'Pathology & Lab Diagnostics',
   'Endocrinology & Diabetes', 'Remote Patient Monitoring', 'Mental Health AI', 'Bioethics',
+  'Radiology', 'Mental Health', 'Intensive Care', 'Pulmonology', 'Nephrology',
+  'Infectious Diseases', 'Pathology', 'Geriatrics & Rehabilitation',
+  'Physical Therapy and Rehabilitation', 'Nursing',
 ] as const
 
 export const ENGINEERING_DOMAINS = [

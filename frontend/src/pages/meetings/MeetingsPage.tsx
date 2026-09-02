@@ -11,7 +11,7 @@ import {
   PieChart,
   X,
 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
@@ -19,6 +19,7 @@ import { useConversationStore } from '../../store/conversationStore'
 import type { Meeting, MeetingStatus, TimeSlot } from '../../types/meeting.types'
 import api from '../../lib/api'
 import { exportSummaryToPdf } from '../../utils/pdfExport'
+import { postDetail } from '../../constants/routes'
 
 type TabId = 'all' | 'incoming' | 'outgoing' | 'pending' | 'confirmed' | 'cancelled'
 type SortMode = 'recent' | 'oldest'
@@ -368,7 +369,14 @@ function MeetingRow({
 
       <div className="min-w-0">
         <div className="flex min-w-0 flex-wrap items-center gap-3">
-          <h2 className="truncate font-headline text-lg font-black text-[var(--text)]">{meeting.postTitle}</h2>
+          <h2 className="truncate font-headline text-lg font-black">
+            <Link
+              to={postDetail(meeting.postId)}
+              className="rounded-sm text-[var(--text)] transition hover:text-[var(--accent-strong)] hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-offset-2"
+            >
+              {meeting.postTitle}
+            </Link>
+          </h2>
           <span className={`rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] ${STATUS_CLASS[meeting.status]}`}>
             {tRow(STATUS_LABEL_KEYS[meeting.status])}
           </span>

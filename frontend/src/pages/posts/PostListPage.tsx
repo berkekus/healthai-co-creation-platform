@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { MEDICAL_DOMAINS } from '../../constants/config'
 import {
   Bookmark,
   ChevronDown,
@@ -76,7 +77,9 @@ interface DirectoryPost {
   hasAI: boolean
 }
 
-const domainOptions = ['Cardiology', 'Orthopedics', 'Clinical Pharmacy', 'Public Health & Epidemiology', 'Endocrinology & Diabetes', 'Bioethics']
+// Filter by any domain a post can carry, not a hand-picked five: the
+// directory held posts in many domains while this offered only five of them.
+const domainOptions = MEDICAL_DOMAINS
 const stageValues: ProjectStage[] = ['idea', 'concept_validation', 'prototype', 'pilot', 'pre_deployment']
 const statusValues: PostStatus[] = ['active', 'meeting_scheduled', 'partner_found', 'expired', 'draft']
 
