@@ -1,7 +1,7 @@
-import { beforeEach, describe, it, expect, vi } from 'vitest'
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import '../i18n'
+import i18n from '../i18n'
 import api from '../lib/api'
 import ProfilePage from '../pages/profile/ProfilePage'
 import PublicProfilePage from '../pages/profile/PublicProfilePage'
@@ -36,6 +36,29 @@ describe('ProfilePage', () => {
   beforeEach(() => {
     updateProfile.mockReset().mockResolvedValue(undefined)
     mockApi()
+  })
+
+  afterEach(async () => {
+    await i18n.changeLanguage('en')
+  })
+
+  it('shows profile strength tips in the interface language', async () => {
+    await i18n.changeLanguage('tr')
+    vi.mocked(api.get).mockImplementation(async (url: string) => {
+      if (url === '/ai/profile-score') {
+        return { data: { success: true, data: { score: 57, suggestions: ['Upload a profile photo'], suggestionKeys: ['upload_photo'], source: 'rules' } } }
+      }
+      if (url === '/auth/providers') return { data: { success: true, data: { github: false, linkedin: false } } }
+      throw new Error('not mocked')
+    })
+
+    renderProfile()
+
+    expect(await screen.findByText('Profil fotoğrafı yükleyin')).toBeInTheDocument()
+    expect(screen.queryByText('Upload a profile photo')).not.toBeInTheDocument()
+    expect(api.get).toHaveBeenCalledWith('/ai/profile-score', { params: { lang: 'tr' } })
+    // The score came from the built-in rules, so it is not labelled as AI.
+    expect(screen.queryByText('AI')).not.toBeInTheDocument()
   })
 
   it('keeps a save button within reach at the bottom of the form while editing', () => {

@@ -402,6 +402,15 @@
     "complete": "Tamamlandı!",
     "almostThere": "Neredeyse bitti",
     "keepGoing": "Devam edin",
+    "scoreTips": {
+      "add_bio": "Geçmişinizi ve hedeflerinizi anlatan bir biyografi ekleyin",
+      "add_expertise_tags": "Eşleşmeyi iyileştirmek için en az 3 uzmanlık etiketi ekleyin",
+      "add_institution": "Kurumunuzu veya kuruluşunuzu ekleyin",
+      "add_city": "Konuma göre eşleşme için şehrinizi ekleyin",
+      "add_country": "Ülkenizi ekleyin",
+      "upload_photo": "Profil fotoğrafı yükleyin",
+      "add_more_expertise_tags": "En iyi eşleşme için 5 veya daha fazla uzmanlık etiketi ekleyin"
+    },
     "photo": "Profil fotoğrafı",
     "bioWritten": "Biyografi eklendi",
     "expertiseTags": "3+ uzmanlık etiketi",
@@ -795,6 +804,7 @@
     "count": "{{count}} bildirim",
     "count_other": "{{count}} bildirim",
     "markAllRead": "Tümünü okundu işaretle",
+    "filter": "Bildirimleri filtrele",
     "none": "Burada bildirim yok",
     "stayInLoop": "Güncel kalın",
     "enableDesc": "Önemli güncellemeleri kaçırmamak için tarayıcı bildirimlerini etkinleştirin.",
@@ -1103,8 +1113,7 @@
     "translate": "Çevir",
     "showOriginal": "Orijinali göster",
     "translating": "Çevriliyor…",
-    "translateToTurkish": "Türkçeye çevir",
-    "translateToEnglish": "İngilizceye çevir",
+    "translateToCurrent": "Türkçeye çevir",
     "translationUnavailable": "Çeviri kullanılamıyor",
     "required": "Zorunlu",
     "optional": "İsteğe bağlı",
@@ -1289,6 +1298,44 @@
     "emptyDesc": "Sohbeti başlatın — bir merhaba yazın!",
     "updated": "Güncellendi: {{when}}",
     "placeholder": "Bir mesaj yazın… (göndermek için Enter, yeni satır için Shift+Enter)",
-    "send": "Mesajı gönder"
+    "send": "Mesajı gönder",
+    "open": "Sohbeti aç",
+    "close": "Sohbeti kapat",
+    "backToConversations": "Sohbetlere dön"
+  },
+  "footer": {
+    "platformName": "Ortak Üretim Platformu",
+    "tagline": "Avrupa'da geliştirildi · hasta verisi yok",
+    "privacyPolicy": "Gizlilik Politikası",
+    "gdprRights": "KVKK / GDPR Hakları",
+    "contact": "İletişim",
+    "university": "Bilkent Üniversitesi",
+    "department": "Yazılım Mühendisliği Bölümü",
+    "trustGdpr": "Güven ve GDPR",
+    "legal": "Yasal",
+    "gdprYourRights": "KVKK / GDPR ve haklarınız",
+    "dataExport": "Verileri dışa aktarma",
+    "terms": "Kullanım koşulları",
+    "accountDeletion": "Hesap silme",
+    "access": "Erişim",
+    "forClinicians": "Klinisyenler için",
+    "forEngineers": "Mühendisler için",
+    "contactTeam": "Ekiple iletişime geç",
+    "copyright": "Telif hakkı",
+    "institutionalOnly": "Yalnızca kurumsal .edu hesapları. Doğrulama otomatik ve tek seferliktir.",
+    "noUploads": "Dosya yükleme yok. Hasta verisi yok. İstisna yok.",
+    "builtByTeam": "Avrupa'da geliştirildi · HealthAI Ekibi"
+  },
+  "cookieBanner": {
+    "label": "Çerez onayı",
+    "badge": "KVKK / GDPR · Yalnızca zorunlu çerezler",
+    "body": "Yalnızca oturum yönetimi ve güvenlik için zorunlu çerezler kullanıyoruz — takip, analiz ya da üçüncü taraf betiği yok.",
+    "privacyLink": "Gizlilik politikası",
+    "essentialOnly": "Yalnızca zorunlu",
+    "acceptAll": "Tümünü kabul et"
+  },
+  "language": {
+    "change": "Dili değiştir",
+    "options": "Dil seçenekleri"
   }
 }

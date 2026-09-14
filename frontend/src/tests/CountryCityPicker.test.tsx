@@ -157,4 +157,15 @@ describe('CountryCityPicker', () => {
     setup('Andorra')
     expect(screen.getByPlaceholderText('Enter your city')).toBeInTheDocument()
   })
+
+  it('announces each control by its label as well as its current value', () => {
+    setup('Turkey', 'Izmir')
+    expect(screen.getByRole('button', { name: 'Country Turkey' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'City Izmir' })).toBeInTheDocument()
+  })
+
+  it('names the free-text city field by the city label', () => {
+    setup('Andorra')
+    expect(screen.getByRole('textbox', { name: 'City' })).toBeInTheDocument()
+  })
 })

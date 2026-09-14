@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import '../i18n'
 import RegisterPage from '../pages/auth/RegisterPage'
@@ -34,6 +34,24 @@ describe('RegisterPage — account step', () => {
     const alert = screen.getByRole('alert')
     expect(alert).toHaveTextContent(/already has an account/i)
     expect(screen.getByRole('link', { name: /reset your password/i })).toHaveAttribute('href', '/forgot-password')
+  })
+
+  it('offers the roles as a named choice and the privacy consent as a real checkbox', async () => {
+    render(<MemoryRouter><RegisterPage /></MemoryRouter>)
+    fillAccountStep('password123', 'password123')
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }))
+
+    const roles = await screen.findByRole('group', { name: /I am a/ })
+    const engineer = within(roles).getByRole('button', { name: /^Engineer/ })
+    expect(engineer).toHaveAttribute('aria-pressed', 'false')
+    fireEvent.click(engineer)
+    expect(engineer).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }))
+
+    const consent = await screen.findByRole('checkbox', { name: /privacy policy/i })
+    expect(consent).not.toBeChecked()
+    fireEvent.click(consent)
+    expect(consent).toBeChecked()
   })
 
   it('moves on to the role step when the passwords match', async () => {

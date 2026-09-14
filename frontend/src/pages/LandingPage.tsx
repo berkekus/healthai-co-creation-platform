@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, useMotionTemplate, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../constants/routes'
-import FundingNotice from '../components/layout/FundingNotice'
+import LandingFooter from '../components/layout/LandingFooter'
 import { useAuthStore } from '../store/authStore'
 import LanguageToggle from '../components/ui/LanguageToggle'
 
@@ -1444,88 +1444,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* ── FOOTER ───────────────────────────────────────────── */}
-      <footer className="w-full bg-hai-plum pt-16 font-body text-hai-mint relative flex flex-col">
-        <div className="px-6 md:px-16 lg:px-24 grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-12 relative z-10">
-          <div>
-            <h4 className="font-bold mb-4 text-lg font-headline">Contact</h4>
-            <p className="font-semibold text-base leading-snug text-hai-mint/90">
-              Bilkent University<br />
-              Dept. of Software Engineering<br />
-              06800 Çankaya, Ankara<br />
-              TÜRKİYE
-            </p>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4 text-lg font-headline">Platform</h4>
-            <ul className="space-y-2 text-sm font-semibold">
-              <li><a href="#platform" className="hover:text-white transition-colors">Platform</a></li>
-              <li><a href="#directory" className="hover:text-white transition-colors">Directory</a></li>
-              <li><a href="#how" className="hover:text-white transition-colors">How it works</a></li>
-              <li><a href="#trust" className="hover:text-white transition-colors">Trust &amp; GDPR</a></li>
-              <li><Link to={ROUTES.ABOUT} className="hover:text-white transition-colors">About</Link></li>
-              <li><Link to={ROUTES.LOGIN} className="hover:text-white transition-colors">Sign in</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4 text-lg font-headline">Legal</h4>
-            <ul className="space-y-2 text-sm font-semibold">
-              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">GDPR &amp; your rights</Link></li>
-              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Data Export</Link></li>
-              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Terms of Use</Link></li>
-              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Account Deletion</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4 text-lg font-headline">Access</h4>
-            <ul className="space-y-2 text-sm font-semibold">
-              <li><Link to={ROUTES.REGISTER} state={{ role: 'healthcare_professional' }} className="hover:text-white transition-colors">For Clinicians</Link></li>
-              <li><Link to={ROUTES.REGISTER} state={{ role: 'engineer' }} className="hover:text-white transition-colors">For Engineers</Link></li>
-              <li><Link to={ROUTES.REGISTER} className="hover:text-white transition-colors">Request Access</Link></li>
-              <li><a href="mailto:team@healthai.edu" className="hover:text-white transition-colors">Contact team</a></li>
-            </ul>
-          </div>
-        </div>
-
-        {/*
-          Giant wordmark — sized so the entire word is visible within the
-          viewport without clipping. clamp() scales between min/max caps,
-          and we keep it centered with no negative margin.
-        */}
-        <div className="w-full px-6 mt-12 flex items-center justify-center">
-          <span
-            className="font-headline font-bold text-white tracking-normal leading-none w-full text-center block whitespace-nowrap"
-            style={{ fontSize: 'clamp(56px, 16vw, 240px)' }}
-          >
-            healthai
-          </span>
-        </div>
-
-        {/* Erasmus+ funding acknowledgement */}
-        <div className="px-6 md:px-16 lg:px-24 pt-8 mt-6 relative z-10 w-full border-t border-hai-teal/20">
-          <FundingNotice tone="plum" />
-        </div>
-
-        {/* Bottom strip */}
-        <div className="px-6 md:px-16 lg:px-24 py-8 mt-2 flex justify-between items-end relative z-10 w-full text-hai-teal gap-8 flex-wrap">
-          <div className="text-xs font-semibold text-hai-teal font-mono tracking-[0.12em]">
-            2026<br />Copyright<br />HealthAI
-          </div>
-          <div className="flex items-end justify-between flex-grow ml-4 md:ml-12 gap-6 flex-wrap">
-            <div className="text-xs font-semibold text-hai-teal/80 leading-snug font-mono tracking-[0.12em] max-w-sm">
-              <p>Institutional .edu accounts only. Verification is automated and one-time.</p>
-              <p>No file uploads. No patient data. No exceptions.</p>
-            </div>
-            <div className="text-xs font-semibold text-hai-teal/80 shrink-0 ml-4 font-mono tracking-[0.12em]">
-              Built in Europe · by Team HealthAI
-            </div>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   )
 }

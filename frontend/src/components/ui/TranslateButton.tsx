@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { Languages } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import api from '../../lib/api'
+import { guessTextLanguage } from '../../utils/textLanguage'
+
+const TRANSLATABLE = ['en', 'tr', 'pt', 'es', 'nl'] as const
 
 interface Props {
   text: string
@@ -10,15 +13,19 @@ interface Props {
   onTranslated?: (translated: string) => void
 }
 
-/** Inline toggle: first click translates, second click reverts to original. */
+/**
+ * Inline toggle: first click translates into the reader's interface language,
+ * second click reverts to the original. Hidden when the text already appears
+ * to be in that language.
+ */
 export default function TranslateButton({ text, className = '', onTranslated }: Props) {
   const { t, i18n } = useTranslation()
   const [loading, setLoading]       = useState(false)
   const [translated, setTranslated] = useState<string | null>(null)
   const [error, setError]           = useState(false)
 
-  // Target the opposite of the current UI language
-  const targetLang = i18n.language === 'tr' ? 'en' : 'tr'
+  const baseLanguage = i18n.language?.split('-')[0]
+  const targetLang = TRANSLATABLE.find(code => code === baseLanguage) ?? 'en'
 
   const toggle = async () => {
     if (translated !== null) {
@@ -42,15 +49,15 @@ export default function TranslateButton({ text, className = '', onTranslated }: 
     }
   }
 
-  const label = translated
-    ? t('common.showOriginal')
-    : targetLang === 'tr' ? t('common.translateToTurkish') : t('common.translateToEnglish')
+  if (!text?.trim() || guessTextLanguage(text) === targetLang) return null
+
+  const label = translated ? t('common.showOriginal') : t('common.translateToCurrent')
 
   return (
     <div className={className}>
       <button
         type="button"
-        disabled={loading || !text?.trim()}
+        disabled={loading}
         onClick={toggle}
         className="inline-flex items-center gap-1.5 text-xs font-semibold text-hai-teal hover:text-hai-plum transition-colors disabled:opacity-50"
       >

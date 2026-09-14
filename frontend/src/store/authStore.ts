@@ -84,7 +84,13 @@ export const useAuthStore = create<AuthState>()((set) => ({
   },
 
   logout: () => {
-    api.post('/auth/logout').catch(() => {})
+    // The request interceptor reads the token only after this function has
+    // already removed it, so pass it explicitly or the server answers 401 and
+    // never records the logout.
+    const token = localStorage.getItem('token') ?? sessionStorage.getItem('token')
+    if (token) {
+      api.post('/auth/logout', undefined, { headers: { Authorization: `Bearer ${token}` } }).catch(() => {})
+    }
     localStorage.removeItem('token')
     sessionStorage.removeItem('token')
     disconnectSocket()

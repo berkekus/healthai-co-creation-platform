@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useId } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
@@ -11,6 +11,8 @@ const inputCls = 'w-full bg-hai-offwhite border border-neutral-200 rounded-xl px
 
 export default function ResetPasswordPage() {
   const { t } = useTranslation()
+  const newPasswordId = useId()
+  const confirmPasswordId = useId()
   const [searchParams] = useSearchParams()
   const navigate       = useNavigate()
   const token          = searchParams.get('token') ?? ''
@@ -89,16 +91,16 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
           <div>
-            <label className="block text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2">
+            <label htmlFor={newPasswordId} className="block text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2">
               {t('authPage.reset.newLabel')} <span className="text-red-500">*</span>
             </label>
-            <input type="password" value={newPassword} onChange={e => { setNewPassword(e.target.value); setError(null) }} placeholder="••••••••" autoComplete="new-password" required className={inputCls} />
+            <input id={newPasswordId} type="password" value={newPassword} onChange={e => { setNewPassword(e.target.value); setError(null) }} placeholder="••••••••" autoComplete="new-password" required className={inputCls} />
           </div>
           <div>
-            <label className="block text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2">
+            <label htmlFor={confirmPasswordId} className="block text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2">
               {t('authPage.reset.confirmLabel')} <span className="text-red-500">*</span>
             </label>
-            <input type="password" value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); setError(null) }} placeholder="••••••••" autoComplete="new-password" required className={inputCls} />
+            <input id={confirmPasswordId} type="password" value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); setError(null) }} placeholder="••••••••" autoComplete="new-password" required className={inputCls} />
           </div>
 
           <button

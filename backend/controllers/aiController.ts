@@ -12,6 +12,15 @@ export const rankPostMatches = asyncHandler<AuthenticatedRequest>(async (req, re
   res.json({ success: true, data: { matches } })
 })
 
+/** Interface languages a reader can ask for; anything else falls back to English. */
+const TRANSLATION_LANGUAGES = new Map([
+  ['en', 'English'],
+  ['tr', 'Turkish'],
+  ['pt', 'Portuguese'],
+  ['es', 'Spanish'],
+  ['nl', 'Dutch'],
+])
+
 export const translateText = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) throw makeError('Gemini API key is not configured', 503)
@@ -21,7 +30,7 @@ export const translateText = asyncHandler<AuthenticatedRequest>(async (req, res)
     res.status(400).json({ success: false, message: 'text is required' })
     return
   }
-  const lang = targetLang === 'tr' ? 'Turkish' : 'English'
+  const lang = TRANSLATION_LANGUAGES.get(targetLang) ?? 'English'
   const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'
 
   const prompt = `Translate the following text to ${lang}. Return ONLY the translated text, no explanations, no quotes:\n\n${text.slice(0, 2000)}`
@@ -97,7 +106,7 @@ Rules:
 })
 
 export const getProfileScore = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const result = await aiProfileScoreService.getProfileScore(req.userId)
+  const result = await aiProfileScoreService.getProfileScore(req.userId, req.query.lang)
   res.json({ success: true, data: result })
 })
 

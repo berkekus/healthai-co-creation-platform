@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useId, useState, useRef, useEffect } from 'react'
 
 const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'
 const ERROR_SHADOW  = '0 0 0 3px rgba(220,38,38,0.18)'
@@ -60,12 +60,15 @@ interface Props {
    */
   allowCustom?: boolean
   labels?: SelectLabels
+  /** Id of the visible label; the control is announced as that label plus its current value. */
+  labelledBy?: string
 }
 
 export default function SearchableSelect({
   options, value, onChange, placeholder = 'Select…', error, disabled = false, loading = false,
-  allowCustom = false, labels = DEFAULT_SELECT_LABELS,
+  allowCustom = false, labels = DEFAULT_SELECT_LABELS, labelledBy,
 }: Props) {
+  const valueId = useId()
   const [open, setOpen]   = useState(false)
   const [query, setQuery] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
@@ -134,6 +137,8 @@ export default function SearchableSelect({
         style={triggerStyle}
         disabled={disabled}
         aria-disabled={disabled}
+        aria-expanded={open}
+        aria-labelledby={labelledBy ? `${labelledBy} ${valueId}` : undefined}
         onClick={() => { if (!disabled) setOpen(o => !o) }}
         onFocus={e => {
           if (disabled) return
@@ -152,7 +157,7 @@ export default function SearchableSelect({
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(o => !o) }
         }}
       >
-        <span className="block truncate pr-2">{value || placeholder}</span>
+        <span id={valueId} className="block truncate pr-2">{value || placeholder}</span>
         <span
           aria-hidden="true"
           className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-lg text-neutral-400 pointer-events-none transition-transform"

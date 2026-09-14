@@ -73,5 +73,12 @@
     "cta": {
       "ready": "Klaar om samen te creëren?"
     }
+  },
+  "common": {
+    "translateToCurrent": "Vertalen naar het Nederlands"
+  },
+  "language": {
+    "change": "Taal wijzigen",
+    "options": "Taalopties"
   }
 }

@@ -26,7 +26,7 @@ function normalizeLanguage(language: string | undefined): LanguageCode {
 }
 
 export default function LanguageToggle({ className, compact = false }: LanguageToggleProps) {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const currentCode = normalizeLanguage(i18n.language)
@@ -66,10 +66,10 @@ export default function LanguageToggle({ className, compact = false }: LanguageT
           compact ? 'px-2.5' : 'px-3',
           className,
         )}
-        aria-label="Change language"
+        aria-label={t('language.change')}
         aria-haspopup="listbox"
         aria-expanded={open}
-        title="Change language"
+        title={t('language.change')}
       >
         <Globe2 size={15} aria-hidden="true" />
         <span aria-hidden="true">{currentLanguage.short}</span>
@@ -83,7 +83,7 @@ export default function LanguageToggle({ className, compact = false }: LanguageT
       {open && (
         <div
           role="listbox"
-          aria-label="Language options"
+          aria-label={t('language.options')}
           className="absolute right-0 top-[calc(100%+8px)] z-[70] w-44 overflow-hidden rounded-2xl border border-[#E3E7EC] bg-white py-1.5 shadow-[0_20px_50px_-22px_rgba(45,24,56,0.35)]"
         >
           {LANGUAGE_OPTIONS.map(option => {

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import { api, createPost, createUser, futureDate, uniqueEmail } from './helpers'
@@ -6,6 +6,7 @@ import User from '../models/User'
 import Meeting from '../models/Meeting'
 import Post from '../models/Post'
 import Notification from '../models/Notification'
+import Log from '../models/Log'
 
 describe('POST /api/auth/register', () => {
   it('returns 201 with user; requiresVerification true; no token issued', async () => {
@@ -147,6 +148,19 @@ describe('POST /api/auth/login', () => {
   it('returns 401 on unknown email', async () => {
     const res = await api.post('/api/auth/login').send({ email: uniqueEmail(), password: 'password123' })
     expect(res.status).toBe(401)
+  })
+})
+
+describe('POST /api/auth/logout', () => {
+  it('records the logout in the audit log for the signed-in user', async () => {
+    const { user, token } = await createUser()
+
+    const res = await api.post('/api/auth/logout').set('Authorization', `Bearer ${token}`)
+    expect(res.status).toBe(200)
+
+    await vi.waitFor(async () => {
+      expect(await Log.countDocuments({ userId: user.id, action: 'logout' })).toBe(1)
+    })
   })
 })
 

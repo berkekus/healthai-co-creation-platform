@@ -402,6 +402,15 @@
     "complete": "Complete!",
     "almostThere": "Almost there",
     "keepGoing": "Keep going",
+    "scoreTips": {
+      "add_bio": "Add a bio to describe your background and goals",
+      "add_expertise_tags": "Add at least 3 expertise tags to improve matching",
+      "add_institution": "Add your institution or organization",
+      "add_city": "Add your city for location-based matching",
+      "add_country": "Add your country",
+      "upload_photo": "Upload a profile photo",
+      "add_more_expertise_tags": "Add 5+ expertise tags for best matching results"
+    },
     "photo": "Profile photo",
     "bioWritten": "Bio written",
     "expertiseTags": "3+ expertise tags",
@@ -795,6 +804,7 @@
     "count": "{{count}} notification",
     "count_other": "{{count}} notifications",
     "markAllRead": "Mark all as read",
+    "filter": "Filter notifications",
     "none": "No notifications here",
     "stayInLoop": "Stay in the loop",
     "enableDesc": "Enable browser notifications to never miss important updates.",
@@ -1103,8 +1113,7 @@
     "translate": "Translate",
     "showOriginal": "Show original",
     "translating": "Translating…",
-    "translateToTurkish": "Translate to Turkish",
-    "translateToEnglish": "Translate to English",
+    "translateToCurrent": "Translate to English",
     "translationUnavailable": "Translation unavailable",
     "required": "Required",
     "optional": "Optional",
@@ -1289,6 +1298,44 @@
     "emptyDesc": "Start the conversation — say hello!",
     "updated": "Updated {{when}}",
     "placeholder": "Write a message… (Enter to send, Shift+Enter for a new line)",
-    "send": "Send message"
+    "send": "Send message",
+    "open": "Open chat",
+    "close": "Close chat",
+    "backToConversations": "Back to conversations"
+  },
+  "footer": {
+    "platformName": "Co-Creation Platform",
+    "tagline": "Built in Europe · zero patient data",
+    "privacyPolicy": "Privacy Policy",
+    "gdprRights": "GDPR Rights",
+    "contact": "Contact",
+    "university": "Bilkent University",
+    "department": "Dept. of Software Engineering",
+    "trustGdpr": "Trust & GDPR",
+    "legal": "Legal",
+    "gdprYourRights": "GDPR & your rights",
+    "dataExport": "Data Export",
+    "terms": "Terms of Use",
+    "accountDeletion": "Account Deletion",
+    "access": "Access",
+    "forClinicians": "For Clinicians",
+    "forEngineers": "For Engineers",
+    "contactTeam": "Contact team",
+    "copyright": "Copyright",
+    "institutionalOnly": "Institutional .edu accounts only. Verification is automated and one-time.",
+    "noUploads": "No file uploads. No patient data. No exceptions.",
+    "builtByTeam": "Built in Europe · by Team HealthAI"
+  },
+  "cookieBanner": {
+    "label": "Cookie consent",
+    "badge": "GDPR · Essential cookies only",
+    "body": "We use only essential cookies for session management and security — no tracking, no analytics, no third-party scripts.",
+    "privacyLink": "Privacy policy",
+    "essentialOnly": "Essential only",
+    "acceptAll": "Accept all"
+  },
+  "language": {
+    "change": "Change language",
+    "options": "Language options"
   }
 }

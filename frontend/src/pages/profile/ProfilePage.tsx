@@ -395,37 +395,46 @@ const COMPLETION_ITEMS = (user: User | null) => {
   }))
 }
 
+interface ProfileScore {
+  score: number
+  suggestions: string[]
+  /** Present for rule-based tips; translated here so every language gets them. */
+  suggestionKeys?: string[]
+  source?: 'ai' | 'rules'
+}
+
 function ProfileCompletionCard({ user, onSaved }: { user: User; onSaved?: boolean }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const items = COMPLETION_ITEMS(user)
-  const [aiScore, setAiScore] = useState<number | null>(null)
-  const [aiSuggestions, setAiSuggestions] = useState<string[]>([])
+  const [remote, setRemote] = useState<ProfileScore | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
+  const lang = i18n.language?.split('-')[0] ?? 'en'
+  const remoteScore = remote?.score ?? null
 
   const localOptionalDone = items.filter(i => i.done).length
   const localScore = 40 + Math.round((localOptionalDone / items.length) * 60)
-  const score = aiScore ?? localScore
+  const score = remoteScore ?? localScore
 
   useEffect(() => {
     let cancelled = false
     setAiLoading(true)
-    api.get<{ success: boolean; data: { score: number; suggestions: string[] } }>('/ai/profile-score')
-      .then(res => {
-        if (cancelled) return
-        setAiScore(res.data.data.score)
-        setAiSuggestions(res.data.data.suggestions)
-      })
+    // AI-written tips come back in the requested language, so ask again when it changes.
+    api.get<{ success: boolean; data: ProfileScore }>('/ai/profile-score', { params: { lang } })
+      .then(res => { if (!cancelled) setRemote(res.data.data) })
       .catch(() => { /* fallback to local score */ })
       .finally(() => { if (!cancelled) setAiLoading(false) })
     return () => { cancelled = true }
-  }, [onSaved])
+  }, [onSaved, lang])
 
   const r = 22
   const cx = 28
   const circumference = 2 * Math.PI * r
   const dashOffset = circumference * (1 - score / 100)
   const color = score >= 85 ? '#6FB8C4' : score >= 60 ? '#F59E0B' : '#EF4444'
-  const activeSuggestions = aiSuggestions.length > 0 ? aiSuggestions : items.filter(i => !i.done).map(i => t(i.labelKey))
+  const remoteSuggestions = remote?.suggestionKeys?.length
+    ? remote.suggestionKeys.map((key, index) => t(`profile.scoreTips.${key}`, { defaultValue: remote.suggestions[index] }))
+    : remote?.suggestions ?? []
+  const activeSuggestions = remoteSuggestions.length > 0 ? remoteSuggestions : items.filter(i => !i.done).map(i => t(i.labelKey))
 
   return (
     <div className="mt-6 rounded-2xl border border-[#D5DAE0] bg-white p-4">
@@ -455,7 +464,7 @@ function ProfileCompletionCard({ user, onSaved }: { user: User; onSaved?: boolea
         <div>
           <p className="flex items-center gap-1 text-xs font-black text-hai-plum">
             {t('profile.strength')}
-            {aiScore !== null && (
+            {remote?.source === 'ai' && (
               <span className="inline-flex items-center gap-0.5 rounded-full bg-[#E8F4F7] px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-hai-teal">
                 <span aria-hidden="true" className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: '"FILL" 1' }}>auto_awesome</span>
                 AI

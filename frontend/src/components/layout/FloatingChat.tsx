@@ -6,19 +6,10 @@ import { ROUTES } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
 import { useConversationStore } from '../../store/conversationStore'
 import type { Conversation, Message } from '../../types/conversation.types'
+import { timeAgo } from '../../utils/timeAgo'
 
 function initials(name?: string) {
   return name?.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase() || '??'
-}
-
-function compactTime(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'now'
-  if (mins < 60) return `${mins}m`
-  const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h`
-  return `${Math.floor(hrs / 24)}d`
 }
 
 function partnerFor(conv: Conversation, userId?: string) {
@@ -108,7 +99,7 @@ export default function FloatingChat() {
                   type="button"
                   onClick={() => setSelectedId(null)}
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E3E7EC] text-[#6F6878] transition hover:bg-[#F3F4F6]"
-                  aria-label="Back to conversations"
+                  aria-label={t('chat.backToConversations')}
                 >
                   <ArrowLeft size={16} />
                 </button>
@@ -136,7 +127,7 @@ export default function FloatingChat() {
               type="button"
               onClick={() => setOpen(false)}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#6F6878] transition hover:bg-[#F3F4F6] hover:text-[#36213E]"
-              aria-label="Close chat"
+              aria-label={t('chat.close')}
             >
               <X size={16} />
             </button>
@@ -176,7 +167,7 @@ export default function FloatingChat() {
                     onClick={handleSend}
                     disabled={!text.trim() || sending}
                     className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#36213E] text-white shadow-[0_12px_24px_-16px_rgba(45,24,56,0.7)] transition hover:bg-[#24162B] disabled:cursor-not-allowed disabled:opacity-45"
-                    aria-label="Send message"
+                    aria-label={t('chat.send')}
                   >
                     {sending ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <Send size={16} />}
                   </button>
@@ -210,8 +201,8 @@ export default function FloatingChat() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-3">
-                          <span className="truncate text-sm font-black text-[#36213E]">{itemPartner?.name ?? 'Unknown'}</span>
-                          <span className="shrink-0 text-xs font-semibold text-[#9F9AAA]">{compactTime(conv.lastMessageAt)}</span>
+                          <span className="truncate text-sm font-black text-[#36213E]">{itemPartner?.name ?? t('messagesPage.unknownPartner')}</span>
+                          <span className="shrink-0 text-xs font-semibold text-[#9F9AAA]">{timeAgo(conv.lastMessageAt, t)}</span>
                         </div>
                         <p className="mt-0.5 truncate text-xs font-semibold text-[#6F6878]">{conv.postTitle}</p>
                         {conv.lastMessagePreview && (
@@ -236,7 +227,7 @@ export default function FloatingChat() {
         type="button"
         onClick={() => setOpen(value => !value)}
         className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#36213E] text-white shadow-[0_18px_40px_-18px_rgba(45,24,56,0.85)] transition hover:-translate-y-0.5 hover:bg-[#24162B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8AC6D0]/70 focus-visible:ring-offset-2"
-        aria-label={open ? 'Close chat' : 'Open chat'}
+        aria-label={open ? t('chat.close') : t('chat.open')}
         aria-expanded={open}
       >
         {open ? <X size={20} /> : <MessageSquare size={21} />}
