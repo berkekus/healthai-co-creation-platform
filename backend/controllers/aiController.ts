@@ -12,6 +12,15 @@ export const rankPostMatches = asyncHandler<AuthenticatedRequest>(async (req, re
   res.json({ success: true, data: { matches } })
 })
 
+/** Interface languages a reader can ask for; anything else falls back to English. */
+const TRANSLATION_LANGUAGES = new Map([
+  ['en', 'English'],
+  ['tr', 'Turkish'],
+  ['pt', 'Portuguese'],
+  ['es', 'Spanish'],
+  ['nl', 'Dutch'],
+])
+
 export const translateText = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) throw makeError('Gemini API key is not configured', 503)
@@ -21,7 +30,7 @@ export const translateText = asyncHandler<AuthenticatedRequest>(async (req, res)
     res.status(400).json({ success: false, message: 'text is required' })
     return
   }
-  const lang = targetLang === 'tr' ? 'Turkish' : 'English'
+  const lang = TRANSLATION_LANGUAGES.get(targetLang) ?? 'English'
   const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'
 
   const prompt = `Translate the following text to ${lang}. Return ONLY the translated text, no explanations, no quotes:\n\n${text.slice(0, 2000)}`
@@ -77,18 +86,27 @@ Rules:
   const jsonMatch = text.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw makeError('Gemini returned an unexpected format', 502)
 
-  const result = JSON.parse(jsonMatch[0]) as {
-    improvedTitle?: string
-    improvedDescription?: string
-    suggestedExpertise?: string[]
-    tip?: string
+  let parsed: Record<string, unknown>
+  try {
+    parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>
+  } catch {
+    throw makeError('Gemini returned an unexpected format', 502)
+  }
+  const cleanText = (value: unknown) => (typeof value === 'string' && value.trim() ? value.trim() : undefined)
+  const result = {
+    improvedTitle: cleanText(parsed.improvedTitle),
+    improvedDescription: cleanText(parsed.improvedDescription),
+    suggestedExpertise: Array.isArray(parsed.suggestedExpertise)
+      ? parsed.suggestedExpertise.filter((tag): tag is string => typeof tag === 'string' && tag.trim() !== '')
+      : undefined,
+    tip: cleanText(parsed.tip),
   }
 
   res.json({ success: true, data: result })
 })
 
 export const getProfileScore = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const result = await aiProfileScoreService.getProfileScore(req.userId)
+  const result = await aiProfileScoreService.getProfileScore(req.userId, req.query.lang)
   res.json({ success: true, data: result })
 })
 

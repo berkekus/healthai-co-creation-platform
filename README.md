@@ -61,8 +61,8 @@ The platform provides:
 - **Authentication:** email/password login, `.edu` account flow, Turnstile CAPTCHA, idle session timeout.
 - **Smart post discovery:** browse, filter, sort, save, and inspect collaboration opportunities.
 - **Match explanations:** city, country, role, domain, and expertise signals are shown directly on post cards.
-- **Meeting workflow:** send interest, accept NDA, propose slots, accept/decline/cancel/complete meetings.
-- **Messaging:** confirmed meetings automatically unlock a private conversation.
+- **Meeting workflow:** accept the NDA and propose 1–5 times (24-hour clock, with time zones); owners accept or decline, pick a time, or agree on another in the chat that opens on acceptance; meetings are marked as held without closing the post.
+- **Messaging:** accepting a meeting request opens a private conversation for both sides.
 - **Notifications:** unread counts, dropdown preview, notification center, mark-all-read actions.
 - **Public profiles:** inspect role, institution, bio, and expertise from post author cards.
 - **Admin tools:** user verification, suspension, moderation, audit logs, and CSV exports.

@@ -11,6 +11,8 @@ export type MeetingStatus =
 export interface ITimeSlot {
   date: string
   time: string
+  /** IANA zone the slot was proposed in, e.g. "Europe/Lisbon". Absent on older slots. */
+  timezone?: string
 }
 
 export interface IAiSummary {
@@ -45,6 +47,7 @@ const TimeSlotSchema = new Schema<ITimeSlot>(
   {
     date: { type: String, required: true },
     time: { type: String, required: true },
+    timezone: { type: String },
   },
   { _id: false }
 )

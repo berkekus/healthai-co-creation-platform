@@ -26,7 +26,8 @@ api.interceptors.response.use(
     }
     const message: string =
       error.response?.data?.message ?? error.message ?? 'Something went wrong'
-    return Promise.reject(new Error(message))
+    // Keep the status so callers can tell "not configured" (503) from other failures.
+    return Promise.reject(Object.assign(new Error(message), { status: error.response?.status as number | undefined }))
   }
 )
 

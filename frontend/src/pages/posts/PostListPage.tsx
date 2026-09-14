@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { MEDICAL_DOMAINS } from '../../constants/config'
+import { HEALTH_DOMAIN_GROUPS, postDomains, postHasDomain } from '../../constants/domains'
 import {
   Bookmark,
   ChevronDown,
@@ -65,6 +65,7 @@ interface DirectoryPost {
   type: string
   commitment: string
   domain: string
+  domains: string[]
   projectStage: ProjectStage
   status: PostStatus
   authorRole: PostAuthorRole
@@ -77,9 +78,6 @@ interface DirectoryPost {
   hasAI: boolean
 }
 
-// Filter by any domain a post can carry, not a hand-picked five: the
-// directory held posts in many domains while this offered only five of them.
-const domainOptions = MEDICAL_DOMAINS
 const stageValues: ProjectStage[] = ['idea', 'concept_validation', 'prototype', 'pilot', 'pre_deployment']
 const statusValues: PostStatus[] = ['active', 'meeting_scheduled', 'partner_found', 'expired', 'draft']
 
@@ -124,10 +122,10 @@ export default function PostListPage() {
     return source
       .filter(post => {
         if (query) {
-          const haystack = [post.title, post.description, post.domain, post.author, post.tags.join(' ')].join(' ').toLowerCase()
+          const haystack = [post.title, post.description, post.domains.join(' '), post.author, post.tags.join(' ')].join(' ').toLowerCase()
           if (!haystack.includes(query)) return false
         }
-        if (domain && post.domain !== domain) return false
+        if (domain && !postHasDomain(post, domain)) return false
         if (stage && post.projectStage !== stage) return false
         if (status && post.status !== status) return false
         if (postedBy === 'Engineer' && post.authorRole !== 'engineer') return false
@@ -437,8 +435,13 @@ function FilterSidebar({
 
       <div className="space-y-8">
         <FilterSelect label={t('posts.domain')} value={domain} placeholder={t('posts.allDomains')} onChange={onDomain}>
-          {domainOptions.map(option => (
-            <option key={option} value={option}>{option}</option>
+          {/* Every domain a post can carry, grouped the way the post form groups them. */}
+          {HEALTH_DOMAIN_GROUPS.map(group => (
+            <optgroup key={group.id} label={t(`posts.form.domainGroups.${group.id}`)}>
+              {group.domains.map(option => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </optgroup>
           ))}
         </FilterSelect>
         <FilterSelect label={t('posts.stageFilterLabel')} value={stage} placeholder={t('posts.allStages')} onChange={onStage}>
@@ -826,7 +829,7 @@ function PostRow({
         </div>
         <div className="flex max-w-[340px] flex-wrap justify-end gap-2 self-end">
           {post.tags.map(tag => (
-            <Tag key={tag} label={tag} />
+            <Tag key={tag} label={tag} lang={post.domains.includes(tag) ? 'en' : undefined} />
           ))}
           {mineOnly && (
             <Button
@@ -847,12 +850,14 @@ function PostRow({
   )
 }
 
-function Tag({ label }: { label: string }) {
-  const cyan = ['Cardiology', 'Active', 'Clinical Pharmacy', 'Orthopedics', 'Radiology', 'Neurology'].includes(label)
+/** Domain names stay English; `lang="en"` keeps the uppercase style from turning "Midwifery" into "MİDWİFERY". */
+function Tag({ label, lang }: { label: string; lang?: string }) {
+  const cyan = ['Cardiology', 'Active', 'Clinical Pharmacy', 'Orthopedics', 'Radiology & Imaging', 'Neurology'].includes(label)
   const primary = ['Needs Engineering', 'Partner Found'].includes(label) || label.startsWith('AI:')
 
   return (
     <Badge
+      lang={lang}
       variant={primary ? 'primary' : cyan ? 'soft' : 'neutral'}
       className={
         primary
@@ -947,9 +952,10 @@ function toDirectoryPost(
   const filteredReasons = basicReasons
     .filter(reason => reason.tone !== 'city' && reason.tone !== 'country')
     .map(reason => reason.label)
+  const domains = postDomains(post)
   const tags = Array.from(new Set([
     ...filteredReasons.slice(0, 2),
-    post.domain,
+    ...domains.slice(0, 2),
     t(`posts.status.${post.status}`, { defaultValue: post.status }),
   ].filter(Boolean)))
   return {
@@ -964,7 +970,8 @@ function toDirectoryPost(
     stage: t(`posts.stage.${post.projectStage}`, { defaultValue: post.projectStage }),
     type: t(`posts.collab.${post.collaborationType}`, { defaultValue: post.collaborationType }),
     commitment: t(`posts.commitment.${post.levelOfCommitment ?? 'flexible'}`, { defaultValue: post.levelOfCommitment ?? 'flexible' }),
-    domain: post.domain,
+    domain: domains[0] ?? post.domain,
+    domains,
     projectStage: post.projectStage,
     status: post.status,
     authorRole: post.authorRole,

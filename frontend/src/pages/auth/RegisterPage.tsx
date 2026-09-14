@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useId, useRef, useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
@@ -18,7 +18,9 @@ type PreselectedRole = 'engineer' | 'healthcare_professional'
 
 export default function RegisterPage() {
   const { t } = useTranslation()
-  const { register: registerUser, isLoading, error, clearError } = useAuthStore()
+  const idPrefix = useId()
+  const fieldId = (name: string) => `${idPrefix}-${name}`
+  const { register: registerUser, isLoading, error, errorStatus, clearError } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
   const preselectedRole = (location.state as { role?: PreselectedRole } | null)?.role
@@ -211,7 +213,19 @@ export default function RegisterPage() {
             {error && (
               <div role="alert" className="mb-5 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3">
                 <span className="text-red-400 text-lg leading-none mt-0.5 shrink-0">✕</span>
-                <div className="text-sm text-red-700 font-semibold">{error}</div>
+                {errorStatus === 409 ? (
+                  <div className="text-sm text-red-700 font-semibold">
+                    <p>{t('authPage.register.emailTaken')}</p>
+                    <p className="mt-1 font-normal">
+                      {t('authPage.register.emailTakenHelp')}{' '}
+                      <Link to={ROUTES.LOGIN} className="font-bold underline">{t('authPage.register.signInInstead')}</Link>
+                      {' · '}
+                      <Link to={ROUTES.FORGOT_PASSWORD} className="font-bold underline">{t('authPage.register.resetPasswordLink')}</Link>
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-sm text-red-700 font-semibold">{error}</div>
+                )}
               </div>
             )}
 
@@ -223,7 +237,7 @@ export default function RegisterPage() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-bold text-[#18203a] mb-2">
+                      <label htmlFor={fieldId('firstName')} className="block text-sm font-bold text-[#18203a] mb-2">
                         {t('authPage.register.firstNameLabel')} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
@@ -231,6 +245,7 @@ export default function RegisterPage() {
                           <User size={15} strokeWidth={1.8} />
                         </span>
                         <input
+                          id={fieldId('firstName')}
                           {...register('firstName')}
                           type="text"
                           placeholder={t('authPage.register.firstNamePlaceholder')}
@@ -241,11 +256,12 @@ export default function RegisterPage() {
                       {errors.firstName && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.firstName.message}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-[#18203a] mb-2">
+                      <label htmlFor={fieldId('lastName')} className="block text-sm font-bold text-[#18203a] mb-2">
                         {t('authPage.register.lastNameLabel')} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <input
+                          id={fieldId('lastName')}
                           {...register('lastName')}
                           type="text"
                           placeholder={t('authPage.register.lastNamePlaceholder')}
@@ -259,7 +275,7 @@ export default function RegisterPage() {
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-bold text-[#18203a]">{t('authPage.register.emailLabel')} <span className="text-red-500">*</span></label>
+                      <label htmlFor={fieldId('email')} className="text-sm font-bold text-[#18203a]">{t('authPage.register.emailLabel')} <span className="text-red-500">*</span></label>
                       <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#a0a8ba]">{t('authPage.register.emailHint')}</span>
                     </div>
                     <div className="relative">
@@ -267,6 +283,7 @@ export default function RegisterPage() {
                         <Mail size={15} strokeWidth={1.8} />
                       </span>
                       <input
+                        id={fieldId('email')}
                         {...register('email')}
                         type="email"
                         placeholder={t('authPage.register.emailPlaceholder')}
@@ -279,7 +296,7 @@ export default function RegisterPage() {
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-bold text-[#18203a]">{t('authPage.register.passwordLabel')} <span className="text-red-500">*</span></label>
+                      <label htmlFor={fieldId('password')} className="text-sm font-bold text-[#18203a]">{t('authPage.register.passwordLabel')} <span className="text-red-500">*</span></label>
                       <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#a0a8ba]">{t('authPage.register.passwordHint')}</span>
                     </div>
                     <div className="relative">
@@ -287,6 +304,7 @@ export default function RegisterPage() {
                         <Lock size={15} strokeWidth={1.8} />
                       </span>
                       <input
+                        id={fieldId('password')}
                         {...register('password')}
                         type={showPassword ? 'text' : 'password'}
                         placeholder="••••••••"
@@ -301,7 +319,7 @@ export default function RegisterPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-[#18203a] mb-2">
+                    <label htmlFor={fieldId('confirm')} className="block text-sm font-bold text-[#18203a] mb-2">
                       {t('authPage.register.confirmLabel')} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -309,6 +327,7 @@ export default function RegisterPage() {
                         <Lock size={15} strokeWidth={1.8} />
                       </span>
                       <input
+                        id={fieldId('confirm')}
                         {...register('confirm')}
                         type={showConfirm ? 'text' : 'password'}
                         placeholder="••••••••"
@@ -345,10 +364,10 @@ export default function RegisterPage() {
               {step === 1 && (
                 <div className="flex flex-col gap-5">
                   <div>
-                    <label className="block text-sm font-bold text-[#18203a] mb-3">
+                    <p id={fieldId('role')} className="block text-sm font-bold text-[#18203a] mb-3">
                       {t('authPage.register.roleQuestion')} <span className="text-red-500">*</span>
-                    </label>
-                    <div className="flex flex-col gap-3">
+                    </p>
+                    <div role="group" aria-labelledby={fieldId('role')} className="flex flex-col gap-3">
                       {([
                         ['engineer', t('common.role.engineer'), t('authPage.register.engineerDesc')],
                         ['healthcare_professional', t('common.role.healthcare_professional'), t('authPage.register.healthcareDesc')],
@@ -358,6 +377,7 @@ export default function RegisterPage() {
                           <button
                             key={value}
                             type="button"
+                            aria-pressed={selected}
                             onClick={() => setValue('role', value, { shouldValidate: true })}
                             className={`text-left p-5 rounded-[18px] border-2 transition-all ${
                               selected ? 'border-[#1c1230] bg-[#f6f4ff]' : 'border-[#dde2ea] bg-white hover:border-[#3db8d8]'
@@ -393,7 +413,7 @@ export default function RegisterPage() {
                 <div className="flex flex-col gap-4">
 
                   <div>
-                    <label className="block text-sm font-bold text-[#18203a] mb-2">
+                    <label htmlFor={fieldId('institution')} className="block text-sm font-bold text-[#18203a] mb-2">
                       {t('authPage.register.institutionLabel')} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -401,6 +421,7 @@ export default function RegisterPage() {
                         <Building2 size={15} strokeWidth={1.8} />
                       </span>
                       <input
+                        id={fieldId('institution')}
                         {...register('institution')}
                         type="text"
                         placeholder={t('authPage.register.institutionPlaceholder')}
@@ -429,8 +450,15 @@ export default function RegisterPage() {
                   {/* GDPR — the translated consent sentence is split on its first
                       ". " so the first sentence ("...agree to the Privacy Policy.")
                       becomes the clickable link and the rest stays plain text. */}
-                  <label className="flex gap-3 items-start cursor-pointer mt-1" onClick={() => setGdprAccepted(g => !g)}>
-                    <div className={`mt-0.5 w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                  <label className="flex gap-3 items-start cursor-pointer mt-1">
+                    {/* A real checkbox, visually replaced by the box below, so assistive technology can read and toggle the consent. */}
+                    <input
+                      type="checkbox"
+                      checked={gdprAccepted}
+                      onChange={e => setGdprAccepted(e.target.checked)}
+                      className="peer sr-only"
+                    />
+                    <div aria-hidden="true" className={`mt-0.5 w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center flex-shrink-0 transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-[#3db8d8]/60 ${
                       gdprAccepted ? 'bg-[#3db8d8] border-[#3db8d8]' : 'bg-white border-[#c8cedd] hover:border-[#3db8d8]'
                     }`}>
                       {gdprAccepted && (

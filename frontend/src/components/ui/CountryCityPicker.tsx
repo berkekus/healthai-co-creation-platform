@@ -1,5 +1,5 @@
-import { type ReactNode } from 'react'
-import SearchableSelect from './SearchableSelect'
+import { useId, type ReactNode } from 'react'
+import SearchableSelect, { DEFAULT_SELECT_LABELS, type SelectLabels } from './SearchableSelect'
 import { COUNTRIES, getCitiesForCountry } from '../../data/locations'
 
 interface Props {
@@ -19,6 +19,8 @@ interface Props {
   inputClassName?: string
   /** Placeholder for that same free-text fallback. */
   cityFreeTextPlaceholder?: string
+  /** Translated texts for the dropdowns' search box and messages. */
+  selectLabels?: SelectLabels
 }
 
 /**
@@ -38,7 +40,10 @@ export default function CountryCityPicker({
   cityLockedPlaceholder = 'Select country first',
   cityFreeTextPlaceholder = 'Enter your city',
   inputClassName,
+  selectLabels = DEFAULT_SELECT_LABELS,
 }: Props) {
+  const countryLabelId = useId()
+  const cityLabelId = useId()
   const cities = country ? getCitiesForCountry(country) : []
 
   // Roughly half the countries carry no city list. Rather than hand someone an
@@ -54,7 +59,7 @@ export default function CountryCityPicker({
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <div>
-        {countryLabel}
+        <div id={countryLabelId}>{countryLabel}</div>
         <SearchableSelect
           options={COUNTRIES}
           value={country}
@@ -65,12 +70,14 @@ export default function CountryCityPicker({
           }}
           placeholder={countryPlaceholder}
           error={countryError}
+          labels={selectLabels}
+          labelledBy={countryLabelId}
         />
         {countryError && <p className={err}>{countryError}</p>}
       </div>
 
       <div>
-        {cityLabel}
+        <div id={cityLabelId}>{cityLabel}</div>
         {noCityData ? (
           <input
             type="text"
@@ -79,6 +86,7 @@ export default function CountryCityPicker({
             placeholder={cityFreeTextPlaceholder}
             className={inputClassName}
             aria-invalid={Boolean(cityError)}
+            aria-labelledby={cityLabelId}
           />
         ) : (
           <SearchableSelect
@@ -88,6 +96,11 @@ export default function CountryCityPicker({
             placeholder={country ? cityPlaceholder : cityLockedPlaceholder}
             error={cityError}
             disabled={!country}
+            labels={selectLabels}
+            labelledBy={cityLabelId}
+            // The lists hold each country's larger cities only; a smaller town
+            // someone actually works in has to be typeable.
+            allowCustom
           />
         )}
         {cityError && <p className={err}>{cityError}</p>}

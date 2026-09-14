@@ -3,6 +3,7 @@ import type { Post } from '../../types/post.types'
 import type { MatchReason, MatchTone } from '../../utils/matchPosts'
 import PostStatusBadge from './PostStatusBadge'
 import { postDetail } from '../../constants/routes'
+import { postDomains } from '../../constants/domains'
 
 const STAGE_LABELS: Record<string, string> = {
   idea: 'Idea', concept_validation: 'Concept Validation',
@@ -71,9 +72,9 @@ export default function PostCard({ post, matchReasons, featured = false }: Props
 
       {/* Top: domain pill + status */}
       <div className="flex items-center justify-between gap-3">
-        <span className="inline-flex items-center gap-1.5 bg-hai-mint/70 text-hai-plum px-2.5 py-1 rounded-full text-xs font-mono tracking-[0.12em] uppercase font-bold">
+        <span lang="en" className="inline-flex items-center gap-1.5 bg-hai-mint/70 text-hai-plum px-2.5 py-1 rounded-full text-xs font-mono tracking-[0.12em] uppercase font-bold">
           <span className="w-1 h-1 rounded-full bg-hai-teal" />
-          {post.domain}
+          {postDomains(post).join(' · ')}
         </span>
         <PostStatusBadge status={post.status} size="sm" />
       </div>

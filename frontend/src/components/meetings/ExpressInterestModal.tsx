@@ -1,9 +1,11 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { Post } from '../../types/post.types'
-import type { TimeSlot } from '../../types/meeting.types'
 import { useMeetingStore } from '../../store/meetingStore'
 import { useAuthStore } from '../../store/authStore'
 import { useFocusTrap } from '../../hooks/useFocusTrap'
+import { browserTimeZone, localDateInputValue, MAX_PROPOSED_SLOTS } from '../../utils/timeSlots'
+import SlotListEditor, { newSlotDraft, slotsFromDrafts, type SlotDraft } from './SlotListEditor'
 
 interface Props {
   post: Post
@@ -11,12 +13,7 @@ interface Props {
   onSuccess: () => void
 }
 
-const NDA_TEXT = `By proceeding, you acknowledge that any information shared during this collaboration process is confidential. You agree not to disclose, reproduce, or use the information shared by the other party without explicit written consent.`
-
-const STEP_LABELS = ['Your message', 'NDA agreement', 'Propose times']
-
-const inputCls =
-  'w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-sm font-body font-semibold text-hai-plum outline-none transition-colors focus:border-hai-plum focus:shadow-[0_0_0_3px_rgba(138,198,208,0.32)]'
+const MIN_MESSAGE_LENGTH = 20
 
 function StepPill({ n, active, done, label }: { n: number; active: boolean; done: boolean; label: string }) {
   return (
@@ -38,6 +35,7 @@ function StepPill({ n, active, done, label }: { n: number; active: boolean; done
 }
 
 export default function ExpressInterestModal({ post, onClose, onSuccess }: Props) {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const { request } = useMeetingStore()
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -45,39 +43,33 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
   const [step, setStep] = useState(1)
   const [message, setMessage] = useState('')
   const [ndaChecked, setNdaChecked] = useState(false)
-  const [slots, setSlots] = useState<TimeSlot[]>([
-    { date: '', time: '' },
-    { date: '', time: '' },
-    { date: '', time: '' },
-  ])
+  const [drafts, setDrafts] = useState<SlotDraft[]>(() => [newSlotDraft()])
   const [error, setError] = useState('')
+  const [sending, setSending] = useState(false)
 
   const handleEscape = useCallback(() => onClose(), [onClose])
   useFocusTrap(dialogRef, true, handleEscape)
 
-  const minDate = new Date()
-  minDate.setDate(minDate.getDate() + 1)
-  const minDateStr = minDate.toISOString().split('T')[0]
+  const timezone = useMemo(() => browserTimeZone(), [])
+  const minDateStr = useMemo(() => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    return localDateInputValue(tomorrow)
+  }, [])
 
-  const updateSlot = (i: number, field: keyof TimeSlot, val: string) => {
-    setSlots(prev => prev.map((s, idx) => idx === i ? { ...s, [field]: val } : s))
-  }
-  const addSlot = () => setSlots(prev => [...prev, { date: '', time: '' }])
-  const removeSlot = (i: number) => {
-    if (slots.length <= 3) return
-    setSlots(prev => prev.filter((_, idx) => idx !== i))
-  }
+  const slots = slotsFromDrafts(drafts, timezone)
+  const stepLabels = [t('meetingRequest.steps.message'), t('meetingRequest.steps.nda'), t('meetingRequest.steps.times')]
 
   const validateStep = () => {
     setError('')
-    if (step === 1 && message.trim().length < 20) {
-      setError('Please write at least 20 characters about your interest.'); return false
+    if (step === 1 && message.trim().length < MIN_MESSAGE_LENGTH) {
+      setError(t('meetingRequest.errors.messageMin', { count: MIN_MESSAGE_LENGTH })); return false
     }
     if (step === 2 && !ndaChecked) {
-      setError('You must accept the NDA to continue.'); return false
+      setError(t('meetingRequest.errors.ndaRequired')); return false
     }
-    if (step === 3 && slots.filter(s => s.date && s.time).length < 3) {
-      setError('Please propose at least 3 time slots.'); return false
+    if (step === 3 && slots.length === 0) {
+      setError(t('meetingRequest.errors.timesRequired')); return false
     }
     return true
   }
@@ -86,21 +78,19 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
 
   const handleSubmit = async () => {
     if (!validateStep() || !user) return
-    const filledSlots = slots.filter(s => s.date && s.time)
+    setSending(true)
     try {
       await request(
-        { postId: post.id, message, ndaAccepted: true, proposedSlots: filledSlots },
+        { postId: post.id, message, ndaAccepted: true, proposedSlots: slots },
         user.id, user.name, post.authorId, post.authorName, post.title,
       )
       onSuccess()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send request. Please try again.')
+      setError(err instanceof Error ? err.message : t('meetingRequest.errors.sendFailed'))
+    } finally {
+      setSending(false)
     }
   }
-
-  const filledCount = slots.filter(s => s.date && s.time).length
-  const remainingSlots = Math.max(0, 3 - filledCount)
-  const canSubmit = filledCount >= 3
 
   return (
     <div
@@ -119,31 +109,31 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
             <div className="min-w-0">
               <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-3 py-1 mb-3 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
-                Schedule a Meeting
+                {t('meetingRequest.badge')}
               </div>
               <h2 id="express-interest-title" className="font-headline font-bold text-xl md:text-2xl leading-tight tracking-normal text-hai-plum line-clamp-2">
                 {post.title}
               </h2>
               <div className="mt-1.5 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold">
-                To {post.authorName}
+                {t('meetingRequest.to', { name: post.authorName })}
               </div>
             </div>
             <button
               onClick={onClose}
-              aria-label="Close"
+              aria-label={t('common.close')}
               className="shrink-0 w-9 h-9 rounded-full bg-hai-offwhite hover:bg-hai-mint/60 text-hai-plum flex items-center justify-center transition-colors"
             >
-              <span className="material-symbols-outlined text-xl">close</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-xl">close</span>
             </button>
           </div>
         </div>
 
         {/* Step indicator */}
         <div className="px-6 md:px-8 py-4 border-b border-neutral-100 flex items-center gap-2 overflow-x-auto">
-          {STEP_LABELS.map((label, i) => (
+          {stepLabels.map((label, i) => (
             <div key={label} className="flex items-center gap-2 shrink-0">
               <StepPill n={i + 1} active={step === i + 1} done={step > i + 1} label={label} />
-              {i < STEP_LABELS.length - 1 && (
+              {i < stepLabels.length - 1 && (
                 <span className={`block w-6 h-px ${step > i + 1 ? 'bg-hai-plum' : 'bg-neutral-200'}`} />
               )}
             </div>
@@ -155,21 +145,22 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
           {step === 1 && (
             <div className="flex flex-col gap-4">
               <p className="text-sm text-neutral-600 leading-relaxed">
-                Write a short message to <strong className="text-hai-plum">{post.authorName}</strong> explaining your background and why you're interested in this collaboration.
+                {t('meetingRequest.messageIntro', { name: post.authorName })}
               </p>
               <textarea
                 value={message}
                 onChange={e => setMessage(e.target.value)}
-                placeholder="Describe your relevant experience and what you can bring to this collaboration…"
+                placeholder={t('meetingRequest.messagePlaceholder')}
+                aria-label={t('meetingRequest.steps.message')}
                 rows={6}
                 maxLength={500}
-                className={`${inputCls} resize-y leading-relaxed`}
+                className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-sm font-body font-semibold text-hai-plum outline-none transition-colors focus:border-hai-plum focus:shadow-[0_0_0_3px_rgba(138,198,208,0.32)] resize-y leading-relaxed"
               />
               <div className={`inline-flex items-center gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold ${
-                message.length >= 20 ? 'text-neutral-500' : 'text-hai-plum/60'
+                message.length >= MIN_MESSAGE_LENGTH ? 'text-neutral-500' : 'text-hai-plum/60'
               }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${message.length >= 20 ? 'bg-hai-teal' : 'bg-hai-cream'}`} />
-                Minimum 20 characters · {message.length} / 500
+                <span className={`w-1.5 h-1.5 rounded-full ${message.length >= MIN_MESSAGE_LENGTH ? 'bg-hai-teal' : 'bg-hai-cream'}`} />
+                {t('meetingRequest.messageCounter', { min: MIN_MESSAGE_LENGTH, count: message.length })}
               </div>
             </div>
           )}
@@ -178,21 +169,21 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
             <div className="flex flex-col gap-4">
               <div className="bg-hai-cream/60 border border-hai-plum/10 rounded-2xl p-5">
                 <div className="flex items-center gap-2 mb-3 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
-                  <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: '"FILL" 1' }}>
+                  <span aria-hidden="true" className="material-symbols-outlined text-base" style={{ fontVariationSettings: '"FILL" 1' }}>
                     shield_lock
                   </span>
-                  Non-disclosure agreement
+                  {t('meetingRequest.ndaTitle')}
                 </div>
-                <p className="text-sm text-hai-plum leading-relaxed">{NDA_TEXT}</p>
+                <p className="text-sm text-hai-plum leading-relaxed">{t('meetingRequest.ndaText')}</p>
               </div>
 
               <label className={`cursor-pointer flex items-start gap-3 p-4 rounded-2xl border-2 transition-all ${
                 ndaChecked ? 'border-hai-plum bg-hai-mint/40' : 'border-neutral-200 hover:border-hai-plum/40 bg-white'
               }`}>
-                <span className={`shrink-0 w-5 h-5 rounded-md flex items-center justify-center transition-colors ${
+                <span aria-hidden="true" className={`shrink-0 w-5 h-5 rounded-md flex items-center justify-center transition-colors ${
                   ndaChecked ? 'bg-hai-plum text-hai-mint' : 'bg-hai-offwhite text-transparent border border-neutral-300'
                 }`}>
-                  <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>check</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>check</span>
                 </span>
                 <input
                   type="checkbox"
@@ -200,9 +191,7 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
                   onChange={e => setNdaChecked(e.target.checked)}
                   className="sr-only"
                 />
-                <span className="text-sm text-hai-plum leading-relaxed">
-                  I have read and accept the terms of this NDA. I understand that all information shared during this collaboration is confidential.
-                </span>
+                <span className="text-sm text-hai-plum leading-relaxed">{t('meetingRequest.ndaAccept')}</span>
               </label>
             </div>
           )}
@@ -211,92 +200,28 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
             <div className="flex flex-col gap-4">
               <div className="flex items-start justify-between gap-3 flex-wrap">
                 <p className="text-sm text-neutral-600 leading-relaxed flex-1 min-w-[240px]">
-                  Propose at least 3 time slots when you're available. <strong className="text-hai-plum">{post.authorName}</strong> will confirm one.
+                  {t('meetingRequest.timesIntro', { name: post.authorName })}
                 </p>
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono tracking-[0.12em] uppercase font-bold ${
-                  filledCount >= 3 ? 'bg-hai-mint text-hai-plum' : 'bg-hai-offwhite text-neutral-500'
+                  slots.length > 0 ? 'bg-hai-mint text-hai-plum' : 'bg-hai-offwhite text-neutral-500'
                 }`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${filledCount >= 3 ? 'bg-hai-teal' : 'bg-neutral-400'}`} />
-                  {filledCount} / 3 filled
+                  <span className={`w-1.5 h-1.5 rounded-full ${slots.length > 0 ? 'bg-hai-teal' : 'bg-neutral-400'}`} />
+                  {t('meetingRequest.timesCounter', { count: slots.length, max: MAX_PROPOSED_SLOTS })}
                 </span>
               </div>
-
-              {!canSubmit && (
-                <p className="text-sm font-semibold text-neutral-500" role="status">
-                  Add {remainingSlots} more valid time {remainingSlots === 1 ? 'slot' : 'slots'} before sending your request.
-                </p>
-              )}
-
-              <div className="flex flex-col gap-3 max-w-md mx-auto w-full">
-                {slots.map((slot, i) => (
-                  <div key={i} className="bg-hai-offwhite rounded-2xl p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-hai-plum/10 flex items-center justify-center font-mono font-bold text-xs text-hai-plum">
-                          {i + 1}
-                        </div>
-                        <span className="text-xs font-mono tracking-[0.12em] uppercase font-bold text-neutral-400">
-                          Time slot {i + 1}
-                        </span>
-                      </div>
-                      {slots.length > 3 && (
-                        <button
-                          onClick={() => removeSlot(i)}
-                          aria-label={`Remove slot ${i + 1}`}
-                          className="w-7 h-7 rounded-full bg-white hover:bg-red-50 text-neutral-400 hover:text-red-500 flex items-center justify-center transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-base">close</span>
-                        </button>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <div className="flex items-center gap-1 text-xs font-mono tracking-[0.12em] uppercase text-neutral-400 mb-1.5">
-                          <span className="material-symbols-outlined text-sm">calendar_month</span>
-                          Date
-                        </div>
-                        <input
-                          type="date"
-                          value={slot.date}
-                          min={minDateStr}
-                          onChange={e => updateSlot(i, 'date', e.target.value)}
-                          onClick={e => { try { (e.target as HTMLInputElement).showPicker?.() } catch {} }}
-                          className={`${inputCls} !py-2.5 !rounded-xl cursor-pointer`}
-                        />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-1 text-xs font-mono tracking-[0.12em] uppercase text-neutral-400 mb-1.5">
-                          <span className="material-symbols-outlined text-sm">schedule</span>
-                          Time
-                        </div>
-                        <input
-                          type="time"
-                          value={slot.time}
-                          onChange={e => updateSlot(i, 'time', e.target.value)}
-                          onClick={e => { try { (e.target as HTMLInputElement).showPicker?.() } catch {} }}
-                          className={`${inputCls} !py-2.5 !rounded-xl cursor-pointer`}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <p className="text-xs font-semibold leading-5 text-neutral-500">
+                {t('meetingRequest.timesHint', { name: post.authorName })}
+              </p>
 
               <div className="max-w-md mx-auto w-full">
-                <button
-                  onClick={addSlot}
-                  className="w-full rounded-full border-2 border-dashed border-neutral-300 py-3 text-xs font-mono tracking-[0.12em] uppercase font-bold text-hai-plum hover:border-hai-plum hover:bg-hai-mint/20 transition-colors flex items-center justify-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-base">add</span>
-                  Add another slot
-                </button>
+                <SlotListEditor drafts={drafts} onChange={setDrafts} minDate={minDateStr} timezone={timezone} />
               </div>
             </div>
           )}
 
           {error && (
             <div role="alert" className="mt-5 flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-2xl p-3.5 text-sm text-red-700 font-semibold leading-relaxed">
-              <span className="material-symbols-outlined text-lg shrink-0 mt-px" style={{ fontVariationSettings: '"FILL" 1' }}>error</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-lg shrink-0 mt-px" style={{ fontVariationSettings: '"FILL" 1' }}>error</span>
               {error}
             </div>
           )}
@@ -308,23 +233,23 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
             onClick={step === 1 ? onClose : () => setStep(s => s - 1)}
             className="px-5 py-2.5 rounded-full bg-white border border-neutral-200 text-hai-plum text-sm font-bold hover:bg-neutral-100 transition-colors inline-flex items-center gap-1.5"
           >
-            {step === 1 ? 'Cancel' : <><span aria-hidden="true">←</span> Back</>}
+            {step === 1 ? t('meetingRequest.cancel') : <><span aria-hidden="true">←</span> {t('meetingRequest.back')}</>}
           </button>
           {step < 3 ? (
             <button
               onClick={handleNext}
               className="px-6 py-2.5 rounded-full bg-hai-plum text-white text-sm font-bold hover:bg-black transition-colors inline-flex items-center gap-1.5"
             >
-              {step === 2 ? 'I accept & continue' : 'Next'} <span aria-hidden="true">→</span>
+              {step === 2 ? t('meetingRequest.acceptContinue') : t('meetingRequest.next')} <span aria-hidden="true">→</span>
             </button>
           ) : (
             <button
               onClick={handleSubmit}
-              disabled={!canSubmit}
+              disabled={slots.length === 0 || sending}
               className="px-6 py-2.5 rounded-full bg-hai-plum text-white text-sm font-bold hover:bg-black transition-colors inline-flex items-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-hai-plum"
             >
-              <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: '"FILL" 1' }}>send</span>
-              Send request
+              <span aria-hidden="true" className="material-symbols-outlined text-base" style={{ fontVariationSettings: '"FILL" 1' }}>send</span>
+              {sending ? t('meetingRequest.sending') : t('meetingRequest.send')}
             </button>
           )}
         </div>

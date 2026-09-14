@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
@@ -26,6 +26,8 @@ const COOLDOWN_SEC = 60
 export default function LoginPage() {
   const { t } = useTranslation()
   const { login, isAuthenticated, isLoading, error, clearError } = useAuthStore()
+  const emailId = useId()
+  const passwordId = useId()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? ROUTES.DASHBOARD
@@ -217,7 +219,7 @@ export default function LoginPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
+                <label htmlFor={emailId} className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
                   {t('authPage.login.emailLabel')}
                 </label>
                 <div className="relative">
@@ -225,6 +227,7 @@ export default function LoginPage() {
                     <Mail size={15} strokeWidth={1.8} />
                   </span>
                   <input
+                    id={emailId}
                     {...register('email')}
                     type="email"
                     placeholder={t('authPage.login.emailPlaceholder')}
@@ -241,7 +244,7 @@ export default function LoginPage() {
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
+                <label htmlFor={passwordId} className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
                   {t('authPage.login.passwordLabel')}
                 </label>
                 <div className="relative">
@@ -249,6 +252,7 @@ export default function LoginPage() {
                     <Lock size={15} strokeWidth={1.8} />
                   </span>
                   <input
+                    id={passwordId}
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
                     placeholder={'\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022'}

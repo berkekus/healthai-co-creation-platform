@@ -4,6 +4,7 @@ import { ArrowLeft, Building2, MapPin, ShieldCheck, Tag } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import api from '../../lib/api'
 import BadgeList from '../../components/ui/BadgeList'
+import ProfessionalDetails, { hasProfessionalDetails } from '../../components/profile/ProfessionalDetails'
 import type { User } from '../../types/auth.types'
 
 const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
@@ -98,6 +99,13 @@ export default function PublicProfilePage() {
               <p className="text-[14.5px] text-[#4a4355] leading-relaxed mb-6 max-w-[600px]">{user.bio}</p>
             )}
 
+            {hasProfessionalDetails(user) && (
+              <div className="mb-6 rounded-2xl border border-[#e8e8ee] px-5 py-4">
+                <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#6f6a76]">{t('professional.title')}</div>
+                <ProfessionalDetails user={user} />
+              </div>
+            )}
+
             {user.expertiseTags && user.expertiseTags.length > 0 && (
               <div>
                 <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-[0.12em] uppercase text-[#9f9aaa] mb-3">
@@ -117,7 +125,7 @@ export default function PublicProfilePage() {
 
         <p className="mt-5 text-center text-[12.5px] text-[#9f9aaa] font-semibold">
           {t('publicProfile.memberSince', {
-            date: new Date(user.createdAt).toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-GB', { month: 'long', year: 'numeric' })
+            date: new Date(user.createdAt).toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' })
           })}
         </p>
       </div>

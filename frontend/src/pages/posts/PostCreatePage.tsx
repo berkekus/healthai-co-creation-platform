@@ -9,6 +9,7 @@ import { usePostStore } from '../../store/postStore'
 import { createPostCreateSchema, type PostCreateFormData } from '../../utils/validators'
 import PostFormFields from '../../components/posts/PostFormFields'
 import { postDetail, ROUTES } from '../../constants/routes'
+import { localDateInputValue } from '../../utils/timeSlots'
 
 export default function PostCreatePage() {
   const { t } = useTranslation()
@@ -19,7 +20,7 @@ export default function PostCreatePage() {
 
   const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<PostCreateFormData>({
     resolver: zodResolver(createPostCreateSchema(t)),
-    defaultValues: { confidentiality: 'public_pitch', projectStage: 'idea', levelOfCommitment: 'flexible' },
+    defaultValues: { domains: [], confidentiality: 'public_pitch', projectStage: 'idea', levelOfCommitment: 'flexible' },
     mode: 'onTouched',
   })
 
@@ -43,7 +44,7 @@ export default function PostCreatePage() {
 
   const minDate = new Date()
   minDate.setDate(minDate.getDate() + 1)
-  const minDateStr = minDate.toISOString().split('T')[0]
+  const minDateStr = localDateInputValue(minDate)
 
   return (
     <main className="min-h-screen bg-[#f6f7f9] text-[#2d1838]">
@@ -70,7 +71,7 @@ export default function PostCreatePage() {
 
         <div className="mb-12">
           <div className="mb-5 inline-flex rounded-full border border-[#cfd3dc] bg-white px-4 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-[#6f6a76]">
-            07&nbsp;&nbsp;New Post
+            {t('createPost.badge')}
           </div>
           <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#2d1838] sm:text-6xl">
             {t('createPost.heading')}

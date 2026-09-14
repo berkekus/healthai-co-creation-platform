@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { Post, PostFilters, PostCreateData, PostAuthorRole } from '../types/post.types'
 import api from '../lib/api'
+import { postHasDomain } from '../constants/domains'
 
 interface PaginationMeta {
   total: number
@@ -22,6 +23,8 @@ interface PostState {
   create: (data: PostCreateData, authorId: string, authorName: string, authorRole: PostAuthorRole) => Promise<Post>
   update: (id: string, data: Partial<Post>) => Promise<void>
   markPartnerFound: (id: string) => Promise<void>
+  /** Undo "Partner Found"; an expired post needs a new expiry date. */
+  reopen: (id: string, expiryDate?: string) => Promise<void>
   publish: (id: string) => Promise<void>
   remove: (id: string) => Promise<void>
   expressInterest: (id: string) => Promise<void>
@@ -29,7 +32,7 @@ interface PostState {
 
 function applyFilters(posts: Post[], f: PostFilters): Post[] {
   return posts.filter(p => {
-    if (f.domain      && !p.domain.toLowerCase().includes(f.domain.toLowerCase())) return false
+    if (f.domain      && !postHasDomain(p, f.domain)) return false
     if (f.expertise   && !p.expertiseRequired.toLowerCase().includes(f.expertise.toLowerCase())) return false
     if (f.city        && p.city.toLowerCase() !== f.city.toLowerCase()) return false
     if (f.country     && p.country.toLowerCase() !== f.country.toLowerCase()) return false
@@ -113,6 +116,12 @@ export const usePostStore = create<PostState>()((set, get) => ({
 
   markPartnerFound: async (id) => {
     const { data: res } = await api.post<{ success: boolean; data: Post }>(`/posts/${id}/partner-found`)
+    const updated = normalise(res.data)
+    set(s => ({ posts: s.posts.map(p => p.id === id ? updated : p) }))
+  },
+
+  reopen: async (id, expiryDate) => {
+    const { data: res } = await api.post<{ success: boolean; data: Post }>(`/posts/${id}/reopen`, expiryDate ? { expiryDate } : undefined)
     const updated = normalise(res.data)
     set(s => ({ posts: s.posts.map(p => p.id === id ? updated : p) }))
   },

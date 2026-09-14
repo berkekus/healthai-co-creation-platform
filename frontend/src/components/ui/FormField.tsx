@@ -1,3 +1,5 @@
+import { cloneElement, isValidElement, useId } from 'react'
+
 interface FormFieldProps {
   label: string
   error?: string
@@ -9,11 +11,18 @@ interface FormFieldProps {
 /**
  * FormField — hai-* palette + Plus Jakarta Sans / Source Sans 3 typography.
  * Used by Login, Register, Post forms, Profile, etc.
+ *
+ * The label is tied to its control by id, so clicking the label focuses the
+ * field and screen readers announce the field by name.
  */
 export default function FormField({ label, error, required, hint, children }: FormFieldProps) {
+  const generatedId = useId()
+  const control = isValidElement<{ id?: string }>(children) ? children : null
+  const controlId = control ? (control.props.id ?? generatedId) : undefined
+
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="flex items-baseline justify-between font-body">
+      <label htmlFor={controlId} className="flex items-baseline justify-between font-body">
         <span className={`text-sm font-bold ${error ? 'text-red-600' : 'text-hai-plum'}`}>
           {label}
           {required && <span className="text-red-600 ml-0.5">*</span>}
@@ -24,7 +33,7 @@ export default function FormField({ label, error, required, hint, children }: Fo
           </span>
         )}
       </label>
-      {children}
+      {control ? cloneElement(control, { id: controlId }) : children}
       {error && (
         <span role="alert" className="text-xs text-red-600 font-body font-semibold">
           {error}

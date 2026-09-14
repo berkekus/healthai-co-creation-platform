@@ -12,7 +12,10 @@ export interface IPost extends Document {
   authorId: Types.ObjectId
   authorName: string
   authorRole: PostAuthorRole
+  /** Primary domain — always domains[0]; kept for older clients and exports. */
   domain: string
+  /** One to three domains the idea spans. Absent on posts created before multi-domain support. */
+  domains?: string[]
   expertiseRequired: string
   description: string
   projectStage: ProjectStage
@@ -41,6 +44,7 @@ const PostSchema = new Schema<IPost>(
       required: true,
     },
     domain: { type: String, required: true, trim: true },
+    domains: { type: [String], default: undefined },
     expertiseRequired: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     projectStage: {
@@ -87,6 +91,7 @@ const PostSchema = new Schema<IPost>(
 PostSchema.index({ authorId: 1 })
 PostSchema.index({ status: 1 })
 PostSchema.index({ domain: 1 })
+PostSchema.index({ domains: 1 })
 PostSchema.index({ country: 1, city: 1 })
 PostSchema.index({ title: 'text', description: 'text', expertiseRequired: 'text' })
 

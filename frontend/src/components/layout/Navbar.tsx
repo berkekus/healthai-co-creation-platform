@@ -9,24 +9,13 @@ import { Badge, IconButton } from '../ui'
 import { ROUTES } from '../../constants/routes'
 import type { NotificationType, Notification } from '../../types/common.types'
 import { getNotificationContent } from '../../utils/notificationContent'
+import { timeAgo } from '../../utils/timeAgo'
 
 const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
 const resolveAvatar = (url?: string) => {
   if (!url) return undefined
   if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`
   return url
-}
-
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'Just now'
-  if (mins < 60) return `${mins}m ago`
-  const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
-  const days = Math.floor(hrs / 24)
-  if (days === 1) return 'Yesterday'
-  return `${days}d ago`
 }
 
 function NotifIcon({ type }: { type: NotificationType }) {
@@ -46,6 +35,7 @@ function NotifIcon({ type }: { type: NotificationType }) {
     case 'interest_received':
       return <span className={`${base} bg-[#E8F4F7]`}><Star size={15} className="text-[#8AC6D0]" /></span>
     case 'new_message':
+    case 'new_comment':
       return <span className={`${base} bg-[#E8F4F7]`}><MessageSquare size={15} className="text-[#8AC6D0]" /></span>
     default:
       return <span className={`${base} bg-[#EEF0F3]`}><Bell size={15} className="text-[#6F6878]" /></span>
@@ -106,7 +96,7 @@ function NotifDropdown({
                   <p className="mt-0.5 truncate text-xs font-semibold text-[#6F6878]">{content.body}</p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2 pt-0.5">
-                  <span className="whitespace-nowrap text-xs font-semibold text-[#6F6878]">{timeAgo(n.createdAt)}</span>
+                  <span className="whitespace-nowrap text-xs font-semibold text-[#6F6878]">{timeAgo(n.createdAt, t)}</span>
                   {!n.isRead && <span className="h-2 w-2 rounded-full bg-[#8AC6D0]" />}
                 </div>
               </button>
@@ -276,7 +266,7 @@ export default function Navbar() {
                   onClick={() => navigate(ROUTES.NOTIFICATIONS)}
                   onFocus={handleNotifEnter}
                   onBlur={handleNotifLeave}
-                  label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
+                  label={unread > 0 ? t('nav.notificationsUnread', { n: unread }) : t('nav.notifications')}
                   aria-expanded={notifOpen}
                   aria-haspopup="listbox"
                   size="lg"
@@ -311,7 +301,7 @@ export default function Navbar() {
               <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen(o => !o)}
-                  aria-label="Account menu"
+                  aria-label={t('nav.accountMenu')}
                   aria-haspopup="menu"
                   aria-expanded={profileOpen}
                   className="w-12 h-12 cursor-pointer rounded-full overflow-hidden bg-hai-mint text-hai-plum font-bold text-xs font-body flex items-center justify-center border border-hai-teal/40 hover:border-hai-plum transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal/70 focus-visible:ring-offset-2"
@@ -327,7 +317,7 @@ export default function Navbar() {
                       <div className="text-xs font-mono text-neutral-500 mt-0.5 truncate">{user.email}</div>
                       <Badge variant="outline" className="mt-2 border-hai-teal/40 bg-white px-2 py-0.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
-                        {user.role}
+                        {t(`common.role.${user.role}`, { defaultValue: user.role })}
                       </Badge>
                     </div>
                     <div className="p-2">
@@ -364,7 +354,7 @@ export default function Navbar() {
           {user && (
             <IconButton
               onClick={() => setMenuOpen(o => !o)}
-              label="Toggle menu"
+              label={t('nav.toggleMenu')}
               icon={menuOpen ? <X size={17} /> : <Menu size={17} />}
               className="md:hidden"
             />

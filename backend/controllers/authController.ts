@@ -52,6 +52,14 @@ export const register = asyncHandler(async (req, res) => {
 
   try {
     const result = await authService.registerUser({ name: name.trim(), email, password, role, institution, city, country })
+    if ('pendingVerification' in result) {
+      res.status(200).json({
+        success: true,
+        message: 'This email already has a registration waiting for verification. A new verification link has been sent.',
+        data: result,
+      })
+      return
+    }
     createLog({
       userId: result.user.id,
       userEmail: result.user.email,
@@ -127,10 +135,13 @@ export const updateNotifPrefs = asyncHandler<AuthenticatedRequest>(async (req, r
 })
 
 export const updateProfile = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const { name, institution, city, country, bio, avatarUrl, expertiseTags } = req.body
-  const user = await authService.updateUserProfile(req.userId, {
-    name, institution, city, country, bio, avatarUrl, expertiseTags,
-  })
+  const { name, institution, city, country, bio, avatarUrl, expertiseTags,
+          position, department, orcid, institutionWebsite, contactEmail, linkedinUrl } = req.body
+  const user = await authService.updateUserProfile(
+    req.userId,
+    { name, institution, city, country, bio, avatarUrl, expertiseTags },
+    { position, department, orcid, institutionWebsite, contactEmail, linkedinUrl },
+  )
   createLog({
     userId: user.id,
     userEmail: user.email,
@@ -251,7 +262,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     result: 'success',
     ipAddress: req.ip,
   }).catch(() => {})
-  res.json({ success: true, message: 'If the email is registered and verified, a reset link has been sent.' })
+  res.json({ success: true, message: 'If the email is registered, a reset link has been sent.' })
 })
 
 export const resetPassword = asyncHandler(async (req, res) => {

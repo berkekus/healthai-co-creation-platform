@@ -4,7 +4,7 @@
 
 1. Measure whether clinicians and engineers can register and complete email verification without assistance.
 2. Measure whether users can find a relevant collaboration post and understand its status and confidentiality.
-3. Measure whether a user can submit and progress a meeting request with the NDA and three time slots.
+3. Measure whether a user can submit and progress a meeting request with the NDA and one to five proposed times, and reach the chat once it is accepted.
 4. Measure whether participants can locate messages, notifications and account/security actions.
 5. Identify language, navigation, accessibility and recovery problems in the administrator flow.
 

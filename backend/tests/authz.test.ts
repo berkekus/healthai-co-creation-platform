@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { api, createUser, createPost } from './helpers'
+import { api, createUser, createPost, futureDate } from './helpers'
 import User from '../models/User'
 
 // ─── Posts: cross-user authorization ────────────────────────────────────────
@@ -67,9 +67,9 @@ describe('POST authorization — mark partner found', () => {
         message: 'I am very interested in collaborating on this project with you.',
         ndaAccepted: true,
         proposedSlots: [
-          { date: '2026-07-01', time: '10:00' },
-          { date: '2026-07-02', time: '11:00' },
-          { date: '2026-07-03', time: '14:00' },
+          { date: futureDate(2), time: '10:00' },
+          { date: futureDate(3), time: '11:00' },
+          { date: futureDate(4), time: '14:00' },
         ],
       })
     expect(meetingRes.status).toBe(201)

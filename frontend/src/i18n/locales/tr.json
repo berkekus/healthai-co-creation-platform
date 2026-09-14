@@ -12,7 +12,10 @@
     "adminPanel": "Yönetim Paneli",
     "signOut": "Çıkış Yap",
     "messages": "Mesajlar",
-    "notifications": "Bildirimler"
+    "notifications": "Bildirimler",
+    "notificationsUnread": "Bildirimler ({{n}} okunmamış)",
+    "accountMenu": "Hesap menüsü",
+    "toggleMenu": "Menüyü aç/kapat"
   },
   "landing": {
     "nav": {
@@ -143,8 +146,21 @@
     "filters": "Filtreler",
     "search": "İlan ara…",
     "domain": "Alan",
-    "stage": "Aşama",
-    "status": "Durum",
+    "stage": {
+      "idea": "Fikir",
+      "concept_validation": "Konsept Doğrulama",
+      "prototype": "Prototip",
+      "pilot": "Pilot",
+      "pre_deployment": "Ön Dağıtım"
+    },
+    "status": {
+      "draft": "Taslak",
+      "open": "Açık",
+      "active": "Aktif",
+      "meeting_scheduled": "Toplantı Planlandı",
+      "partner_found": "Ortak Bulundu",
+      "expired": "Süresi Doldu"
+    },
     "postedBy": "Yayınlayan",
     "location": "Konum",
     "clearFilters": "Filtreleri temizle",
@@ -162,21 +178,6 @@
     "expired": "Süresi Doldu",
     "delete": "İlanı sil",
     "confirmDelete": "Bu ilan silinsin mi? Bu işlem geri alınamaz.",
-    "status": {
-      "draft": "Taslak",
-      "open": "Açık",
-      "active": "Aktif",
-      "meeting_scheduled": "Toplantı Planlandı",
-      "partner_found": "Ortak Bulundu",
-      "expired": "Süresi Doldu"
-    },
-    "stage": {
-      "idea": "Fikir",
-      "concept_validation": "Konsept Doğrulama",
-      "prototype": "Prototip",
-      "pilot": "Pilot",
-      "pre_deployment": "Ön Dağıtım"
-    },
     "collab": {
       "advisor": "Danışman",
       "co_founder": "Kurucu Ortak",
@@ -253,6 +254,38 @@
         "whereWhenSubtitle": "Konum yüz yüze toplantılara yardımcı olur; bitiş tarihi ilanı otomatik olarak kapatır.",
         "reviewTitle": "İncele & yayınla",
         "reviewSubtitle": "İlanınızı görünür yapmadan önce detaylarınızı gözden geçirin."
+      },
+      "domains": "Sağlık alanları",
+      "domainNoneSelected": "Henüz alan seçilmedi",
+      "domainRemove": "{{domain}} alanını kaldır",
+      "domainHint": "Fikrinizin kapsadığı 1 ile {{max}} arasında alan seçin — ilk seçilen ana alan olarak gösterilir. {{count}} seçildi.",
+      "domainSearch": "Alan ara…",
+      "domainGroups": {
+        "clinical": "Klinik tıp",
+        "care": "Hemşirelik, terapi ve halk sağlığı",
+        "research": "Araştırma ve sağlık teknolojileri"
+      },
+      "aiNeedsText": "Önce bir başlık veya açıklama yazın — AI Assist yazdıklarınızı iyileştirir.",
+      "aiUnavailable": "AI Assist şu anda bu sunucuda kullanılamıyor.",
+      "collabHelpNone": "Bir ortakla nasıl çalışmak istediğinizi seçin.",
+      "stageHelp": {
+        "idea": "Erken aşamada bir fikir — henüz veri ya da prototip yok.",
+        "concept_validation": "Fikrin geliştirilmeye değer olduğunu kullanıcılar, klinisyenler veya verilerle doğruluyorsunuz.",
+        "prototype": "Çalışan ilk bir sürüm var ve test ediliyor.",
+        "pilot": "Gerçek bir klinik veya bakım ortamında küçük ölçekte deneniyor.",
+        "pre_deployment": "Yaygın kullanıma hazırlanıyor: mevzuat, doğrulama ve yaygınlaştırma."
+      },
+      "collabHelp": {
+        "advisor": "Projede pay sahibi olmadan, ara sıra uzman görüşü.",
+        "co_founder": "Sahipliği ve kararları paylaşan uzun vadeli bir ortak.",
+        "research_partner": "Ortak araştırma — örneğin bir çalışma, makale veya hibe başvurusu.",
+        "contract": "Belirli bir süre için kapsamı net, ücretli çalışma."
+      },
+      "commitmentHelp": {
+        "flexible": "Ayrılacak zaman birlikte kararlaştırılır.",
+        "low": "Haftada yaklaşık 1–2 saat.",
+        "medium": "Haftada yaklaşık 3–6 saat.",
+        "high": "Çok zaman gerektiren, odaklı bir çalışma dönemi."
       }
     },
     "allDomains": "Tüm alanlar",
@@ -305,12 +338,12 @@
     "title": "Toplantılar",
     "request": "Toplantı talep et",
     "status": {
-      "pending": "İncelemede",
-      "time_proposed": "Zaman seçimi",
-      "confirmed": "Onaylandı",
-      "completed": "Tamamlandı",
+      "pending": "Yanıt bekleniyor",
+      "time_proposed": "Zaman seçiliyor",
+      "confirmed": "Planlandı",
+      "completed": "Görüşme yapıldı",
       "declined": "Reddedildi",
-      "cancelled": "İptal Edildi"
+      "cancelled": "İptal edildi"
     },
     "incoming": "Gelen talep:",
     "outgoing": "Gönderilen talep:",
@@ -345,7 +378,8 @@
     "summaryTopics": "Konular",
     "summaryNextSteps": "Sonraki Adımlar",
     "summaryOpenQuestions": "Açık Sorular",
-    "summaryGenerated": "Oluşturuldu"
+    "summaryGenerated": "Oluşturuldu",
+    "exportPdf": "PDF olarak indir"
   },
   "comments": {
     "title": "Tartışma",
@@ -354,6 +388,7 @@
     "empty": "Henüz yorum yok. İlk soru soran siz olun!",
     "reply": "Yanıtla",
     "replyingTo": "Yanıtlıyor:",
+    "cancelReply": "Yanıtı iptal et",
     "loadMore": "Daha fazla yorum yükle"
   },
   "profile": {
@@ -367,6 +402,15 @@
     "complete": "Tamamlandı!",
     "almostThere": "Neredeyse bitti",
     "keepGoing": "Devam edin",
+    "scoreTips": {
+      "add_bio": "Geçmişinizi ve hedeflerinizi anlatan bir biyografi ekleyin",
+      "add_expertise_tags": "Eşleşmeyi iyileştirmek için en az 3 uzmanlık etiketi ekleyin",
+      "add_institution": "Kurumunuzu veya kuruluşunuzu ekleyin",
+      "add_city": "Konuma göre eşleşme için şehrinizi ekleyin",
+      "add_country": "Ülkenizi ekleyin",
+      "upload_photo": "Profil fotoğrafı yükleyin",
+      "add_more_expertise_tags": "En iyi eşleşme için 5 veya daha fazla uzmanlık etiketi ekleyin"
+    },
     "photo": "Profil fotoğrafı",
     "bioWritten": "Biyografi eklendi",
     "expertiseTags": "3+ uzmanlık etiketi",
@@ -389,7 +433,8 @@
       "bio": "Biyografi",
       "bioHint": "İsteğe bağlı - maks. 400 karakter",
       "bioPlaceholder": "Geçmişinizi ve ilgi alanlarınızı kısaca açıklayın…",
-      "regionVisibility": "Bölge görünürlüğü"
+      "regionVisibility": "Bölge görünürlüğü",
+      "visibleToMembers": "Üyelere görünür"
     },
     "notifOptions": {
       "meetingRequests": "Toplantı talepleri",
@@ -426,7 +471,8 @@
       "delete": "Hesabı sil",
       "deleteDesc": "Hesabınızı ve tüm ilişkili verileri kalıcı olarak silin.",
       "deleteBtn": "Hesabı sil",
-      "gdpr17": "KVKK / GDPR Md. 17 - Silinme hakkı"
+      "gdpr17": "KVKK / GDPR Md. 17 - Silinme hakkı",
+      "retentionNote": "Tüm veriler şifrelenmiş olarak saklanır. Hesabınızla ilgili denetim kayıtları, gizlilik politikamız gereği hesap silinse bile 24 ay saklanır."
     },
     "help": {
       "title": "Yardıma mı ihtiyacınız var?",
@@ -434,7 +480,45 @@
       "contact": "Destek ekibiyle iletişime geç"
     },
     "verifiedRole": "Doğrulanmış {{role}}",
-    "verifiedDesc": "Profiliniz doğrulandı. Artık bağlantı kurabilir ve işbirliği yapabilirsiniz."
+    "verifiedDesc": "Profiliniz doğrulandı. Artık bağlantı kurabilir ve işbirliği yapabilirsiniz.",
+    "tagPlaceholder": "Etiket arayın veya yazın… (eklemek için Enter)",
+    "removeTag": "{{tag}} etiketini kaldır",
+    "saveBar": {
+      "label": "Profili kaydet",
+      "unsaved": "Kaydedilmemiş değişiklikleriniz var",
+      "editing": "Profilinizi düzenliyorsunuz"
+    },
+    "avatar": {
+      "upload": "Profil fotoğrafı yükle",
+      "wrongType": "Yalnızca JPEG, PNG, WebP veya GIF görselleri yüklenebilir.",
+      "tooLarge": "Görsel 5 MB'tan küçük olmalı."
+    },
+    "deleteModal": {
+      "badge": "Tehlikeli bölge",
+      "title": "Hesabınız silinsin mi?",
+      "body": "Bu işlem geri alınamaz. Profiliniz, ilanlarınız ve bildirimleriniz kalıcı olarak silinir. Denetim kayıtları gizlilik politikamız gereği 24 ay saklanır.",
+      "passwordPlaceholder": "Mevcut şifrenizle onaylayın",
+      "deleting": "Siliniyor…",
+      "failed": "Hesap silinemedi."
+    },
+    "connected": {
+      "title": "Bağlı hesaplar",
+      "connect": "Bağla",
+      "disconnect": "Bağlantıyı kes",
+      "connected": "Bağlı",
+      "connectHint": "{{provider}} hesabınızı bağlayın",
+      "unavailable": "Henüz kullanılamıyor",
+      "connectedNotice": "{{provider}} bağlandı.",
+      "disconnectedNotice": "{{provider}} bağlantısı kaldırıldı.",
+      "errors": {
+        "noSession": "Bağlantı isteğinin süresi doldu. Lütfen tekrar deneyin.",
+        "alreadyLinked": "Bu hesap zaten başka bir HealthAI profiline bağlı.",
+        "userGone": "Oturumunuz artık geçerli değil. Lütfen yeniden giriş yapın.",
+        "notConfigured": "Bu sağlayıcıyla bağlantı henüz sunucuda etkin değil.",
+        "serverError": "Bizim tarafımızda bir sorun oluştu. Lütfen tekrar deneyin.",
+        "failed": "Bağlantı iptal edildi veya reddedildi."
+      }
+    }
   },
   "dashboard": {
     "welcome": "Hoş geldiniz, {{name}}",
@@ -558,7 +642,11 @@
       "countryPlaceholder": "Seçin…",
       "gdprConsent": "Gizlilik Politikasını okudum ve kabul ediyorum. Verilerimin KVKK/GDPR kapsamında işleneceğini anlıyorum.",
       "submitting": "Oluşturuluyor…",
-      "submit": "Hesap oluştur →"
+      "submit": "Hesap oluştur →",
+      "emailTaken": "Bu e-posta ile zaten bir hesap var.",
+      "emailTakenHelp": "Giriş yapabilir ya da şifrenizi unuttuysanız sıfırlayabilirsiniz.",
+      "signInInstead": "Giriş yap",
+      "resetPasswordLink": "Şifremi sıfırla"
     },
     "forgot": {
       "heading": "Şifrenizi mi unuttunuz",
@@ -605,7 +693,11 @@
       "didntGet": "E-postayı almadınız mı?",
       "emailPlaceholder": "e-postaniz@universite.edu",
       "resend": "Doğrulama e-postasını yeniden gönder",
-      "sent": "✓ Bağlantı gönderildi — gelen kutunuzu kontrol edin."
+      "sent": "✓ Bağlantı gönderildi — gelen kutunuzu kontrol edin.",
+      "pendingNotice": "Bu e-posta zaten doğrulama bekliyordu, bu yüzden yeni bir bağlantı gönderdik. Hesabınız ilk kayıtta belirlediğiniz şifreyi kullanmaya devam eder.",
+      "pendingForgot": "O şifreyi hatırlamıyor musunuz?",
+      "pendingResetLink": "Sıfırlayın",
+      "resendFailed": "Bağlantı gönderilemedi. Lütfen tekrar deneyin."
     }
   },
   "meetingsPage": {
@@ -615,10 +707,11 @@
     "totalCount_other": "{{count}} toplantı",
     "tabs": {
       "all": "Tümü",
-      "incoming": "Gelen",
-      "outgoing": "Giden",
+      "incoming": "Bana gelen",
+      "outgoing": "Gönderdiğim",
       "pending": "Bekleyen",
-      "confirmed": "Onaylı",
+      "confirmed": "Planlanan",
+      "held": "Yapılan",
       "closed": "Kapalı"
     },
     "sortBy": "Sırala",
@@ -626,7 +719,7 @@
     "sortOldest": "En eski",
     "noMatch": "Bu filtreye uygun toplantı bulunamadı.",
     "viewAll": "Tüm toplantıları gör →",
-    "proposedSlots": "{{count}} önerilen zaman dilimi",
+    "proposedSlots": "{{count}} önerilen zaman",
     "chooseSlot": "Bir zaman dilimi seçin",
     "reasonPlaceholder": "İsteğe bağlı neden…",
     "goBack": "Geri git",
@@ -646,7 +739,57 @@
     "thisMonth": "Bu ay",
     "allTime": "Tüm zamanlar",
     "total": "Toplam",
-    "overview": "Toplantı özeti"
+    "overview": "Toplantı özeti",
+    "tabsHelp": "Bana gelen: ilanlarınız için başkalarının gönderdiği talepler · Gönderdiğim: sizin başkalarının ilanlarına gönderdiğiniz talepler.",
+    "requestSent": "Talebiniz {{name}} kişisine gönderildi. Yanıt verdiğinde size bildirim gelecek.",
+    "direction": {
+      "incoming": "{{name}} kişisinden gelen talep",
+      "outgoing": "{{name}} kişisine gönderdiğiniz talep"
+    },
+    "hint": {
+      "pending": {
+        "owner": "{{name}} sizinle görüşmek istiyor. Kabul ederseniz sohbet açılır ve bir zaman seçersiniz; dilerseniz reddedebilirsiniz.",
+        "requester": "{{name}} kişisinin talebinize yanıt vermesi bekleniyor."
+      },
+      "time_proposed": {
+        "owner": "Önerilen zamanlardan birini seçin ya da sohbette başka bir zamanda anlaşın.",
+        "requester": "{{name}} talebinizi kabul etti ve bir zaman seçiyor. Sohbet açık."
+      },
+      "confirmed": {
+        "owner": "Görüşme planlandı. Görüştükten sonra görüşmeyi yapıldı olarak işaretleyin.",
+        "requester": "Görüşme planlandı. Görüştükten sonra görüşmeyi yapıldı olarak işaretleyin."
+      },
+      "completed": {
+        "owner": "Görüşme yapıldı. Aradığınız ortak {{name}} ise ilanınızı “Ortak bulundu olarak işaretle” ile kapatabilirsiniz.",
+        "requester": "Görüşme yapıldı.",
+        "ownerPartnerFound": "Görüşme yapıldı ve ilanınız “Ortak bulundu” olarak kapatıldı. Gerekirse ilan sayfasından yeniden açabilirsiniz."
+      },
+      "declined": {
+        "owner": "Bu talebi reddettiniz.",
+        "requester": "{{name}} bu talebi reddetti."
+      },
+      "cancelled": {
+        "owner": "Bu talep iptal edildi.",
+        "requester": "Bu talep iptal edildi."
+      }
+    },
+    "reason": "Gerekçe: {{reason}}",
+    "reasonPrompt": {
+      "decline": "Reddetme gerekçesi (isteğe bağlı)…",
+      "cancel": "İptal gerekçesi (isteğe bağlı)…"
+    },
+    "proposedSlots_one": "{{count}} önerilen zaman",
+    "proposedSlots_other": "{{count}} önerilen zaman",
+    "proposeNewTimes": "Yeni zaman öner",
+    "proposeTitle": "Yeni zamanlar önerin",
+    "proposeIntro": "{{name}} kişisine size uyan başka zamanlar önerin. Bunlar daha önce önerdiğiniz zamanların yerini alır.",
+    "proposeSend": "Yeni zamanları gönder",
+    "markHeld": "Görüşme yapıldı",
+    "markHeldHelp": "Görüştük — bu işlem ilanı kapatmaz.",
+    "goToPost": "İlana git",
+    "actionFailed": "İşlem tamamlanamadı. Lütfen tekrar deneyin.",
+    "previousMonth": "Önceki ay",
+    "nextMonth": "Sonraki ay"
   },
   "notificationsPage": {
     "title": "Bildirimler",
@@ -661,6 +804,7 @@
     "count": "{{count}} bildirim",
     "count_other": "{{count}} bildirim",
     "markAllRead": "Tümünü okundu işaretle",
+    "filter": "Bildirimleri filtrele",
     "none": "Burada bildirim yok",
     "stayInLoop": "Güncel kalın",
     "enableDesc": "Önemli güncellemeleri kaçırmamak için tarayıcı bildirimlerini etkinleştirin.",
@@ -697,11 +841,11 @@
       "body": "{{actorName}}, \"{{postTitle}}\" için toplantıyı yeniden zamanlamak istiyor."
     },
     "meeting_completed": {
-      "title": "Görüşme tamamlandı",
-      "body": "{{actorName}}, \"{{postTitle}}\" için görüşmeyi tamamlandı olarak işaretledi."
+      "title": "Görüşme yapıldı",
+      "body": "{{actorName}}, \"{{postTitle}}\" görüşmesini yapıldı olarak işaretledi."
     },
     "partner_found": {
-      "title": "İş birliği tamamlandı",
+      "title": "Ortak bulundu",
       "body": "\"{{postTitle}}\" için bir iş birliği ortağı bulundu."
     },
     "post_interest_received": {
@@ -723,6 +867,18 @@
     "password_reset": {
       "title": "Şifre sıfırlandı",
       "body": "Hesabının şifresi başarıyla sıfırlandı. Bu işlemi sen yapmadıysan hemen destek ekibiyle iletişime geç."
+    },
+    "meeting_cancelled_account_deleted": {
+      "title": "Toplantı iptal edildi",
+      "body": "Karşı tarafın hesabı silindiği için \"{{postTitle}}\" görüşmesi iptal edildi."
+    },
+    "new_comment": {
+      "title": "İlanınıza yeni yorum",
+      "body": "{{actorName}}, \"{{postTitle}}\" ilanınıza yorum yaptı."
+    },
+    "comment_reply": {
+      "title": "Yorumunuza yanıt geldi",
+      "body": "{{actorName}}, \"{{postTitle}}\" ilanındaki yorumunuza yanıt verdi."
     }
   },
   "messagesPage": {
@@ -742,7 +898,8 @@
     "updated": "{{time}} güncellendi",
     "deleting": "Siliniyor…",
     "sending": "Gönderiliyor…",
-    "justNow": "Şimdi"
+    "justNow": "Şimdi",
+    "unknownPartner": "Bilinmeyen üye"
   },
   "createPost": {
     "backToDirectory": "Dizine dön",
@@ -751,7 +908,8 @@
     "saveDraft": "Taslak olarak kaydet",
     "savingDraft": "Taslak kaydediliyor…",
     "publish": "İncele & yayınla →",
-    "publishing": "Yayınlanıyor…"
+    "publishing": "Yayınlanıyor…",
+    "badge": "07  Yeni ilan"
   },
   "editPost": {
     "backToPost": "İlana dön",
@@ -761,7 +919,8 @@
     "save": "Değişiklikleri kaydet",
     "saving": "Kaydediliyor…",
     "notFound": "İlan bulunamadı",
-    "notFoundDesc": "Bu ilan mevcut değil veya erişim yetkiniz yok."
+    "notFoundDesc": "Bu ilan mevcut değil veya erişim yetkiniz yok.",
+    "badge": "08  İlanı düzenle"
   },
   "errors": {
     "notFound": {
@@ -954,8 +1113,7 @@
     "translate": "Çevir",
     "showOriginal": "Orijinali göster",
     "translating": "Çevriliyor…",
-    "translateToTurkish": "Türkçeye çevir",
-    "translateToEnglish": "İngilizceye çevir",
+    "translateToCurrent": "Türkçeye çevir",
     "translationUnavailable": "Çeviri kullanılamıyor",
     "required": "Zorunlu",
     "optional": "İsteğe bağlı",
@@ -966,7 +1124,14 @@
       "engineer": "Mühendis",
       "healthcare_professional": "Sağlık Profesyoneli",
       "admin": "Yönetici"
-    }
+    },
+    "select": {
+      "search": "Ara…",
+      "noResults": "\"{{query}}\" için sonuç yok",
+      "more": "+{{count}} sonuç daha — daraltmak için yazmaya devam edin",
+      "useCustom": "“{{value}}” olarak kullan"
+    },
+    "weeksAgo": "{{count}} hf önce"
   },
   "validators": {
     "cityRequired": "Şehir zorunludur",
@@ -987,18 +1152,190 @@
     },
     "post": {
       "titleMin": "Başlık en az 5 karakter olmalı",
-      "domainRequired": "Lütfen bir tıbbi alan seçin",
+      "domainRequired": "En az bir alan seçin",
       "expertiseMin": "Aranan uzmanlığı açıklayın",
       "descriptionMin": "Açıklama en az 50 karakter olmalı",
       "expiryRequired": "Bitiş tarihi zorunludur",
-      "expiryFuture": "Bitiş tarihi gelecekte olmalı"
+      "expiryFuture": "Bitiş tarihi gelecekte olmalı",
+      "domainsMax": "En fazla {{max}} alan seçebilirsiniz"
     },
     "profile": {
       "nameMin": "İsim en az 2 karakter olmalı",
       "firstNameMin": "Ad en az 2 karakter olmalı",
       "lastNameMin": "Soyad en az 2 karakter olmalı",
       "institutionRequired": "Kurum zorunludur",
-      "bioMax": "Biyografi 400 karakterden az olmalı"
+      "bioMax": "Biyografi 400 karakterden az olmalı",
+      "detailTooLong": "Bu alan çok uzun",
+      "orcidInvalid": "ORCID iD'nizi 0000-0002-1825-0097 biçiminde girin",
+      "websiteInvalid": "https:// ile başlayan bir web adresi girin",
+      "contactEmailInvalid": "Geçerli bir e-posta adresi girin",
+      "linkedinInvalid": "linkedin.com profilinizin bağlantısını girin"
     }
+  },
+  "meetingRequest": {
+    "badge": "Toplantı planla",
+    "to": "Alıcı: {{name}}",
+    "steps": {
+      "message": "Mesajınız",
+      "nda": "Gizlilik sözleşmesi",
+      "times": "Zaman önerin"
+    },
+    "messageIntro": "{{name}} kişisine geçmişinizi ve bu işbirliğiyle neden ilgilendiğinizi anlatan kısa bir mesaj yazın.",
+    "messagePlaceholder": "İlgili deneyiminizi ve bu işbirliğine neler katabileceğinizi anlatın…",
+    "messageCounter": "En az {{min}} karakter · {{count}} / 500",
+    "ndaTitle": "Gizlilik sözleşmesi (NDA)",
+    "ndaText": "Devam ederek, bu işbirliği süreci boyunca paylaşılan tüm bilgilerin gizli olduğunu kabul etmiş olursunuz. Karşı tarafın paylaştığı bilgileri açık yazılı onayı olmadan ifşa etmeyeceğinizi, çoğaltmayacağınızı veya kullanmayacağınızı kabul edersiniz.",
+    "ndaAccept": "Bu gizlilik sözleşmesinin koşullarını okudum ve kabul ediyorum. Bu işbirliği sırasında paylaşılan tüm bilgilerin gizli olduğunu anlıyorum.",
+    "timesIntro": "Müsait olduğunuz en az bir zaman önerin. {{name}} bunlardan birini seçecek.",
+    "timesHint": "Tek bir zaman yeterli: {{name}} talebinizi kabul eder etmez bir sohbet açılır ve orada başka bir zamanda anlaşabilirsiniz. İki üç seçenek sunmak işi kolaylaştırır.",
+    "timesCounter": "{{count}} / en fazla {{max}}",
+    "errors": {
+      "messageMin": "Lütfen ilginizi en az {{count}} karakterle anlatın.",
+      "ndaRequired": "Devam etmek için gizlilik sözleşmesini kabul etmelisiniz.",
+      "timesRequired": "En az bir tarih ve saati eksiksiz girin.",
+      "sendFailed": "Talep gönderilemedi. Lütfen tekrar deneyin."
+    },
+    "cancel": "Vazgeç",
+    "back": "Geri",
+    "next": "İleri",
+    "acceptContinue": "Kabul ediyorum, devam et",
+    "send": "Talebi gönder",
+    "sending": "Gönderiliyor…"
+  },
+  "meetingSlots": {
+    "zoneNote": "Saatler sizin saat diliminizdedir: {{zone}}",
+    "slotN": "Zaman {{n}}",
+    "remove": "{{n}}. zamanı kaldır",
+    "date": "Tarih",
+    "time": "Saat",
+    "hour": "Saat",
+    "minute": "Dakika",
+    "add": "Başka bir zaman ekle",
+    "yourTime": "Sizin saatinizle: {{date}}, {{time}}"
+  },
+  "partnerFound": {
+    "button": "Ortak bulundu olarak işaretle",
+    "confirmTitle": "Bu ilan “Ortak bulundu” olarak işaretlensin mi?",
+    "confirmBody": "“{{title}}” artık toplantı talebi almayacak ve yanıt bekleyen talepler kapatılacak. Zamanı kesinleşmiş görüşmeler takvimde kalır.",
+    "confirmUndo": "Fikriniz değişirse ilanı daha sonra kendi sayfasından yeniden açabilirsiniz.",
+    "confirm": "Evet, ortak bulundu"
+  },
+  "postDetail": {
+    "backToDirectory": "Dizine dön",
+    "loadFailedTitle": "Bu ilan yüklenemedi",
+    "loadFailedDesc": "İlan yüklenirken bir sorun oluştu. Bağlantınızı kontrol edip tekrar deneyin.",
+    "notFoundTitle": "İlan bulunamadı",
+    "notFoundDesc": "Bu ilan kaldırılmış olabilir ya da bağlantı hatalı.",
+    "tryAgain": "Tekrar dene",
+    "share": "Paylaş",
+    "copied": "Kopyalandı!",
+    "exportPdf": "PDF olarak indir",
+    "save": "Kaydet",
+    "saved": "Kaydedildi",
+    "manageRequest": "Talebinizi yönetin",
+    "scheduleMeeting": "Toplantı planla",
+    "publish": "Yayınla",
+    "edit": "İlanı düzenle",
+    "reopen": "İlanı yeniden aç",
+    "reopenTitle": "Bu ilan yeniden açılsın mı?",
+    "reopenBody": "İlan yeniden toplantı talebi almaya başlar. Daha önce kapatılan talepler kapalı kalır.",
+    "reopenExpired": "İlanın bitiş tarihi geçmiş, yeni bir tarih seçin.",
+    "newExpiry": "Yeni bitiş tarihi",
+    "daysLeft": "Kalan gün",
+    "sidebar": {
+      "alreadyRequested": "Bu ilana zaten talep gönderdiniz. Gelişmelerden haberdar edileceksiniz.",
+      "canRequest": "İşbirliği görüşmesini başlatmak için kısa bir not gönderin.",
+      "owner": "Bu fırsatı profilinizin yanındaki işlemlerden yönetebilirsiniz.",
+      "partnerFound": "Bu ilan ortağını buldu ve yeni toplantı talebi almıyor.",
+      "notAccepting": "Bu fırsat şu anda toplantı talebi almıyor.",
+      "commentsNotify": "Hâlâ ilgileniyor musunuz? Yorumlar ilan sahibine bildirilir.",
+      "leaveNote": "İlan sahibine not bırakın"
+    },
+    "location": "Konum",
+    "stage": "Proje aşaması",
+    "collab": "İşbirliği türü",
+    "commitment": "Taahhüt",
+    "confidentiality": "Gizlilik",
+    "expiresOn": "Bitiş tarihi",
+    "interest": "İlgi",
+    "interestCount": "{{count}} üye",
+    "interestCount_one": "{{count}} üye",
+    "interestCount_other": "{{count}} üye",
+    "descriptionTitle": "Proje açıklaması",
+    "expertiseTitle": "Aranan uzmanlık",
+    "aboutAuthor": "İlan sahibi hakkında",
+    "memberSince": "{{date}} tarihinden beri üye",
+    "viewProfile": "Profili görüntüle",
+    "opportunityDetails": "Fırsat ayrıntıları",
+    "domains": "Alanlar",
+    "posted": "Yayın tarihi",
+    "listingExpiry": "İlan bitişi"
+  },
+  "professional": {
+    "title": "Mesleki bilgiler",
+    "subtitle": "Ortakların kim olduğunuzu doğrulamasına ve size kurumunuz üzerinden ulaşmasına yardımcı olan isteğe bağlı bilgiler.",
+    "position": "Unvan / pozisyon",
+    "positionPlaceholder": "ör. Klinik ebe, Doçent",
+    "department": "Bölüm",
+    "departmentPlaceholder": "ör. Kadın Hastalıkları ve Doğum Anabilim Dalı",
+    "orcid": "ORCID iD",
+    "contactEmail": "İletişim e-postası",
+    "contactEmailPlaceholder": "ör. arastirma@universite.edu.tr",
+    "institutionWebsite": "Kurum web sitesi",
+    "linkedinUrl": "LinkedIn profili",
+    "empty": "Henüz mesleki bilgi eklenmedi."
+  },
+  "chat": {
+    "secondsAgo": "{{count}} sn önce",
+    "sendFailed": "Mesaj gönderilemedi.",
+    "delete": "Sohbeti sil",
+    "deleteConfirm": "Sohbet silinsin mi?",
+    "deleting": "Siliniyor…",
+    "deleteYes": "Evet, sil",
+    "meetingHint": "Toplantı zamanında bu sohbette anlaşın; seçilen zaman şu sayfada onaylanır:",
+    "meetingsLink": "Toplantılar",
+    "emptyTitle": "Henüz mesaj yok",
+    "emptyDesc": "Sohbeti başlatın — bir merhaba yazın!",
+    "updated": "Güncellendi: {{when}}",
+    "placeholder": "Bir mesaj yazın… (göndermek için Enter, yeni satır için Shift+Enter)",
+    "send": "Mesajı gönder",
+    "open": "Sohbeti aç",
+    "close": "Sohbeti kapat",
+    "backToConversations": "Sohbetlere dön"
+  },
+  "footer": {
+    "platformName": "Ortak Üretim Platformu",
+    "tagline": "Avrupa'da geliştirildi · hasta verisi yok",
+    "privacyPolicy": "Gizlilik Politikası",
+    "gdprRights": "KVKK / GDPR Hakları",
+    "contact": "İletişim",
+    "university": "Bilkent Üniversitesi",
+    "department": "Yazılım Mühendisliği Bölümü",
+    "trustGdpr": "Güven ve GDPR",
+    "legal": "Yasal",
+    "gdprYourRights": "KVKK / GDPR ve haklarınız",
+    "dataExport": "Verileri dışa aktarma",
+    "terms": "Kullanım koşulları",
+    "accountDeletion": "Hesap silme",
+    "access": "Erişim",
+    "forClinicians": "Klinisyenler için",
+    "forEngineers": "Mühendisler için",
+    "contactTeam": "Ekiple iletişime geç",
+    "copyright": "Telif hakkı",
+    "institutionalOnly": "Yalnızca kurumsal .edu hesapları. Doğrulama otomatik ve tek seferliktir.",
+    "noUploads": "Dosya yükleme yok. Hasta verisi yok. İstisna yok.",
+    "builtByTeam": "Avrupa'da geliştirildi · HealthAI Ekibi"
+  },
+  "cookieBanner": {
+    "label": "Çerez onayı",
+    "badge": "KVKK / GDPR · Yalnızca zorunlu çerezler",
+    "body": "Yalnızca oturum yönetimi ve güvenlik için zorunlu çerezler kullanıyoruz — takip, analiz ya da üçüncü taraf betiği yok.",
+    "privacyLink": "Gizlilik politikası",
+    "essentialOnly": "Yalnızca zorunlu",
+    "acceptAll": "Tümünü kabul et"
+  },
+  "language": {
+    "change": "Dili değiştir",
+    "options": "Dil seçenekleri"
   }
 }
