@@ -46,6 +46,12 @@ export interface IUser extends Document {
   githubUsername?: string
   linkedinId?: string
   linkedinProfileUrl?: string
+  position?: string
+  department?: string
+  orcid?: string
+  institutionWebsite?: string
+  contactEmail?: string
+  linkedinUrl?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -94,6 +100,13 @@ const UserSchema = new Schema<IUser>(
     githubUsername: { type: String },
     linkedinId: { type: String, sparse: true },
     linkedinProfileUrl: { type: String },
+    // Optional professional details, validated in utils/profileFields.ts
+    position: { type: String, trim: true },
+    department: { type: String, trim: true },
+    orcid: { type: String, trim: true },
+    institutionWebsite: { type: String, trim: true },
+    contactEmail: { type: String, trim: true, lowercase: true },
+    linkedinUrl: { type: String, trim: true },
   },
   { timestamps: true }
 )

@@ -77,11 +77,20 @@ Rules:
   const jsonMatch = text.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw makeError('Gemini returned an unexpected format', 502)
 
-  const result = JSON.parse(jsonMatch[0]) as {
-    improvedTitle?: string
-    improvedDescription?: string
-    suggestedExpertise?: string[]
-    tip?: string
+  let parsed: Record<string, unknown>
+  try {
+    parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>
+  } catch {
+    throw makeError('Gemini returned an unexpected format', 502)
+  }
+  const cleanText = (value: unknown) => (typeof value === 'string' && value.trim() ? value.trim() : undefined)
+  const result = {
+    improvedTitle: cleanText(parsed.improvedTitle),
+    improvedDescription: cleanText(parsed.improvedDescription),
+    suggestedExpertise: Array.isArray(parsed.suggestedExpertise)
+      ? parsed.suggestedExpertise.filter((tag): tag is string => typeof tag === 'string' && tag.trim() !== '')
+      : undefined,
+    tip: cleanText(parsed.tip),
   }
 
   res.json({ success: true, data: result })

@@ -53,6 +53,11 @@ export async function createUser(overrides: Record<string, unknown> = {}): Promi
   return { user: loginRes.body.data.user, token: loginRes.body.data.token, email, password }
 }
 
+/** A YYYY-MM-DD date relative to today, so slot fixtures never expire into the past. */
+export function futureDate(daysFromNow: number) {
+  return new Date(Date.now() + daysFromNow * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+}
+
 export async function createPost(token: string, overrides: Record<string, unknown> = {}) {
   const res = await api
     .post('/api/posts')

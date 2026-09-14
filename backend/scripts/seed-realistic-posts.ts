@@ -167,9 +167,9 @@ const seedUsers: SeedUser[] = [
 ]
 
 type PostSeed = Pick<IPost,
-  'title' | 'domain' | 'expertiseRequired' | 'description' | 'projectStage' |
+  'title' | 'expertiseRequired' | 'description' | 'projectStage' |
   'collaborationType' | 'confidentiality' | 'city' | 'country' | 'status'
-> & {
+> & ({ domain: string; domains?: never } | { domains: string[]; domain?: never }) & {
   authorEmail: string
   daysAgo: number
   expiresInDays: number
@@ -231,7 +231,7 @@ const posts: PostSeed[] = [
   {
     authorEmail: 'jonas.keller@tum.de',
     title: 'Fall-risk sensing with low-cost IMU tags in rehab wards',
-    domain: 'Geriatrics & Rehabilitation',
+    domains: ['Geriatrics', 'Physiotherapy & Rehabilitation'],
     expertiseRequired: 'Geriatric rehabilitation workflow, fall-risk assessment, pilot protocol feedback',
     description: 'I built a small IMU-based pipeline that detects gait instability patterns on-device. It needs clinical reality. I would like to speak with a rehab ward team about where such alerts would actually fit, what counts as a useful signal, and how to avoid alarm fatigue during a two-week observational pilot.',
     projectStage: 'pilot',
@@ -330,7 +330,7 @@ const posts: PostSeed[] = [
   {
     authorEmail: 'narin.demir@hacettepe.edu.tr',
     title: 'Bone density estimation from plain X-ray: feasibility review',
-    domain: 'Radiology',
+    domain: 'Radiology & Imaging',
     expertiseRequired: 'Computer vision, model uncertainty, dataset curation for X-ray studies',
     description: 'This is an early feasibility question. We routinely see patients who had X-rays but no DEXA scan. I want to understand whether a careful CV study could estimate risk groups from existing images, with uncertainty clearly shown. A collaborator with medical imaging experience would be ideal.',
     projectStage: 'idea',
@@ -429,7 +429,7 @@ const posts: PostSeed[] = [
   {
     authorEmail: 'luca.ferrari@polimi.it',
     title: 'Edge detection of ventilator waveform artefacts in the ICU',
-    domain: 'Intensive Care',
+    domain: 'Intensive Care (ICU)',
     expertiseRequired: 'Mechanical ventilation, patient-ventilator asynchrony, alarm burden reduction',
     description: 'Ventilator alarms fire often enough that staff reasonably learn to tune them out. I have a small model running on a bedside device that separates genuine asynchrony from suctioning, coughing and circuit noise, and it fits the power budget with room to spare. Before any of that is worth something, I need an intensivist or respiratory therapist to tell me which asynchrony types actually change management and which are noise worth suppressing. Bench data only so far, no patient data yet.',
     projectStage: 'prototype',
@@ -446,7 +446,7 @@ const posts: PostSeed[] = [
   {
     authorEmail: 'ana.rodrigues@ulisboa.pt',
     title: 'Reproducible whole-slide tiling pipeline for pathology research',
-    domain: 'Pathology',
+    domain: 'Pathology & Lab Diagnostics',
     expertiseRequired: 'Digital pathology workflows, staining variation between labs, annotation protocol design',
     description: 'Every pathology group I have worked with rebuilds the same tiling and stain normalisation code, and the results are then not comparable across studies. I want to package one that is documented, versioned and deliberately boring, so a study from Lisbon and a study from Porto can be placed side by side. I need a pathologist to tell me where the defaults are clinically wrong, particularly around staining variation between labs, and to help choose two or three reference cases to validate against.',
     projectStage: 'idea',
@@ -497,7 +497,7 @@ const posts: PostSeed[] = [
   {
     authorEmail: 'k.lewandowska@wum.edu.pl',
     title: 'Early warning signs in first-episode psychosis follow-up',
-    domain: 'Mental Health',
+    domain: 'Psychiatry & Mental Health',
     expertiseRequired: 'Ecological momentary assessment, engagement design, privacy-first data handling',
     description: 'Relapse in first-episode psychosis is often visible weeks ahead to family members, and sometimes to the patient, but not to us between appointments. I am interested in a lightweight self-report tool that patients would genuinely keep using, which is precisely where most projects of this kind die. I need an engineer willing to design for engagement first and analytics second, and comfortable with a study whose primary outcome is whether anyone is still using it after three months.',
     projectStage: 'idea',
@@ -602,6 +602,10 @@ async function cleanBadPosts() {
   return (badResult.deletedCount ?? 0) + (seedResult.deletedCount ?? 0) + (legacyResult.deletedCount ?? 0)
 }
 
+function seedDomains(seed: PostSeed): string[] {
+  return seed.domains ?? [seed.domain as string]
+}
+
 async function insertPosts(users: IUser[]) {
   const byEmail = new Map(users.map(user => [user.email, user]))
 
@@ -617,7 +621,8 @@ async function insertPosts(users: IUser[]) {
       authorId: author._id,
       authorName: author.name,
       authorRole: author.role,
-      domain: seed.domain,
+      domain: seedDomains(seed)[0],
+      domains: seedDomains(seed),
       expertiseRequired: seed.expertiseRequired,
       description: seed.description,
       projectStage: seed.projectStage,

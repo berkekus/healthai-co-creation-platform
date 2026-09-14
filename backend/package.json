@@ -14,7 +14,8 @@
     "seed:realistic-posts": "ts-node-dev --transpile-only scripts/seed-realistic-posts.ts",
     "seed:realistic-meetings": "ts-node-dev --transpile-only scripts/seed-realistic-meetings.ts",
     "seed:demo-messages": "ts-node-dev --transpile-only scripts/seed-demo-messages.ts",
-    "reset-password": "ts-node-dev --transpile-only scripts/reset-admin-password.ts"
+    "reset-password": "ts-node-dev --transpile-only scripts/reset-admin-password.ts",
+    "migrate:domains": "ts-node-dev --transpile-only scripts/migrate-domains.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
