@@ -6,6 +6,7 @@ import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import type { Notification, NotificationType } from '../../types/common.types'
 import { getNotificationContent } from '../../utils/notificationContent'
+import { timeAgo } from '../../utils/timeAgo'
 
 type FilterTab = 'all' | 'unread' | 'meetings' | 'posts' | 'system'
 
@@ -13,22 +14,9 @@ const MEETING_TYPES: NotificationType[] = [
   'meeting_request', 'meeting_accepted', 'meeting_declined', 'meeting_cancelled', 'meeting_completed',
 ]
 const POST_TYPES: NotificationType[] = [
-  'post_closed', 'post_status_changed', 'partner_found', 'interest_received',
+  'post_closed', 'post_status_changed', 'partner_found', 'interest_received', 'new_comment',
 ]
 const SYSTEM_TYPES: NotificationType[] = ['account_activity', 'new_message']
-
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'Just now'
-  if (mins < 60) return `${mins}m ago`
-  const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
-  const days = Math.floor(hrs / 24)
-  if (days === 1) return 'Yesterday'
-  if (days < 7) return `${days} days ago`
-  return `${Math.floor(days / 7)} week${days >= 14 ? 's' : ''} ago`
-}
 
 function getIconStyle(type: NotificationType): { Icon: typeof Bell; bg: string; color: string } {
   if (type === 'meeting_declined' || type === 'meeting_cancelled') return { Icon: Calendar, bg: '#F7EDEE', color: '#B64B55' }
@@ -37,7 +25,7 @@ function getIconStyle(type: NotificationType): { Icon: typeof Bell; bg: string; 
   if (type === 'interest_received') return { Icon: Star, bg: '#E3DCD2', color: '#36213E' }
   if (type === 'post_closed' || type === 'post_status_changed') return { Icon: FileText, bg: '#E8F4F7', color: '#6FB8C4' }
   if (type === 'account_activity') return { Icon: Shield, bg: '#EEF0F3', color: '#36213E' }
-  if (type === 'new_message') return { Icon: MessageSquare, bg: '#E8F4F7', color: '#6FB8C4' }
+  if (type === 'new_message' || type === 'new_comment') return { Icon: MessageSquare, bg: '#E8F4F7', color: '#6FB8C4' }
   return { Icon: Bell, bg: '#EEF0F3', color: '#6F6878' }
 }
 
@@ -224,7 +212,7 @@ export default function NotificationsPage() {
                     {/* Time + dot */}
                     <div className="flex items-center gap-2.5 shrink-0 mt-1">
                       <span className="text-xs text-[#6F6878] font-semibold whitespace-nowrap">
-                        {timeAgo(n.createdAt)}
+                        {timeAgo(n.createdAt, t)}
                       </span>
                       {!n.isRead && (
                         <span className="w-2 h-2 rounded-full bg-[#8AC6D0] shrink-0" />

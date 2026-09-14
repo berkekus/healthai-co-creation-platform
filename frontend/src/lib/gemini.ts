@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import type { Post } from '../types/post.types'
 import type { User } from '../types/auth.types'
 import api from './api'
+import { postDomains } from '../constants/domains'
 
 export interface AIMatchSuggestion {
   postId?: string
@@ -40,7 +41,7 @@ export async function getSmartSuggestions(
     posts: candidates.map(post => ({
       id: post.id,
       title: post.title,
-      domain: post.domain,
+      domain: postDomains(post).join(', '),
       expertiseRequired: post.expertiseRequired,
       description: post.description.slice(0, 500),
       authorId: post.authorId,
@@ -67,7 +68,7 @@ export async function getSmartSuggestions(
 export function getSimpleMatchScore(post: Post, user: User): number {
   if (!user.expertiseTags?.length) return 0
 
-  const haystack = `${post.title} ${post.description} ${post.expertiseRequired} ${post.domain}`.toLowerCase()
+  const haystack = `${post.title} ${post.description} ${post.expertiseRequired} ${postDomains(post).join(' ')}`.toLowerCase()
   const hits = (user.expertiseTags ?? []).filter(tag =>
     tag.length >= 2 && haystack.includes(tag.toLowerCase()),
   )

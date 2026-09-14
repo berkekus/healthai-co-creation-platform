@@ -27,6 +27,23 @@ function fold(s: string): string {
     .replace(/[̀-ͯ]/g, '')
 }
 
+export interface SelectLabels {
+  search: string
+  noResults: (query: string) => string
+  more: (count: number) => string
+  loading: string
+  /** Label of the option that keeps exactly what was typed. */
+  useCustom: (value: string) => string
+}
+
+export const DEFAULT_SELECT_LABELS: SelectLabels = {
+  search: 'Search…',
+  noResults: query => `No results for "${query}"`,
+  more: count => `+${count.toLocaleString()} more — keep typing to narrow`,
+  loading: 'Loading…',
+  useCustom: value => `Use “${value}”`,
+}
+
 interface Props {
   options: string[]
   value: string
@@ -37,10 +54,17 @@ interface Props {
   disabled?: boolean
   /** Shown in place of the list while options are still being fetched. */
   loading?: boolean
+  /**
+   * Lets people keep text that matches no option — a city list can never hold
+   * every town someone works in, and a missing one must not block the form.
+   */
+  allowCustom?: boolean
+  labels?: SelectLabels
 }
 
 export default function SearchableSelect({
   options, value, onChange, placeholder = 'Select…', error, disabled = false, loading = false,
+  allowCustom = false, labels = DEFAULT_SELECT_LABELS,
 }: Props) {
   const [open, setOpen]   = useState(false)
   const [query, setQuery] = useState('')
@@ -52,6 +76,8 @@ export default function SearchableSelect({
   const filtered = needle ? options.filter(o => fold(o).includes(needle)) : options
   const shown = filtered.slice(0, MAX_RENDERED)
   const hiddenCount = filtered.length - shown.length
+  const customValue = query.trim()
+  const offerCustom = allowCustom && customValue !== '' && !options.some(option => fold(option) === needle)
 
   // A control that becomes disabled while open would otherwise keep its list up.
   useEffect(() => {
@@ -128,6 +154,7 @@ export default function SearchableSelect({
       >
         <span className="block truncate pr-2">{value || placeholder}</span>
         <span
+          aria-hidden="true"
           className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-lg text-neutral-400 pointer-events-none transition-transform"
           style={{ transform: `translateY(-50%) rotate(${open ? '180deg' : '0deg'})` }}
         >
@@ -139,7 +166,7 @@ export default function SearchableSelect({
         <div className="absolute z-50 top-full mt-1.5 w-full bg-white rounded-2xl border border-neutral-200 shadow-[0_16px_48px_-12px_rgba(54,33,62,0.18)] overflow-hidden">
           <div className="p-2 border-b border-neutral-100">
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-base text-neutral-400 pointer-events-none">
+              <span aria-hidden="true" className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-base text-neutral-400 pointer-events-none">
                 search
               </span>
               <input
@@ -149,8 +176,14 @@ export default function SearchableSelect({
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={e => {
                   if (e.key === 'Escape') setOpen(false)
+                  if (e.key === 'Enter') {
+                    // Never let Enter submit the surrounding form from the search box.
+                    e.preventDefault()
+                    if (offerCustom) { onChange(customValue); setOpen(false) }
+                    else if (filtered.length === 1) { onChange(filtered[0]); setOpen(false) }
+                  }
                 }}
-                placeholder="Search…"
+                placeholder={labels.search}
                 className="w-full pl-8 pr-3 py-2 text-sm font-body text-hai-plum placeholder:text-neutral-400 bg-hai-offwhite rounded-xl border border-neutral-200 outline-none focus:border-hai-teal focus:ring-2 focus:ring-hai-teal/25"
               />
             </div>
@@ -161,13 +194,23 @@ export default function SearchableSelect({
             className="max-h-56 overflow-y-auto py-1 overscroll-contain"
           >
             {loading ? (
-              <li className="px-4 py-3 text-sm text-neutral-400 font-body">Loading…</li>
-            ) : filtered.length === 0 ? (
-              <li className="px-4 py-3 text-sm text-neutral-400 font-body">
-                No results for "{query}"
-              </li>
+              <li className="px-4 py-3 text-sm text-neutral-400 font-body">{labels.loading}</li>
             ) : (
               <>
+                {offerCustom && (
+                  <li
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={() => { onChange(customValue); setOpen(false) }}
+                    className="px-4 py-2.5 cursor-pointer text-sm font-body font-semibold text-hai-plum border-b border-neutral-100 hover:bg-hai-offwhite"
+                  >
+                    {labels.useCustom(customValue)}
+                  </li>
+                )}
+                {filtered.length === 0 && !offerCustom && (
+                  <li className="px-4 py-3 text-sm text-neutral-400 font-body">
+                    {labels.noResults(query)}
+                  </li>
+                )}
                 {shown.map(opt => (
                   <li
                     key={opt}
@@ -184,7 +227,7 @@ export default function SearchableSelect({
                 ))}
                 {hiddenCount > 0 && (
                   <li className="px-4 py-2.5 text-xs font-semibold text-neutral-400 font-body">
-                    +{hiddenCount.toLocaleString()} more — keep typing to narrow
+                    {labels.more(hiddenCount)}
                   </li>
                 )}
               </>

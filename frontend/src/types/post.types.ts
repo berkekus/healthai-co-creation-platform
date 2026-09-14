@@ -11,7 +11,10 @@ export interface Post {
   authorId: string
   authorName: string
   authorRole: PostAuthorRole
+  /** Primary domain (domains[0]); older posts only have this. */
   domain: string
+  /** One to three domains the idea spans; absent on older posts — read through postDomains(). */
+  domains?: string[]
   expertiseRequired: string
   description: string
   projectStage: ProjectStage
@@ -41,7 +44,7 @@ export interface PostFilters {
 
 export interface PostCreateData {
   title: string
-  domain: string
+  domains: string[]
   expertiseRequired: string
   description: string
   projectStage: ProjectStage

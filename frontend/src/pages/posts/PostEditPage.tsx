@@ -9,6 +9,8 @@ import { createPostCreateSchema, type PostCreateFormData } from '../../utils/val
 import PostFormFields from '../../components/posts/PostFormFields'
 import PostStatusBadge from '../../components/posts/PostStatusBadge'
 import { ROUTES, postDetail } from '../../constants/routes'
+import { postDomains } from '../../constants/domains'
+import { localDateInputValue } from '../../utils/timeSlots'
 
 export default function PostEditPage() {
   const { t } = useTranslation()
@@ -22,10 +24,11 @@ export default function PostEditPage() {
   const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting } } = useForm<PostCreateFormData>({
     resolver: zodResolver(createPostCreateSchema(t)),
     defaultValues: post ? {
-      title: post.title, domain: post.domain, expertiseRequired: post.expertiseRequired,
+      title: post.title, domains: postDomains(post), expertiseRequired: post.expertiseRequired,
       description: post.description, projectStage: post.projectStage,
       collaborationType: post.collaborationType, levelOfCommitment: post.levelOfCommitment ?? 'flexible', confidentiality: post.confidentiality,
-      city: post.city, country: post.country, expiryDate: post.expiryDate,
+      // The date input only understands YYYY-MM-DD, not the stored ISO timestamp.
+      city: post.city, country: post.country, expiryDate: localDateInputValue(new Date(post.expiryDate)),
     } : { confidentiality: 'public_pitch', projectStage: 'idea', levelOfCommitment: 'flexible' },
   })
 
@@ -55,7 +58,7 @@ export default function PostEditPage() {
 
   const minDate = new Date()
   minDate.setDate(minDate.getDate() + 1)
-  const minDateStr = minDate.toISOString().split('T')[0]
+  const minDateStr = localDateInputValue(minDate)
 
   return (
     <main className="min-h-screen bg-[#f6f7f9] text-[#2d1838]">
@@ -68,7 +71,7 @@ export default function PostEditPage() {
         <div className="mb-12">
           <div className="mb-5 flex items-center gap-4">
             <div className="inline-flex rounded-full border border-[#cfd3dc] bg-white px-4 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-[#6f6a76]">
-              08&nbsp;&nbsp;Edit Post
+              {t('editPost.badge')}
             </div>
             <PostStatusBadge status={post.status} size="sm" />
           </div>

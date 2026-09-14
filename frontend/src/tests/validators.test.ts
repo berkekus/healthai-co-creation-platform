@@ -54,6 +54,19 @@ describe('registerSchema', () => {
     expect(JSON.stringify(result)).toContain('Passwords do not match')
   })
 
+  it('flags mismatched passwords on the account step, while role and institution are still empty', () => {
+    const accountStepOnly = {
+      firstName: 'Alice',
+      lastName: 'Smith',
+      email: 'alice@university.edu',
+      password: 'password123',
+      confirm: 'different123',
+    }
+    const result = registerSchema.safeParse(accountStepOnly)
+    const confirmIssues = result.error?.issues.filter(issue => issue.path[0] === 'confirm') ?? []
+    expect(confirmIssues.map(issue => issue.message)).toContain('Passwords do not match')
+  })
+
   it('rejects first name shorter than 2 characters', () => {
     const result = registerSchema.safeParse({ ...valid, firstName: 'A' })
     expect(result.success).toBe(false)
@@ -86,7 +99,7 @@ describe('postCreateSchema', () => {
   const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
   const valid = {
     title: 'AI-assisted cardiac diagnosis',
-    domain: 'cardiology',
+    domains: ['Cardiology'],
     expertiseRequired: 'Machine Learning',
     description: 'A detailed description that is at least fifty characters long for the test.',
     projectStage: 'idea' as const,
@@ -104,6 +117,19 @@ describe('postCreateSchema', () => {
 
   it('rejects title shorter than 5 characters', () => {
     expect(postCreateSchema.safeParse({ ...valid, title: 'AI' }).success).toBe(false)
+  })
+
+  it('accepts an idea that spans up to three domains', () => {
+    expect(postCreateSchema.safeParse({ ...valid, domains: ['Midwifery', 'Nursing', 'Maternal & Newborn Health'] }).success).toBe(true)
+  })
+
+  it('rejects a post without any domain', () => {
+    expect(postCreateSchema.safeParse({ ...valid, domains: [] }).success).toBe(false)
+  })
+
+  it('rejects a post with more than three domains', () => {
+    const result = postCreateSchema.safeParse({ ...valid, domains: ['Cardiology', 'Oncology', 'Neurology', 'Nursing'] })
+    expect(result.success).toBe(false)
   })
 
   it('rejects description shorter than 50 characters', () => {
@@ -156,5 +182,32 @@ describe('profileSchema', () => {
 
   it('rejects first name shorter than 2 characters', () => {
     expect(profileSchema.safeParse({ ...valid, firstName: 'A' }).success).toBe(false)
+  })
+
+  it('accepts professional details', () => {
+    const result = profileSchema.safeParse({
+      ...valid,
+      position: 'Midwife researcher',
+      department: 'Faculty of Health Sciences',
+      orcid: 'https://orcid.org/0000-0002-1825-0097',
+      institutionWebsite: 'https://www.ul.pt',
+      contactEmail: 'office@ul.pt',
+      linkedinUrl: 'https://www.linkedin.com/in/someone',
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('treats empty professional details as not provided', () => {
+    const result = profileSchema.safeParse({ ...valid, orcid: '', institutionWebsite: '', contactEmail: '', linkedinUrl: '' })
+    expect(result.success).toBe(true)
+  })
+
+  it.each([
+    ['a malformed ORCID iD', { orcid: '1234-5678' }],
+    ['a LinkedIn link to another site', { linkedinUrl: 'https://example.com/in/someone' }],
+    ['a website without http(s)', { institutionWebsite: 'ul.pt' }],
+    ['a malformed contact email', { contactEmail: 'office-at-ul.pt' }],
+  ])('rejects %s', (_label, details) => {
+    expect(profileSchema.safeParse({ ...valid, ...details }).success).toBe(false)
   })
 })

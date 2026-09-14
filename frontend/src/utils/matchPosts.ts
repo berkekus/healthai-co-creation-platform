@@ -1,6 +1,7 @@
 import type { Post } from '../types/post.types'
 import type { User } from '../types/auth.types'
 import type { AIMatchSuggestion } from '../lib/gemini'
+import { postDomains } from '../constants/domains'
 
 export type MatchTone = 'city' | 'country' | 'role' | 'expertise' | 'domain'
 
@@ -24,7 +25,7 @@ function tokenize(value: string) {
 }
 
 function expertiseHits(post: Post, user: User) {
-  const haystack = normalize(`${post.title} ${post.expertiseRequired} ${post.description} ${post.domain}`)
+  const haystack = normalize(`${post.title} ${post.expertiseRequired} ${post.description} ${postDomains(post).join(' ')}`)
   const haystackTokens = new Set(tokenize(haystack))
 
   return (user.expertiseTags ?? [])
@@ -158,7 +159,7 @@ export function getCombinedMatchScore(
     baseScore += Math.min(38, 14 + hits.length * 8)
   }
 
-  const domainTokens = tokenize(post.domain)
+  const domainTokens = postDomains(post).flatMap(tokenize)
   const expertiseTokens = new Set((user.expertiseTags ?? []).flatMap(tokenize))
   if (domainTokens.some(token => expertiseTokens.has(token))) {
     baseScore += 12

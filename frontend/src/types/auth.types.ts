@@ -31,6 +31,13 @@ export interface User {
   githubUsername?: string
   linkedinId?: string
   linkedinProfileUrl?: string
+  /** Optional professional details shown on the public profile. */
+  position?: string
+  department?: string
+  orcid?: string
+  institutionWebsite?: string
+  contactEmail?: string
+  linkedinUrl?: string
 }
 
 export interface LoginCredentials {

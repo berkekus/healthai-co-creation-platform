@@ -10,6 +10,7 @@ export type NotificationType =
   | 'interest_received'
   | 'account_activity'
   | 'new_message'
+  | 'new_comment'
 
 export interface Notification {
   id: string

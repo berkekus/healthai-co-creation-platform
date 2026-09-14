@@ -3,20 +3,30 @@ import type { User, LoginCredentials, RegisterData, NotifPrefs } from '../types/
 import api from '../lib/api'
 import { connectSocket, disconnectSocket } from '../lib/socket'
 
+export type ProfileUpdate = Partial<Pick<User,
+  'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags' |
+  'position' | 'department' | 'orcid' | 'institutionWebsite' | 'contactEmail' | 'linkedinUrl'
+>>
+
 interface AuthState {
   user: User | null
   isAuthenticated: boolean
   isLoading: boolean
   isHydrating: boolean
   error: string | null
+  /** HTTP status of the last failed auth request, so pages can explain it. */
+  errorStatus: number | null
   /** Set after registration; UI uses this to redirect to /verify-email */
   pendingVerificationEmail: string | null
+  /** True when the email already had a pending registration and got a fresh link instead. */
+  verificationResent: boolean
   login: (credentials: LoginCredentials) => Promise<void>
   logout: () => void
   register: (data: RegisterData) => Promise<{ requiresVerification: boolean }>
   verifyEmail: (token: string) => Promise<void>
-  resendVerification: (email: string) => Promise<void>
-  updateProfile: (data: Partial<Pick<User, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>) => Promise<void>
+  /** Resolves true when the link was sent; on failure the reason is left in `error`. */
+  resendVerification: (email: string) => Promise<boolean>
+  updateProfile: (data: ProfileUpdate) => Promise<void>
   updateNotifPrefs: (prefs: Partial<NotifPrefs>) => Promise<void>
   uploadAvatar: (file: File) => Promise<void>
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>
@@ -31,7 +41,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
   isLoading: false,
   isHydrating: true,
   error: null,
+  errorStatus: null,
   pendingVerificationEmail: null,
+  verificationResent: false,
 
   hydrate: async () => {
     const token = localStorage.getItem('token') ?? sessionStorage.getItem('token')
@@ -80,9 +92,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
   },
 
   register: async (data: RegisterData) => {
-    set({ isLoading: true, error: null })
+    set({ isLoading: true, error: null, errorStatus: null, verificationResent: false })
     try {
-      await api.post<{ success: boolean; data: { user: User; requiresVerification: boolean } }>('/auth/register', {
+      const { data: res } = await api.post<{ success: boolean; data: { requiresVerification: boolean; pendingVerification?: boolean } }>('/auth/register', {
         name: data.name,
         email: data.email,
         password: data.password,
@@ -92,10 +104,14 @@ export const useAuthStore = create<AuthState>()((set) => ({
         country: data.country,
         captchaToken: data.captchaToken,
       })
-      set({ isLoading: false, pendingVerificationEmail: data.email })
+      set({
+        isLoading: false,
+        pendingVerificationEmail: data.email,
+        verificationResent: Boolean(res.data?.pendingVerification),
+      })
       return { requiresVerification: true }
     } catch (err) {
-      set({ isLoading: false, error: (err as Error).message })
+      set({ isLoading: false, error: (err as Error).message, errorStatus: (err as { status?: number }).status ?? null })
       return { requiresVerification: false }
     }
   },
@@ -119,8 +135,10 @@ export const useAuthStore = create<AuthState>()((set) => ({
     try {
       await api.post('/auth/resend-verification', { email })
       set({ isLoading: false })
+      return true
     } catch (err) {
       set({ isLoading: false, error: (err as Error).message })
+      return false
     }
   },
 
@@ -172,5 +190,5 @@ export const useAuthStore = create<AuthState>()((set) => ({
     }
   },
 
-  clearError: () => set({ error: null }),
+  clearError: () => set({ error: null, errorStatus: null }),
 }))

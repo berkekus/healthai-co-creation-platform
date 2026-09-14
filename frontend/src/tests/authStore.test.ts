@@ -7,6 +7,7 @@ import type { User } from '../types/auth.types'
 vi.mock('../lib/api', () => ({
   default: {
     delete: vi.fn(),
+    post: vi.fn(),
   },
 }))
 
@@ -69,5 +70,42 @@ describe('authStore.deleteAccount', () => {
     expect(useAuthStore.getState().isAuthenticated).toBe(true)
     expect(useAuthStore.getState().user).toEqual(user)
     expect(useAuthStore.getState().error).toBe('Incorrect password')
+  })
+})
+
+describe('authStore.register', () => {
+  const registration = {
+    name: 'Alice Smith',
+    email: 'alice@university.edu',
+    password: 'password123',
+    role: 'engineer' as const,
+    institution: 'Test University',
+    city: 'Lisbon',
+    country: 'Portugal',
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    useAuthStore.setState({ error: null, errorStatus: null, pendingVerificationEmail: null, verificationResent: false })
+  })
+
+  it('remembers that a pending registration was sent a fresh verification link', async () => {
+    vi.mocked(api.post).mockResolvedValue({
+      data: { success: true, data: { email: registration.email, requiresVerification: true, pendingVerification: true } },
+    } as Awaited<ReturnType<typeof api.post>>)
+
+    await useAuthStore.getState().register(registration)
+
+    expect(useAuthStore.getState().pendingVerificationEmail).toBe('alice@university.edu')
+    expect(useAuthStore.getState().verificationResent).toBe(true)
+  })
+
+  it('keeps the HTTP status of a refused registration so the page can explain it', async () => {
+    vi.mocked(api.post).mockRejectedValue(Object.assign(new Error('Email already registered'), { status: 409 }))
+
+    await useAuthStore.getState().register(registration)
+
+    expect(useAuthStore.getState().error).toBe('Email already registered')
+    expect(useAuthStore.getState().errorStatus).toBe(409)
   })
 })

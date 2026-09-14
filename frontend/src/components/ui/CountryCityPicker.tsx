@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react'
-import SearchableSelect from './SearchableSelect'
+import SearchableSelect, { DEFAULT_SELECT_LABELS, type SelectLabels } from './SearchableSelect'
 import { COUNTRIES, getCitiesForCountry } from '../../data/locations'
 
 interface Props {
@@ -19,6 +19,8 @@ interface Props {
   inputClassName?: string
   /** Placeholder for that same free-text fallback. */
   cityFreeTextPlaceholder?: string
+  /** Translated texts for the dropdowns' search box and messages. */
+  selectLabels?: SelectLabels
 }
 
 /**
@@ -38,6 +40,7 @@ export default function CountryCityPicker({
   cityLockedPlaceholder = 'Select country first',
   cityFreeTextPlaceholder = 'Enter your city',
   inputClassName,
+  selectLabels = DEFAULT_SELECT_LABELS,
 }: Props) {
   const cities = country ? getCitiesForCountry(country) : []
 
@@ -65,6 +68,7 @@ export default function CountryCityPicker({
           }}
           placeholder={countryPlaceholder}
           error={countryError}
+          labels={selectLabels}
         />
         {countryError && <p className={err}>{countryError}</p>}
       </div>
@@ -88,6 +92,10 @@ export default function CountryCityPicker({
             placeholder={country ? cityPlaceholder : cityLockedPlaceholder}
             error={cityError}
             disabled={!country}
+            labels={selectLabels}
+            // The lists hold each country's larger cities only; a smaller town
+            // someone actually works in has to be typeable.
+            allowCustom
           />
         )}
         {cityError && <p className={err}>{cityError}</p>}

@@ -11,6 +11,8 @@ interface MeetingState {
   decline: (id: string, reason?: string) => Promise<void>
   cancel: (id: string, reason?: string) => Promise<void>
   complete: (id: string) => Promise<void>
+  /** Requester replaces the proposed times; the meeting goes back to "choosing a time". */
+  reschedule: (id: string, proposedSlots: TimeSlot[]) => Promise<void>
   getByUser: (userId: string) => Meeting[]
   getByPost: (postId: string) => Meeting[]
 }
@@ -73,6 +75,12 @@ export const useMeetingStore = create<MeetingState>()((set, get) => ({
 
   complete: async (id) => {
     const { data: res } = await api.post<{ success: boolean; data: Meeting }>(`/meetings/${id}/complete`)
+    const updated = normalise(res.data)
+    set(s => ({ meetings: s.meetings.map(m => m.id === id ? updated : m) }))
+  },
+
+  reschedule: async (id, proposedSlots) => {
+    const { data: res } = await api.post<{ success: boolean; data: Meeting }>(`/meetings/${id}/reschedule`, { proposedSlots })
     const updated = normalise(res.data)
     set(s => ({ meetings: s.meetings.map(m => m.id === id ? updated : m) }))
   },

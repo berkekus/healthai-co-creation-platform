@@ -1,25 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Send, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
+import { ROUTES } from '../../constants/routes'
 import { useConversationStore } from '../../store/conversationStore'
 import { useAuthStore } from '../../store/authStore'
 import type { Message } from '../../types/conversation.types'
 
 const POLL_INTERVAL = 8000
 
-function useLastUpdatedLabel(lastUpdated: Date): string {
+function useLastUpdatedLabel(lastUpdated: Date, t: TFunction): string {
   const [, tick] = useState(0)
   useEffect(() => {
-    const t = setInterval(() => tick(n => n + 1), 15000)
-    return () => clearInterval(t)
+    const timer = setInterval(() => tick(n => n + 1), 15000)
+    return () => clearInterval(timer)
   }, [])
   const diff = Math.floor((Date.now() - lastUpdated.getTime()) / 1000)
-  if (diff < 10) return 'Just now'
-  if (diff < 60) return `${diff}s ago`
-  return `${Math.floor(diff / 60)}m ago`
+  if (diff < 10) return t('common.justNow')
+  if (diff < 60) return t('chat.secondsAgo', { count: diff })
+  return t('common.minutesAgo', { count: Math.floor(diff / 60) })
 }
 
 export default function ConversationPage() {
+  const { t, i18n } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuthStore()
@@ -56,7 +60,7 @@ export default function ConversationPage() {
     ),
   ]
 
-  const lastUpdatedLabel = useLastUpdatedLabel(lastUpdated)
+  const lastUpdatedLabel = useLastUpdatedLabel(lastUpdated, t)
 
   useEffect(() => {
     if (conversations.length === 0) fetchConversations()
@@ -104,7 +108,7 @@ export default function ConversationPage() {
     try {
       await sendMessage(id, content)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send message.')
+      setError(err instanceof Error ? err.message : t('chat.sendFailed'))
       setOptimisticMsgs(prev => prev.filter(m => m.id !== optimistic.id))
       setText(content)
     } finally {
@@ -150,7 +154,7 @@ export default function ConversationPage() {
             </div>
             <div className="min-w-0">
               <p className="font-headline font-black text-base text-[#2d1838] truncate">{partner.name}</p>
-              <p className="text-xs text-[#9f9aaa] font-semibold capitalize">{partner.role.replace('_', ' ')}</p>
+              <p className="text-xs text-[#9f9aaa] font-semibold">{t(`common.role.${partner.role}`, { defaultValue: partner.role })}</p>
             </div>
           </div>
         ) : (
@@ -167,37 +171,43 @@ export default function ConversationPage() {
         {!confirmDelete ? (
           <button
             onClick={() => setConfirmDelete(true)}
-            title="Delete conversation"
+            title={t('chat.delete')}
+            aria-label={t('chat.delete')}
             className="w-9 h-9 rounded-full border border-[#e8e8ee] flex items-center justify-center text-[#c5c0cc] hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
           >
             <Trash2 size={15} />
           </button>
         ) : (
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-bold text-[#6f6a76] hidden sm:inline">Delete conversation?</span>
+            <span className="text-xs font-bold text-[#6f6a76] hidden sm:inline">{t('chat.deleteConfirm')}</span>
             <button
               onClick={handleDelete}
               disabled={deleting}
               className="h-8 px-3 rounded-full bg-red-500 text-white text-xs font-bold hover:bg-red-600 disabled:opacity-50 transition-colors"
             >
-              {deleting ? 'Deleting…' : 'Yes, delete'}
+              {deleting ? t('chat.deleting') : t('chat.deleteYes')}
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
               className="h-8 px-3 rounded-full border border-[#e8e8ee] text-xs font-bold text-[#6f6a76] hover:bg-[#f5f6f8] transition-colors"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         )}
       </div>
 
+      <p className="mx-auto w-full max-w-[860px] px-6 pt-4 text-xs font-semibold text-[#6f6a76] md:px-10">
+        {t('chat.meetingHint')}{' '}
+        <Link to={ROUTES.MEETINGS} className="font-black text-[#2d1838] underline">{t('chat.meetingsLink')}</Link>
+      </p>
+
       {/* Message thread */}
       <div className="flex-1 overflow-y-auto px-6 md:px-10 py-8 mx-auto w-full max-w-[860px]">
         {allMsgs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <p className="font-headline text-lg font-black text-[#2d1838]">No messages yet</p>
-            <p className="mt-2 text-sm text-[#6f6a76]">Start the conversation. Say hello!</p>
+            <p className="font-headline text-lg font-black text-[#2d1838]">{t('chat.emptyTitle')}</p>
+            <p className="mt-2 text-sm text-[#6f6a76]">{t('chat.emptyDesc')}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -208,6 +218,7 @@ export default function ConversationPage() {
                 isMine={msg.senderId === user?.id}
                 showName={i === 0 || allMsgs[i - 1].senderId !== msg.senderId}
                 optimistic={msg.id.startsWith('optimistic-')}
+                locale={i18n.language}
               />
             ))}
             <div ref={bottomRef} />
@@ -223,7 +234,7 @@ export default function ConversationPage() {
               ? <p className="text-xs text-red-600 font-semibold">{error}</p>
               : <span />}
             <span className="text-xs text-[#b5b0be] font-semibold">
-              Updated {lastUpdatedLabel}
+              {t('chat.updated', { when: lastUpdatedLabel })}
             </span>
           </div>
           <div className="flex items-end gap-3">
@@ -233,19 +244,20 @@ export default function ConversationPage() {
               onChange={e => setText(e.target.value)}
               onKeyDown={handleKeyDown}
               rows={1}
-              placeholder="Write a message… (Enter to send, Shift+Enter for newline)"
+              placeholder={t('chat.placeholder')}
+              aria-label={t('chat.placeholder')}
               className="flex-1 resize-none rounded-[16px] border border-[#e8e8ee] bg-[#f8f7fa] px-4 py-3 text-sm font-body text-[#2d1838] placeholder:text-[#b5b0be] outline-none focus:border-[#55c7df] focus:ring-2 focus:ring-[#55c7df]/20 transition-all max-h-[160px] overflow-y-auto"
               onInput={e => {
-                const t = e.currentTarget
-                t.style.height = 'auto'
-                t.style.height = Math.min(t.scrollHeight, 160) + 'px'
+                const field = e.currentTarget
+                field.style.height = 'auto'
+                field.style.height = Math.min(field.scrollHeight, 160) + 'px'
               }}
             />
             <button
               onClick={handleSend}
               disabled={!text.trim() || sending}
               className="w-12 h-12 rounded-full bg-[#2d1838] text-white flex items-center justify-center hover:bg-[#1b1022] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_8px_20px_-10px_rgba(45,24,56,0.7)] shrink-0"
-              aria-label="Send message"
+              aria-label={t('chat.send')}
             >
               {sending
                 ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -264,15 +276,19 @@ function MessageBubble({
   isMine,
   showName,
   optimistic = false,
+  locale,
 }: {
   msg: Message
   isMine: boolean
   showName: boolean
   optimistic?: boolean
+  locale: string
 }) {
-  const time = new Date(msg.createdAt).toLocaleTimeString('en-GB', {
+  const { t } = useTranslation()
+  const time = new Date(msg.createdAt).toLocaleTimeString(locale, {
     hour: '2-digit',
     minute: '2-digit',
+    hourCycle: 'h23',
   })
 
   return (
@@ -290,7 +306,7 @@ function MessageBubble({
         {msg.content}
       </div>
       <span className="text-xs text-[#b5b0be] mt-1 px-1">
-        {optimistic ? 'Sending…' : time}
+        {optimistic ? t('meetingRequest.sending') : time}
       </span>
     </div>
   )

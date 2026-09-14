@@ -18,7 +18,7 @@ type PreselectedRole = 'engineer' | 'healthcare_professional'
 
 export default function RegisterPage() {
   const { t } = useTranslation()
-  const { register: registerUser, isLoading, error, clearError } = useAuthStore()
+  const { register: registerUser, isLoading, error, errorStatus, clearError } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
   const preselectedRole = (location.state as { role?: PreselectedRole } | null)?.role
@@ -211,7 +211,19 @@ export default function RegisterPage() {
             {error && (
               <div role="alert" className="mb-5 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3">
                 <span className="text-red-400 text-lg leading-none mt-0.5 shrink-0">✕</span>
-                <div className="text-sm text-red-700 font-semibold">{error}</div>
+                {errorStatus === 409 ? (
+                  <div className="text-sm text-red-700 font-semibold">
+                    <p>{t('authPage.register.emailTaken')}</p>
+                    <p className="mt-1 font-normal">
+                      {t('authPage.register.emailTakenHelp')}{' '}
+                      <Link to={ROUTES.LOGIN} className="font-bold underline">{t('authPage.register.signInInstead')}</Link>
+                      {' · '}
+                      <Link to={ROUTES.FORGOT_PASSWORD} className="font-bold underline">{t('authPage.register.resetPasswordLink')}</Link>
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-sm text-red-700 font-semibold">{error}</div>
+                )}
               </div>
             )}
 
