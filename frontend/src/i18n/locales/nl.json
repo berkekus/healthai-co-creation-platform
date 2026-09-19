@@ -27,6 +27,9 @@
   },
   "landing": {
     "nav": {
+      "findProjects": "Projecten zoeken",
+      "myMeetingRequests": "Mijn vergaderverzoeken",
+      "toggleMenu": "Navigatiemenu openen/sluiten",
       "platform": "Platform",
       "directory": "Directory",
       "how": "Hoe het werkt",
@@ -59,13 +62,19 @@
       "euHosted": "Gehost in de EU & GDPR-native",
       "auditTrail": "Onveranderlijk auditspoor",
       "zeroPatientData": "Geen patiëntgegevens",
-      "europeanInstitutions": "Gebouwd voor Europese instellingen"
+      "europeanInstitutions": "Gebouwd voor Europese instellingen",
+      "gdprNative": "AVG-native",
+      "body": "Plan je een medisch-technische samenwerking? Elke interactie wordt beheerst door institutionele .edu-verificatie, een onveranderlijk auditlogboek van 24 maanden en een beleid van geen patiëntgegevens. Geen bestandsuploads. Geen onduidelijkheid. Elk recht uit Artikel 6 en 15-22 is met één klik vanuit je profiel uit te oefenen."
     },
     "platform": {
       "eyebrow": "Gebouwd voor Europa.",
       "titleLine1": "Ontworpen voor Europese instellingen.",
       "titleLine2": "Vertrouwd over grenzen heen.",
       "body": "HealthAI is gebouwd met een Europese aanpak voor privacy, compliance en samenwerking. Eén platform. Veel landen. Gedeelde standaarden.",
+      "mapAlt": "Kaart van het Europese samenwerkingsnetwerk",
+      "standardsLine1": "Europese standaarden.",
+      "standardsLine2": "Wereldwijde impact.",
+      "standardsDesc": "We ondersteunen innovatie in de zorg door middel van veilige, ethische en conforme samenwerking.",
       "features": {
         "gdpr": {
           "title": "GDPR-native by design",
@@ -78,6 +87,105 @@
         "crossBorder": {
           "title": "Grensoverschrijdende samenwerking",
           "desc": "Maak verbinding met geverifieerde professionals en instellingen in heel Europa."
+        }
+      }
+    },
+    "stats": {
+      "countriesValue": "30+",
+      "countriesLabel": "Landen",
+      "countriesDesc": "Verspreid over het Europese onderzoekslandschap",
+      "institutionsValue": "1000+",
+      "institutionsLabel": "Instellingen",
+      "institutionsDesc": "Ziekenhuizen, universiteiten en onderzoekscentra",
+      "languageValue": "Eén",
+      "languageLabel": "Gedeelde Taal",
+      "languageDesc": "Strikte terminologie voor duidelijke, effectieve samenwerking",
+      "complianceValue": "Volledig",
+      "complianceLabel": "Naleving",
+      "complianceDesc": "AVG-conform, veilig en klaar voor audits"
+    },
+    "structured": {
+      "titleLine1": "Gestructureerde",
+      "titleLine2": "samenwerking.",
+      "paragraph1": "We weten dat medisch-technische samenwerkingen kunnen vastlopen door juridische onzekerheid, een vaag toepassingsgebied en de verkeerde introductie. Ons protocol is ontworpen om het eerste gesprek eenvoudig te maken — en de afspraak legitiem.",
+      "paragraph2": "Zie het platform als het gemeenschappelijke uitgangspunt: een gedeelde taal, een gedeelde NDA, een gedeeld logboek — zodat elke afspraak vastgelegd begint.",
+      "directoryMatching": "Directory & Matching",
+      "institutionalVerification": "Institutionele Verificatie",
+      "ndaMeetingFlow": "NDA & Vergaderproces",
+      "questionsPrompt": "Heb je vragen over het platform?",
+      "readPolicy": "Lees beleid →"
+    },
+    "upcoming": {
+      "titleLine1": "Toekomstige",
+      "titleLine2": "functies",
+      "subtitle": "Het protocol is live. Dit is waar we ons nu op focussen.",
+      "grantsTitle": "Interinstitutionele Subsidies",
+      "grantsDesc": "Dien samen aanvragen in voor Europese financieringsoproepen met gedeelde conceptsjablonen, nalevingschecklists en een gezamenlijke indieningstermijn.",
+      "outcomeTrackingTitle": "Resultaten Volgen",
+      "outcomeTrackingDesc": "Volg samenwerkingsmijlpalen na de eerste afspraak, met optionele tijdlijnen en registratie na publicatie.",
+      "multiSiteTitle": "Multicentrische Klinische Onderzoeken",
+      "multiSiteDesc": "Coördineer werving en protocolbeoordelingen tussen meerdere instellingen binnen de directory."
+    },
+    "tour": {
+      "eyebrow": "03 · Hoe het werkt",
+      "headingLine1": "Een werkende",
+      "headingLine2": "gebruikersgids.",
+      "subtitle": "Elke stap komt overeen met een echt scherm in HealthAI, van profielinstelling en AI-gerangschikt bladeren tot vergaderbeslissingen en meldingen.",
+      "stepCounter": "Stap {{num}} / 0{{total}}",
+      "jumpToStep": "Ga naar stap {{num}}: {{name}}",
+      "previousStep": "Vorige stap",
+      "nextStep": "Volgende stap",
+      "goToStep": "Ga naar stap {{num}}",
+      "start": "Start",
+      "done": "Klaar",
+      "steps": {
+        "profile": {
+          "name": "Profiel",
+          "tagline": "Leer het platform wie je bent.",
+          "desc": "Vul je rol, instelling, stad, land, expertise en samenwerkingsinteresses in. Deze velden bepalen de profielmatchscore die gebruikers zien bij Berichten verkennen.",
+          "screen": "Profiel",
+          "routeLabel": "Profiel openen",
+          "checkpoints": ["Verifieer je institutionele e-mail", "Voeg stad en land toe", "Kies expertise en interesses"]
+        },
+        "browse": {
+          "name": "Verkennen",
+          "tagline": "Eerst AI-gerangschikte berichten, dan filters.",
+          "desc": "Berichten verkennen sorteert kansen op profielgeschiktheid, toont een zichtbare matchbadge, houdt filters gekoppeld aan backend-data en pagineert lange resultatensets.",
+          "screen": "Berichten verkennen",
+          "routeLabel": "Kansen verkennen",
+          "checkpoints": ["Bekijk de beste AI-matchscores", "Gebruik domein-, fase-, status- en locatiefilters", "Navigeer tussen resultaatpagina's zonder eindeloos scrollen"]
+        },
+        "post": {
+          "name": "Plaatsen",
+          "tagline": "Publiceer een duidelijk samenwerkingsverzoek.",
+          "desc": "Gebruik het berichtformulier om het klinische probleem, de benodigde expertise, projectfase, type samenwerkingspartner en locatie te beschrijven. Berichten blijven gestructureerd genoeg om goed te matchen en te doorzoeken.",
+          "screen": "Kans plaatsen",
+          "routeLabel": "Bericht aanmaken",
+          "checkpoints": ["Schrijf een specifieke titel en samenvatting", "Selecteer domein, fase en type samenwerkingspartner", "Houd patiëntgegevens en bestanden buiten het bericht"]
+        },
+        "request": {
+          "name": "Verzoek",
+          "tagline": "Stuur interesse met NDA en tijdstippen.",
+          "desc": "Open een berichtdetailpagina, geef interesse aan, accepteer de eenpagina-NDA, voeg je bericht toe en stel drie vergadertijden voor die de eigenaar kan beoordelen.",
+          "screen": "Berichtdetail",
+          "routeLabel": "Een bericht vinden",
+          "checkpoints": ["Lees alle berichtdetails", "Accepteer de samenwerkingsvoorwaarden", "Stel drie realistische tijdstippen voor"]
+        },
+        "meetings": {
+          "name": "Vergaderingen",
+          "tagline": "Zet verzoeken om in gepland werk.",
+          "desc": "Het scherm Vergaderingen scheidt inkomende, uitgaande, bevestigde en geannuleerde verzoeken. Eigenaren kunnen accepteren of weigeren; deelnemers kunnen annuleren of samenwerkingsvoortgang markeren.",
+          "screen": "Vergaderingen",
+          "routeLabel": "Vergaderingen beheren",
+          "checkpoints": ["Filter op verzoekstatus", "Accepteer, weiger, annuleer of voltooi vergaderingen", "Gebruik de kalender- en overzichtspanelen om georiënteerd te blijven"]
+        },
+        "followUp": {
+          "name": "Opvolging",
+          "tagline": "Houd elke afspraak traceerbaar.",
+          "desc": "Meldingen tonen vergaderupdates en matchactiviteit. Profielinstellingen houden privacyacties dichtbij, inclusief workflows voor het exporteren en verwijderen van accountgegevens.",
+          "screen": "Meldingen",
+          "routeLabel": "Meldingen bekijken",
+          "checkpoints": ["Controleer ongelezen samenwerkingsupdates", "Ga vanuit een melding terug naar vergaderingen", "Gebruik indien nodig de privacyinstellingen van je profiel"]
         }
       }
     },

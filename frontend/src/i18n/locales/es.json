@@ -27,6 +27,9 @@
   },
   "landing": {
     "nav": {
+      "findProjects": "Buscar proyectos",
+      "myMeetingRequests": "Mis solicitudes de reunión",
+      "toggleMenu": "Alternar menú de navegación",
       "platform": "Plataforma",
       "directory": "Directorio",
       "how": "Cómo funciona",
@@ -59,13 +62,19 @@
       "euHosted": "Alojado en la UE y nativo de GDPR",
       "auditTrail": "Pista de auditoría inmutable",
       "zeroPatientData": "Cero datos de pacientes",
-      "europeanInstitutions": "Creado para instituciones europeas"
+      "europeanInstitutions": "Creado para instituciones europeas",
+      "gdprNative": "Nativo de GDPR",
+      "body": "¿Planeas una colaboración médico-tecnológica? Cada interacción está regida por la verificación institucional .edu, un registro de auditoría inalterable de 24 meses y una política de cero datos de pacientes. Sin subida de archivos. Sin ambigüedad. Todos los derechos del Artículo 6 y 15-22 son ejercitables desde tu perfil, a un clic de distancia."
     },
     "platform": {
       "eyebrow": "Creado para Europa.",
       "titleLine1": "Diseñado para instituciones europeas.",
       "titleLine2": "Confiable más allá de las fronteras.",
       "body": "HealthAI se creó con un enfoque europeo de privacidad, cumplimiento y colaboración. Una plataforma. Muchos países. Estándares compartidos.",
+      "mapAlt": "Mapa de la red de colaboración europea",
+      "standardsLine1": "Estándares europeos.",
+      "standardsLine2": "Impacto global.",
+      "standardsDesc": "Apoyando la innovación en salud mediante una colaboración segura, ética y conforme a la normativa.",
       "features": {
         "gdpr": {
           "title": "GDPR nativo por diseño",
@@ -78,6 +87,105 @@
         "crossBorder": {
           "title": "Colaboración transfronteriza",
           "desc": "Conecta con profesionales e instituciones verificadas en toda Europa."
+        }
+      }
+    },
+    "stats": {
+      "countriesValue": "30+",
+      "countriesLabel": "Países",
+      "countriesDesc": "En todo el panorama de investigación europeo",
+      "institutionsValue": "1000+",
+      "institutionsLabel": "Instituciones",
+      "institutionsDesc": "Hospitales, universidades y centros de investigación",
+      "languageValue": "Uno",
+      "languageLabel": "Idioma Compartido",
+      "languageDesc": "Terminología estricta para una colaboración clara y eficaz",
+      "complianceValue": "Completo",
+      "complianceLabel": "Cumplimiento",
+      "complianceDesc": "Conforme al GDPR, seguro y listo para auditorías"
+    },
+    "structured": {
+      "titleLine1": "Colaboración",
+      "titleLine2": "estructurada.",
+      "paragraph1": "Sabemos que las asociaciones médico-tecnológicas pueden estancarse por incertidumbre legal, alcance impreciso y presentaciones equivocadas. Nuestro protocolo está diseñado para facilitar la primera conversación — y legitimar el acuerdo.",
+      "paragraph2": "Piensa en la plataforma como el terreno común: una gramática compartida, un NDA compartido, un registro compartido — para que cada reunión empiece documentada.",
+      "directoryMatching": "Directorio y Emparejamiento",
+      "institutionalVerification": "Verificación Institucional",
+      "ndaMeetingFlow": "NDA y Flujo de Reuniones",
+      "questionsPrompt": "¿Tienes alguna pregunta sobre la plataforma?",
+      "readPolicy": "Leer política →"
+    },
+    "upcoming": {
+      "titleLine1": "Próximas",
+      "titleLine2": "Funciones",
+      "subtitle": "El protocolo ya está en marcha. Esto es lo que estamos planificando a continuación.",
+      "grantsTitle": "Subvenciones Interinstitucionales",
+      "grantsDesc": "Postúlate junto a otros a convocatorias de financiación europeas con plantillas de borrador compartidas, listas de verificación de cumplimiento y un calendario de presentación conjunto.",
+      "outcomeTrackingTitle": "Seguimiento de Resultados",
+      "outcomeTrackingDesc": "Haz seguimiento de los hitos de colaboración tras la primera reunión, con cronogramas opcionales y registro posterior a la publicación.",
+      "multiSiteTitle": "Ensayos Clínicos Multicéntricos",
+      "multiSiteDesc": "Coordina el reclutamiento y las revisiones de protocolo entre múltiples instituciones dentro del directorio."
+    },
+    "tour": {
+      "eyebrow": "03 · Cómo funciona",
+      "headingLine1": "Una guía",
+      "headingLine2": "de uso real.",
+      "subtitle": "Cada paso corresponde a una pantalla real de HealthAI, desde la configuración del perfil y la exploración clasificada por IA hasta las decisiones de reuniones y las notificaciones.",
+      "stepCounter": "Paso {{num}} / 0{{total}}",
+      "jumpToStep": "Ir al paso {{num}}: {{name}}",
+      "previousStep": "Paso anterior",
+      "nextStep": "Paso siguiente",
+      "goToStep": "Ir al paso {{num}}",
+      "start": "Inicio",
+      "done": "Fin",
+      "steps": {
+        "profile": {
+          "name": "Perfil",
+          "tagline": "Enseña a la plataforma quién eres.",
+          "desc": "Completa tu rol, institución, ciudad, país, experiencia e intereses de colaboración. Estos campos determinan la puntuación de coincidencia de perfil que ven los usuarios en Explorar publicaciones.",
+          "screen": "Perfil",
+          "routeLabel": "Abrir perfil",
+          "checkpoints": ["Verifica tu correo institucional", "Añade ciudad y país", "Elige experiencia e intereses"]
+        },
+        "browse": {
+          "name": "Explorar",
+          "tagline": "Primero publicaciones clasificadas por IA, luego filtros.",
+          "desc": "Explorar publicaciones ordena las oportunidades según la afinidad con tu perfil, muestra una insignia de coincidencia visible, mantiene los filtros vinculados a los datos del backend y pagina los resultados largos.",
+          "screen": "Explorar publicaciones",
+          "routeLabel": "Explorar oportunidades",
+          "checkpoints": ["Revisa las mejores puntuaciones de coincidencia de la IA", "Usa los filtros de dominio, etapa, estado y ubicación", "Navega entre páginas de resultados sin desplazamiento infinito"]
+        },
+        "post": {
+          "name": "Publicar",
+          "tagline": "Publica una solicitud de colaboración clara.",
+          "desc": "Usa el formulario de publicación para describir el problema clínico, la experiencia necesaria, la etapa del proyecto, el tipo de colaborador y la ubicación. Las publicaciones se mantienen lo bastante estructuradas para coincidir y buscarse bien.",
+          "screen": "Publicar oportunidad",
+          "routeLabel": "Crear publicación",
+          "checkpoints": ["Escribe un título y resumen específicos", "Selecciona dominio, etapa y tipo de colaborador", "Mantén los datos de pacientes y archivos fuera de la publicación"]
+        },
+        "request": {
+          "name": "Solicitud",
+          "tagline": "Envía tu interés con NDA y franjas horarias.",
+          "desc": "Abre la página de detalle de una publicación, expresa tu interés, acepta el NDA de una página, añade tu mensaje y propón tres horarios de reunión para que el propietario los revise.",
+          "screen": "Detalle de publicación",
+          "routeLabel": "Buscar una publicación",
+          "checkpoints": ["Lee todos los detalles de la publicación", "Acepta los términos de colaboración", "Propón tres franjas horarias realistas"]
+        },
+        "meetings": {
+          "name": "Reuniones",
+          "tagline": "Convierte solicitudes en trabajo programado.",
+          "desc": "La pantalla de Reuniones separa las solicitudes entrantes, salientes, confirmadas y canceladas. Los propietarios pueden aceptar o rechazar; los participantes pueden cancelar o marcar el progreso de la colaboración.",
+          "screen": "Reuniones",
+          "routeLabel": "Gestionar reuniones",
+          "checkpoints": ["Filtra por estado de la solicitud", "Acepta, rechaza, cancela o completa reuniones", "Usa los paneles de calendario y resumen para mantenerte orientado"]
+        },
+        "followUp": {
+          "name": "Seguimiento",
+          "tagline": "Mantén cada acuerdo trazable.",
+          "desc": "Las notificaciones muestran actualizaciones de reuniones y actividad de coincidencias. Los controles del perfil mantienen las acciones de privacidad a mano, incluidos los flujos de exportación y eliminación de datos de la cuenta.",
+          "screen": "Notificaciones",
+          "routeLabel": "Ver notificaciones",
+          "checkpoints": ["Revisa las actualizaciones de colaboración sin leer", "Vuelve a las reuniones desde el contexto de una notificación", "Usa los controles de privacidad del perfil cuando lo necesites"]
         }
       }
     },

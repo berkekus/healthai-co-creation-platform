@@ -29,6 +29,7 @@
     "nav": {
       "findProjects": "Find Projects",
       "myMeetingRequests": "My Meeting Requests",
+      "toggleMenu": "Toggle navigation menu",
       "platform": "Platform",
       "directory": "Directory",
       "how": "How it works",
@@ -61,13 +62,19 @@
       "euHosted": "EU hosted & GDPR-native",
       "auditTrail": "Immutable audit trail",
       "zeroPatientData": "Zero patient data",
-      "europeanInstitutions": "Built for European institutions"
+      "europeanInstitutions": "Built for European institutions",
+      "gdprNative": "GDPR-native",
+      "body": "Planning a medical–engineering collaboration? Every interaction is governed by institutional .edu verification, a 24-month tamper-resistant audit log, and a zero-patient-data policy. No file uploads. No ambiguity. Every Article 6 & 15–22 right is exercisable from your profile, one click away."
     },
     "platform": {
       "eyebrow": "Built for Europe.",
       "titleLine1": "Designed for European institutions.",
       "titleLine2": "Trusted across borders.",
       "body": "HealthAI is built with a European-first approach to privacy, compliance, and collaboration. One platform. Many countries. Shared standards.",
+      "mapAlt": "European collaboration network map",
+      "standardsLine1": "European standards.",
+      "standardsLine2": "Global impact.",
+      "standardsDesc": "Supporting innovation in healthcare through secure, ethical and compliant collaboration.",
       "features": {
         "gdpr": {
           "title": "GDPR-native by design",
@@ -80,6 +87,105 @@
         "crossBorder": {
           "title": "Cross-border collaboration",
           "desc": "Connect with verified professionals and institutions across Europe."
+        }
+      }
+    },
+    "stats": {
+      "countriesValue": "30+",
+      "countriesLabel": "Countries",
+      "countriesDesc": "Across the European research landscape",
+      "institutionsValue": "1000+",
+      "institutionsLabel": "Institutions",
+      "institutionsDesc": "Hospitals, universities and research centers",
+      "languageValue": "One",
+      "languageLabel": "Shared Language",
+      "languageDesc": "Strict terminology for clear, effective collaboration",
+      "complianceValue": "Complete",
+      "complianceLabel": "Compliance",
+      "complianceDesc": "GDPR-aligned, secure and audit-ready"
+    },
+    "structured": {
+      "titleLine1": "Structured",
+      "titleLine2": "collaboration.",
+      "paragraph1": "We know medical–engineering partnerships can stall in legal uncertainty, vague scope, and the wrong introduction. Our protocol is designed to make the first conversation easy — and the handshake legitimate.",
+      "paragraph2": "Think of the platform as the common ground: a shared grammar, a shared NDA, a shared log — so every meeting starts on record.",
+      "directoryMatching": "Directory & Matching",
+      "institutionalVerification": "Institutional Verification",
+      "ndaMeetingFlow": "NDA & Meeting Flow",
+      "questionsPrompt": "Have any questions about the platform?",
+      "readPolicy": "Read policy →"
+    },
+    "upcoming": {
+      "titleLine1": "Upcoming",
+      "titleLine2": "Features",
+      "subtitle": "The protocol is live. Here is what we're scoping next.",
+      "grantsTitle": "Cross-Institutional Grants",
+      "grantsDesc": "Co-apply to European funding calls with shared draft templates, compliance checklists, and a joint submission timeline.",
+      "outcomeTrackingTitle": "Outcome Tracking",
+      "outcomeTrackingDesc": "Track collaboration milestones after the first meeting, with opt-in timelines and post-publication logging.",
+      "multiSiteTitle": "Multi-Site Clinical Trials",
+      "multiSiteDesc": "Coordinate recruitment and protocol reviews across multiple institutions within the directory."
+    },
+    "tour": {
+      "eyebrow": "03 · How it works",
+      "headingLine1": "A working",
+      "headingLine2": "user guide.",
+      "subtitle": "Each step maps to a real screen in HealthAI, from profile setup and AI-ranked browsing to meeting decisions and notifications.",
+      "stepCounter": "Step {{num}} / 0{{total}}",
+      "jumpToStep": "Jump to step {{num}}: {{name}}",
+      "previousStep": "Previous step",
+      "nextStep": "Next step",
+      "goToStep": "Go to step {{num}}",
+      "start": "Start",
+      "done": "Done",
+      "steps": {
+        "profile": {
+          "name": "Profile",
+          "tagline": "Teach the platform who you are.",
+          "desc": "Complete your role, institution, city, country, expertise, and collaboration interests. These fields power the profile match score users see on Browse Posts.",
+          "screen": "Profile",
+          "routeLabel": "Open profile",
+          "checkpoints": ["Verify institutional email", "Add city and country", "Choose expertise and interests"]
+        },
+        "browse": {
+          "name": "Browse",
+          "tagline": "AI-ranked posts first, filters second.",
+          "desc": "Browse Posts sorts opportunities by profile fit, shows a visible match badge, keeps filters tied to backend data, and paginates long result sets.",
+          "screen": "Browse Posts",
+          "routeLabel": "Browse opportunities",
+          "checkpoints": ["Review AI best match scores", "Use domain, stage, status, and location filters", "Move between result pages without endless scrolling"]
+        },
+        "post": {
+          "name": "Post",
+          "tagline": "Publish a clean collaboration request.",
+          "desc": "Use the post form to describe the clinical problem, needed expertise, project stage, collaborator type, and location. Posts stay structured enough to match and search well.",
+          "screen": "Post Opportunity",
+          "routeLabel": "Create post",
+          "checkpoints": ["Write a specific title and summary", "Select domain, stage, and collaborator type", "Keep patient data and files out of the post"]
+        },
+        "request": {
+          "name": "Request",
+          "tagline": "Send interest with NDA and time slots.",
+          "desc": "Open a post detail page, express interest, accept the one-page NDA, add your message, and propose three meeting times for the owner to review.",
+          "screen": "Post Detail",
+          "routeLabel": "Find a post",
+          "checkpoints": ["Read the full post details", "Accept the collaboration terms", "Propose three realistic time slots"]
+        },
+        "meetings": {
+          "name": "Meetings",
+          "tagline": "Turn requests into scheduled work.",
+          "desc": "The Meetings screen separates incoming, outgoing, confirmed, and cancelled requests. Owners can accept or decline; participants can cancel or mark collaboration progress.",
+          "screen": "Meetings",
+          "routeLabel": "Manage meetings",
+          "checkpoints": ["Filter by request status", "Accept, decline, cancel, or complete meetings", "Use the calendar and overview panels to stay oriented"]
+        },
+        "followUp": {
+          "name": "Follow-up",
+          "tagline": "Keep every handshake traceable.",
+          "desc": "Notifications surface meeting updates and match activity. Profile controls keep privacy actions close by, including account data export and deletion workflows.",
+          "screen": "Notifications",
+          "routeLabel": "View notifications",
+          "checkpoints": ["Check unread collaboration updates", "Return to meetings from notification context", "Use profile privacy controls when needed"]
         }
       }
     },

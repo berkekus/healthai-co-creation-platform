@@ -184,7 +184,7 @@ function TopNav() {
           {(
             <button
               onClick={() => setMobileMenuOpen(o => !o)}
-              aria-label="Toggle navigation menu"
+              aria-label={t('landing.nav.toggleMenu')}
               aria-expanded={mobileMenuOpen}
               className="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-white/70 border border-white/50 text-neutral-800 shadow-[0_4px_14px_-4px_rgba(0,0,0,0.18)] transition hover:bg-white"
             >
@@ -304,15 +304,10 @@ function IconSquare({ color, bg, icon }: { color: string; bg: string; icon: stri
 // ── Step data & visuals for the interactive user guide ──────────────
 type Step = {
   num: string
-  name: string
-  tagline: string
-  desc: string
+  key: string
   icon: string
   accent: string  // subtle tint for the illustration panel
-  screen: string
   route?: string
-  routeLabel?: string
-  checkpoints: string[]
   Visual: () => JSX.Element
 }
 
@@ -489,84 +484,12 @@ const NotifyVisual = () => (
 )
 
 const STEPS: Step[] = [
-  {
-    num: '01',
-    name: 'Profile',
-    tagline: 'Teach the platform who you are.',
-    desc: 'Complete your role, institution, city, country, expertise, and collaboration interests. These fields power the profile match score users see on Browse Posts.',
-    icon: 'badge',
-    accent: '#B8F3FF',
-    screen: 'Profile',
-    route: ROUTES.PROFILE,
-    routeLabel: 'Open profile',
-    checkpoints: ['Verify institutional email', 'Add city and country', 'Choose expertise and interests'],
-    Visual: ProfileVisual,
-  },
-  {
-    num: '02',
-    name: 'Browse',
-    tagline: 'AI-ranked posts first, filters second.',
-    desc: 'Browse Posts sorts opportunities by profile fit, shows a visible match badge, keeps filters tied to backend data, and paginates long result sets.',
-    icon: 'travel_explore',
-    accent: '#D2FF74',
-    screen: 'Browse Posts',
-    route: ROUTES.POSTS,
-    routeLabel: 'Browse opportunities',
-    checkpoints: ['Review AI best match scores', 'Use domain, stage, status, and location filters', 'Move between result pages without endless scrolling'],
-    Visual: MatchVisual,
-  },
-  {
-    num: '03',
-    name: 'Post',
-    tagline: 'Publish a clean collaboration request.',
-    desc: 'Use the post form to describe the clinical problem, needed expertise, project stage, collaborator type, and location. Posts stay structured enough to match and search well.',
-    icon: 'edit_note',
-    accent: '#B8F3FF',
-    screen: 'Post Opportunity',
-    route: ROUTES.POST_CREATE,
-    routeLabel: 'Create post',
-    checkpoints: ['Write a specific title and summary', 'Select domain, stage, and collaborator type', 'Keep patient data and files out of the post'],
-    Visual: PostVisual,
-  },
-  {
-    num: '04',
-    name: 'Request',
-    tagline: 'Send interest with NDA and time slots.',
-    desc: 'Open a post detail page, express interest, accept the one-page NDA, add your message, and propose three meeting times for the owner to review.',
-    icon: 'handshake',
-    accent: '#E3DCD2',
-    screen: 'Post Detail',
-    route: ROUTES.POSTS,
-    routeLabel: 'Find a post',
-    checkpoints: ['Read the full post details', 'Accept the collaboration terms', 'Propose three realistic time slots'],
-    Visual: MeetVisual,
-  },
-  {
-    num: '05',
-    name: 'Meetings',
-    tagline: 'Turn requests into scheduled work.',
-    desc: 'The Meetings screen separates incoming, outgoing, confirmed, and cancelled requests. Owners can accept or decline; participants can cancel or mark collaboration progress.',
-    icon: 'event_available',
-    accent: '#8AC6D0',
-    screen: 'Meetings',
-    route: ROUTES.MEETINGS,
-    routeLabel: 'Manage meetings',
-    checkpoints: ['Filter by request status', 'Accept, decline, cancel, or complete meetings', 'Use the calendar and overview panels to stay oriented'],
-    Visual: MeetingsVisual,
-  },
-  {
-    num: '06',
-    name: 'Follow-up',
-    tagline: 'Keep every handshake traceable.',
-    desc: 'Notifications surface meeting updates and match activity. Profile controls keep privacy actions close by, including account data export and deletion workflows.',
-    icon: 'notifications',
-    accent: '#E3DCD2',
-    screen: 'Notifications',
-    route: ROUTES.NOTIFICATIONS,
-    routeLabel: 'View notifications',
-    checkpoints: ['Check unread collaboration updates', 'Return to meetings from notification context', 'Use profile privacy controls when needed'],
-    Visual: NotifyVisual,
-  },
+  { num: '01', key: 'profile', icon: 'badge', accent: '#B8F3FF', route: ROUTES.PROFILE, Visual: ProfileVisual },
+  { num: '02', key: 'browse', icon: 'travel_explore', accent: '#D2FF74', route: ROUTES.POSTS, Visual: MatchVisual },
+  { num: '03', key: 'post', icon: 'edit_note', accent: '#B8F3FF', route: ROUTES.POST_CREATE, Visual: PostVisual },
+  { num: '04', key: 'request', icon: 'handshake', accent: '#E3DCD2', route: ROUTES.POSTS, Visual: MeetVisual },
+  { num: '05', key: 'meetings', icon: 'event_available', accent: '#8AC6D0', route: ROUTES.MEETINGS, Visual: MeetingsVisual },
+  { num: '06', key: 'followUp', icon: 'notifications', accent: '#E3DCD2', route: ROUTES.NOTIFICATIONS, Visual: NotifyVisual },
 ]
 
 // ── Main ────────────────────────────────────────────────────────────
@@ -975,7 +898,7 @@ export default function LandingPage() {
                 <div className="relative min-h-[420px] lg:min-h-[620px]">
                   <img
                     src="/images/europe.png"
-                    alt="European collaboration network map"
+                    alt={t('landing.platform.mapAlt')}
                     loading="lazy"
                     decoding="async"
                     className="absolute inset-[-58px_-120px_-20px_-120px] h-[calc(100%+78px)] w-[calc(100%+240px)] object-contain object-center opacity-95 dark:opacity-50 dark:saturate-75"
@@ -987,9 +910,9 @@ export default function LandingPage() {
                         <Icon name="stars" className="text-xl" filled />
                       </div>
                       <div>
-                        <h3 className="font-headline text-base font-black leading-snug landing-text">European standards.<br />Global impact.</h3>
+                        <h3 className="font-headline text-base font-black leading-snug landing-text">{t('landing.platform.standardsLine1')}<br />{t('landing.platform.standardsLine2')}</h3>
                         <p className="landing-body-text mt-5 font-body text-sm font-semibold leading-relaxed">
-                          Supporting innovation in healthcare through secure, ethical and compliant collaboration.
+                          {t('landing.platform.standardsDesc')}
                         </p>
                       </div>
                     </div>
@@ -999,10 +922,10 @@ export default function LandingPage() {
 
               <div className="landing-stats-grid relative z-10 mt-8 grid gap-0 overflow-hidden rounded-[18px] border shadow-[0_28px_80px_-58px_rgba(54,33,62,0.36)] md:grid-cols-2 lg:grid-cols-4">
                 {[
-                  ['public', '30+', 'Countries', 'Across the European research landscape'],
-                  ['account_balance', '1000+', 'Institutions', 'Hospitals, universities and research centers'],
-                  ['groups', 'One', 'Shared Language', 'Strict terminology for clear, effective collaboration'],
-                  ['verified_user', 'Complete', 'Compliance', 'GDPR-aligned, secure and audit-ready'],
+                  ['public', t('landing.stats.countriesValue'), t('landing.stats.countriesLabel'), t('landing.stats.countriesDesc')],
+                  ['account_balance', t('landing.stats.institutionsValue'), t('landing.stats.institutionsLabel'), t('landing.stats.institutionsDesc')],
+                  ['groups', t('landing.stats.languageValue'), t('landing.stats.languageLabel'), t('landing.stats.languageDesc')],
+                  ['verified_user', t('landing.stats.complianceValue'), t('landing.stats.complianceLabel'), t('landing.stats.complianceDesc')],
                 ].map(([icon, value, label, desc], index) => (
                   <div key={label} className={`landing-border flex min-h-[150px] items-start gap-5 p-7 ${index > 0 ? 'lg:border-l' : ''}`}>
                     <div className="landing-subtle-icon flex h-12 w-12 shrink-0 items-center justify-center rounded-full">
@@ -1129,13 +1052,13 @@ export default function LandingPage() {
             {/* Section header */}
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
               <div>
-                <p className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-3">03 · How it works</p>
+                <p className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-3">{t('landing.tour.eyebrow')}</p>
                 <h2 className="text-[3rem] md:text-[5.5rem] font-headline font-bold text-hai-plum tracking-normal leading-tight">
-                  A working<br />user guide.
+                  {t('landing.tour.headingLine1')}<br />{t('landing.tour.headingLine2')}
                 </h2>
               </div>
               <p className="text-base md:text-lg text-neutral-600 max-w-sm leading-relaxed">
-                Each step maps to a real screen in HealthAI, from profile setup and AI-ranked browsing to meeting decisions and notifications.
+                {t('landing.tour.subtitle')}
               </p>
             </div>
 
@@ -1161,36 +1084,36 @@ export default function LandingPage() {
                             <Icon name={active.icon} className="text-hai-plum text-xl sm:text-2xl" filled />
                           </div>
                           <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">
-                            Step {active.num} / 0{STEPS.length}
+                            {t('landing.tour.stepCounter', { num: active.num, total: STEPS.length })}
                           </span>
                         </div>
 
                         <h3 className="font-headline font-bold text-hai-plum tracking-normal leading-tight text-[2.4rem] sm:text-[3.5rem] md:text-[5rem] mb-2">
-                          {active.name}<span className="text-hai-teal">.</span>
+                          {t(`landing.tour.steps.${active.key}.name`)}<span className="text-hai-teal">.</span>
                         </h3>
                         <p className="text-base sm:text-lg md:text-xl font-headline text-neutral-700 leading-snug mb-6">
-                          {active.tagline}
+                          {t(`landing.tour.steps.${active.key}.tagline`)}
                         </p>
                         <p className="text-sm sm:text-base text-neutral-600 leading-relaxed max-w-md">
-                          {active.desc}
+                          {t(`landing.tour.steps.${active.key}.desc`)}
                         </p>
                         <div className="mt-6 flex flex-wrap items-center gap-2">
                           <span className="inline-flex items-center gap-1.5 rounded-full bg-hai-mint/60 px-3 py-1.5 text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold">
                             <Icon name="desktop_windows" className="text-base" filled />
-                            {active.screen}
+                            {t(`landing.tour.steps.${active.key}.screen`)}
                           </span>
                           {active.route && (
                             <Link
                               to={active.route}
                               className="inline-flex items-center gap-1.5 rounded-full bg-hai-plum px-3 py-1.5 text-xs font-mono tracking-[0.12em] uppercase text-white font-bold hover:bg-black transition-colors"
                             >
-                              {active.routeLabel}
+                              {t(`landing.tour.steps.${active.key}.routeLabel`)}
                               <Icon name="arrow_forward" className="text-base" />
                             </Link>
                           )}
                         </div>
                         <div className="mt-5 grid gap-2 max-w-md">
-                          {active.checkpoints.map((checkpoint) => (
+                          {(t(`landing.tour.steps.${active.key}.checkpoints`, { returnObjects: true }) as string[]).map((checkpoint) => (
                             <div key={checkpoint} className="flex items-start gap-2.5 text-sm font-semibold text-neutral-600">
                               <Icon name="check_circle" className="mt-0.5 text-hai-teal text-lg shrink-0" filled />
                               <span>{checkpoint}</span>
@@ -1209,12 +1132,12 @@ export default function LandingPage() {
                             key={s.num}
                             onClick={() => goTo(i)}
                             className={`flex items-center gap-1.5 sm:gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold transition-colors ${i === step ? 'text-hai-plum' : 'text-neutral-400 hover:text-neutral-700'}`}
-                            aria-label={`Jump to step ${s.num}: ${s.name}`}
+                            aria-label={t('landing.tour.jumpToStep', { num: s.num, name: t(`landing.tour.steps.${s.key}.name`) })}
                           >
                             <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all shrink-0 ${i === step ? 'bg-hai-plum text-white' : i < step ? 'bg-hai-teal text-hai-plum' : 'bg-neutral-100 text-neutral-400'}`}>
                               {i < step ? '✓' : s.num}
                             </span>
-                            <span className="hidden sm:inline">{s.name}</span>
+                            <span className="hidden sm:inline">{t(`landing.tour.steps.${s.key}.name`)}</span>
                           </button>
                         ))}
                       </div>
@@ -1246,13 +1169,13 @@ export default function LandingPage() {
               <button
                 onClick={prev}
                 disabled={step === 0}
-                aria-label="Previous step"
+                aria-label={t('landing.tour.previousStep')}
                 className="group flex items-center gap-2 sm:gap-3 bg-white border border-neutral-200 rounded-full pl-3 pr-3 sm:pr-5 py-3 font-bold text-sm text-hai-plum shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 <span className="w-9 h-9 rounded-full bg-hai-plum text-white flex items-center justify-center group-hover:-translate-x-0.5 transition-transform shrink-0">
                   <Icon name="arrow_back" className="text-xl" />
                 </span>
-                <span className="hidden sm:inline">{step > 0 ? STEPS[step - 1].name : 'Start'}</span>
+                <span className="hidden sm:inline">{step > 0 ? t(`landing.tour.steps.${STEPS[step - 1].key}.name`) : t('landing.tour.start')}</span>
               </button>
 
               <div className="flex items-center gap-1.5 sm:gap-2">
@@ -1260,7 +1183,7 @@ export default function LandingPage() {
                   <button
                     key={i}
                     onClick={() => goTo(i)}
-                    aria-label={`Go to step ${i + 1}`}
+                    aria-label={t('landing.tour.goToStep', { num: i + 1 })}
                     className="transition-all"
                     style={{
                       width: i === step ? 24 : 8,
@@ -1275,10 +1198,10 @@ export default function LandingPage() {
               <button
                 onClick={next}
                 disabled={step === STEPS.length - 1}
-                aria-label="Next step"
+                aria-label={t('landing.tour.nextStep')}
                 className="group flex items-center gap-2 sm:gap-3 bg-hai-plum text-white rounded-full pr-3 pl-3 sm:pl-5 py-3 font-bold text-sm shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
-                <span className="hidden sm:inline">{step < STEPS.length - 1 ? STEPS[step + 1].name : 'Done'}</span>
+                <span className="hidden sm:inline">{step < STEPS.length - 1 ? t(`landing.tour.steps.${STEPS[step + 1].key}.name`) : t('landing.tour.done')}</span>
                 <span className="w-9 h-9 rounded-full bg-hai-mint text-hai-plum flex items-center justify-center group-hover:translate-x-0.5 transition-transform shrink-0">
                   <Icon name="arrow_forward" className="text-xl" />
                 </span>
@@ -1298,21 +1221,21 @@ export default function LandingPage() {
         >
           <div className="max-w-7xl mx-auto px-6 md:px-8 text-center flex flex-col gap-6 pt-10">
             <div className="border-y border-hai-teal/50 py-4">
-              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">GDPR-native</h2>
+              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">{t('landing.trust.gdprNative')}</h2>
             </div>
             <div className="border-b border-hai-teal/50 pb-4">
-              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">Built for European institutions</h2>
+              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">{t('landing.trust.europeanInstitutions')}</h2>
             </div>
             <div className="border-b border-hai-teal/50 py-8 max-w-3xl mx-auto w-full">
               <p className="text-hai-plum font-semibold text-lg leading-relaxed">
-                Planning a medical–engineering collaboration? Every interaction is governed by institutional <b>.edu</b> verification, a <b>24-month tamper-resistant audit log</b>, and a zero-patient-data policy. No file uploads. No ambiguity. Every Article 6 &amp; 15–22 right is exercisable from your profile, one click away.
+                {t('landing.trust.body')}
               </p>
             </div>
             <div className="border-b border-hai-teal/50 pb-4">
-              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">Immutable audit trail</h3>
+              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">{t('landing.trust.auditTrail')}</h3>
             </div>
             <div className="border-b border-hai-teal/50 pb-4">
-              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">Zero patient data</h3>
+              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">{t('landing.trust.zeroPatientData')}</h3>
             </div>
           </div>
         </section>
@@ -1322,39 +1245,39 @@ export default function LandingPage() {
           <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-hai-mint to-transparent pointer-events-none" />
           <div className="max-w-5xl mx-auto px-6 md:px-8 relative z-10">
             <h2 className="text-[3rem] md:text-[5rem] font-headline font-bold landing-text tracking-normal leading-tight mb-10">
-              Structured<br />collaboration.
+              {t('landing.structured.titleLine1')}<br />{t('landing.structured.titleLine2')}
             </h2>
 
             <div className="max-w-4xl mb-14 space-y-6">
               <p className="text-xl md:text-3xl font-headline text-neutral-900 leading-snug">
-                We know medical–engineering partnerships can stall in legal uncertainty, vague scope, and the wrong introduction. Our protocol is designed to make the first conversation easy — and the handshake legitimate.
+                {t('landing.structured.paragraph1')}
               </p>
               <p className="text-xl md:text-3xl font-headline text-neutral-900 leading-snug">
-                Think of the platform as the common ground: a shared grammar, a shared NDA, a shared log — so every meeting starts on record.
+                {t('landing.structured.paragraph2')}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-5">
                 <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-neutral-100 flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow">
-                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">Directory &amp; Matching</span>
+                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">{t('landing.structured.directoryMatching')}</span>
                   <Icon name="add" className="text-neutral-400 group-hover:text-neutral-900 transition-colors" />
                 </div>
                 <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-neutral-100 flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow">
-                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">Institutional Verification</span>
+                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">{t('landing.structured.institutionalVerification')}</span>
                   <Icon name="add" className="text-neutral-400 group-hover:text-neutral-900 transition-colors" />
                 </div>
               </div>
 
               <div className="space-y-5">
                 <div className="bg-hai-teal rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow h-[88px]">
-                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">NDA &amp; Meeting Flow</span>
+                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">{t('landing.structured.ndaMeetingFlow')}</span>
                   <Icon name="add" className="text-neutral-900" />
                 </div>
                 <div className="bg-hai-teal rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between">
-                  <span className="font-body text-base md:text-lg font-semibold text-neutral-900 max-w-[170px] leading-tight">Have any questions about the platform?</span>
+                  <span className="font-body text-base md:text-lg font-semibold text-neutral-900 max-w-[170px] leading-tight">{t('landing.structured.questionsPrompt')}</span>
                   <Link to={ROUTES.PRIVACY} className="bg-hai-plum text-hai-mint px-6 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-sm whitespace-nowrap">
-                    Read policy →
+                    {t('landing.structured.readPolicy')}
                   </Link>
                 </div>
               </div>
@@ -1366,17 +1289,17 @@ export default function LandingPage() {
         <section className="w-full bg-hai-offwhite py-24 border-t border-neutral-200">
           <div className="max-w-5xl mx-auto px-6 md:px-8 text-center mb-14">
             <h2 className="text-[4rem] md:text-[7rem] font-headline font-bold landing-text tracking-normal leading-tight mb-4">
-              Upcoming<br />Features
+              {t('landing.upcoming.titleLine1')}<br />{t('landing.upcoming.titleLine2')}
             </h2>
             <p className="text-base md:text-lg text-neutral-600 max-w-xl mx-auto">
-              The protocol is live. Here is what we're scoping next.
+              {t('landing.upcoming.subtitle')}
             </p>
           </div>
           <div className="max-w-4xl mx-auto px-6 md:px-8">
             {[
-              { icon: 'payments', title: 'Cross-Institutional Grants', desc: 'Co-apply to European funding calls with shared draft templates, compliance checklists, and a joint submission timeline.' },
-              { icon: 'monitoring', title: 'Outcome Tracking', desc: 'Track collaboration milestones after the first meeting, with opt-in timelines and post-publication logging.' },
-              { icon: 'groups', title: 'Multi-Site Clinical Trials', desc: 'Coordinate recruitment and protocol reviews across multiple institutions within the directory.' },
+              { icon: 'payments', title: t('landing.upcoming.grantsTitle'), desc: t('landing.upcoming.grantsDesc') },
+              { icon: 'monitoring', title: t('landing.upcoming.outcomeTrackingTitle'), desc: t('landing.upcoming.outcomeTrackingDesc') },
+              { icon: 'groups', title: t('landing.upcoming.multiSiteTitle'), desc: t('landing.upcoming.multiSiteDesc') },
             ].map((f) => (
               <div key={f.title} className="flex flex-col md:flex-row items-start md:items-center py-7 border-b border-neutral-300 gap-6 md:gap-12">
                 <div className="flex items-center gap-5 w-full md:w-1/2">
