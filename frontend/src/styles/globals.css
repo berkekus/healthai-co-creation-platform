@@ -202,8 +202,8 @@
   );
   background-size: 24px 24px;
 }
-.landing-soft-glow { background-color: rgb(var(--landing-surface) / 0.6); }
-.dark .landing-soft-glow { background-color: rgb(var(--landing-accent) / 0.1); }
+.landing-soft-glow { background: radial-gradient(closest-side, rgb(var(--landing-surface) / 0.6), transparent); }
+.dark .landing-soft-glow { background: radial-gradient(closest-side, rgb(var(--landing-accent) / 0.1), transparent); }
 
 .landing-slab {
   background: linear-gradient(

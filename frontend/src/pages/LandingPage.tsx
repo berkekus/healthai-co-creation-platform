@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useMotionTemplate, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
+import { motion, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../constants/routes'
 import LandingFooter from '../components/layout/LandingFooter'
@@ -22,33 +22,21 @@ import LanguageToggle from '../components/ui/LanguageToggle'
 // sits on a calm off-white surface.
 // ─────────────────────────────────────────────────────────────────────
 
-/**
- * Detect whether the current device supports true hover input.
- * Returns `true` on desktops / trackpads (where `(hover: hover)` matches)
- * and `false` on touch devices. Used to decide whether the pathway-card
- * reveal box should rely on `whileHover` (desktop) or stay visible
- * permanently (mobile — otherwise the CTA inside would be unreachable).
- */
-function useCanHover(): boolean {
-  /*
-    Lazy initializer — we read the media query synchronously on first
-    render so the very first paint already matches the device. Without
-    this, touch devices would render ONE frame of `canHover = true`
-    (the default) and flash the reveal-box from hidden → visible as
-    the useEffect below corrects it. Now: no flash, no layout shift.
-  */
-  const [canHover, setCanHover] = useState<boolean>(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return true
-    return window.matchMedia('(hover: hover) and (pointer: fine)').matches
+/** Read input capabilities and viewport size before the first paint. */
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return false
+    return window.matchMedia(query).matches
   })
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return
-    const mq = window.matchMedia('(hover: hover) and (pointer: fine)')
-    const update = () => setCanHover(mq.matches)
+    const mq = window.matchMedia(query)
+    const update = () => setMatches(mq.matches)
+    update()
     mq.addEventListener('change', update)
     return () => mq.removeEventListener('change', update)
-  }, [])
-  return canHover
+  }, [query])
+  return matches
 }
 
 // ── Icon helper ─────────────────────────────────────────────────────
@@ -131,7 +119,7 @@ function TopNav() {
         <Logo />
 
         {/* Center pill — hidden below lg */}
-        <div className="hidden lg:flex items-center bg-white/25 backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+        <div className="hidden lg:flex items-center bg-white/25 lg:backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
           <div className="flex items-center bg-white rounded-full h-full">
             {user ? (
               <div className="flex items-center px-1">
@@ -159,7 +147,7 @@ function TopNav() {
                 <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
                   <Link
                     to={ROUTES.REGISTER}
-                    className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out will-change-transform"
+                    className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out"
                   >
                     {t('landing.actions.requestAccess')}
                   </Link>
@@ -177,19 +165,19 @@ function TopNav() {
             <>
               <Link
                 to={ROUTES.LOGIN}
-                className="hidden sm:inline-flex text-neutral-900 font-bold text-sm px-5 py-2.5 rounded-full border border-neutral-900/30 bg-white/0 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] hover:bg-white/70 hover:border-neutral-900/50 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-10px_rgba(0,0,0,0.25)] active:translate-y-0 active:shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] transition-all duration-[250ms] ease-out will-change-transform"
+                className="hidden sm:inline-flex text-neutral-900 font-bold text-sm px-5 py-2.5 rounded-full border border-neutral-900/30 bg-white/0 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] hover:bg-white/70 hover:border-neutral-900/50 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-10px_rgba(0,0,0,0.25)] active:translate-y-0 active:shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] transition-all duration-[250ms] ease-out"
               >
                 {t('landing.actions.signIn')}
               </Link>
               <Link
                 to={ROUTES.REGISTER}
-                className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
+                className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out"
               >
                 {t('landing.actions.signUp')}
               </Link>
             </>
           )}
-          <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] backdrop-blur-md hover:bg-white" />
+          <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] lg:backdrop-blur-md hover:bg-white" />
 
           {/* Mobile hamburger — below lg the centre pill is hidden, so this is the
               only way to the nav; signed-in users need it just as much. */}
@@ -198,7 +186,7 @@ function TopNav() {
               onClick={() => setMobileMenuOpen(o => !o)}
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
-              className="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-white/70 backdrop-blur-md border border-white/50 text-neutral-800 shadow-[0_4px_14px_-4px_rgba(0,0,0,0.18)] transition hover:bg-white"
+              className="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-white/70 border border-white/50 text-neutral-800 shadow-[0_4px_14px_-4px_rgba(0,0,0,0.18)] transition hover:bg-white"
             >
               {mobileMenuOpen
                 ? <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -211,7 +199,7 @@ function TopNav() {
 
       {/* Mobile dropdown menu — anchor links + CTA */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed top-[72px] inset-x-4 z-40 rounded-2xl bg-white/95 backdrop-blur-md border border-white/60 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.35)] py-3 font-body">
+        <div className="lg:hidden fixed top-[72px] inset-x-4 z-40 rounded-2xl bg-white/95 border border-white/60 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.35)] py-3 font-body">
           {user ? (
             appLinks.map(link => (
               <Link
@@ -598,57 +586,17 @@ export default function LandingPage() {
   const ActiveVisual = active.Visual
 
 
-  /* ──────────────────────────────────────────────────────────────
-     STICKY PARALLAX OVERLAP — scroll-driven blur + drift + fade
-     ──────────────────────────────────────────────────────────────
-     · Hero sticks at top (z-0). As the user scrolls, the foreground
-       slab (z-10, opaque bg) climbs up and covers the hero.
-     · Effect cadence (inspired by the Payard reference):
-         [0.02 → 0.26]  blur(0px)    → blur(14px)   ← primary tell
-         [0.04 → 0.28]  y:0          → y:-60 px     ← "pulled behind"
-         [0.16 → 0.34]  opacity:1    → opacity:0    ← delayed fade
-       Blur starts *immediately* on first scroll so the user's eye
-       reads the text "going out of focus" long before it fades. The
-       y-drift reinforces the sense the copy is sliding behind the
-       rising card, and opacity only begins to drop once the text is
-       already significantly blurred — recreating the soft,
-       depth-of-field feel of the reference instead of a harsh fade.
-     · GPU contract: motion.div animates `transform`, `opacity` and
-       `filter` — all compositor-thread properties, zero layout
-       reflow. `useMotionTemplate` builds the `blur(<px>px)` string
-       from a MotionValue so React never re-renders on scroll.
-       Tailwind `will-change-transform` hints layer promotion.
-  ────────────────────────────────────────────────────────────── */
+  // Desktop overlap uses only translation and opacity; mobile stays in normal flow.
   const parallaxRef = useRef<HTMLDivElement>(null)
   const prefersReducedMotion = useReducedMotion()
+  const isDesktop = useMediaQuery('(min-width: 1024px)')
+  const enableParallax = isDesktop && !prefersReducedMotion
   const { scrollYProgress } = useScroll({
     target: parallaxRef,
     offset: ['start start', 'end start'],
   })
   const heroOpacity = useTransform(scrollYProgress, [0.16, 0.34], [1, 0])
   const heroY       = useTransform(scrollYProgress, [0.04, 0.28], [0, -60])
-  const heroBlurPx  = useTransform(scrollYProgress, [0.02, 0.26], [0, 14])
-  const heroFilter  = useMotionTemplate`blur(${heroBlurPx}px)`
-
-  /* ──────────────────────────────────────────────────────────────
-     FOREGROUND SLAB · parallax lift
-     ──────────────────────────────────────────────────────────────
-     Without this transform, the slab moves up ONLY at scroll speed
-     (1:1 with document). Visually that reads as "passive" — the
-     card doesn't feel like it's *climbing* over the hero, it just
-     slides into view.
-
-     Adding a negative `y` that ramps from 0 → -180 px across the
-     same scroll window as the hero blur means the slab rises
-     FASTER than the document scroll during the overlap phase. Per
-     unit of scroll the card gains extra altitude, recreating the
-     Payard-style "card is actively climbing over the headline"
-     sensation the user is asking for.
-
-     After 0.26 progress the transform holds at -180 (no further
-     climb) so the rest of the page still scrolls 1:1 — no rubber-
-     banding, no visible shift below the hero zone.
-  ────────────────────────────────────────────────────────────── */
   const slabY = useTransform(scrollYProgress, [0, 0.26], [0, -180])
 
   /* ──────────────────────────────────────────────────────────────
@@ -666,7 +614,7 @@ export default function LandingPage() {
      Motion's variant propagation, so a single pointer-enter on the
      outer card drives BOTH animations in lockstep.
 
-     Touch / mobile: `useCanHover()` detects `(hover: hover)` media
+     Touch / mobile: `useMediaQuery()` detects `(hover: hover)` media
      query. If hover is unavailable, we force both cards into the
      "hover" state permanently so the reveal box is always visible
      (otherwise the CTA would be unreachable on touch devices).
@@ -675,7 +623,7 @@ export default function LandingPage() {
      1→1 (no bump) and the reveal box still appears but without the
      spring — a subtle opacity crossfade only.
   ────────────────────────────────────────────────────────────── */
-  const canHover = useCanHover()
+  const canHover = useMediaQuery('(hover: hover) and (pointer: fine)')
 
   /*
     Per-card hover state. We drive BOTH the outer card (scale/zIndex)
@@ -744,13 +692,13 @@ export default function LandingPage() {
             items-start + large top padding (instead of items-center) —
             pins the hero copy near the upper third of the viewport so
             that as the foreground slab rises it *never clips* the
-            headline. Both lines stay readable through the entire blur
-            lifecycle; the card climbs over empty teal space below it
+            headline. Both lines stay readable through the entire overlap
+            transition; the card climbs over empty teal space below it
             before starting to encroach on the copy.
           */}
           <section
             aria-labelledby="hero-headline"
-            className="landing-hero sticky top-0 z-0 w-full overflow-hidden flex items-start justify-center pt-24 sm:pt-28 md:pt-32 pb-16"
+            className={`landing-hero ${enableParallax ? 'sticky' : 'relative'} top-0 z-0 w-full overflow-hidden flex items-start justify-center pt-24 sm:pt-28 md:pt-32 pb-16`}
           >
             {/* dot atmosphere */}
             <div
@@ -760,16 +708,15 @@ export default function LandingPage() {
             {/* soft glow */}
             <div
               aria-hidden
-              className="landing-soft-glow absolute top-[18%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full blur-[100px] pointer-events-none"
+              className="landing-soft-glow absolute top-[18%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full pointer-events-none"
             />
 
             <motion.div
               style={{
-                opacity: prefersReducedMotion ? 1 : heroOpacity,
-                y:       prefersReducedMotion ? 0 : heroY,
-                filter:  prefersReducedMotion ? 'none' : heroFilter,
+                opacity: enableParallax ? heroOpacity : 1,
+                y: enableParallax ? heroY : 0,
               }}
-              className="relative text-center max-w-5xl mx-auto px-6 md:px-8 will-change-[transform,filter,opacity]"
+              className="relative text-center max-w-5xl mx-auto px-6 md:px-8"
             >
               <h1
                 id="hero-headline"
@@ -818,7 +765,7 @@ export default function LandingPage() {
             viewport height (≥ 640 px).
           */}
           <motion.div
-            className="landing-slab relative z-10 -mt-4 will-change-transform"
+            className="landing-slab relative z-10 -mt-4"
             style={{
               /*
                 Top 3% ramps from transparent → solid teal so the slab's
@@ -828,7 +775,7 @@ export default function LandingPage() {
                 slab) is enough to dissolve the seam completely while
                 preserving the calm teal-to-off-white journey below.
               */
-              y: prefersReducedMotion ? 0 : slabY,
+              y: enableParallax ? slabY : 0,
             }}
           >
             <div
@@ -856,7 +803,7 @@ export default function LandingPage() {
 
                   {/* ───── Engineer card (LEFT) ───── */}
                   <motion.div
-                    className="landing-path-card-engineer relative min-h-[390px] overflow-hidden rounded-[24px] landing-text will-change-transform"
+                    className="landing-path-card-engineer relative min-h-[390px] overflow-hidden rounded-[24px] landing-text"
                     variants={cardOverlapVariants}
                     initial="rest"
                     animate={engineerOuterState}
@@ -903,7 +850,7 @@ export default function LandingPage() {
 
                   {/* ───── Healthcare Professional card (RIGHT) ───── */}
                   <motion.div
-                    className="landing-path-card-clinician relative min-h-[390px] overflow-hidden rounded-[24px] landing-text will-change-transform"
+                    className="landing-path-card-clinician relative min-h-[390px] overflow-hidden rounded-[24px] landing-text"
                     variants={cardOverlapVariants}
                     initial="rest"
                     animate={clinicianOuterState}
@@ -1033,7 +980,7 @@ export default function LandingPage() {
                     className="absolute inset-[-58px_-120px_-20px_-120px] h-[calc(100%+78px)] w-[calc(100%+240px)] object-contain object-center opacity-95 dark:opacity-50 dark:saturate-75"
                   />
 
-                  <div className="landing-glass-card relative z-10 ml-auto mt-8 max-w-[270px] rounded-[14px] border p-6 shadow-[0_28px_72px_-50px_rgba(54,33,62,0.38)] backdrop-blur-md lg:mt-28">
+                  <div className="landing-glass-card relative z-10 ml-auto mt-8 max-w-[270px] rounded-[14px] border p-6 shadow-[0_28px_72px_-50px_rgba(54,33,62,0.38)] lg:backdrop-blur-md lg:mt-28">
                     <div className="flex items-start gap-4">
                       <div className="landing-accent-bg flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white">
                         <Icon name="stars" className="text-xl" filled />

@@ -7,11 +7,13 @@ import ProtectedRoute from './ProtectedRoute'
 
 // Critical path — eager load
 import LandingPage from '../pages/LandingPage'
-import LoginPage from '../pages/auth/LoginPage'
-import RegisterPage from '../pages/auth/RegisterPage'
-import VerifyEmailPage from '../pages/auth/VerifyEmailPage'
-import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage'
-import ResetPasswordPage from '../pages/auth/ResetPasswordPage'
+
+// Account pages load only when their route is visited.
+const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
+const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
+const VerifyEmailPage = lazy(() => import('../pages/auth/VerifyEmailPage'))
+const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage'))
+const ResetPasswordPage = lazy(() => import('../pages/auth/ResetPasswordPage'))
 
 // Lazy load — authenticated / large pages
 const DashboardPage      = lazy(() => import('../pages/dashboard/DashboardPage'))
