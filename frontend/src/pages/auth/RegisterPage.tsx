@@ -10,6 +10,7 @@ import { createRegisterSchema, type RegisterFormData } from '../../utils/validat
 import { ROUTES } from '../../constants/routes'
 import { TURNSTILE_SITE_KEY, captchaConfigured, captchaBlocks } from '../../lib/turnstile'
 import CountryCityPicker from '../../components/ui/CountryCityPicker'
+import { useSelectLabels } from '../../components/ui/useSelectLabels'
 import { prewarmBackend } from '../../lib/prewarm'
 import { useSlowRequestHint } from '../../hooks/useSlowRequestHint'
 
@@ -18,6 +19,7 @@ type PreselectedRole = 'engineer' | 'healthcare_professional'
 
 export default function RegisterPage() {
   const { t } = useTranslation()
+  const selectLabels = useSelectLabels()
   const idPrefix = useId()
   const fieldId = (name: string) => `${idPrefix}-${name}`
   const { register: registerUser, isLoading, error, errorStatus, clearError } = useAuthStore()
@@ -445,6 +447,7 @@ export default function RegisterPage() {
                     cityLockedPlaceholder={t('authPage.register.cityPlaceholderNoCountry')}
                     cityFreeTextPlaceholder={t('authPage.register.cityFreeText')}
                     inputClassName={`${inputCls(!!errors.city)} px-4`}
+                    selectLabels={selectLabels}
                   />
 
                   {/* GDPR — the translated consent sentence is split on its first

@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
+import { useAuthStore } from '../../store/authStore'
 import FundingNotice from './FundingNotice'
 
 export default function LandingFooter() {
   const { t } = useTranslation()
+  const user = useAuthStore(state => state.user)
 
   return (
     <footer className="w-full bg-hai-plum pt-16 font-body text-hai-mint relative flex flex-col">
@@ -53,9 +55,9 @@ export default function LandingFooter() {
         <div>
           <h4 className="font-bold mb-4 text-lg font-headline">{t('footer.access')}</h4>
           <ul className="space-y-2 text-sm font-semibold">
-            <li><Link to={ROUTES.REGISTER} state={{ role: 'healthcare_professional' }} className="hover:text-white transition-colors">{t('footer.forClinicians')}</Link></li>
-            <li><Link to={ROUTES.REGISTER} state={{ role: 'engineer' }} className="hover:text-white transition-colors">{t('footer.forEngineers')}</Link></li>
-            <li><Link to={ROUTES.REGISTER} className="hover:text-white transition-colors">{t('landing.actions.requestAccess')}</Link></li>
+            <li><Link to={user ? ROUTES.POSTS : ROUTES.REGISTER} state={{ role: 'healthcare_professional' }} className="hover:text-white transition-colors">{t('footer.forClinicians')}</Link></li>
+            <li><Link to={user ? ROUTES.POSTS : ROUTES.REGISTER} state={{ role: 'engineer' }} className="hover:text-white transition-colors">{t('footer.forEngineers')}</Link></li>
+            <li><Link to={user ? ROUTES.POSTS : ROUTES.REGISTER} className="hover:text-white transition-colors">{t(user ? 'landing.nav.findProjects' : 'landing.actions.requestAccess')}</Link></li>
             <li><a href="mailto:team@healthai.edu" className="hover:text-white transition-colors">{t('footer.contactTeam')}</a></li>
           </ul>
         </div>

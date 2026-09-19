@@ -34,6 +34,7 @@ function formatSlot(slot: TimeSlot) {
 }
 
 function SlotChip({ slot, onAccept, active }: { slot: TimeSlot; onAccept?: () => void; active?: boolean }) {
+  const { t } = useTranslation()
   const { date, time } = formatSlot(slot)
   return (
     <div className={`flex items-center justify-between gap-3 rounded-2xl px-4 py-2.5 border transition-colors ${
@@ -47,7 +48,7 @@ function SlotChip({ slot, onAccept, active }: { slot: TimeSlot; onAccept?: () =>
         </span>
         <div className="min-w-0">
           <div className="text-sm font-body font-bold text-hai-plum truncate">{date}</div>
-          <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold">at {time}</div>
+          <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold">{t('meetings.slotTimeAt', { time })}</div>
         </div>
       </div>
       {onAccept && (
@@ -55,7 +56,7 @@ function SlotChip({ slot, onAccept, active }: { slot: TimeSlot; onAccept?: () =>
           onClick={onAccept}
           className="shrink-0 px-3.5 py-1.5 rounded-full bg-hai-plum text-white text-xs font-mono tracking-[0.12em] uppercase font-bold hover:bg-black transition-colors inline-flex items-center gap-1"
         >
-          Accept <span aria-hidden="true">→</span>
+          {t('meetings.acceptSlot')} <span aria-hidden="true">→</span>
         </button>
       )}
     </div>

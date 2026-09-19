@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useMotionTemplate, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
+import { motion, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../constants/routes'
 import LandingFooter from '../components/layout/LandingFooter'
@@ -22,33 +22,21 @@ import LanguageToggle from '../components/ui/LanguageToggle'
 // sits on a calm off-white surface.
 // ─────────────────────────────────────────────────────────────────────
 
-/**
- * Detect whether the current device supports true hover input.
- * Returns `true` on desktops / trackpads (where `(hover: hover)` matches)
- * and `false` on touch devices. Used to decide whether the pathway-card
- * reveal box should rely on `whileHover` (desktop) or stay visible
- * permanently (mobile — otherwise the CTA inside would be unreachable).
- */
-function useCanHover(): boolean {
-  /*
-    Lazy initializer — we read the media query synchronously on first
-    render so the very first paint already matches the device. Without
-    this, touch devices would render ONE frame of `canHover = true`
-    (the default) and flash the reveal-box from hidden → visible as
-    the useEffect below corrects it. Now: no flash, no layout shift.
-  */
-  const [canHover, setCanHover] = useState<boolean>(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return true
-    return window.matchMedia('(hover: hover) and (pointer: fine)').matches
+/** Read input capabilities and viewport size before the first paint. */
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return false
+    return window.matchMedia(query).matches
   })
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return
-    const mq = window.matchMedia('(hover: hover) and (pointer: fine)')
-    const update = () => setCanHover(mq.matches)
+    const mq = window.matchMedia(query)
+    const update = () => setMatches(mq.matches)
+    update()
     mq.addEventListener('change', update)
     return () => mq.removeEventListener('change', update)
-  }, [])
-  return canHover
+  }, [query])
+  return matches
 }
 
 // ── Icon helper ─────────────────────────────────────────────────────
@@ -102,7 +90,7 @@ function NavDivider() {
 }
 
 function TopNav() {
-  const { user } = useAuthStore()
+  const user = useAuthStore(state => state.user)
   const { t } = useTranslation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -118,8 +106,8 @@ function TopNav() {
   // account. Show the three places they actually came for instead.
   const appLinks = [
     { to: ROUTES.DASHBOARD, label: t('nav.dashboard') },
-    { to: ROUTES.POSTS,     label: t('nav.browse') },
-    { to: ROUTES.MEETINGS,  label: t('nav.meetings') },
+    { to: ROUTES.POSTS,     label: t('landing.nav.findProjects') },
+    { to: ROUTES.MEETINGS,  label: t('landing.nav.myMeetingRequests') },
   ]
 
   return (
@@ -131,7 +119,7 @@ function TopNav() {
         <Logo />
 
         {/* Center pill — hidden below lg */}
-        <div className="hidden lg:flex items-center bg-white/25 backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+        <div className="hidden lg:flex items-center bg-white/25 lg:backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
           <div className="flex items-center bg-white rounded-full h-full">
             {user ? (
               <div className="flex items-center px-1">
@@ -158,10 +146,10 @@ function TopNav() {
                 </div>
                 <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
                   <Link
-                    to={ROUTES.REGISTER}
-                    className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out will-change-transform"
+                    to={user ? ROUTES.POSTS : ROUTES.REGISTER}
+                    className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out"
                   >
-                    {t('landing.actions.requestAccess')}
+                    {t(user ? 'landing.nav.findProjects' : 'landing.actions.requestAccess')}
                   </Link>
                 </div>
               </>
@@ -177,28 +165,28 @@ function TopNav() {
             <>
               <Link
                 to={ROUTES.LOGIN}
-                className="hidden sm:inline-flex text-neutral-900 font-bold text-sm px-5 py-2.5 rounded-full border border-neutral-900/30 bg-white/0 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] hover:bg-white/70 hover:border-neutral-900/50 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-10px_rgba(0,0,0,0.25)] active:translate-y-0 active:shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] transition-all duration-[250ms] ease-out will-change-transform"
+                className="hidden sm:inline-flex text-neutral-900 font-bold text-sm px-5 py-2.5 rounded-full border border-neutral-900/30 bg-white/0 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] hover:bg-white/70 hover:border-neutral-900/50 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-10px_rgba(0,0,0,0.25)] active:translate-y-0 active:shadow-[0_2px_8px_-4px_rgba(0,0,0,0.15)] transition-all duration-[250ms] ease-out"
               >
                 {t('landing.actions.signIn')}
               </Link>
               <Link
-                to={ROUTES.REGISTER}
-                className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
+                to={user ? ROUTES.POSTS : ROUTES.REGISTER}
+                className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out"
               >
                 {t('landing.actions.signUp')}
               </Link>
             </>
           )}
-          <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] backdrop-blur-md hover:bg-white" />
+          <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] lg:backdrop-blur-md hover:bg-white" />
 
           {/* Mobile hamburger — below lg the centre pill is hidden, so this is the
               only way to the nav; signed-in users need it just as much. */}
           {(
             <button
               onClick={() => setMobileMenuOpen(o => !o)}
-              aria-label="Toggle navigation menu"
+              aria-label={t('landing.nav.toggleMenu')}
               aria-expanded={mobileMenuOpen}
-              className="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-white/70 backdrop-blur-md border border-white/50 text-neutral-800 shadow-[0_4px_14px_-4px_rgba(0,0,0,0.18)] transition hover:bg-white"
+              className="lg:hidden flex h-10 w-10 items-center justify-center rounded-full bg-white/70 border border-white/50 text-neutral-800 shadow-[0_4px_14px_-4px_rgba(0,0,0,0.18)] transition hover:bg-white"
             >
               {mobileMenuOpen
                 ? <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -211,7 +199,7 @@ function TopNav() {
 
       {/* Mobile dropdown menu — anchor links + CTA */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed top-[72px] inset-x-4 z-40 rounded-2xl bg-white/95 backdrop-blur-md border border-white/60 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.35)] py-3 font-body">
+        <div className="lg:hidden fixed top-[72px] inset-x-4 z-40 rounded-2xl bg-white/95 border border-white/60 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.35)] py-3 font-body">
           {user ? (
             appLinks.map(link => (
               <Link
@@ -251,7 +239,7 @@ function TopNav() {
               {t('landing.actions.signIn')}
             </Link>
             <Link
-              to={ROUTES.REGISTER}
+              to={user ? ROUTES.POSTS : ROUTES.REGISTER}
               onClick={() => setMobileMenuOpen(false)}
               className="flex-1 text-center py-2.5 text-sm font-bold bg-hai-plum text-white rounded-full hover:bg-black transition-colors"
             >
@@ -316,15 +304,10 @@ function IconSquare({ color, bg, icon }: { color: string; bg: string; icon: stri
 // ── Step data & visuals for the interactive user guide ──────────────
 type Step = {
   num: string
-  name: string
-  tagline: string
-  desc: string
+  key: string
   icon: string
   accent: string  // subtle tint for the illustration panel
-  screen: string
   route?: string
-  routeLabel?: string
-  checkpoints: string[]
   Visual: () => JSX.Element
 }
 
@@ -501,88 +484,17 @@ const NotifyVisual = () => (
 )
 
 const STEPS: Step[] = [
-  {
-    num: '01',
-    name: 'Profile',
-    tagline: 'Teach the platform who you are.',
-    desc: 'Complete your role, institution, city, country, expertise, and collaboration interests. These fields power the profile match score users see on Browse Posts.',
-    icon: 'badge',
-    accent: '#B8F3FF',
-    screen: 'Profile',
-    route: ROUTES.PROFILE,
-    routeLabel: 'Open profile',
-    checkpoints: ['Verify institutional email', 'Add city and country', 'Choose expertise and interests'],
-    Visual: ProfileVisual,
-  },
-  {
-    num: '02',
-    name: 'Browse',
-    tagline: 'AI-ranked posts first, filters second.',
-    desc: 'Browse Posts sorts opportunities by profile fit, shows a visible match badge, keeps filters tied to backend data, and paginates long result sets.',
-    icon: 'travel_explore',
-    accent: '#D2FF74',
-    screen: 'Browse Posts',
-    route: ROUTES.POSTS,
-    routeLabel: 'Browse opportunities',
-    checkpoints: ['Review AI best match scores', 'Use domain, stage, status, and location filters', 'Move between result pages without endless scrolling'],
-    Visual: MatchVisual,
-  },
-  {
-    num: '03',
-    name: 'Post',
-    tagline: 'Publish a clean collaboration request.',
-    desc: 'Use the post form to describe the clinical problem, needed expertise, project stage, collaborator type, and location. Posts stay structured enough to match and search well.',
-    icon: 'edit_note',
-    accent: '#B8F3FF',
-    screen: 'Post Opportunity',
-    route: ROUTES.POST_CREATE,
-    routeLabel: 'Create post',
-    checkpoints: ['Write a specific title and summary', 'Select domain, stage, and collaborator type', 'Keep patient data and files out of the post'],
-    Visual: PostVisual,
-  },
-  {
-    num: '04',
-    name: 'Request',
-    tagline: 'Send interest with NDA and time slots.',
-    desc: 'Open a post detail page, express interest, accept the one-page NDA, add your message, and propose three meeting times for the owner to review.',
-    icon: 'handshake',
-    accent: '#E3DCD2',
-    screen: 'Post Detail',
-    route: ROUTES.POSTS,
-    routeLabel: 'Find a post',
-    checkpoints: ['Read the full post details', 'Accept the collaboration terms', 'Propose three realistic time slots'],
-    Visual: MeetVisual,
-  },
-  {
-    num: '05',
-    name: 'Meetings',
-    tagline: 'Turn requests into scheduled work.',
-    desc: 'The Meetings screen separates incoming, outgoing, confirmed, and cancelled requests. Owners can accept or decline; participants can cancel or mark collaboration progress.',
-    icon: 'event_available',
-    accent: '#8AC6D0',
-    screen: 'Meetings',
-    route: ROUTES.MEETINGS,
-    routeLabel: 'Manage meetings',
-    checkpoints: ['Filter by request status', 'Accept, decline, cancel, or complete meetings', 'Use the calendar and overview panels to stay oriented'],
-    Visual: MeetingsVisual,
-  },
-  {
-    num: '06',
-    name: 'Follow-up',
-    tagline: 'Keep every handshake traceable.',
-    desc: 'Notifications surface meeting updates and match activity. Profile controls keep privacy actions close by, including account data export and deletion workflows.',
-    icon: 'notifications',
-    accent: '#E3DCD2',
-    screen: 'Notifications',
-    route: ROUTES.NOTIFICATIONS,
-    routeLabel: 'View notifications',
-    checkpoints: ['Check unread collaboration updates', 'Return to meetings from notification context', 'Use profile privacy controls when needed'],
-    Visual: NotifyVisual,
-  },
+  { num: '01', key: 'profile', icon: 'badge', accent: '#B8F3FF', route: ROUTES.PROFILE, Visual: ProfileVisual },
+  { num: '02', key: 'browse', icon: 'travel_explore', accent: '#D2FF74', route: ROUTES.POSTS, Visual: MatchVisual },
+  { num: '03', key: 'post', icon: 'edit_note', accent: '#B8F3FF', route: ROUTES.POST_CREATE, Visual: PostVisual },
+  { num: '04', key: 'request', icon: 'handshake', accent: '#E3DCD2', route: ROUTES.POSTS, Visual: MeetVisual },
+  { num: '05', key: 'meetings', icon: 'event_available', accent: '#8AC6D0', route: ROUTES.MEETINGS, Visual: MeetingsVisual },
+  { num: '06', key: 'followUp', icon: 'notifications', accent: '#E3DCD2', route: ROUTES.NOTIFICATIONS, Visual: NotifyVisual },
 ]
 
 // ── Main ────────────────────────────────────────────────────────────
 export default function LandingPage() {
+  const user = useAuthStore(state => state.user)
   const { t } = useTranslation()
   const [step, setStep] = useState(0)
   const [dir, setDir] = useState<'right' | 'left'>('right')
@@ -598,57 +510,17 @@ export default function LandingPage() {
   const ActiveVisual = active.Visual
 
 
-  /* ──────────────────────────────────────────────────────────────
-     STICKY PARALLAX OVERLAP — scroll-driven blur + drift + fade
-     ──────────────────────────────────────────────────────────────
-     · Hero sticks at top (z-0). As the user scrolls, the foreground
-       slab (z-10, opaque bg) climbs up and covers the hero.
-     · Effect cadence (inspired by the Payard reference):
-         [0.02 → 0.26]  blur(0px)    → blur(14px)   ← primary tell
-         [0.04 → 0.28]  y:0          → y:-60 px     ← "pulled behind"
-         [0.16 → 0.34]  opacity:1    → opacity:0    ← delayed fade
-       Blur starts *immediately* on first scroll so the user's eye
-       reads the text "going out of focus" long before it fades. The
-       y-drift reinforces the sense the copy is sliding behind the
-       rising card, and opacity only begins to drop once the text is
-       already significantly blurred — recreating the soft,
-       depth-of-field feel of the reference instead of a harsh fade.
-     · GPU contract: motion.div animates `transform`, `opacity` and
-       `filter` — all compositor-thread properties, zero layout
-       reflow. `useMotionTemplate` builds the `blur(<px>px)` string
-       from a MotionValue so React never re-renders on scroll.
-       Tailwind `will-change-transform` hints layer promotion.
-  ────────────────────────────────────────────────────────────── */
+  // Desktop overlap uses only translation and opacity; mobile stays in normal flow.
   const parallaxRef = useRef<HTMLDivElement>(null)
   const prefersReducedMotion = useReducedMotion()
+  const isDesktop = useMediaQuery('(min-width: 1024px)')
+  const enableParallax = isDesktop && !prefersReducedMotion
   const { scrollYProgress } = useScroll({
     target: parallaxRef,
     offset: ['start start', 'end start'],
   })
   const heroOpacity = useTransform(scrollYProgress, [0.16, 0.34], [1, 0])
   const heroY       = useTransform(scrollYProgress, [0.04, 0.28], [0, -60])
-  const heroBlurPx  = useTransform(scrollYProgress, [0.02, 0.26], [0, 14])
-  const heroFilter  = useMotionTemplate`blur(${heroBlurPx}px)`
-
-  /* ──────────────────────────────────────────────────────────────
-     FOREGROUND SLAB · parallax lift
-     ──────────────────────────────────────────────────────────────
-     Without this transform, the slab moves up ONLY at scroll speed
-     (1:1 with document). Visually that reads as "passive" — the
-     card doesn't feel like it's *climbing* over the hero, it just
-     slides into view.
-
-     Adding a negative `y` that ramps from 0 → -180 px across the
-     same scroll window as the hero blur means the slab rises
-     FASTER than the document scroll during the overlap phase. Per
-     unit of scroll the card gains extra altitude, recreating the
-     Payard-style "card is actively climbing over the headline"
-     sensation the user is asking for.
-
-     After 0.26 progress the transform holds at -180 (no further
-     climb) so the rest of the page still scrolls 1:1 — no rubber-
-     banding, no visible shift below the hero zone.
-  ────────────────────────────────────────────────────────────── */
   const slabY = useTransform(scrollYProgress, [0, 0.26], [0, -180])
 
   /* ──────────────────────────────────────────────────────────────
@@ -666,7 +538,7 @@ export default function LandingPage() {
      Motion's variant propagation, so a single pointer-enter on the
      outer card drives BOTH animations in lockstep.
 
-     Touch / mobile: `useCanHover()` detects `(hover: hover)` media
+     Touch / mobile: `useMediaQuery()` detects `(hover: hover)` media
      query. If hover is unavailable, we force both cards into the
      "hover" state permanently so the reveal box is always visible
      (otherwise the CTA would be unreachable on touch devices).
@@ -675,7 +547,7 @@ export default function LandingPage() {
      1→1 (no bump) and the reveal box still appears but without the
      spring — a subtle opacity crossfade only.
   ────────────────────────────────────────────────────────────── */
-  const canHover = useCanHover()
+  const canHover = useMediaQuery('(hover: hover) and (pointer: fine)')
 
   /*
     Per-card hover state. We drive BOTH the outer card (scale/zIndex)
@@ -744,13 +616,13 @@ export default function LandingPage() {
             items-start + large top padding (instead of items-center) —
             pins the hero copy near the upper third of the viewport so
             that as the foreground slab rises it *never clips* the
-            headline. Both lines stay readable through the entire blur
-            lifecycle; the card climbs over empty teal space below it
+            headline. Both lines stay readable through the entire overlap
+            transition; the card climbs over empty teal space below it
             before starting to encroach on the copy.
           */}
           <section
             aria-labelledby="hero-headline"
-            className="landing-hero sticky top-0 z-0 w-full overflow-hidden flex items-start justify-center pt-24 sm:pt-28 md:pt-32 pb-16"
+            className={`landing-hero ${enableParallax ? 'sticky' : 'relative'} top-0 z-0 w-full overflow-hidden flex items-start justify-center pt-24 sm:pt-28 md:pt-32 pb-16`}
           >
             {/* dot atmosphere */}
             <div
@@ -760,16 +632,15 @@ export default function LandingPage() {
             {/* soft glow */}
             <div
               aria-hidden
-              className="landing-soft-glow absolute top-[18%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full blur-[100px] pointer-events-none"
+              className="landing-soft-glow absolute top-[18%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full pointer-events-none"
             />
 
             <motion.div
               style={{
-                opacity: prefersReducedMotion ? 1 : heroOpacity,
-                y:       prefersReducedMotion ? 0 : heroY,
-                filter:  prefersReducedMotion ? 'none' : heroFilter,
+                opacity: enableParallax ? heroOpacity : 1,
+                y: enableParallax ? heroY : 0,
               }}
-              className="relative text-center max-w-5xl mx-auto px-6 md:px-8 will-change-[transform,filter,opacity]"
+              className="relative text-center max-w-5xl mx-auto px-6 md:px-8"
             >
               <h1
                 id="hero-headline"
@@ -818,7 +689,7 @@ export default function LandingPage() {
             viewport height (≥ 640 px).
           */}
           <motion.div
-            className="landing-slab relative z-10 -mt-4 will-change-transform"
+            className="landing-slab relative z-10 -mt-4"
             style={{
               /*
                 Top 3% ramps from transparent → solid teal so the slab's
@@ -828,7 +699,7 @@ export default function LandingPage() {
                 slab) is enough to dissolve the seam completely while
                 preserving the calm teal-to-off-white journey below.
               */
-              y: prefersReducedMotion ? 0 : slabY,
+              y: enableParallax ? slabY : 0,
             }}
           >
             <div
@@ -856,7 +727,7 @@ export default function LandingPage() {
 
                   {/* ───── Engineer card (LEFT) ───── */}
                   <motion.div
-                    className="landing-path-card-engineer relative min-h-[390px] overflow-hidden rounded-[24px] landing-text will-change-transform"
+                    className="landing-path-card-engineer relative min-h-[390px] overflow-hidden rounded-[24px] landing-text"
                     variants={cardOverlapVariants}
                     initial="rest"
                     animate={engineerOuterState}
@@ -876,11 +747,11 @@ export default function LandingPage() {
                         {t('landing.directory.engineerBody')}
                       </p>
                       <Link
-                        to={ROUTES.REGISTER}
+                        to={user ? ROUTES.POSTS : ROUTES.REGISTER}
                         state={{ role: 'engineer' }}
                         className="landing-path-link mt-auto inline-flex w-[260px] items-center justify-between border-b-2 pb-4 text-base font-black transition"
                       >
-                        {t('landing.actions.createEngineerAccount')}
+                        {t(user ? 'landing.nav.findProjects' : 'landing.actions.createEngineerAccount')}
                         <span className="text-4xl leading-none">→</span>
                       </Link>
                     </div>
@@ -903,7 +774,7 @@ export default function LandingPage() {
 
                   {/* ───── Healthcare Professional card (RIGHT) ───── */}
                   <motion.div
-                    className="landing-path-card-clinician relative min-h-[390px] overflow-hidden rounded-[24px] landing-text will-change-transform"
+                    className="landing-path-card-clinician relative min-h-[390px] overflow-hidden rounded-[24px] landing-text"
                     variants={cardOverlapVariants}
                     initial="rest"
                     animate={clinicianOuterState}
@@ -923,11 +794,11 @@ export default function LandingPage() {
                         {t('landing.directory.clinicianBody')}
                       </p>
                       <Link
-                        to={ROUTES.REGISTER}
+                        to={user ? ROUTES.POSTS : ROUTES.REGISTER}
                         state={{ role: 'healthcare_professional' }}
                         className="landing-path-link mt-auto inline-flex w-[260px] items-center justify-between border-b-2 pb-4 text-base font-black transition"
                       >
-                        {t('landing.actions.createHcpAccount')}
+                        {t(user ? 'landing.nav.findProjects' : 'landing.actions.createHcpAccount')}
                         <span className="text-4xl leading-none">→</span>
                       </Link>
                     </div>
@@ -1027,21 +898,21 @@ export default function LandingPage() {
                 <div className="relative min-h-[420px] lg:min-h-[620px]">
                   <img
                     src="/images/europe.png"
-                    alt="European collaboration network map"
+                    alt={t('landing.platform.mapAlt')}
                     loading="lazy"
                     decoding="async"
                     className="absolute inset-[-58px_-120px_-20px_-120px] h-[calc(100%+78px)] w-[calc(100%+240px)] object-contain object-center opacity-95 dark:opacity-50 dark:saturate-75"
                   />
 
-                  <div className="landing-glass-card relative z-10 ml-auto mt-8 max-w-[270px] rounded-[14px] border p-6 shadow-[0_28px_72px_-50px_rgba(54,33,62,0.38)] backdrop-blur-md lg:mt-28">
+                  <div className="landing-glass-card relative z-10 ml-auto mt-8 max-w-[270px] rounded-[14px] border p-6 shadow-[0_28px_72px_-50px_rgba(54,33,62,0.38)] lg:backdrop-blur-md lg:mt-28">
                     <div className="flex items-start gap-4">
                       <div className="landing-accent-bg flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white">
                         <Icon name="stars" className="text-xl" filled />
                       </div>
                       <div>
-                        <h3 className="font-headline text-base font-black leading-snug landing-text">European standards.<br />Global impact.</h3>
+                        <h3 className="font-headline text-base font-black leading-snug landing-text">{t('landing.platform.standardsLine1')}<br />{t('landing.platform.standardsLine2')}</h3>
                         <p className="landing-body-text mt-5 font-body text-sm font-semibold leading-relaxed">
-                          Supporting innovation in healthcare through secure, ethical and compliant collaboration.
+                          {t('landing.platform.standardsDesc')}
                         </p>
                       </div>
                     </div>
@@ -1051,10 +922,10 @@ export default function LandingPage() {
 
               <div className="landing-stats-grid relative z-10 mt-8 grid gap-0 overflow-hidden rounded-[18px] border shadow-[0_28px_80px_-58px_rgba(54,33,62,0.36)] md:grid-cols-2 lg:grid-cols-4">
                 {[
-                  ['public', '30+', 'Countries', 'Across the European research landscape'],
-                  ['account_balance', '1000+', 'Institutions', 'Hospitals, universities and research centers'],
-                  ['groups', 'One', 'Shared Language', 'Strict terminology for clear, effective collaboration'],
-                  ['verified_user', 'Complete', 'Compliance', 'GDPR-aligned, secure and audit-ready'],
+                  ['public', t('landing.stats.countriesValue'), t('landing.stats.countriesLabel'), t('landing.stats.countriesDesc')],
+                  ['account_balance', t('landing.stats.institutionsValue'), t('landing.stats.institutionsLabel'), t('landing.stats.institutionsDesc')],
+                  ['groups', t('landing.stats.languageValue'), t('landing.stats.languageLabel'), t('landing.stats.languageDesc')],
+                  ['verified_user', t('landing.stats.complianceValue'), t('landing.stats.complianceLabel'), t('landing.stats.complianceDesc')],
                 ].map(([icon, value, label, desc], index) => (
                   <div key={label} className={`landing-border flex min-h-[150px] items-start gap-5 p-7 ${index > 0 ? 'lg:border-l' : ''}`}>
                     <div className="landing-subtle-icon flex h-12 w-12 shrink-0 items-center justify-center rounded-full">
@@ -1163,8 +1034,8 @@ export default function LandingPage() {
           <section className="max-w-7xl mx-auto px-6 md:px-8 pb-20">
             <div className="bg-white rounded-full p-5 md:p-6 shadow-sm border border-neutral-100 flex items-center justify-between gap-4 flex-wrap">
               <h2 className="text-xl md:text-2xl font-headline font-bold text-neutral-900 ml-2 md:ml-4">{t('landing.cta.ready')}</h2>
-              <Link to={ROUTES.REGISTER} className="bg-hai-teal text-hai-plum px-7 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-all">
-                {t('landing.actions.requestAccess')}
+              <Link to={user ? ROUTES.POSTS : ROUTES.REGISTER} className="bg-hai-teal text-hai-plum px-7 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-all">
+                {t(user ? 'landing.nav.findProjects' : 'landing.actions.requestAccess')}
               </Link>
             </div>
           </section>
@@ -1181,13 +1052,13 @@ export default function LandingPage() {
             {/* Section header */}
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
               <div>
-                <p className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-3">03 · How it works</p>
+                <p className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-3">{t('landing.tour.eyebrow')}</p>
                 <h2 className="text-[3rem] md:text-[5.5rem] font-headline font-bold text-hai-plum tracking-normal leading-tight">
-                  A working<br />user guide.
+                  {t('landing.tour.headingLine1')}<br />{t('landing.tour.headingLine2')}
                 </h2>
               </div>
               <p className="text-base md:text-lg text-neutral-600 max-w-sm leading-relaxed">
-                Each step maps to a real screen in HealthAI, from profile setup and AI-ranked browsing to meeting decisions and notifications.
+                {t('landing.tour.subtitle')}
               </p>
             </div>
 
@@ -1213,36 +1084,36 @@ export default function LandingPage() {
                             <Icon name={active.icon} className="text-hai-plum text-xl sm:text-2xl" filled />
                           </div>
                           <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">
-                            Step {active.num} / 0{STEPS.length}
+                            {t('landing.tour.stepCounter', { num: active.num, total: STEPS.length })}
                           </span>
                         </div>
 
                         <h3 className="font-headline font-bold text-hai-plum tracking-normal leading-tight text-[2.4rem] sm:text-[3.5rem] md:text-[5rem] mb-2">
-                          {active.name}<span className="text-hai-teal">.</span>
+                          {t(`landing.tour.steps.${active.key}.name`)}<span className="text-hai-teal">.</span>
                         </h3>
                         <p className="text-base sm:text-lg md:text-xl font-headline text-neutral-700 leading-snug mb-6">
-                          {active.tagline}
+                          {t(`landing.tour.steps.${active.key}.tagline`)}
                         </p>
                         <p className="text-sm sm:text-base text-neutral-600 leading-relaxed max-w-md">
-                          {active.desc}
+                          {t(`landing.tour.steps.${active.key}.desc`)}
                         </p>
                         <div className="mt-6 flex flex-wrap items-center gap-2">
                           <span className="inline-flex items-center gap-1.5 rounded-full bg-hai-mint/60 px-3 py-1.5 text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold">
                             <Icon name="desktop_windows" className="text-base" filled />
-                            {active.screen}
+                            {t(`landing.tour.steps.${active.key}.screen`)}
                           </span>
                           {active.route && (
                             <Link
                               to={active.route}
                               className="inline-flex items-center gap-1.5 rounded-full bg-hai-plum px-3 py-1.5 text-xs font-mono tracking-[0.12em] uppercase text-white font-bold hover:bg-black transition-colors"
                             >
-                              {active.routeLabel}
+                              {t(`landing.tour.steps.${active.key}.routeLabel`)}
                               <Icon name="arrow_forward" className="text-base" />
                             </Link>
                           )}
                         </div>
                         <div className="mt-5 grid gap-2 max-w-md">
-                          {active.checkpoints.map((checkpoint) => (
+                          {(t(`landing.tour.steps.${active.key}.checkpoints`, { returnObjects: true }) as string[]).map((checkpoint) => (
                             <div key={checkpoint} className="flex items-start gap-2.5 text-sm font-semibold text-neutral-600">
                               <Icon name="check_circle" className="mt-0.5 text-hai-teal text-lg shrink-0" filled />
                               <span>{checkpoint}</span>
@@ -1261,12 +1132,12 @@ export default function LandingPage() {
                             key={s.num}
                             onClick={() => goTo(i)}
                             className={`flex items-center gap-1.5 sm:gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold transition-colors ${i === step ? 'text-hai-plum' : 'text-neutral-400 hover:text-neutral-700'}`}
-                            aria-label={`Jump to step ${s.num}: ${s.name}`}
+                            aria-label={t('landing.tour.jumpToStep', { num: s.num, name: t(`landing.tour.steps.${s.key}.name`) })}
                           >
                             <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all shrink-0 ${i === step ? 'bg-hai-plum text-white' : i < step ? 'bg-hai-teal text-hai-plum' : 'bg-neutral-100 text-neutral-400'}`}>
                               {i < step ? '✓' : s.num}
                             </span>
-                            <span className="hidden sm:inline">{s.name}</span>
+                            <span className="hidden sm:inline">{t(`landing.tour.steps.${s.key}.name`)}</span>
                           </button>
                         ))}
                       </div>
@@ -1298,13 +1169,13 @@ export default function LandingPage() {
               <button
                 onClick={prev}
                 disabled={step === 0}
-                aria-label="Previous step"
+                aria-label={t('landing.tour.previousStep')}
                 className="group flex items-center gap-2 sm:gap-3 bg-white border border-neutral-200 rounded-full pl-3 pr-3 sm:pr-5 py-3 font-bold text-sm text-hai-plum shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 <span className="w-9 h-9 rounded-full bg-hai-plum text-white flex items-center justify-center group-hover:-translate-x-0.5 transition-transform shrink-0">
                   <Icon name="arrow_back" className="text-xl" />
                 </span>
-                <span className="hidden sm:inline">{step > 0 ? STEPS[step - 1].name : 'Start'}</span>
+                <span className="hidden sm:inline">{step > 0 ? t(`landing.tour.steps.${STEPS[step - 1].key}.name`) : t('landing.tour.start')}</span>
               </button>
 
               <div className="flex items-center gap-1.5 sm:gap-2">
@@ -1312,7 +1183,7 @@ export default function LandingPage() {
                   <button
                     key={i}
                     onClick={() => goTo(i)}
-                    aria-label={`Go to step ${i + 1}`}
+                    aria-label={t('landing.tour.goToStep', { num: i + 1 })}
                     className="transition-all"
                     style={{
                       width: i === step ? 24 : 8,
@@ -1327,10 +1198,10 @@ export default function LandingPage() {
               <button
                 onClick={next}
                 disabled={step === STEPS.length - 1}
-                aria-label="Next step"
+                aria-label={t('landing.tour.nextStep')}
                 className="group flex items-center gap-2 sm:gap-3 bg-hai-plum text-white rounded-full pr-3 pl-3 sm:pl-5 py-3 font-bold text-sm shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
-                <span className="hidden sm:inline">{step < STEPS.length - 1 ? STEPS[step + 1].name : 'Done'}</span>
+                <span className="hidden sm:inline">{step < STEPS.length - 1 ? t(`landing.tour.steps.${STEPS[step + 1].key}.name`) : t('landing.tour.done')}</span>
                 <span className="w-9 h-9 rounded-full bg-hai-mint text-hai-plum flex items-center justify-center group-hover:translate-x-0.5 transition-transform shrink-0">
                   <Icon name="arrow_forward" className="text-xl" />
                 </span>
@@ -1350,21 +1221,21 @@ export default function LandingPage() {
         >
           <div className="max-w-7xl mx-auto px-6 md:px-8 text-center flex flex-col gap-6 pt-10">
             <div className="border-y border-hai-teal/50 py-4">
-              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">GDPR-native</h2>
+              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">{t('landing.trust.gdprNative')}</h2>
             </div>
             <div className="border-b border-hai-teal/50 pb-4">
-              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">Built for European institutions</h2>
+              <h2 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">{t('landing.trust.europeanInstitutions')}</h2>
             </div>
             <div className="border-b border-hai-teal/50 py-8 max-w-3xl mx-auto w-full">
               <p className="text-hai-plum font-semibold text-lg leading-relaxed">
-                Planning a medical–engineering collaboration? Every interaction is governed by institutional <b>.edu</b> verification, a <b>24-month tamper-resistant audit log</b>, and a zero-patient-data policy. No file uploads. No ambiguity. Every Article 6 &amp; 15–22 right is exercisable from your profile, one click away.
+                {t('landing.trust.body')}
               </p>
             </div>
             <div className="border-b border-hai-teal/50 pb-4">
-              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">Immutable audit trail</h3>
+              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">{t('landing.trust.auditTrail')}</h3>
             </div>
             <div className="border-b border-hai-teal/50 pb-4">
-              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">Zero patient data</h3>
+              <h3 className="text-5xl md:text-7xl font-headline font-bold text-hai-plum tracking-normal">{t('landing.trust.zeroPatientData')}</h3>
             </div>
           </div>
         </section>
@@ -1374,39 +1245,39 @@ export default function LandingPage() {
           <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-hai-mint to-transparent pointer-events-none" />
           <div className="max-w-5xl mx-auto px-6 md:px-8 relative z-10">
             <h2 className="text-[3rem] md:text-[5rem] font-headline font-bold landing-text tracking-normal leading-tight mb-10">
-              Structured<br />collaboration.
+              {t('landing.structured.titleLine1')}<br />{t('landing.structured.titleLine2')}
             </h2>
 
             <div className="max-w-4xl mb-14 space-y-6">
               <p className="text-xl md:text-3xl font-headline text-neutral-900 leading-snug">
-                We know medical–engineering partnerships can stall in legal uncertainty, vague scope, and the wrong introduction. Our protocol is designed to make the first conversation easy — and the handshake legitimate.
+                {t('landing.structured.paragraph1')}
               </p>
               <p className="text-xl md:text-3xl font-headline text-neutral-900 leading-snug">
-                Think of the platform as the common ground: a shared grammar, a shared NDA, a shared log — so every meeting starts on record.
+                {t('landing.structured.paragraph2')}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-5">
                 <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-neutral-100 flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow">
-                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">Directory &amp; Matching</span>
+                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">{t('landing.structured.directoryMatching')}</span>
                   <Icon name="add" className="text-neutral-400 group-hover:text-neutral-900 transition-colors" />
                 </div>
                 <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-neutral-100 flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow">
-                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">Institutional Verification</span>
+                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">{t('landing.structured.institutionalVerification')}</span>
                   <Icon name="add" className="text-neutral-400 group-hover:text-neutral-900 transition-colors" />
                 </div>
               </div>
 
               <div className="space-y-5">
                 <div className="bg-hai-teal rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow h-[88px]">
-                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">NDA &amp; Meeting Flow</span>
+                  <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">{t('landing.structured.ndaMeetingFlow')}</span>
                   <Icon name="add" className="text-neutral-900" />
                 </div>
                 <div className="bg-hai-teal rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between">
-                  <span className="font-body text-base md:text-lg font-semibold text-neutral-900 max-w-[170px] leading-tight">Have any questions about the platform?</span>
+                  <span className="font-body text-base md:text-lg font-semibold text-neutral-900 max-w-[170px] leading-tight">{t('landing.structured.questionsPrompt')}</span>
                   <Link to={ROUTES.PRIVACY} className="bg-hai-plum text-hai-mint px-6 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-sm whitespace-nowrap">
-                    Read policy →
+                    {t('landing.structured.readPolicy')}
                   </Link>
                 </div>
               </div>
@@ -1418,17 +1289,17 @@ export default function LandingPage() {
         <section className="w-full bg-hai-offwhite py-24 border-t border-neutral-200">
           <div className="max-w-5xl mx-auto px-6 md:px-8 text-center mb-14">
             <h2 className="text-[4rem] md:text-[7rem] font-headline font-bold landing-text tracking-normal leading-tight mb-4">
-              Upcoming<br />Features
+              {t('landing.upcoming.titleLine1')}<br />{t('landing.upcoming.titleLine2')}
             </h2>
             <p className="text-base md:text-lg text-neutral-600 max-w-xl mx-auto">
-              The protocol is live. Here is what we're scoping next.
+              {t('landing.upcoming.subtitle')}
             </p>
           </div>
           <div className="max-w-4xl mx-auto px-6 md:px-8">
             {[
-              { icon: 'payments', title: 'Cross-Institutional Grants', desc: 'Co-apply to European funding calls with shared draft templates, compliance checklists, and a joint submission timeline.' },
-              { icon: 'monitoring', title: 'Outcome Tracking', desc: 'Track collaboration milestones after the first meeting, with opt-in timelines and post-publication logging.' },
-              { icon: 'groups', title: 'Multi-Site Clinical Trials', desc: 'Coordinate recruitment and protocol reviews across multiple institutions within the directory.' },
+              { icon: 'payments', title: t('landing.upcoming.grantsTitle'), desc: t('landing.upcoming.grantsDesc') },
+              { icon: 'monitoring', title: t('landing.upcoming.outcomeTrackingTitle'), desc: t('landing.upcoming.outcomeTrackingDesc') },
+              { icon: 'groups', title: t('landing.upcoming.multiSiteTitle'), desc: t('landing.upcoming.multiSiteDesc') },
             ].map((f) => (
               <div key={f.title} className="flex flex-col md:flex-row items-start md:items-center py-7 border-b border-neutral-300 gap-6 md:gap-12">
                 <div className="flex items-center gap-5 w-full md:w-1/2">

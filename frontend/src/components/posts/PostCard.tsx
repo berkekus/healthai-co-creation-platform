@@ -1,18 +1,11 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { Post } from '../../types/post.types'
 import type { MatchReason, MatchTone } from '../../utils/matchPosts'
 import PostStatusBadge from './PostStatusBadge'
 import { postDetail } from '../../constants/routes'
 import { postDomains } from '../../constants/domains'
 
-const STAGE_LABELS: Record<string, string> = {
-  idea: 'Idea', concept_validation: 'Concept Validation',
-  prototype: 'Prototype', pilot: 'Pilot', pre_deployment: 'Pre-Deployment',
-}
-const COLLAB_LABELS: Record<string, string> = {
-  advisor: 'Advisor', co_founder: 'Co-Founder',
-  research_partner: 'Research Partner', contract: 'Contract',
-}
 const ROLE_ICON: Record<string, string> = {
   engineer: 'memory',
   healthcare_professional: 'stethoscope',
@@ -36,6 +29,7 @@ interface Props {
 
 export default function PostCard({ post, matchReasons, featured = false }: Props) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const daysLeft = Math.ceil((new Date(post.expiryDate).getTime() - Date.now()) / 86400000)
   const authorInitials = post.authorName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
@@ -46,7 +40,7 @@ export default function PostCard({ post, matchReasons, featured = false }: Props
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(postDetail(post.id)) } }}
       tabIndex={0}
       role="link"
-      aria-label={`Open post: ${post.title}`}
+      aria-label={t('posts.openPostAriaLabel', { title: post.title })}
       className={`group bg-white rounded-[1.5rem] p-6 cursor-pointer flex flex-col gap-4 transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal focus-visible:ring-offset-2 font-body ${
         featured
           ? 'border-2 border-hai-plum shadow-[0_20px_60px_-25px_rgba(54,33,62,0.35)] hover:shadow-[0_30px_80px_-25px_rgba(54,33,62,0.45)]'
@@ -92,10 +86,10 @@ export default function PostCard({ post, matchReasons, featured = false }: Props
       {/* Tags */}
       <div className="flex gap-2 flex-wrap">
         <span className="inline-flex items-center gap-1 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 border border-neutral-200 px-2 py-0.5 rounded-full font-bold">
-          {STAGE_LABELS[post.projectStage]}
+          {t(`posts.stage.${post.projectStage}`)}
         </span>
         <span className="inline-flex items-center gap-1 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 border border-neutral-200 px-2 py-0.5 rounded-full font-bold">
-          {COLLAB_LABELS[post.collaborationType]}
+          {t(`posts.collab.${post.collaborationType}`)}
         </span>
       </div>
 
@@ -122,12 +116,12 @@ export default function PostCard({ post, matchReasons, featured = false }: Props
           {post.interestCount > 0 && (
             <span className="inline-flex items-center gap-1 text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold">
               <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: '"FILL" 1' }}>bolt</span>
-              {post.interestCount} interested
+              {t('posts.interestedCount', { count: post.interestCount })}
             </span>
           )}
           {daysLeft > 0 && post.status === 'active' && (
             <span className={`text-xs font-mono tracking-[0.12em] uppercase font-bold ${daysLeft < 14 ? 'text-hai-plum' : 'text-neutral-500'}`}>
-              {daysLeft}d left
+              {t('posts.daysLeft', { count: daysLeft })}
             </span>
           )}
         </div>

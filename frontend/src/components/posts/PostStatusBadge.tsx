@@ -1,7 +1,7 @@
+import { useTranslation } from 'react-i18next'
 import type { PostStatus } from '../../types/post.types'
 
 type Tone = {
-  label: string
   /** Tailwind bg class */
   bg: string
   /** Tailwind text color class */
@@ -11,11 +11,11 @@ type Tone = {
 }
 
 const CONFIG: Record<PostStatus, Tone> = {
-  draft:             { label: 'Draft',             bg: 'bg-neutral-100',        text: 'text-neutral-600',  dot: 'bg-neutral-400' },
-  active:            { label: 'Active',            bg: 'bg-hai-mint',           text: 'text-hai-plum',     dot: 'bg-hai-teal' },
-  meeting_scheduled: { label: 'Meeting Scheduled', bg: 'bg-hai-lime',           text: 'text-hai-plum',     dot: 'bg-hai-plum' },
-  partner_found:     { label: 'Partner Found',     bg: 'bg-hai-plum',           text: 'text-hai-mint',     dot: 'bg-hai-mint' },
-  expired:           { label: 'Expired',           bg: 'bg-hai-cream/60',       text: 'text-neutral-500',  dot: 'bg-neutral-400' },
+  draft:             { bg: 'bg-neutral-100',        text: 'text-neutral-600',  dot: 'bg-neutral-400' },
+  active:            { bg: 'bg-hai-mint',           text: 'text-hai-plum',     dot: 'bg-hai-teal' },
+  meeting_scheduled: { bg: 'bg-hai-lime',           text: 'text-hai-plum',     dot: 'bg-hai-plum' },
+  partner_found:     { bg: 'bg-hai-plum',           text: 'text-hai-mint',     dot: 'bg-hai-mint' },
+  expired:           { bg: 'bg-hai-cream/60',       text: 'text-neutral-500',  dot: 'bg-neutral-400' },
 }
 
 interface Props {
@@ -24,6 +24,7 @@ interface Props {
 }
 
 export default function PostStatusBadge({ status, size = 'md' }: Props) {
+  const { t } = useTranslation()
   const c = CONFIG[status]
   const sizeCls =
     size === 'sm' ? 'text-xs px-2 py-0.5 gap-1.5' :
@@ -35,7 +36,7 @@ export default function PostStatusBadge({ status, size = 'md' }: Props) {
       className={`inline-flex items-center rounded-full font-mono font-bold tracking-[0.12em] uppercase whitespace-nowrap ${c.bg} ${c.text} ${sizeCls}`}
     >
       <span className={`rounded-full ${c.dot} ${dotSize} shrink-0`} />
-      {c.label}
+      {t(`posts.status.${status}`)}
     </span>
   )
 }

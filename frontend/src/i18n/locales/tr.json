@@ -1,4 +1,12 @@
 {
+  "sessionTimeout": {
+    "badge": "Oturum · Zaman aşımı uyarısı",
+    "title": "Hâlâ orada mısın",
+    "descriptionBefore": "Hareketsizlik nedeniyle",
+    "descriptionAfter": "saniye içinde oturumunuz kapatılacak.",
+    "signOut": "Çıkış yap",
+    "staySignedIn": "Oturumda kal"
+  },
   "nav": {
     "dashboard": "Kontrol Paneli",
     "browse": "İlanları Keşfet",
@@ -19,6 +27,9 @@
   },
   "landing": {
     "nav": {
+      "findProjects": "Proje Bul",
+      "myMeetingRequests": "Toplant? Taleplerim",
+      "toggleMenu": "Gezinme menüsünü aç/kapat",
       "platform": "Platform",
       "directory": "Dizin",
       "how": "Nasıl çalışır",
@@ -51,13 +62,19 @@
       "euHosted": "AB'de barındırılır & GDPR uyumlu",
       "auditTrail": "Değiştirilemez denetim kaydı",
       "zeroPatientData": "Sıfır hasta verisi",
-      "europeanInstitutions": "Avrupa kurumları için geliştirildi"
+      "europeanInstitutions": "Avrupa kurumları için geliştirildi",
+      "gdprNative": "GDPR uyumlu",
+      "body": "Tıp-mühendislik iş birliği mi planlıyorsunuz? Her etkileşim kurumsal .edu doğrulaması, 24 aylık değiştirilemez denetim kaydı ve sıfır hasta verisi politikasıyla güvence altındadır. Dosya yükleme yok. Belirsizlik yok. Madde 6 ve 15-22 kapsamındaki her hak profilinizden tek tıkla kullanılabilir."
     },
     "platform": {
       "eyebrow": "Avrupa için geliştirildi.",
       "titleLine1": "Avrupa kurumları için tasarlandı.",
       "titleLine2": "Sınırlar ötesinde güvenilir.",
       "body": "HealthAI gizlilik, uyumluluk ve iş birliği için Avrupa öncelikli bir yaklaşımla geliştirildi. Tek platform. Birçok ülke. Ortak standartlar.",
+      "mapAlt": "Avrupa iş birliği ağı haritası",
+      "standardsLine1": "Avrupa standartları.",
+      "standardsLine2": "Küresel etki.",
+      "standardsDesc": "Güvenli, etik ve uyumlu iş birliği yoluyla sağlıkta yeniliği destekliyoruz.",
       "features": {
         "gdpr": {
           "title": "Tasarımı gereği GDPR uyumlu",
@@ -70,6 +87,105 @@
         "crossBorder": {
           "title": "Sınır ötesi iş birliği",
           "desc": "Avrupa genelinde doğrulanmış profesyoneller ve kurumlarla bağlantı kurun."
+        }
+      }
+    },
+    "stats": {
+      "countriesValue": "30+",
+      "countriesLabel": "Ülke",
+      "countriesDesc": "Avrupa araştırma ekosistemi genelinde",
+      "institutionsValue": "1000+",
+      "institutionsLabel": "Kurum",
+      "institutionsDesc": "Hastaneler, üniversiteler ve araştırma merkezleri",
+      "languageValue": "Tek",
+      "languageLabel": "Ortak Dil",
+      "languageDesc": "Net ve etkili iş birliği için sıkı terminoloji",
+      "complianceValue": "Tam",
+      "complianceLabel": "Uyumluluk",
+      "complianceDesc": "GDPR uyumlu, güvenli ve denetime hazır"
+    },
+    "structured": {
+      "titleLine1": "Yapılandırılmış",
+      "titleLine2": "iş birliği.",
+      "paragraph1": "Tıp-mühendislik ortaklıklarının hukuki belirsizlik, muğlak kapsam ve yanlış tanışıklıklar yüzünden tıkanabildiğini biliyoruz. Protokolümüz ilk görüşmeyi kolaylaştırmak ve el sıkışmayı meşru kılmak için tasarlandı.",
+      "paragraph2": "Platformu ortak zemin olarak düşünün: ortak bir dil, ortak bir NDA, ortak bir kayıt — böylece her toplantı kayıt altında başlar.",
+      "directoryMatching": "Dizin ve Eşleştirme",
+      "institutionalVerification": "Kurumsal Doğrulama",
+      "ndaMeetingFlow": "NDA ve Toplantı Süreci",
+      "questionsPrompt": "Platform hakkında sorularınız mı var?",
+      "readPolicy": "Politikayı oku →"
+    },
+    "upcoming": {
+      "titleLine1": "Yakında",
+      "titleLine2": "Gelecek Özellikler",
+      "subtitle": "Protokol yayında. İşte sıradaki planımız.",
+      "grantsTitle": "Kurumlar Arası Hibeler",
+      "grantsDesc": "Ortak taslak şablonları, uyumluluk kontrol listeleri ve ortak başvuru takvimiyle Avrupa fon çağrılarına birlikte başvurun.",
+      "outcomeTrackingTitle": "Sonuç Takibi",
+      "outcomeTrackingDesc": "İlk toplantıdan sonra iş birliği kilometre taşlarını, isteğe bağlı zaman çizelgeleri ve yayın sonrası kayıtlarla takip edin.",
+      "multiSiteTitle": "Çok Merkezli Klinik Çalışmalar",
+      "multiSiteDesc": "Dizin içindeki birden fazla kurum arasında katılımcı toplama ve protokol incelemelerini koordine edin."
+    },
+    "tour": {
+      "eyebrow": "03 · Nasıl çalışır",
+      "headingLine1": "Gerçek bir",
+      "headingLine2": "kullanım kılavuzu.",
+      "subtitle": "Her adım, HealthAI'deki gerçek bir ekrana karşılık gelir; profil kurulumundan AI destekli göz atmaya, toplantı kararlarından bildirimlere kadar.",
+      "stepCounter": "Adım {{num}} / 0{{total}}",
+      "jumpToStep": "{{num}}. adıma atla: {{name}}",
+      "previousStep": "Önceki adım",
+      "nextStep": "Sonraki adım",
+      "goToStep": "{{num}}. adıma git",
+      "start": "Başla",
+      "done": "Bitti",
+      "steps": {
+        "profile": {
+          "name": "Profil",
+          "tagline": "Platforma kim olduğunu öğret.",
+          "desc": "Rolünüzü, kurumunuzu, şehir ve ülkenizi, uzmanlığınızı ve iş birliği ilgi alanlarınızı tamamlayın. Bu alanlar, İlanları Keşfet'te görülen profil eşleşme puanını besler.",
+          "screen": "Profil",
+          "routeLabel": "Profili aç",
+          "checkpoints": ["Kurumsal e-postayı doğrulayın", "Şehir ve ülke ekleyin", "Uzmanlık ve ilgi alanlarını seçin"]
+        },
+        "browse": {
+          "name": "Keşfet",
+          "tagline": "Önce AI sıralı ilanlar, sonra filtreler.",
+          "desc": "İlanları Keşfet, fırsatları profil uyumuna göre sıralar, görünür bir eşleşme rozeti gösterir, filtreleri arka uç verisiyle senkron tutar ve uzun sonuç listelerini sayfalara böler.",
+          "screen": "İlanları Keşfet",
+          "routeLabel": "Fırsatlara göz at",
+          "checkpoints": ["En iyi AI eşleşme puanlarını inceleyin", "Alan, aşama, durum ve konum filtrelerini kullanın", "Sonsuz kaydırma olmadan sonuç sayfaları arasında gezinin"]
+        },
+        "post": {
+          "name": "İlan Ver",
+          "tagline": "Net bir iş birliği talebi yayınlayın.",
+          "desc": "Klinik problemi, gereken uzmanlığı, proje aşamasını, iş birliği türünü ve konumu tanımlamak için ilan formunu kullanın. İlanlar, iyi eşleşip aranabilmesi için yeterince yapılandırılmış kalır.",
+          "screen": "İlan Ver",
+          "routeLabel": "İlan oluştur",
+          "checkpoints": ["Net bir başlık ve özet yazın", "Alan, aşama ve iş birliği türünü seçin", "Hasta verisi ve dosyaları ilanın dışında tutun"]
+        },
+        "request": {
+          "name": "Talep",
+          "tagline": "NDA ve zaman dilimleriyle ilgi bildirin.",
+          "desc": "Bir ilan detay sayfasını açın, ilgi bildirin, tek sayfalık NDA'yı kabul edin, mesajınızı ekleyin ve sahibinin değerlendirmesi için üç toplantı zamanı önerin.",
+          "screen": "İlan Detayı",
+          "routeLabel": "Bir ilan bulun",
+          "checkpoints": ["İlanın tüm detaylarını okuyun", "İş birliği koşullarını kabul edin", "Üç gerçekçi zaman dilimi önerin"]
+        },
+        "meetings": {
+          "name": "Toplantılar",
+          "tagline": "Talepleri planlanmış işe dönüştürün.",
+          "desc": "Toplantılar ekranı gelen, giden, onaylanan ve iptal edilen talepleri ayırır. Sahipler kabul veya reddedebilir; katılımcılar iptal edebilir ya da iş birliği ilerlemesini işaretleyebilir.",
+          "screen": "Toplantılar",
+          "routeLabel": "Toplantıları yönet",
+          "checkpoints": ["Talep durumuna göre filtreleyin", "Toplantıları kabul edin, reddedin, iptal edin veya tamamlayın", "Yönünüzü bulmak için takvim ve genel bakış panellerini kullanın"]
+        },
+        "followUp": {
+          "name": "Takip",
+          "tagline": "Her el sıkışmayı izlenebilir tutun.",
+          "desc": "Bildirimler, toplantı güncellemelerini ve eşleşme etkinliğini gösterir. Profil kontrolleri, hesap veri dışa aktarma ve silme iş akışları dahil gizlilik işlemlerini elinizin altında tutar.",
+          "screen": "Bildirimler",
+          "routeLabel": "Bildirimleri görüntüle",
+          "checkpoints": ["Okunmamış iş birliği güncellemelerini kontrol edin", "Bildirim bağlamından toplantılara dönün", "Gerektiğinde profil gizlilik kontrollerini kullanın"]
         }
       }
     },
@@ -175,6 +291,8 @@
     "noResultsHint": "Filtrelerinizi veya arama terimlerinizi değiştirmeyi deneyin.",
     "daysLeft": "{{count}} gün kaldı",
     "daysLeft_other": "{{count}} gün kaldı",
+    "interestedCount": "{{count}} ilgilenen",
+    "openPostAriaLabel": "İlanı aç: {{title}}",
     "expired": "Süresi Doldu",
     "delete": "İlanı sil",
     "confirmDelete": "Bu ilan silinsin mi? Bu işlem geri alınamaz.",
@@ -355,6 +473,8 @@
     "googleCalendar": "Google Takvim",
     "outlook": "Outlook",
     "accept": "Talebi kabul et",
+    "acceptSlot": "Kabul et",
+    "slotTimeAt": "saat {{time}}",
     "decline": "Reddet",
     "cancel": "Talebi iptal et",
     "complete": "Görüşme yapıldı",
@@ -923,6 +1043,7 @@
     "badge": "08  İlanı düzenle"
   },
   "errors": {
+    "badgePrefix": "Hata",
     "notFound": {
       "code": "404 · Bulunamadı",
       "title": "Bu sayfayı bulamıyoruz",

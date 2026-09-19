@@ -2,12 +2,14 @@ import { describe, it, expect } from 'vitest'
 import en from '../i18n/locales/en.json'
 import tr from '../i18n/locales/tr.json'
 
-type Tree = { [key: string]: string | Tree }
+type Tree = { [key: string]: string | string[] | Tree }
 
 function keys(tree: Tree, prefix = ''): string[] {
-  return Object.entries(tree).flatMap(([key, value]) =>
-    typeof value === 'string' ? [`${prefix}${key}`] : keys(value, `${prefix}${key}.`),
-  )
+  return Object.entries(tree).flatMap(([key, value]) => {
+    if (typeof value === 'string') return [`${prefix}${key}`]
+    if (Array.isArray(value)) return value.map((_, i) => `${prefix}${key}.${i}`)
+    return keys(value, `${prefix}${key}.`)
+  })
 }
 
 describe('translations', () => {
