@@ -27,6 +27,8 @@
   },
   "landing": {
     "nav": {
+      "findProjects": "Proje Bul",
+      "myMeetingRequests": "Toplant? Taleplerim",
       "platform": "Platform",
       "directory": "Dizin",
       "how": "Nasıl çalışır",

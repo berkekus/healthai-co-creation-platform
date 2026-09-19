@@ -27,6 +27,8 @@
   },
   "landing": {
     "nav": {
+      "findProjects": "Find Projects",
+      "myMeetingRequests": "My Meeting Requests",
       "platform": "Platform",
       "directory": "Directory",
       "how": "How it works",

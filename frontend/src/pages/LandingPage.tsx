@@ -90,7 +90,7 @@ function NavDivider() {
 }
 
 function TopNav() {
-  const { user } = useAuthStore()
+  const user = useAuthStore(state => state.user)
   const { t } = useTranslation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -106,8 +106,8 @@ function TopNav() {
   // account. Show the three places they actually came for instead.
   const appLinks = [
     { to: ROUTES.DASHBOARD, label: t('nav.dashboard') },
-    { to: ROUTES.POSTS,     label: t('nav.browse') },
-    { to: ROUTES.MEETINGS,  label: t('nav.meetings') },
+    { to: ROUTES.POSTS,     label: t('landing.nav.findProjects') },
+    { to: ROUTES.MEETINGS,  label: t('landing.nav.myMeetingRequests') },
   ]
 
   return (
@@ -146,10 +146,10 @@ function TopNav() {
                 </div>
                 <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
                   <Link
-                    to={ROUTES.REGISTER}
+                    to={user ? ROUTES.POSTS : ROUTES.REGISTER}
                     className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out"
                   >
-                    {t('landing.actions.requestAccess')}
+                    {t(user ? 'landing.nav.findProjects' : 'landing.actions.requestAccess')}
                   </Link>
                 </div>
               </>
@@ -170,7 +170,7 @@ function TopNav() {
                 {t('landing.actions.signIn')}
               </Link>
               <Link
-                to={ROUTES.REGISTER}
+                to={user ? ROUTES.POSTS : ROUTES.REGISTER}
                 className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out"
               >
                 {t('landing.actions.signUp')}
@@ -239,7 +239,7 @@ function TopNav() {
               {t('landing.actions.signIn')}
             </Link>
             <Link
-              to={ROUTES.REGISTER}
+              to={user ? ROUTES.POSTS : ROUTES.REGISTER}
               onClick={() => setMobileMenuOpen(false)}
               className="flex-1 text-center py-2.5 text-sm font-bold bg-hai-plum text-white rounded-full hover:bg-black transition-colors"
             >
@@ -571,6 +571,7 @@ const STEPS: Step[] = [
 
 // ── Main ────────────────────────────────────────────────────────────
 export default function LandingPage() {
+  const user = useAuthStore(state => state.user)
   const { t } = useTranslation()
   const [step, setStep] = useState(0)
   const [dir, setDir] = useState<'right' | 'left'>('right')
@@ -823,11 +824,11 @@ export default function LandingPage() {
                         {t('landing.directory.engineerBody')}
                       </p>
                       <Link
-                        to={ROUTES.REGISTER}
+                        to={user ? ROUTES.POSTS : ROUTES.REGISTER}
                         state={{ role: 'engineer' }}
                         className="landing-path-link mt-auto inline-flex w-[260px] items-center justify-between border-b-2 pb-4 text-base font-black transition"
                       >
-                        {t('landing.actions.createEngineerAccount')}
+                        {t(user ? 'landing.nav.findProjects' : 'landing.actions.createEngineerAccount')}
                         <span className="text-4xl leading-none">→</span>
                       </Link>
                     </div>
@@ -870,11 +871,11 @@ export default function LandingPage() {
                         {t('landing.directory.clinicianBody')}
                       </p>
                       <Link
-                        to={ROUTES.REGISTER}
+                        to={user ? ROUTES.POSTS : ROUTES.REGISTER}
                         state={{ role: 'healthcare_professional' }}
                         className="landing-path-link mt-auto inline-flex w-[260px] items-center justify-between border-b-2 pb-4 text-base font-black transition"
                       >
-                        {t('landing.actions.createHcpAccount')}
+                        {t(user ? 'landing.nav.findProjects' : 'landing.actions.createHcpAccount')}
                         <span className="text-4xl leading-none">→</span>
                       </Link>
                     </div>
@@ -1110,8 +1111,8 @@ export default function LandingPage() {
           <section className="max-w-7xl mx-auto px-6 md:px-8 pb-20">
             <div className="bg-white rounded-full p-5 md:p-6 shadow-sm border border-neutral-100 flex items-center justify-between gap-4 flex-wrap">
               <h2 className="text-xl md:text-2xl font-headline font-bold text-neutral-900 ml-2 md:ml-4">{t('landing.cta.ready')}</h2>
-              <Link to={ROUTES.REGISTER} className="bg-hai-teal text-hai-plum px-7 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-all">
-                {t('landing.actions.requestAccess')}
+              <Link to={user ? ROUTES.POSTS : ROUTES.REGISTER} className="bg-hai-teal text-hai-plum px-7 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-all">
+                {t(user ? 'landing.nav.findProjects' : 'landing.actions.requestAccess')}
               </Link>
             </div>
           </section>

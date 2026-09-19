@@ -4,6 +4,7 @@ import { ROUTES } from '../constants/routes'
 import AppLayout from '../components/layout/AppLayout'
 import LandingShell from '../components/layout/LandingShell'
 import ProtectedRoute from './ProtectedRoute'
+import GuestRoute from './GuestRoute'
 
 // Critical path — eager load
 import LandingPage from '../pages/LandingPage'
@@ -54,7 +55,7 @@ export default function AppRouter() {
           <Route element={<AppLayout />}>
             {/* Public */}
             <Route path={ROUTES.LOGIN}            element={<LoginPage />} />
-            <Route path={ROUTES.REGISTER}         element={<RegisterPage />} />
+            <Route path={ROUTES.REGISTER}         element={<GuestRoute><RegisterPage /></GuestRoute>} />
             <Route path={ROUTES.VERIFY_EMAIL}     element={<VerifyEmailPage />} />
             <Route path={ROUTES.FORGOT_PASSWORD}  element={<ForgotPasswordPage />} />
             <Route path={ROUTES.RESET_PASSWORD}   element={<ResetPasswordPage />} />
