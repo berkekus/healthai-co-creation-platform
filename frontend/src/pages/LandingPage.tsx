@@ -1416,11 +1416,19 @@ export default function LandingPage() {
           <div>
             <h4 className="font-bold mb-4 text-lg font-headline">Contact</h4>
             <p className="font-semibold text-base leading-snug text-hai-mint/90">
-              Bilkent University<br />
-              Dept. of Software Engineering<br />
-              06800 Çankaya, Ankara<br />
-              TÜRKİYE
+              Want to get in touch? We'd love to hear from you.
             </p>
+            <p className="font-semibold text-base leading-snug text-hai-mint/90 mt-3">
+              Here's how you can reach us.
+            </p>
+            <a
+              href="https://healthai.cankaya.edu.tr/contact"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-block font-semibold text-sm text-hai-mint/90 hover:text-white transition-colors underline"
+            >
+              healthai.cankaya.edu.tr/contact
+            </a>
           </div>
 
           <div>
