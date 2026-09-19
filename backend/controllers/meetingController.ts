@@ -30,7 +30,7 @@ export const requestMeeting = asyncHandler<AuthenticatedRequest>(async (req, res
   }
 
   const [post, requester] = await Promise.all([
-    Post.findById(postId).select('title authorId'),
+    Post.findById(postId).select('title authorId status'),
     User.findById(req.userId).select('name email'),
   ])
 
@@ -40,6 +40,15 @@ export const requestMeeting = asyncHandler<AuthenticatedRequest>(async (req, res
   }
   if (!requester) {
     res.status(404).json({ success: false, message: 'User not found' })
+    return
+  }
+  // Drafts, closed ("Partner Found") and expired posts take no new requests.
+  if (post.status !== 'active' && post.status !== 'meeting_scheduled') {
+    res.status(400).json({ success: false, message: 'This post is not accepting meeting requests' })
+    return
+  }
+  if (post.authorId.toString() === req.userId) {
+    res.status(400).json({ success: false, message: 'You cannot request a meeting on your own post' })
     return
   }
 
@@ -63,7 +72,7 @@ export const requestMeeting = asyncHandler<AuthenticatedRequest>(async (req, res
 })
 
 export const getMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const meeting = await meetingService.getMeetingById(req.params.id)
+  const meeting = await meetingService.getMeetingById(req.params.id, req.userId, req.userRole === 'admin')
   res.json({ success: true, data: meeting })
 })
 
@@ -123,7 +132,7 @@ export const cancelMeeting = asyncHandler<AuthenticatedRequest>(async (req, res)
 export const rescheduleMeeting = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const { proposedSlots } = req.body
   if (!Array.isArray(proposedSlots) || !proposedSlots.every(isValidSlot)) {
-    res.status(400).json({ success: false, message: 'At least 3 valid slots are required (date YYYY-MM-DD, time HH:MM)' })
+    res.status(400).json({ success: false, message: 'Propose 1 to 5 valid slots (date YYYY-MM-DD, time HH:MM)' })
     return
   }
   const meeting = await meetingService.rescheduleMeeting(req.params.id, req.userId, proposedSlots)

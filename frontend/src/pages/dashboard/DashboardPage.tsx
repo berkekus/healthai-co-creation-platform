@@ -11,6 +11,7 @@ import { useMeetingStore } from '../../store/meetingStore'
 import { usePostStore } from '../../store/postStore'
 import type { Meeting } from '../../types/meeting.types'
 import type { Post } from '../../types/post.types'
+import { postDomains } from '../../constants/domains'
 
 export default function DashboardPage() {
   const { user } = useAuthStore()
@@ -304,7 +305,7 @@ function formatPostAge(dateValue: string, language: string) {
 }
 
 function getRecentPostVisual(post: Post, index: number) {
-  const domain = `${post.domain} ${post.title}`.toLowerCase()
+  const domain = `${postDomains(post).join(' ')} ${post.title}`.toLowerCase()
   const palette = [
     { accent: '#2DA7B7', bg: '#E2F6F8', fg: '#168191', icon: <Activity size={21} strokeWidth={2.4} /> },
     { accent: '#5A84E8', bg: '#EAF0FF', fg: '#3562C7', icon: <BrainCircuit size={21} strokeWidth={2.25} /> },
@@ -335,7 +336,7 @@ function RecentPostCard({ post, index, timeLabel }: { post: Post; index: number;
       <div className="min-w-0">
         <div className="truncate text-sm font-black leading-5 text-[#181431]">{post.title}</div>
         <div className="mt-1 flex min-w-0 items-center gap-2 text-sm font-semibold text-[#65708A]">
-          <span className="truncate">{post.domain}</span>
+          <span className="truncate">{postDomains(post).join(' · ')}</span>
           {timeLabel && (
             <>
               <span className="h-1 w-1 shrink-0 rounded-full bg-[#8B94AA]" />
@@ -450,7 +451,7 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
               <div className="mb-2 line-clamp-2 text-[14.5px] font-black text-[#36213E] leading-snug pr-6">
                 {post.title}
               </div>
-              <div className="text-[12.5px] font-semibold text-[#6F6878] mb-3">{post.domain}</div>
+              <div className="text-[12.5px] font-semibold text-[#6F6878] mb-3">{postDomains(post).join(' · ')}</div>
               <div className="flex items-center justify-between">
                 <span className="text-[11.5px] font-semibold text-[#9f9aaa]">{post.authorName}</span>
                 <StatusPill status={post.status} />

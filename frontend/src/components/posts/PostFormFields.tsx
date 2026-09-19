@@ -1,27 +1,22 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Controller, useWatch } from 'react-hook-form'
 import type { Control, FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form'
 import { CalendarDays, Lock, ShieldCheck, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { PostCreateFormData } from '../../utils/validators'
-import SearchableSelect from '../ui/SearchableSelect'
-import { COUNTRIES, getCitiesForCountry } from '../../data/locations'
+import CountryCityPicker from '../ui/CountryCityPicker'
+import { useSelectLabels } from '../ui/useSelectLabels'
+import DomainPicker from './DomainPicker'
 import api from '../../lib/api'
-
-const MEDICAL_DOMAINS = [
-  'Cardiology','Oncology','Radiology & Imaging','Neurology','Orthopedics',
-  'Dermatology','Ophthalmology','Pediatrics','Psychiatry & Mental Health',
-  'Emergency Medicine','Intensive Care (ICU)','Surgical Robotics',
-  'Genomics & Precision Medicine','Rehabilitation & Physio','Clinical Pharmacy',
-  'Public Health & Epidemiology','Pathology & Lab Diagnostics',
-  'Endocrinology & Diabetes','Remote Patient Monitoring','Mental Health AI',
-]
 
 const baseInput =
   'h-14 w-full rounded-[10px] border border-[#d7dbe3] bg-white px-4 text-sm font-semibold text-[#2d1838] outline-none transition placeholder:text-[#9a95a1] focus:border-[#66c8e7] focus:ring-4 focus:ring-[#66c8e7]/20'
 const baseSelect =
   `${baseInput} appearance-none pr-10`
+
+const STAGES = ['idea', 'concept_validation', 'prototype', 'pilot', 'pre_deployment'] as const
+const COLLABORATION_TYPES = ['advisor', 'co_founder', 'research_partner', 'contract'] as const
 
 interface AIResult {
   improvedTitle?: string
@@ -40,17 +35,25 @@ interface Props {
 
 export default function PostFormFields({ register, control, setValue, errors, minDateStr }: Props) {
   const { t } = useTranslation()
+  const selectLabels = useSelectLabels()
   const [aiLoading, setAiLoading] = useState(false)
   const [aiResult, setAiResult] = useState<AIResult | null>(null)
   const [aiError, setAiError] = useState<string | null>(null)
+  const aiHintId = useId()
 
   const currentTitle       = useWatch({ control, name: 'title' }) ?? ''
   const currentDescription = useWatch({ control, name: 'description' }) ?? ''
-  const currentDomain      = useWatch({ control, name: 'domain' }) ?? ''
+  const currentDomains     = useWatch({ control, name: 'domains' }) ?? []
   const currentExpertise   = useWatch({ control, name: 'expertiseRequired' }) ?? ''
+  const currentStage       = useWatch({ control, name: 'projectStage' })
+  const currentCollab      = useWatch({ control, name: 'collaborationType' })
+  const currentCommitment  = useWatch({ control, name: 'levelOfCommitment' })
+  const currentCountry     = useWatch({ control, name: 'country' }) ?? ''
+  const currentCity        = useWatch({ control, name: 'city' }) ?? ''
+  const aiHasText = Boolean(currentTitle.trim() || currentDescription.trim())
 
   const handleAIAssist = async () => {
-    if (!currentTitle && !currentDescription) return
+    if (!aiHasText) return
     setAiLoading(true)
     setAiResult(null)
     setAiError(null)
@@ -58,12 +61,13 @@ export default function PostFormFields({ register, control, setValue, errors, mi
       const { data } = await api.post<{ success: boolean; data: AIResult }>('/ai/improve-post', {
         title: currentTitle,
         description: currentDescription,
-        domain: currentDomain,
+        domain: currentDomains.join(', '),
         expertiseRequired: currentExpertise,
       })
       setAiResult(data.data)
-    } catch {
-      setAiError(t('posts.form.aiError'))
+    } catch (err) {
+      // 503 means the server has no AI configured — retrying will not help.
+      setAiError((err as { status?: number }).status === 503 ? t('posts.form.aiUnavailable') : t('posts.form.aiError'))
     } finally {
       setAiLoading(false)
     }
@@ -76,43 +80,36 @@ export default function PostFormFields({ register, control, setValue, errors, mi
     if (aiResult.suggestedExpertise?.length) setValue('expertiseRequired', aiResult.suggestedExpertise.join(', '), { shouldValidate: true })
     setAiResult(null)
   }
-  const radioGroupId = useId()
-  const selectedCountry = useWatch({ control, name: 'country' }) ?? ''
-  const isFirstRender = useRef(true)
-
-  useEffect(() => {
-    if (isFirstRender.current) { isFirstRender.current = false; return }
-    setValue('city', '', { shouldValidate: false })
-  }, [selectedCountry, setValue])
-
-  const availableCities = getCitiesForCountry(selectedCountry)
+  const idPrefix = useId()
+  const fieldId = (name: string) => `${idPrefix}-${name}`
 
   return (
     <div className="space-y-6">
       <FormSection number="1" title={t('posts.form.sections.basicsTitle')} subtitle={t('posts.form.sections.basicsSubtitle')}>
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <Field label={t('posts.form.title')} error={errors.title?.message} required>
-            <input
-              {...register('title')}
-              className={baseInput}
-              placeholder={t('posts.form.titlePlaceholder')}
-            />
-          </Field>
-          <Field label={t('posts.form.domain')} error={errors.domain?.message} required>
-            <SelectShell>
-              <select {...register('domain')} className={baseSelect} defaultValue="">
-                <option value="">{t('posts.form.domainPlaceholder')}</option>
-                {MEDICAL_DOMAINS.map(domain => <option key={domain} value={domain}>{domain}</option>)}
-              </select>
-            </SelectShell>
-          </Field>
-        </div>
+        <Field label={t('posts.form.title')} error={errors.title?.message} required htmlFor={fieldId('title')}>
+          <input
+            id={fieldId('title')}
+            {...register('title')}
+            className={baseInput}
+            placeholder={t('posts.form.titlePlaceholder')}
+          />
+        </Field>
+        <Field label={t('posts.form.domains')} error={errors.domains?.message} required labelId={fieldId('domains')}>
+          <Controller
+            name="domains"
+            control={control}
+            render={({ field }) => (
+              <DomainPicker value={field.value ?? []} onChange={field.onChange} error={errors.domains?.message} labelledBy={fieldId('domains')} />
+            )}
+          />
+        </Field>
       </FormSection>
 
       <FormSection number="2" title={t('posts.form.sections.lookingForTitle')} subtitle={t('posts.form.sections.lookingForSubtitle')}>
         <div className="grid grid-cols-1 gap-x-8 gap-y-5 lg:grid-cols-[minmax(0,1fr)_230px]">
-          <Field label={t('posts.form.expertise')} error={errors.expertiseRequired?.message} required>
+          <Field label={t('posts.form.expertise')} error={errors.expertiseRequired?.message} required htmlFor={fieldId('expertise')}>
             <input
+              id={fieldId('expertise')}
               {...register('expertiseRequired')}
               className={baseInput}
               placeholder={t('posts.form.expertisePlaceholder')}
@@ -120,8 +117,9 @@ export default function PostFormFields({ register, control, setValue, errors, mi
           </Field>
           <Hint>{t('posts.form.expertiseHint')}</Hint>
 
-          <Field label={t('posts.form.description')} error={errors.description?.message} required>
+          <Field label={t('posts.form.description')} error={errors.description?.message} required htmlFor={fieldId('description')}>
             <textarea
+              id={fieldId('description')}
               {...register('description')}
               className={`${baseInput} h-[96px] resize-none py-4 leading-6`}
               placeholder={t('posts.form.descriptionPlaceholder')}
@@ -131,19 +129,25 @@ export default function PostFormFields({ register, control, setValue, errors, mi
             <span className="text-sm font-semibold leading-5 text-[#6f6a76]">{t('posts.form.minChars')}</span>
             <button
               type="button"
-              disabled={aiLoading || (!currentTitle && !currentDescription)}
+              disabled={aiLoading || !aiHasText}
               onClick={handleAIAssist}
+              aria-describedby={aiHasText ? undefined : aiHintId}
               className="inline-flex items-center gap-2 rounded-full bg-[#36213E] px-4 py-2 text-xs font-black text-white hover:bg-black disabled:opacity-50 transition-colors"
             >
               <Sparkles size={13} />
               {aiLoading ? t('posts.form.improving') : t('posts.form.aiAssist')}
             </button>
+            {!aiHasText && (
+              <span id={aiHintId} className="text-xs font-semibold leading-5 text-[#6f6a76]">
+                {t('posts.form.aiNeedsText')}
+              </span>
+            )}
           </div>
         </div>
 
         {/* AI Suggestion Panel */}
         {aiError && (
-          <div className="mt-4 rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{aiError}</div>
+          <div role="alert" className="mt-4 rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{aiError}</div>
         )}
         {aiResult && (
           <div className="mt-4 rounded-[14px] border border-[#cdeefa] bg-[#eefaff] p-5">
@@ -152,7 +156,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
                 <Sparkles size={14} />
                 {t('posts.form.aiSuggestions')}
               </div>
-              <button type="button" onClick={() => setAiResult(null)} className="text-[#9a95a1] hover:text-[#2d1838] transition-colors">✕</button>
+              <button type="button" onClick={() => setAiResult(null)} aria-label={t('common.close')} className="text-[#9a95a1] hover:text-[#2d1838] transition-colors">✕</button>
             </div>
             {aiResult.improvedTitle && (
               <div className="mb-2">
@@ -192,44 +196,40 @@ export default function PostFormFields({ register, control, setValue, errors, mi
 
       <FormSection number="3" title={t('posts.form.sections.collaborateTitle')} subtitle={t('posts.form.sections.collaborateSubtitle')}>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <Field label={t('posts.form.stage')} error={errors.projectStage?.message} required>
+          <Field label={t('posts.form.stage')} error={errors.projectStage?.message} required htmlFor={fieldId('stage')}>
             <SelectShell>
-              <select {...register('projectStage')} className={baseSelect}>
-                <option value="idea">{t('posts.stage.idea')}</option>
-                <option value="concept_validation">{t('posts.stage.concept_validation')}</option>
-                <option value="prototype">{t('posts.stage.prototype')}</option>
-                <option value="pilot">{t('posts.stage.pilot')}</option>
-                <option value="pre_deployment">{t('posts.stage.pre_deployment')}</option>
+              <select id={fieldId('stage')} {...register('projectStage')} className={baseSelect}>
+                {STAGES.map(stage => <option key={stage} value={stage}>{t(`posts.stage.${stage}`)}</option>)}
               </select>
             </SelectShell>
+            <OptionHelp>{currentStage ? t(`posts.form.stageHelp.${currentStage}`) : null}</OptionHelp>
           </Field>
 
-          <Field label={t('posts.form.collab')} error={errors.collaborationType?.message} required>
+          <Field label={t('posts.form.collab')} error={errors.collaborationType?.message} required htmlFor={fieldId('collab')}>
             <SelectShell>
-              <select {...register('collaborationType')} className={baseSelect} defaultValue="">
+              <select id={fieldId('collab')} {...register('collaborationType')} className={baseSelect} defaultValue="">
                 <option value="">{t('posts.form.collabPlaceholder')}</option>
-                <option value="advisor">{t('posts.collab.advisor')}</option>
-                <option value="co_founder">{t('posts.collab.co_founder')}</option>
-                <option value="research_partner">{t('posts.collab.research_partner')}</option>
-                <option value="contract">{t('posts.collab.contract')}</option>
+                {COLLABORATION_TYPES.map(type => <option key={type} value={type}>{t(`posts.collab.${type}`)}</option>)}
               </select>
             </SelectShell>
+            <OptionHelp>{currentCollab ? t(`posts.form.collabHelp.${currentCollab}`) : t('posts.form.collabHelpNone')}</OptionHelp>
           </Field>
 
-          <Field label={t('posts.form.commitment')} error={errors.levelOfCommitment?.message} required>
+          <Field label={t('posts.form.commitment')} error={errors.levelOfCommitment?.message} required htmlFor={fieldId('commitment')}>
             <SelectShell>
-              <select {...register('levelOfCommitment')} className={baseSelect}>
+              <select id={fieldId('commitment')} {...register('levelOfCommitment')} className={baseSelect}>
                 <option value="flexible">{t('posts.form.commitmentFlexible')}</option>
                 <option value="low">{t('posts.form.commitmentLow')}</option>
                 <option value="medium">{t('posts.form.commitmentMedium')}</option>
                 <option value="high">{t('posts.form.commitmentHigh')}</option>
               </select>
             </SelectShell>
+            <OptionHelp>{currentCommitment ? t(`posts.form.commitmentHelp.${currentCommitment}`) : null}</OptionHelp>
           </Field>
         </div>
 
-        <Field label={t('posts.form.confidentiality')} error={errors.confidentiality?.message} required>
-          <div id={`${radioGroupId}-label`} className="grid grid-cols-1 gap-4 md:grid-cols-2" role="radiogroup">
+        <Field label={t('posts.form.confidentiality')} error={errors.confidentiality?.message} required labelId={fieldId('confidentiality')}>
+          <div aria-labelledby={fieldId('confidentiality')} className="grid grid-cols-1 gap-4 md:grid-cols-2" role="radiogroup">
             {([
               { value: 'public_pitch', title: t('posts.form.publicPitch'), desc: t('posts.form.publicPitchDesc') },
               { value: 'meeting_only', title: t('posts.form.meetingOnly'), desc: t('posts.form.meetingOnlyDesc') },
@@ -258,30 +258,27 @@ export default function PostFormFields({ register, control, setValue, errors, mi
       </FormSection>
 
       <FormSection number="4" title={t('posts.form.sections.whereWhenTitle')} subtitle={t('posts.form.sections.whereWhenSubtitle')}>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <Field label={t('posts.form.country')} error={errors.country?.message} required>
-            <Controller
-              name="country"
-              control={control}
-              render={({ field }) => (
-                <SearchableSelect options={COUNTRIES} value={field.value ?? ''} onChange={field.onChange} placeholder={t('posts.form.countryPlaceholder')} error={errors.country?.message} />
-              )}
-            />
-          </Field>
-          <Field label={t('posts.form.city')} error={errors.city?.message} required>
-            <Controller
-              name="city"
-              control={control}
-              render={({ field }) => (
-                <SearchableSelect options={availableCities} value={field.value ?? ''} onChange={field.onChange} placeholder={selectedCountry ? t('posts.form.cityPlaceholder') : t('posts.form.cityPlaceholderNoCountry')} error={errors.city?.message} />
-              )}
-            />
-          </Field>
-        </div>
+        <CountryCityPicker
+          country={currentCountry}
+          city={currentCity}
+          onCountryChange={value => setValue('country', value, { shouldValidate: true, shouldDirty: true })}
+          // The picker clears the city when the country changes; don't flag that as an error yet.
+          onCityChange={value => setValue('city', value, { shouldValidate: Boolean(value), shouldDirty: true })}
+          countryLabel={<FieldLabel label={t('posts.form.country')} error={errors.country?.message} required />}
+          cityLabel={<FieldLabel label={t('posts.form.city')} error={errors.city?.message} required />}
+          countryError={errors.country?.message}
+          cityError={errors.city?.message}
+          countryPlaceholder={t('posts.form.countryPlaceholder')}
+          cityPlaceholder={t('posts.form.cityPlaceholder')}
+          cityLockedPlaceholder={t('posts.form.cityPlaceholderNoCountry')}
+          cityFreeTextPlaceholder={t('authPage.register.cityFreeText')}
+          inputClassName={baseInput}
+          selectLabels={selectLabels}
+        />
 
-        <Field label={t('posts.form.expiry')} error={errors.expiryDate?.message} required>
+        <Field label={t('posts.form.expiry')} error={errors.expiryDate?.message} required htmlFor={fieldId('expiry')}>
           <div className="relative">
-            <input {...register('expiryDate')} type="date" min={minDateStr} className={`${baseInput} pr-12`} />
+            <input id={fieldId('expiry')} {...register('expiryDate')} type="date" min={minDateStr} className={`${baseInput} pr-12`} />
             <CalendarDays size={18} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#2d1838]" />
           </div>
         </Field>
@@ -323,15 +320,42 @@ function FormSection({ number, title, subtitle, children }: { number: string; ti
   )
 }
 
-function Field({ label, error, required, children }: { label: string; error?: string; required?: boolean; children: ReactNode }) {
+interface FieldLabelProps {
+  label: string
+  error?: string
+  required?: boolean
+  /** Id of the single control this label names; renders a real <label>. */
+  htmlFor?: string
+  /** Id for aria-labelledby when the field is a group (radios, domain picker). */
+  labelId?: string
+}
+
+function FieldLabel({ label, error, required, htmlFor, labelId }: FieldLabelProps) {
+  const className = `mb-2 block text-xs font-black ${error ? 'text-red-600' : 'text-[#2d1838]'}`
+  const content = <>{label} {required && <span className="text-red-600">*</span>}</>
+  return htmlFor
+    ? <label htmlFor={htmlFor} className={className}>{content}</label>
+    : <span id={labelId} className={className}>{content}</span>
+}
+
+function Field({ children, ...labelProps }: FieldLabelProps & { children: ReactNode }) {
+  const { error } = labelProps
   return (
     <div className="block">
-      <span className={`mb-2 block text-xs font-black ${error ? 'text-red-600' : 'text-[#2d1838]'}`}>
-        {label} {required && <span className="text-red-600">*</span>}
-      </span>
+      <FieldLabel {...labelProps} />
       {children}
       {error && <span className="mt-2 block text-xs font-semibold text-red-600">{error}</span>}
     </div>
+  )
+}
+
+/** Explains the option currently chosen in the select above it. */
+function OptionHelp({ children }: { children: ReactNode }) {
+  if (!children) return null
+  return (
+    <span aria-live="polite" className="mt-2 block text-xs font-semibold leading-5 text-[#6f6a76]">
+      {children}
+    </span>
   )
 }
 

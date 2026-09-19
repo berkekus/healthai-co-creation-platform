@@ -23,6 +23,8 @@ export interface IUser extends Document {
   name: string
   email: string
   password: string
+  passwordChangedAt?: Date
+  tokenVersion: number
   role: UserRole
   institution: string
   city: string
@@ -44,6 +46,12 @@ export interface IUser extends Document {
   githubUsername?: string
   linkedinId?: string
   linkedinProfileUrl?: string
+  position?: string
+  department?: string
+  orcid?: string
+  institutionWebsite?: string
+  contactEmail?: string
+  linkedinUrl?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -65,6 +73,8 @@ const UserSchema = new Schema<IUser>(
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, select: false },
+    passwordChangedAt: { type: Date },
+    tokenVersion: { type: Number, default: 0 },
     role: {
       type: String,
       enum: ['engineer', 'healthcare_professional', 'admin'],
@@ -90,6 +100,13 @@ const UserSchema = new Schema<IUser>(
     githubUsername: { type: String },
     linkedinId: { type: String, sparse: true },
     linkedinProfileUrl: { type: String },
+    // Optional professional details, validated in utils/profileFields.ts
+    position: { type: String, trim: true },
+    department: { type: String, trim: true },
+    orcid: { type: String, trim: true },
+    institutionWebsite: { type: String, trim: true },
+    contactEmail: { type: String, trim: true, lowercase: true },
+    linkedinUrl: { type: String, trim: true },
   },
   { timestamps: true }
 )

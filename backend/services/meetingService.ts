@@ -1,19 +1,78 @@
 import Meeting, { IMeeting, ITimeSlot } from '../models/Meeting'
 import User from '../models/User'
-import { incrementMeetingCount, markPartnerFound, recomputePostStatus } from './postService'
+import Post from '../models/Post'
+import { incrementMeetingCount, recomputePostStatus } from './postService'
 import { pushNotification } from './notificationService'
-import { createConversation } from './conversationService'
+import { ensureMeetingConversation } from './conversationService'
 import { recalculateBadges } from './badgeService'
 import { makeError } from '../utils/AppError'
+import { isValidTimeZone, zonedTimeToUtc } from '../utils/timeZone'
 
-async function withEmails(meetings: IMeeting[]) {
-  const ids = [...new Set(meetings.flatMap(m => [m.requesterId.toString(), m.ownerId.toString()]))]
-  const users = await User.find({ _id: { $in: ids } }).select('_id email').lean()
-  const map = new Map(users.map(u => [(u._id as any).toString(), u.email as string]))
+const MAX_MEETING_MESSAGE_LENGTH = 500
+export const MIN_PROPOSED_SLOTS = 1
+export const MAX_PROPOSED_SLOTS = 5
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/
+
+/** Statuses in which a request is still alive for its requester. */
+const OPEN_REQUEST_STATUSES = ['pending', 'time_proposed', 'confirmed'] as const
+
+/**
+ * Validates proposed slots and returns them without any extra fields a client
+ * may have sent along. One slot is enough: the chat opens once the owner
+ * accepts, so the two sides can still agree on another time.
+ */
+function normalizeProposedSlots(slots: unknown): ITimeSlot[] {
+  if (!Array.isArray(slots) || slots.length < MIN_PROPOSED_SLOTS) {
+    throw makeError('Propose at least one time slot', 400)
+  }
+  if (slots.length > MAX_PROPOSED_SLOTS) {
+    throw makeError(`Propose no more than ${MAX_PROPOSED_SLOTS} time slots`, 400)
+  }
+
+  const seen = new Set<string>()
+  return slots.map((raw) => {
+    const slot = raw as Partial<ITimeSlot> | null
+    if (!slot || typeof slot.date !== 'string' || typeof slot.time !== 'string'
+        || !DATE_RE.test(slot.date) || !TIME_RE.test(slot.time)) {
+      throw makeError('Each proposed time slot must include a valid date and time', 400)
+    }
+    if (slot.timezone !== undefined && !isValidTimeZone(slot.timezone)) {
+      throw makeError('Each proposed time slot must use a valid time zone', 400)
+    }
+
+    const instant = slot.timezone
+      ? zonedTimeToUtc(slot.date, slot.time, slot.timezone)
+      : new Date(`${slot.date}T${slot.time}:00`)
+    if (Number.isNaN(instant.getTime()) || instant <= new Date()) {
+      throw makeError('Proposed time slots must be in the future', 400)
+    }
+
+    const key = `${slot.date}T${slot.time}`
+    if (seen.has(key)) throw makeError('Proposed time slots must be unique', 400)
+    seen.add(key)
+
+    return slot.timezone
+      ? { date: slot.date, time: slot.time, timezone: slot.timezone }
+      : { date: slot.date, time: slot.time }
+  })
+}
+
+/** Adds participant emails and the post's current status (e.g. closed with Partner Found). */
+async function withDetails(meetings: IMeeting[]) {
+  const userIds = [...new Set(meetings.flatMap(m => [m.requesterId.toString(), m.ownerId.toString()]))]
+  const postIds = [...new Set(meetings.map(m => m.postId.toString()))]
+  const [users, posts] = await Promise.all([
+    User.find({ _id: { $in: userIds } }).select('_id email').lean(),
+    Post.find({ _id: { $in: postIds } }).select('_id status').lean(),
+  ])
+  const emails = new Map(users.map(u => [(u._id as any).toString(), u.email as string]))
+  const postStatuses = new Map(posts.map(p => [(p._id as any).toString(), p.status as string]))
   return meetings.map(m => ({
     ...m.toJSON(),
-    requesterEmail: (m.requesterEmail || map.get(m.requesterId.toString()) || ''),
-    ownerEmail:     (m.ownerEmail     || map.get(m.ownerId.toString())     || ''),
+    requesterEmail: (m.requesterEmail || emails.get(m.requesterId.toString()) || ''),
+    ownerEmail:     (m.ownerEmail     || emails.get(m.ownerId.toString())     || ''),
+    postStatus: postStatuses.get(m.postId.toString()),
   }))
 }
 
@@ -32,22 +91,25 @@ export async function requestMeeting(data: {
 }) {
   if (!data.ndaAccepted) throw makeError('NDA must be accepted', 400)
   if (typeof data.message !== 'string' || data.message.length < 20) throw makeError('Message must be at least 20 characters', 400)
-  if (!Array.isArray(data.proposedSlots) || data.proposedSlots.length < 3) throw makeError('At least 3 time slots are required', 400)
+  if (data.message.length > MAX_MEETING_MESSAGE_LENGTH) throw makeError(`Message must be no more than ${MAX_MEETING_MESSAGE_LENGTH} characters`, 400)
+  const proposedSlots = normalizeProposedSlots(data.proposedSlots)
 
-  // Prevent duplicate active requests from the same requester
+  // One live request per requester per post — including accepted and scheduled ones.
   const existing = await Meeting.exists({
     postId: data.postId,
     requesterId: data.requesterId,
-    status: 'pending',
+    status: { $in: OPEN_REQUEST_STATUSES },
   })
-  if (existing) throw makeError('You already have a pending meeting request for this post', 409)
+  if (existing) throw makeError('You already have an open meeting request for this post', 409)
 
-  const meeting = await Meeting.create({ ...data, status: 'pending' })
+  const meeting = await Meeting.create({ ...data, proposedSlots, status: 'pending' })
   await incrementMeetingCount(data.postId)
 
   pushNotification({
     userId: data.ownerId,
     type: 'meeting_request',
+    contentKey: 'meeting_request',
+    metadata: { actorName: data.requesterName, postTitle: data.postTitle },
     title: 'Yeni toplantı isteği',
     body: `${data.requesterName} "${data.postTitle}" için toplantı talep etti.`,
     linkTo: `/meetings`,
@@ -56,22 +118,24 @@ export async function requestMeeting(data: {
   return meeting
 }
 
-export async function getMeetingById(id: string) {
+export async function getMeetingById(id: string, requesterId: string, isAdmin: boolean) {
   const meeting = await Meeting.findById(id)
   if (!meeting) throw makeError('Meeting not found', 404)
-  return (await withEmails([meeting]))[0]
+  const isParticipant = meeting.requesterId.toString() === requesterId || meeting.ownerId.toString() === requesterId
+  if (!isAdmin && !isParticipant) throw makeError('Forbidden', 403)
+  return (await withDetails([meeting]))[0]
 }
 
 export async function getMeetingsByUser(userId: string) {
   const meetings = await Meeting.find({
     $or: [{ requesterId: userId }, { ownerId: userId }],
   }).sort({ createdAt: -1 })
-  return withEmails(meetings)
+  return withDetails(meetings)
 }
 
 export async function getMeetingsByPost(postId: string) {
   const meetings = await Meeting.find({ postId }).sort({ createdAt: -1 })
-  return withEmails(meetings)
+  return withDetails(meetings)
 }
 
 async function resolveUpdateFailure(
@@ -86,7 +150,8 @@ async function resolveUpdateFailure(
   throw makeError(`Cannot ${verb} a meeting with status: ${existing.status}`, 400)
 }
 
-// Step 1: owner accepts request → pending → time_proposed (no slot chosen yet)
+// Step 1: owner accepts request → pending → time_proposed (no slot chosen yet).
+// The conversation opens here, so both sides can agree on a time before one is confirmed.
 export async function acceptMeeting(id: string, ownerId: string) {
   const meeting = await Meeting.findOneAndUpdate(
     { _id: id, ownerId, status: 'pending' },
@@ -95,15 +160,19 @@ export async function acceptMeeting(id: string, ownerId: string) {
   )
   if (!meeting) return await resolveUpdateFailure(id, ownerId, 'ownerId', 'accept')
 
+  await ensureMeetingConversation(meeting)
+
   pushNotification({
     userId: meeting.requesterId.toString(),
     type: 'meeting_accepted',
+    contentKey: 'meeting_accepted_waiting',
+    metadata: { actorName: meeting.ownerName, postTitle: meeting.postTitle },
     title: 'Toplantı kabul edildi',
     body: `${meeting.ownerName} toplantı talebinizi kabul etti. Zaman dilimi onayını bekliyor. "${meeting.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
-  return (await withEmails([meeting]))[0]
+  return (await withDetails([meeting]))[0]
 }
 
 // Step 2: owner confirms a slot → time_proposed → confirmed
@@ -111,10 +180,10 @@ export async function confirmMeetingSlot(id: string, ownerId: string, slot: ITim
   const existing = await Meeting.findOne({ _id: id, ownerId, status: 'time_proposed' })
   if (!existing) await resolveUpdateFailure(id, ownerId, 'ownerId', 'confirm')
 
-  const slotWasProposed = existing!.proposedSlots.some(
+  const proposedSlot = existing!.proposedSlots.find(
     proposed => proposed.date === slot.date && proposed.time === slot.time,
   )
-  if (!slotWasProposed) throw makeError('Confirmed slot must be one of the proposed slots', 400)
+  if (!proposedSlot) throw makeError('Confirmed slot must be one of the proposed slots', 400)
 
   // Calendar conflict: ensure neither party already has a confirmed meeting at this slot
   const conflict = await Meeting.exists({
@@ -132,54 +201,28 @@ export async function confirmMeetingSlot(id: string, ownerId: string, slot: ITim
   if (conflict) throw makeError('One of the participants already has a confirmed meeting at this time slot', 409)
 
   existing!.status = 'confirmed'
-  existing!.confirmedSlot = slot
+  // Store the proposed slot itself so its time zone travels with the confirmation.
+  existing!.confirmedSlot = { date: proposedSlot.date, time: proposedSlot.time, timezone: proposedSlot.timezone }
   const meeting = await existing!.save()
 
-  // Auto-decline all other pending/time_proposed meetings for the same post
-  const competing = await Meeting.find({
-    postId: meeting.postId,
-    _id: { $ne: meeting._id },
-    status: { $in: ['pending', 'time_proposed'] },
-  })
-  await Promise.all(competing.map(async (m) => {
-    m.status = 'declined'
-    m.declineReason = 'Another meeting was confirmed for this post'
-    await m.save()
-    pushNotification({
-      userId: m.requesterId.toString(),
-      type: 'meeting_declined',
-      title: 'Toplantı isteği iptal edildi',
-      body: `"${m.postTitle}" için başka bir toplantı onaylandığından talebiniz otomatik olarak iptal edildi.`,
-      linkTo: `/meetings`,
-    }).catch(() => {})
-  }))
+  // Other requests for the same post stay open: an owner may meet several
+  // candidates before deciding. Marking the post "Partner Found" closes them.
+  await recomputePostStatus(meeting.postId.toString())
 
-  recomputePostStatus(meeting.postId.toString()).catch(() => {})
-
-  const requesterUser = await User.findById(meeting.requesterId).select('role').lean()
-  const ownerUser     = await User.findById(meeting.ownerId).select('role').lean()
-
-  createConversation({
-    meetingId:     meeting.id,
-    postId:        meeting.postId.toString(),
-    postTitle:     meeting.postTitle,
-    requesterId:   meeting.requesterId.toString(),
-    requesterName: meeting.requesterName,
-    requesterRole: requesterUser?.role ?? 'engineer',
-    ownerId:       meeting.ownerId.toString(),
-    ownerName:     meeting.ownerName,
-    ownerRole:     ownerUser?.role ?? 'healthcare_professional',
-  }).catch(() => {})
+  // Meetings accepted before the chat opened on acceptance may still lack one.
+  await ensureMeetingConversation(meeting)
 
   pushNotification({
     userId: meeting.requesterId.toString(),
     type: 'meeting_accepted',
+    contentKey: 'meeting_accepted',
+    metadata: { actorName: meeting.ownerName, postTitle: meeting.postTitle },
     title: 'Toplantı kabul edildi',
     body: `${meeting.ownerName} toplantı talebinizi kabul etti. "${meeting.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
-  return (await withEmails([meeting]))[0]
+  return (await withDetails([meeting]))[0]
 }
 
 export async function declineMeeting(id: string, ownerId: string, reason?: string) {
@@ -192,16 +235,18 @@ export async function declineMeeting(id: string, ownerId: string, reason?: strin
   )
   if (!meeting) await resolveUpdateFailure(id, ownerId, 'ownerId', 'decline')
 
-  recomputePostStatus(meeting!.postId.toString()).catch(() => {})
+  await recomputePostStatus(meeting!.postId.toString())
   pushNotification({
     userId: meeting!.requesterId.toString(),
     type: 'meeting_declined',
+    contentKey: 'meeting_declined',
+    metadata: { actorName: meeting!.ownerName, postTitle: meeting!.postTitle },
     title: 'Toplantı reddedildi',
     body: `${meeting!.ownerName} toplantı talebinizi reddetti. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
-  return (await withEmails([meeting!]))[0]
+  return (await withDetails([meeting!]))[0]
 }
 
 export async function cancelMeeting(id: string, userId: string, reason?: string) {
@@ -218,41 +263,45 @@ export async function cancelMeeting(id: string, userId: string, reason?: string)
   )
   if (!meeting) await resolveUpdateFailure(id, userId, null, 'cancel')
 
-  recomputePostStatus(meeting!.postId.toString()).catch(() => {})
+  await recomputePostStatus(meeting!.postId.toString())
 
   const isRequester = meeting!.requesterId.toString() === userId
   pushNotification({
     userId: isRequester ? meeting!.ownerId.toString() : meeting!.requesterId.toString(),
     type: 'meeting_cancelled',
+    contentKey: 'meeting_cancelled',
+    metadata: { actorName: isRequester ? meeting!.requesterName : meeting!.ownerName, postTitle: meeting!.postTitle },
     title: 'Toplantı iptal edildi',
     body: `${isRequester ? meeting!.requesterName : meeting!.ownerName} toplantı talebini iptal etti. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
-  return (await withEmails([meeting!]))[0]
+  return (await withDetails([meeting!]))[0]
 }
 
-export async function rescheduleMeeting(id: string, requesterId: string, proposedSlots: ITimeSlot[]) {
-  if (!Array.isArray(proposedSlots) || proposedSlots.length < 3) {
-    throw makeError('At least 3 proposed slots are required', 400)
-  }
+// The requester offers new times — while the owner is still choosing (none of
+// the first ones fit) or after a time was confirmed (plans changed).
+export async function rescheduleMeeting(id: string, requesterId: string, slots: unknown) {
+  const proposedSlots = normalizeProposedSlots(slots)
   const meeting = await Meeting.findOneAndUpdate(
-    { _id: id, requesterId, status: 'confirmed' },
-    { $set: { status: 'time_proposed', proposedSlots, confirmedSlot: undefined } },
+    { _id: id, requesterId, status: { $in: ['time_proposed', 'confirmed'] } },
+    { $set: { status: 'time_proposed', proposedSlots }, $unset: { confirmedSlot: 1 } },
     { new: true },
   )
   if (!meeting) await resolveUpdateFailure(id, requesterId, 'requesterId', 'reschedule')
 
-  recomputePostStatus(meeting!.postId.toString()).catch(() => {})
+  await recomputePostStatus(meeting!.postId.toString())
   pushNotification({
     userId: meeting!.ownerId.toString(),
-    type: 'meeting_cancelled',
+    type: 'meeting_request',
+    contentKey: 'meeting_reschedule_requested',
+    metadata: { actorName: meeting!.requesterName, postTitle: meeting!.postTitle },
     title: 'Toplantı yeniden zamanlanma isteği',
     body: `${meeting!.requesterName} toplantıyı yeniden zamanlamak istiyor. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
   }).catch(() => {})
 
-  return (await withEmails([meeting!]))[0]
+  return (await withDetails([meeting!]))[0]
 }
 
 export async function completeMeeting(id: string, userId: string) {
@@ -267,13 +316,16 @@ export async function completeMeeting(id: string, userId: string) {
   )
   if (!meeting) await resolveUpdateFailure(id, userId, null, 'complete')
 
-  // Mark post as partner_found (also cascades: cancels other pending/confirmed meetings)
-  await markPartnerFound(meeting!.postId.toString(), meeting!.ownerId.toString())
+  // Holding a meeting is not the same as finding a partner. Only the post's
+  // author closes the post, explicitly, via "Partner Found".
+  await recomputePostStatus(meeting!.postId.toString())
 
   const isRequester = meeting!.requesterId.toString() === userId
   pushNotification({
     userId: isRequester ? meeting!.ownerId.toString() : meeting!.requesterId.toString(),
     type: 'meeting_completed',
+    contentKey: 'meeting_completed',
+    metadata: { actorName: isRequester ? meeting!.requesterName : meeting!.ownerName, postTitle: meeting!.postTitle },
     title: 'Görüşme tamamlandı',
     body: `${isRequester ? meeting!.requesterName : meeting!.ownerName} görüşmeyi tamamlandı olarak işaretledi. "${meeting!.postTitle}"`,
     linkTo: `/meetings`,
@@ -283,5 +335,5 @@ export async function completeMeeting(id: string, userId: string) {
   recalculateBadges(meeting!.requesterId.toString()).catch(() => {})
   recalculateBadges(meeting!.ownerId.toString()).catch(() => {})
 
-  return (await withEmails([meeting!]))[0]
+  return (await withDetails([meeting!]))[0]
 }

@@ -10,6 +10,7 @@ export type NotificationType =
   | 'interest_received'
   | 'account_activity'
   | 'new_message'
+  | 'new_comment'
 
 export interface Notification {
   id: string
@@ -17,6 +18,8 @@ export interface Notification {
   type: NotificationType
   title: string
   body: string
+  contentKey?: string
+  metadata?: Record<string, string>
   isRead: boolean
   createdAt: string
   linkTo?: string

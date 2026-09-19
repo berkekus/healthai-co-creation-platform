@@ -65,7 +65,7 @@ export default function UnauthorizedPage() {
                 {t('errors.unauthorized.signIn')}
               </Link>
             )}
-            <a href="mailto:admin@healthai.edu" className="inline-flex items-center gap-2 bg-hai-cream text-hai-plum hover:bg-hai-cream/70 rounded-full px-5 py-3 text-sm font-bold transition-colors">
+            <a href="mailto:admin@healthcocreate.com" className="inline-flex items-center gap-2 bg-hai-cream text-hai-plum hover:bg-hai-cream/70 rounded-full px-5 py-3 text-sm font-bold transition-colors">
               <span className="material-symbols-outlined text-lg">support_agent</span>
               {t('errors.unauthorized.contactAdmin')}
             </a>

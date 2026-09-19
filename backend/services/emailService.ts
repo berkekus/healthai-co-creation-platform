@@ -20,7 +20,24 @@ function getTransporter(): Transporter | null {
 }
 
 const FROM = process.env.SMTP_FROM ?? '"HEALTH AI" <noreply@healthai.local>'
-const APP_URL = (process.env.APP_BASE_URL ?? process.env.CLIENT_ORIGIN ?? 'http://localhost:5173').replace(/\/+$/, '')
+const CANONICAL_PRODUCTION_APP_URL = 'https://www.healthcocreate.com'
+
+function getAppUrl(): string {
+  const configuredUrl = process.env.APP_BASE_URL ?? process.env.CLIENT_ORIGIN
+
+  // Verification and password-reset links are public, long-lived links. Never
+  // send production users to a temporary Vercel deployment when the canonical
+  // custom domain is available.
+  if (process.env.NODE_ENV === 'production') {
+    if (!configuredUrl || /^https:\/\/[^/]+\.vercel\.app(?:\/|$)/i.test(configuredUrl)) {
+      return CANONICAL_PRODUCTION_APP_URL
+    }
+  }
+
+  return (configuredUrl ?? 'http://localhost:5173').replace(/\/+$/, '')
+}
+
+const APP_URL = getAppUrl()
 
 async function sendViaResendApi(to: string, subject: string, html: string): Promise<void> {
   const res = await fetch('https://api.resend.com/emails', {

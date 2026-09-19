@@ -20,6 +20,7 @@ export interface AuthenticatedRequest extends Request {
 interface JwtPayload {
   id: string
   role: string
+  tokenVersion?: number
 }
 
 // Throttle lastActive writes: at most once per 5 minutes per user
@@ -39,13 +40,17 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload
 
-    const user = await User.findById(decoded.id).select('isSuspended role email name')
+    const user = await User.findById(decoded.id).select('isSuspended role email name tokenVersion')
     if (!user) {
       res.status(401).json({ success: false, message: 'User not found' })
       return
     }
     if (user.isSuspended) {
       res.status(403).json({ success: false, message: 'Account suspended' })
+      return
+    }
+    if ((decoded.tokenVersion ?? 0) !== user.tokenVersion) {
+      res.status(401).json({ success: false, message: 'Session expired. Please sign in again.' })
       return
     }
 

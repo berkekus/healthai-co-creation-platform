@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, useMotionTemplate, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../constants/routes'
+import LandingFooter from '../components/layout/LandingFooter'
 import { useAuthStore } from '../store/authStore'
 import LanguageToggle from '../components/ui/LanguageToggle'
 
@@ -112,6 +113,15 @@ function TopNav() {
     { href: '#trust',     label: t('landing.nav.trust') },
   ]
 
+  // Signed in, the marketing anchors and "Request Access" are the wrong offer —
+  // that button led back to account creation for someone who already has an
+  // account. Show the three places they actually came for instead.
+  const appLinks = [
+    { to: ROUTES.DASHBOARD, label: t('nav.dashboard') },
+    { to: ROUTES.POSTS,     label: t('nav.browse') },
+    { to: ROUTES.MEETINGS,  label: t('nav.meetings') },
+  ]
+
   return (
     <>
       {/* px steps down under sm: the brand mark is a fixed-ratio image now, so
@@ -123,39 +133,47 @@ function TopNav() {
         {/* Center pill — hidden below lg */}
         <div className="hidden lg:flex items-center bg-white/25 backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
           <div className="flex items-center bg-white rounded-full h-full">
-            <div className="flex items-center px-1">
-              {anchorLinks.map((link, i) => (
-                <span key={link.href} className="flex items-center">
-                  {i > 0 && <NavDivider />}
-                  <a href={link.href} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{link.label}</a>
-                </span>
-              ))}
-              <NavDivider />
-              <Link to={ROUTES.ABOUT} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">
-                {t('nav.about')}
-              </Link>
-            </div>
-            <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
-              <Link
-                to={ROUTES.REGISTER}
-                className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out will-change-transform"
-              >
-                {t('landing.actions.requestAccess')}
-              </Link>
-            </div>
+            {user ? (
+              <div className="flex items-center px-1">
+                {appLinks.map((link, i) => (
+                  <span key={link.to} className="flex items-center">
+                    {i > 0 && <NavDivider />}
+                    <Link to={link.to} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{link.label}</Link>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center px-1">
+                  {anchorLinks.map((link, i) => (
+                    <span key={link.href} className="flex items-center">
+                      {i > 0 && <NavDivider />}
+                      <a href={link.href} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{link.label}</a>
+                    </span>
+                  ))}
+                  <NavDivider />
+                  <Link to={ROUTES.ABOUT} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">
+                    {t('nav.about')}
+                  </Link>
+                </div>
+                <div className="pl-1.5 pr-1.5 py-1.5 border-l border-neutral-100">
+                  <Link
+                    to={ROUTES.REGISTER}
+                    className="inline-block bg-hai-plum text-white px-5 py-2 rounded-full font-bold text-sm shadow-[0_4px_14px_-4px_rgba(54,33,62,0.35)] hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_12px_26px_-8px_rgba(54,33,62,0.5)] active:translate-y-0 active:shadow-[0_3px_10px_-4px_rgba(54,33,62,0.3)] transition-all duration-[250ms] ease-out will-change-transform"
+                  >
+                    {t('landing.actions.requestAccess')}
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* Right cluster */}
         <div className="flex items-center gap-2 md:gap-3">
-          {user ? (
-            <Link
-              to={ROUTES.DASHBOARD}
-              className="bg-black text-white px-5 md:px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_6px_18px_-8px_rgba(0,0,0,0.4)] hover:bg-neutral-800 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(0,0,0,0.45)] active:translate-y-0 active:shadow-[0_4px_12px_-6px_rgba(0,0,0,0.35)] transition-all duration-[250ms] ease-out will-change-transform"
-            >
-              {t('landing.actions.goToDashboard')} →
-            </Link>
-          ) : (
+          {/* Signed in, the pill already carries Dashboard — a second button
+              for it here would just be the same link twice. */}
+          {!user && (
             <>
               <Link
                 to={ROUTES.LOGIN}
@@ -173,8 +191,9 @@ function TopNav() {
           )}
           <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] backdrop-blur-md hover:bg-white" />
 
-          {/* Mobile hamburger — only visible below lg where center pill is hidden */}
-          {!user && (
+          {/* Mobile hamburger — below lg the centre pill is hidden, so this is the
+              only way to the nav; signed-in users need it just as much. */}
+          {(
             <button
               onClick={() => setMobileMenuOpen(o => !o)}
               aria-label="Toggle navigation menu"
@@ -191,8 +210,21 @@ function TopNav() {
       </nav>
 
       {/* Mobile dropdown menu — anchor links + CTA */}
-      {mobileMenuOpen && !user && (
+      {mobileMenuOpen && (
         <div className="lg:hidden fixed top-[72px] inset-x-4 z-40 rounded-2xl bg-white/95 backdrop-blur-md border border-white/60 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.35)] py-3 font-body">
+          {user ? (
+            appLinks.map(link => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-5 py-3 text-sm font-semibold text-neutral-800 hover:bg-black/5 transition-colors rounded-xl mx-2"
+              >
+                {link.label}
+              </Link>
+            ))
+          ) : (
+          <>
           {anchorLinks.map(link => (
             <a
               key={link.href}
@@ -226,6 +258,8 @@ function TopNav() {
               {t('landing.actions.signUp')}
             </Link>
           </div>
+          </>
+          )}
         </div>
       )}
     </>
@@ -1410,91 +1444,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* ── FOOTER ───────────────────────────────────────────── */}
-      <footer className="w-full bg-hai-plum pt-16 font-body text-hai-mint relative flex flex-col">
-        <div className="px-6 md:px-16 lg:px-24 grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-12 relative z-10">
-          <div>
-            <h4 className="font-bold mb-4 text-lg font-headline">Contact</h4>
-            <p className="font-semibold text-base leading-snug text-hai-mint/90">
-              Want to get in touch? We'd love to hear from you.
-            </p>
-            <p className="font-semibold text-base leading-snug text-hai-mint/90 mt-3">
-              Here's how you can reach us.
-            </p>
-            <a
-              href="https://healthai.cankaya.edu.tr/contact"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-block font-semibold text-sm text-hai-mint/90 hover:text-white transition-colors underline"
-            >
-              healthai.cankaya.edu.tr/contact
-            </a>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4 text-lg font-headline">Platform</h4>
-            <ul className="space-y-2 text-sm font-semibold">
-              <li><a href="#platform" className="hover:text-white transition-colors">Platform</a></li>
-              <li><a href="#directory" className="hover:text-white transition-colors">Directory</a></li>
-              <li><a href="#how" className="hover:text-white transition-colors">How it works</a></li>
-              <li><a href="#trust" className="hover:text-white transition-colors">Trust &amp; GDPR</a></li>
-              <li><Link to={ROUTES.ABOUT} className="hover:text-white transition-colors">About</Link></li>
-              <li><Link to={ROUTES.LOGIN} className="hover:text-white transition-colors">Sign in</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4 text-lg font-headline">Legal</h4>
-            <ul className="space-y-2 text-sm font-semibold">
-              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">GDPR &amp; your rights</Link></li>
-              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Data Export</Link></li>
-              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Terms of Use</Link></li>
-              <li><Link to={ROUTES.PRIVACY} className="hover:text-white transition-colors">Account Deletion</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4 text-lg font-headline">Access</h4>
-            <ul className="space-y-2 text-sm font-semibold">
-              <li><Link to={ROUTES.REGISTER} state={{ role: 'healthcare_professional' }} className="hover:text-white transition-colors">For Clinicians</Link></li>
-              <li><Link to={ROUTES.REGISTER} state={{ role: 'engineer' }} className="hover:text-white transition-colors">For Engineers</Link></li>
-              <li><Link to={ROUTES.REGISTER} className="hover:text-white transition-colors">Request Access</Link></li>
-              <li><a href="mailto:team@healthai.edu" className="hover:text-white transition-colors">Contact team</a></li>
-            </ul>
-          </div>
-        </div>
-
-        {/*
-          Giant wordmark — sized so the entire word is visible within the
-          viewport without clipping. clamp() scales between min/max caps,
-          and we keep it centered with no negative margin.
-        */}
-        <div className="w-full px-6 mt-12 flex items-center justify-center">
-          <span
-            className="font-headline font-bold text-white tracking-normal leading-none w-full text-center block whitespace-nowrap"
-            style={{ fontSize: 'clamp(56px, 16vw, 240px)' }}
-          >
-            healthai
-          </span>
-        </div>
-
-        {/* Bottom strip */}
-        <div className="px-6 md:px-16 lg:px-24 py-8 mt-6 flex justify-between items-end relative z-10 w-full text-hai-teal gap-8 flex-wrap border-t border-hai-teal/20">
-          <div className="text-xs font-semibold text-hai-teal font-mono tracking-[0.12em]">
-            2026<br />Copyright<br />HealthAI
-          </div>
-          <div className="flex items-end justify-between flex-grow ml-4 md:ml-12 gap-6 flex-wrap">
-            <div className="text-xs font-semibold text-hai-teal/80 leading-snug font-mono tracking-[0.12em] max-w-sm">
-              <p>Institutional .edu accounts only. Verification is automated and one-time.</p>
-              <p>No file uploads. No patient data. No exceptions.</p>
-            </div>
-            <div className="text-xs font-semibold text-hai-teal/80 shrink-0 ml-4 font-mono tracking-[0.12em]">
-              Built in Europe · by Team HealthAI
-            </div>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   )
 }

@@ -28,3 +28,6 @@ graphify-out/cache/
 graphify-out/manifest.json
 graphify-out/cost.json
 
+
+# Domain migration backups contain user data
+backend/scripts/domain-migration-backup-*.json

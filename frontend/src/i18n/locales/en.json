@@ -12,7 +12,10 @@
     "adminPanel": "Admin Panel",
     "signOut": "Sign out",
     "messages": "Messages",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "notificationsUnread": "Notifications ({{n}} unread)",
+    "accountMenu": "Account menu",
+    "toggleMenu": "Toggle menu"
   },
   "landing": {
     "nav": {
@@ -143,8 +146,21 @@
     "filters": "Filters",
     "search": "Search posts…",
     "domain": "Domain",
-    "stage": "Stage",
-    "status": "Status",
+    "stage": {
+      "idea": "Idea",
+      "concept_validation": "Concept Validation",
+      "prototype": "Prototype",
+      "pilot": "Pilot",
+      "pre_deployment": "Pre-deployment"
+    },
+    "status": {
+      "draft": "Draft",
+      "open": "Open",
+      "active": "Active",
+      "meeting_scheduled": "Meeting Scheduled",
+      "partner_found": "Partner Found",
+      "expired": "Expired"
+    },
     "postedBy": "Posted by",
     "location": "Location",
     "clearFilters": "Clear filters",
@@ -162,21 +178,6 @@
     "expired": "Expired",
     "delete": "Delete post",
     "confirmDelete": "Delete this post? This action cannot be undone.",
-    "status": {
-      "draft": "Draft",
-      "open": "Open",
-      "active": "Active",
-      "meeting_scheduled": "Meeting Scheduled",
-      "partner_found": "Partner Found",
-      "expired": "Expired"
-    },
-    "stage": {
-      "idea": "Idea",
-      "concept_validation": "Concept Validation",
-      "prototype": "Prototype",
-      "pilot": "Pilot",
-      "pre_deployment": "Pre-deployment"
-    },
     "collab": {
       "advisor": "Advisor",
       "co_founder": "Co-Founder",
@@ -253,6 +254,38 @@
         "whereWhenSubtitle": "Location helps with in-person meetings; the expiry date closes the post automatically.",
         "reviewTitle": "Review & publish",
         "reviewSubtitle": "Review your details before making your post visible."
+      },
+      "domains": "Healthcare domains",
+      "domainNoneSelected": "No domain selected yet",
+      "domainRemove": "Remove {{domain}}",
+      "domainHint": "Choose 1 to {{max}} domains your idea spans — the first one is shown as the main domain. {{count}} selected.",
+      "domainSearch": "Search domains…",
+      "domainGroups": {
+        "clinical": "Clinical medicine",
+        "care": "Nursing, therapy & public health",
+        "research": "Research & health technology"
+      },
+      "aiNeedsText": "Write a title or a description first — AI Assist improves what you have written.",
+      "aiUnavailable": "AI Assist is not available on this server right now.",
+      "collabHelpNone": "Pick how you would like to work with a partner.",
+      "stageHelp": {
+        "idea": "An early idea — no data or prototype yet.",
+        "concept_validation": "You are checking with users, clinicians or data that the idea is worth building.",
+        "prototype": "A first working version exists and is being tested.",
+        "pilot": "It is being tried on a small scale in a real clinical or care setting.",
+        "pre_deployment": "Getting ready for wider use: regulation, validation and rollout."
+      },
+      "collabHelp": {
+        "advisor": "Occasional expert advice, without a share in the project.",
+        "co_founder": "A long-term partner who shares ownership and decisions.",
+        "research_partner": "Joint research — for example a study, a paper or a grant application.",
+        "contract": "Paid work with a clear scope for an agreed period."
+      },
+      "commitmentHelp": {
+        "flexible": "The time involved is agreed together.",
+        "low": "About 1–2 hours a week.",
+        "medium": "About 3–6 hours a week.",
+        "high": "A focused period that needs a lot of time."
       }
     },
     "allDomains": "All domains",
@@ -305,10 +338,10 @@
     "title": "Meetings",
     "request": "Request a meeting",
     "status": {
-      "pending": "Pending review",
-      "time_proposed": "Slot selection",
-      "confirmed": "Confirmed",
-      "completed": "Completed",
+      "pending": "Awaiting response",
+      "time_proposed": "Choosing a time",
+      "confirmed": "Scheduled",
+      "completed": "Held",
       "declined": "Declined",
       "cancelled": "Cancelled"
     },
@@ -345,7 +378,8 @@
     "summaryTopics": "Topics",
     "summaryNextSteps": "Next Steps",
     "summaryOpenQuestions": "Open Questions",
-    "summaryGenerated": "Generated"
+    "summaryGenerated": "Generated",
+    "exportPdf": "Export PDF"
   },
   "comments": {
     "title": "Discussion",
@@ -354,6 +388,7 @@
     "empty": "No comments yet. Be the first to ask!",
     "reply": "Reply",
     "replyingTo": "Replying to",
+    "cancelReply": "Cancel reply",
     "loadMore": "Load more comments"
   },
   "profile": {
@@ -367,6 +402,15 @@
     "complete": "Complete!",
     "almostThere": "Almost there",
     "keepGoing": "Keep going",
+    "scoreTips": {
+      "add_bio": "Add a bio to describe your background and goals",
+      "add_expertise_tags": "Add at least 3 expertise tags to improve matching",
+      "add_institution": "Add your institution or organization",
+      "add_city": "Add your city for location-based matching",
+      "add_country": "Add your country",
+      "upload_photo": "Upload a profile photo",
+      "add_more_expertise_tags": "Add 5+ expertise tags for best matching results"
+    },
     "photo": "Profile photo",
     "bioWritten": "Bio written",
     "expertiseTags": "3+ expertise tags",
@@ -389,7 +433,8 @@
       "bio": "Bio",
       "bioHint": "Optional - max 400 chars",
       "bioPlaceholder": "Briefly describe your background and interests…",
-      "regionVisibility": "Region visibility"
+      "regionVisibility": "Region visibility",
+      "visibleToMembers": "Visible to members"
     },
     "notifOptions": {
       "meetingRequests": "Meeting requests",
@@ -426,7 +471,8 @@
       "delete": "Delete account",
       "deleteDesc": "Permanently delete your account and all associated data.",
       "deleteBtn": "Delete account",
-      "gdpr17": "GDPR Art. 17 - Right to erasure"
+      "gdpr17": "GDPR Art. 17 - Right to erasure",
+      "retentionNote": "All data is stored encrypted at rest. Audit logs related to your account are kept for 24 months under our privacy policy, even after the account is deleted."
     },
     "help": {
       "title": "Need help?",
@@ -434,7 +480,45 @@
       "contact": "Contact support"
     },
     "verifiedRole": "Verified {{role}}",
-    "verifiedDesc": "Your profile has been verified. You can now connect and collaborate with others."
+    "verifiedDesc": "Your profile has been verified. You can now connect and collaborate with others.",
+    "tagPlaceholder": "Search or type a tag… (Enter to add)",
+    "removeTag": "Remove {{tag}}",
+    "saveBar": {
+      "label": "Save your profile",
+      "unsaved": "You have unsaved changes",
+      "editing": "Editing your profile"
+    },
+    "avatar": {
+      "upload": "Upload profile photo",
+      "wrongType": "Only JPEG, PNG, WebP or GIF images are allowed.",
+      "tooLarge": "The image must be under 5 MB."
+    },
+    "deleteModal": {
+      "badge": "Danger zone",
+      "title": "Delete your account?",
+      "body": "This cannot be undone. Your profile, posts and notifications will be permanently deleted. Audit logs are kept for 24 months under our privacy policy.",
+      "passwordPlaceholder": "Confirm with your current password",
+      "deleting": "Deleting…",
+      "failed": "The account could not be deleted."
+    },
+    "connected": {
+      "title": "Connected accounts",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "connected": "Connected",
+      "connectHint": "Connect your {{provider}} account",
+      "unavailable": "Not available yet",
+      "connectedNotice": "{{provider}} connected.",
+      "disconnectedNotice": "{{provider}} disconnected.",
+      "errors": {
+        "noSession": "That link request expired. Please try again.",
+        "alreadyLinked": "That account is already connected to another HealthAI profile.",
+        "userGone": "Your session is no longer valid. Please sign in again.",
+        "notConfigured": "Connecting this provider is not enabled on the server yet.",
+        "serverError": "Something went wrong on our side. Please try again.",
+        "failed": "The connection was cancelled or refused."
+      }
+    }
   },
   "dashboard": {
     "welcome": "Welcome back, {{name}}",
@@ -534,9 +618,9 @@
       "firstNamePlaceholder": "Jane",
       "lastNameLabel": "Last name",
       "lastNamePlaceholder": "Smith",
-      "emailLabel": "Institutional email",
-      "emailHint": ".edu or .gov only",
-      "emailPlaceholder": "you@university.edu",
+      "emailLabel": "Email address",
+      "emailHint": "Use an email address you can access",
+      "emailPlaceholder": "you@example.com",
       "passwordLabel": "Password",
       "passwordHint": "min. 8 characters",
       "confirmLabel": "Confirm password",
@@ -558,7 +642,11 @@
       "countryPlaceholder": "Select…",
       "gdprConsent": "I have read and agree to the Privacy Policy. I understand that my data will be processed in accordance with GDPR.",
       "submitting": "Creating…",
-      "submit": "Create account →"
+      "submit": "Create account →",
+      "emailTaken": "This email already has an account.",
+      "emailTakenHelp": "Sign in instead, or reset your password if you have forgotten it.",
+      "signInInstead": "Sign in",
+      "resetPasswordLink": "Reset your password"
     },
     "forgot": {
       "heading": "Forgot your password",
@@ -605,7 +693,11 @@
       "didntGet": "Didn't get the email?",
       "emailPlaceholder": "your.email@university.edu",
       "resend": "Resend verification",
-      "sent": "✓ Link sent — check your inbox."
+      "sent": "✓ Link sent — check your inbox.",
+      "pendingNotice": "This email was already waiting for verification, so we sent a new link. Your account keeps the password you chose the first time.",
+      "pendingForgot": "Don't remember that password?",
+      "pendingResetLink": "Reset it",
+      "resendFailed": "We could not send the link. Please try again."
     }
   },
   "meetingsPage": {
@@ -615,10 +707,11 @@
     "totalCount_other": "{{count}} meetings",
     "tabs": {
       "all": "All",
-      "incoming": "Incoming",
-      "outgoing": "Outgoing",
+      "incoming": "Received",
+      "outgoing": "Sent",
       "pending": "Pending",
-      "confirmed": "Confirmed",
+      "confirmed": "Scheduled",
+      "held": "Held",
       "closed": "Closed"
     },
     "sortBy": "Sort by",
@@ -626,7 +719,7 @@
     "sortOldest": "Oldest first",
     "noMatch": "No meetings match this filter.",
     "viewAll": "View all meetings →",
-    "proposedSlots": "{{count}} proposed slots",
+    "proposedSlots": "{{count}} proposed times",
     "chooseSlot": "Choose one slot",
     "reasonPlaceholder": "Optional reason…",
     "goBack": "Go back",
@@ -646,7 +739,57 @@
     "thisMonth": "This month",
     "allTime": "All time",
     "total": "Total",
-    "overview": "Meetings overview"
+    "overview": "Meetings overview",
+    "tabsHelp": "Received: requests others sent about your posts · Sent: requests you sent about other people's posts.",
+    "requestSent": "Request sent to {{name}}. You will be notified as soon as they respond.",
+    "direction": {
+      "incoming": "Request from {{name}}",
+      "outgoing": "Your request to {{name}}"
+    },
+    "hint": {
+      "pending": {
+        "owner": "{{name}} would like to meet. Accept to open a chat and pick a time, or decline.",
+        "requester": "Waiting for {{name}} to respond to your request."
+      },
+      "time_proposed": {
+        "owner": "Pick one of the proposed times, or agree on another one in the chat.",
+        "requester": "{{name}} accepted your request and is choosing a time. The chat is open."
+      },
+      "confirmed": {
+        "owner": "The meeting is scheduled. Once you have met, mark it as held.",
+        "requester": "The meeting is scheduled. Once you have met, mark it as held."
+      },
+      "completed": {
+        "owner": "The meeting was held. If {{name}} is the partner you were looking for, close your post with “Mark partner found”.",
+        "requester": "The meeting was held.",
+        "ownerPartnerFound": "The meeting was held and your post is marked as partner found. You can reopen it from the post page if needed."
+      },
+      "declined": {
+        "owner": "You declined this request.",
+        "requester": "{{name}} declined this request."
+      },
+      "cancelled": {
+        "owner": "This request was cancelled.",
+        "requester": "This request was cancelled."
+      }
+    },
+    "reason": "Reason: {{reason}}",
+    "reasonPrompt": {
+      "decline": "Reason for declining (optional)…",
+      "cancel": "Reason for cancelling (optional)…"
+    },
+    "proposedSlots_one": "{{count}} proposed time",
+    "proposedSlots_other": "{{count}} proposed times",
+    "proposeNewTimes": "Propose new times",
+    "proposeTitle": "Propose new times",
+    "proposeIntro": "Offer {{name}} other times that suit you. They replace the times you proposed before.",
+    "proposeSend": "Send new times",
+    "markHeld": "Mark as held",
+    "markHeldHelp": "We have met — this does not close the post.",
+    "goToPost": "Go to post",
+    "actionFailed": "That did not work. Please try again.",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month"
   },
   "notificationsPage": {
     "title": "Notifications",
@@ -661,11 +804,82 @@
     "count": "{{count}} notification",
     "count_other": "{{count}} notifications",
     "markAllRead": "Mark all as read",
+    "filter": "Filter notifications",
     "none": "No notifications here",
     "stayInLoop": "Stay in the loop",
     "enableDesc": "Enable browser notifications to never miss important updates.",
     "enableBtn": "Enable Notifications",
     "noMore": "No more notifications"
+  },
+  "notificationContent": {
+    "meeting_request": {
+      "title": "New meeting request",
+      "body": "{{actorName}} requested a meeting for \"{{postTitle}}\"."
+    },
+    "meeting_accepted": {
+      "title": "Meeting accepted",
+      "body": "{{actorName}} accepted your meeting request for \"{{postTitle}}\"."
+    },
+    "meeting_accepted_waiting": {
+      "title": "Meeting accepted",
+      "body": "{{actorName}} accepted your meeting request for \"{{postTitle}}\". A time slot is awaiting confirmation."
+    },
+    "meeting_declined": {
+      "title": "Meeting request declined",
+      "body": "{{actorName}} declined your meeting request for \"{{postTitle}}\"."
+    },
+    "meeting_auto_declined": {
+      "title": "Meeting request cancelled",
+      "body": "Your request for \"{{postTitle}}\" was automatically cancelled because another meeting was confirmed."
+    },
+    "meeting_cancelled": {
+      "title": "Meeting cancelled",
+      "body": "{{actorName}} cancelled the meeting request for \"{{postTitle}}\"."
+    },
+    "meeting_reschedule_requested": {
+      "title": "Reschedule request",
+      "body": "{{actorName}} would like to reschedule the meeting for \"{{postTitle}}\"."
+    },
+    "meeting_completed": {
+      "title": "Meeting held",
+      "body": "{{actorName}} marked the meeting for \"{{postTitle}}\" as held."
+    },
+    "partner_found": {
+      "title": "Partner found",
+      "body": "A collaboration partner has already been found for \"{{postTitle}}\"."
+    },
+    "post_interest_received": {
+      "title": "New interest",
+      "body": "{{actorName}} is interested in your post \"{{postTitle}}\"."
+    },
+    "saved_search_match": {
+      "title": "New post matches your saved search",
+      "body": "\"{{postTitle}}\" matches your saved search \"{{searchName}}\"."
+    },
+    "new_message": {
+      "title": "New message from {{actorName}}",
+      "body": "{{messagePreview}}"
+    },
+    "password_changed": {
+      "title": "Password changed",
+      "body": "Your password was changed successfully. Contact support immediately if this was not you."
+    },
+    "password_reset": {
+      "title": "Password reset",
+      "body": "Your password was reset successfully. Contact support immediately if this was not you."
+    },
+    "meeting_cancelled_account_deleted": {
+      "title": "Meeting cancelled",
+      "body": "The meeting for \"{{postTitle}}\" was cancelled because the other person's account was deleted."
+    },
+    "new_comment": {
+      "title": "New comment on your post",
+      "body": "{{actorName}} commented on \"{{postTitle}}\"."
+    },
+    "comment_reply": {
+      "title": "New reply to your comment",
+      "body": "{{actorName}} replied to your comment on \"{{postTitle}}\"."
+    }
   },
   "messagesPage": {
     "title": "Messages.",
@@ -684,7 +898,8 @@
     "updated": "Updated {{time}}",
     "deleting": "Deleting…",
     "sending": "Sending…",
-    "justNow": "Just now"
+    "justNow": "Just now",
+    "unknownPartner": "Unknown member"
   },
   "createPost": {
     "backToDirectory": "Back to directory",
@@ -693,7 +908,8 @@
     "saveDraft": "Save as draft",
     "savingDraft": "Saving draft…",
     "publish": "Review & publish →",
-    "publishing": "Publishing…"
+    "publishing": "Publishing…",
+    "badge": "07  New post"
   },
   "editPost": {
     "backToPost": "Back to post",
@@ -703,7 +919,8 @@
     "save": "Save changes",
     "saving": "Saving…",
     "notFound": "Post not found",
-    "notFoundDesc": "This post doesn't exist or you don't have access."
+    "notFoundDesc": "This post doesn't exist or you don't have access.",
+    "badge": "08  Edit post"
   },
   "errors": {
     "notFound": {
@@ -896,8 +1113,7 @@
     "translate": "Translate",
     "showOriginal": "Show original",
     "translating": "Translating…",
-    "translateToTurkish": "Translate to Turkish",
-    "translateToEnglish": "Translate to English",
+    "translateToCurrent": "Translate to English",
     "translationUnavailable": "Translation unavailable",
     "required": "Required",
     "optional": "Optional",
@@ -908,7 +1124,14 @@
       "engineer": "Engineer",
       "healthcare_professional": "Healthcare Professional",
       "admin": "Administrator"
-    }
+    },
+    "select": {
+      "search": "Search…",
+      "noResults": "No results for \"{{query}}\"",
+      "more": "+{{count}} more — keep typing to narrow",
+      "useCustom": "Use “{{value}}”"
+    },
+    "weeksAgo": "{{count}}w ago"
   },
   "validators": {
     "cityRequired": "City is required",
@@ -929,18 +1152,190 @@
     },
     "post": {
       "titleMin": "Title must be at least 5 characters",
-      "domainRequired": "Please select a medical domain",
+      "domainRequired": "Choose at least one domain",
       "expertiseMin": "Describe the expertise required",
       "descriptionMin": "Description must be at least 50 characters",
       "expiryRequired": "Expiry date is required",
-      "expiryFuture": "Expiry date must be in the future"
+      "expiryFuture": "Expiry date must be in the future",
+      "domainsMax": "Choose up to {{max}} domains"
     },
     "profile": {
       "nameMin": "Name must be at least 2 characters",
       "firstNameMin": "First name must be at least 2 characters",
       "lastNameMin": "Last name must be at least 2 characters",
       "institutionRequired": "Institution is required",
-      "bioMax": "Bio must be under 400 characters"
+      "bioMax": "Bio must be under 400 characters",
+      "detailTooLong": "This is too long",
+      "orcidInvalid": "Enter an ORCID iD like 0000-0002-1825-0097",
+      "websiteInvalid": "Enter a web address starting with https://",
+      "contactEmailInvalid": "Enter a valid email address",
+      "linkedinInvalid": "Enter a link to your linkedin.com profile"
     }
+  },
+  "meetingRequest": {
+    "badge": "Schedule a meeting",
+    "to": "To {{name}}",
+    "steps": {
+      "message": "Your message",
+      "nda": "NDA agreement",
+      "times": "Propose times"
+    },
+    "messageIntro": "Write a short message to {{name}} about your background and why this collaboration interests you.",
+    "messagePlaceholder": "Describe your relevant experience and what you can bring to this collaboration…",
+    "messageCounter": "Minimum {{min}} characters · {{count}} / 500",
+    "ndaTitle": "Non-disclosure agreement",
+    "ndaText": "By proceeding, you acknowledge that any information shared during this collaboration process is confidential. You agree not to disclose, reproduce, or use the information shared by the other party without explicit written consent.",
+    "ndaAccept": "I have read and accept the terms of this NDA. I understand that all information shared during this collaboration is confidential.",
+    "timesIntro": "Propose at least one time when you are available. {{name}} will pick one.",
+    "timesHint": "One time is enough: as soon as {{name}} accepts, a chat opens where you can agree on another time. Two or three options make it easier.",
+    "timesCounter": "{{count}} of up to {{max}}",
+    "errors": {
+      "messageMin": "Please write at least {{count}} characters about your interest.",
+      "ndaRequired": "You must accept the NDA to continue.",
+      "timesRequired": "Add at least one complete date and time.",
+      "sendFailed": "The request could not be sent. Please try again."
+    },
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "acceptContinue": "I accept & continue",
+    "send": "Send request",
+    "sending": "Sending…"
+  },
+  "meetingSlots": {
+    "zoneNote": "Times are in your time zone: {{zone}}",
+    "slotN": "Time {{n}}",
+    "remove": "Remove time {{n}}",
+    "date": "Date",
+    "time": "Time",
+    "hour": "Hour",
+    "minute": "Minute",
+    "add": "Add another time",
+    "yourTime": "Your time: {{date}}, {{time}}"
+  },
+  "partnerFound": {
+    "button": "Mark partner found",
+    "confirmTitle": "Mark this post as Partner Found?",
+    "confirmBody": "“{{title}}” will stop accepting meeting requests, and requests still waiting for an answer will be closed. Meetings that already have a confirmed time stay on the calendar.",
+    "confirmUndo": "Changed your mind? You can reopen the post later from its page.",
+    "confirm": "Yes, mark partner found"
+  },
+  "postDetail": {
+    "backToDirectory": "Back to directory",
+    "loadFailedTitle": "Could not load this post",
+    "loadFailedDesc": "There was a problem loading this listing. Please check your connection and try again.",
+    "notFoundTitle": "Post not found",
+    "notFoundDesc": "This listing may have been removed or the link is broken.",
+    "tryAgain": "Try again",
+    "share": "Share",
+    "copied": "Copied!",
+    "exportPdf": "Export PDF",
+    "save": "Save",
+    "saved": "Saved",
+    "manageRequest": "Manage your request",
+    "scheduleMeeting": "Schedule a meeting",
+    "publish": "Publish",
+    "edit": "Edit post",
+    "reopen": "Reopen post",
+    "reopenTitle": "Reopen this post?",
+    "reopenBody": "The post will accept meeting requests again. Requests that were closed stay closed.",
+    "reopenExpired": "Its expiry date has passed, so choose a new one.",
+    "newExpiry": "New expiry date",
+    "daysLeft": "Days left",
+    "sidebar": {
+      "alreadyRequested": "You have already sent a request. We will keep you updated.",
+      "canRequest": "Send a short note to start the collaboration conversation.",
+      "owner": "Manage this opportunity from the actions beside your profile.",
+      "partnerFound": "This post has found its partner and takes no new meeting requests.",
+      "notAccepting": "This opportunity is not accepting meeting requests right now.",
+      "commentsNotify": "Still interested? The author is notified about comments.",
+      "leaveNote": "Leave a note for the author"
+    },
+    "location": "Location",
+    "stage": "Project stage",
+    "collab": "Collaboration type",
+    "commitment": "Commitment",
+    "confidentiality": "Confidentiality",
+    "expiresOn": "Expires on",
+    "interest": "Interest",
+    "interestCount": "{{count}} members",
+    "interestCount_one": "{{count}} member",
+    "interestCount_other": "{{count}} members",
+    "descriptionTitle": "Project description",
+    "expertiseTitle": "Expertise required",
+    "aboutAuthor": "About the author",
+    "memberSince": "Member since {{date}}",
+    "viewProfile": "View profile",
+    "opportunityDetails": "Opportunity details",
+    "domains": "Domains",
+    "posted": "Posted",
+    "listingExpiry": "Listing expiry"
+  },
+  "professional": {
+    "title": "Professional details",
+    "subtitle": "Optional details that help partners check who you are and reach you through your institution.",
+    "position": "Position / title",
+    "positionPlaceholder": "e.g. Clinical midwife, Associate Professor",
+    "department": "Department",
+    "departmentPlaceholder": "e.g. Department of Obstetrics",
+    "orcid": "ORCID iD",
+    "contactEmail": "Contact email",
+    "contactEmailPlaceholder": "e.g. research.office@university.edu",
+    "institutionWebsite": "Institution website",
+    "linkedinUrl": "LinkedIn profile",
+    "empty": "No professional details added yet."
+  },
+  "chat": {
+    "secondsAgo": "{{count}}s ago",
+    "sendFailed": "The message could not be sent.",
+    "delete": "Delete conversation",
+    "deleteConfirm": "Delete conversation?",
+    "deleting": "Deleting…",
+    "deleteYes": "Yes, delete",
+    "meetingHint": "Use this chat to agree on a meeting time; the chosen time is confirmed on the",
+    "meetingsLink": "Meetings page",
+    "emptyTitle": "No messages yet",
+    "emptyDesc": "Start the conversation — say hello!",
+    "updated": "Updated {{when}}",
+    "placeholder": "Write a message… (Enter to send, Shift+Enter for a new line)",
+    "send": "Send message",
+    "open": "Open chat",
+    "close": "Close chat",
+    "backToConversations": "Back to conversations"
+  },
+  "footer": {
+    "platformName": "Co-Creation Platform",
+    "tagline": "Built in Europe · zero patient data",
+    "privacyPolicy": "Privacy Policy",
+    "gdprRights": "GDPR Rights",
+    "contact": "Contact",
+    "university": "Bilkent University",
+    "department": "Dept. of Software Engineering",
+    "trustGdpr": "Trust & GDPR",
+    "legal": "Legal",
+    "gdprYourRights": "GDPR & your rights",
+    "dataExport": "Data Export",
+    "terms": "Terms of Use",
+    "accountDeletion": "Account Deletion",
+    "access": "Access",
+    "forClinicians": "For Clinicians",
+    "forEngineers": "For Engineers",
+    "contactTeam": "Contact team",
+    "copyright": "Copyright",
+    "institutionalOnly": "Institutional .edu accounts only. Verification is automated and one-time.",
+    "noUploads": "No file uploads. No patient data. No exceptions.",
+    "builtByTeam": "Built in Europe · by Team HealthAI"
+  },
+  "cookieBanner": {
+    "label": "Cookie consent",
+    "badge": "GDPR · Essential cookies only",
+    "body": "We use only essential cookies for session management and security — no tracking, no analytics, no third-party scripts.",
+    "privacyLink": "Privacy policy",
+    "essentialOnly": "Essential only",
+    "acceptAll": "Accept all"
+  },
+  "language": {
+    "change": "Change language",
+    "options": "Language options"
   }
 }

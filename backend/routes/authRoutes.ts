@@ -56,6 +56,14 @@ const linkResult = (params: string) => `${CLIENT_ORIGIN}/profile?${params}`
 
 const PROVIDERS: OAuthProvider[] = ['github', 'linkedin']
 
+/** Which providers this server can link, so the profile only offers working buttons. */
+router.get('/providers', (_req, res) => {
+  res.json({
+    success: true,
+    data: { github: isProviderConfigured('github'), linkedin: isProviderConfigured('linkedin') },
+  })
+})
+
 for (const provider of PROVIDERS) {
   /**
    * Step 1 — the profile page asks (with its bearer token) where to send the

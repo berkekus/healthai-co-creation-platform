@@ -1,13 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Eye, EyeOff, Lock, Mail, Shield, Users, Stethoscope, Wrench, ShieldCheck } from 'lucide-react'
+import { Eye, EyeOff, Lock, Mail, Shield, Users, Stethoscope, Wrench } from 'lucide-react'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { createLoginSchema, type LoginFormData } from '../../utils/validators'
 import { ROUTES } from '../../constants/routes'
+import { TURNSTILE_SITE_KEY, captchaConfigured, captchaBlocks } from '../../lib/turnstile'
 import { prewarmBackend } from '../../lib/prewarm'
 import { useSlowRequestHint } from '../../hooks/useSlowRequestHint'
 
@@ -17,7 +18,6 @@ import { useSlowRequestHint } from '../../hooks/useSlowRequestHint'
 const DEV_ACCOUNTS = import.meta.env.DEV ? [
   { label: 'Doctor',    email: 'elif.kaya@istanbul.edu.tr', password: 'HealthAI2026!', icon: Stethoscope, color: '#0ea5e9' },
   { label: 'Engineer',  email: 'mert.aydin@metu.edu.tr',   password: 'HealthAI2026!', icon: Wrench,      color: '#8b5cf6' },
-  { label: 'Admin',     email: 'admin@healthai.edu',        password: 'Admin1234!',    icon: ShieldCheck, color: '#f97316' },
 ] : []
 
 const RATE_LIMIT_AFTER = 3
@@ -26,6 +26,8 @@ const COOLDOWN_SEC = 60
 export default function LoginPage() {
   const { t } = useTranslation()
   const { login, isAuthenticated, isLoading, error, clearError } = useAuthStore()
+  const emailId = useId()
+  const passwordId = useId()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? ROUTES.DASHBOARD
@@ -81,7 +83,7 @@ export default function LoginPage() {
   }
 
   const quickLogin = (email: string, password: string) => {
-    if (isLoading || !captchaToken) return
+    if (isLoading || captchaBlocks(captchaToken)) return
     quickLoginRef.current = true
     login({ email, password, captchaToken: captchaToken ?? undefined, rememberMe: true })
   }
@@ -217,7 +219,7 @@ export default function LoginPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
+                <label htmlFor={emailId} className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
                   {t('authPage.login.emailLabel')}
                 </label>
                 <div className="relative">
@@ -225,6 +227,7 @@ export default function LoginPage() {
                     <Mail size={15} strokeWidth={1.8} />
                   </span>
                   <input
+                    id={emailId}
                     {...register('email')}
                     type="email"
                     placeholder={t('authPage.login.emailPlaceholder')}
@@ -241,7 +244,7 @@ export default function LoginPage() {
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
+                <label htmlFor={passwordId} className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
                   {t('authPage.login.passwordLabel')}
                 </label>
                 <div className="relative">
@@ -249,6 +252,7 @@ export default function LoginPage() {
                     <Lock size={15} strokeWidth={1.8} />
                   </span>
                   <input
+                    id={passwordId}
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
                     placeholder={'\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022'}
@@ -305,14 +309,14 @@ export default function LoginPage() {
 
               {/* Turnstile */}
               <div className="flex flex-col items-center gap-2">
-                <Turnstile
+                {captchaConfigured && (<Turnstile
                   ref={captchaRef}
-                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                  siteKey={TURNSTILE_SITE_KEY as string}
                   onSuccess={token => { setCaptchaToken(token); setCaptchaError(false) }}
                   onExpire={() => setCaptchaToken(null)}
                   onError={() => { setCaptchaToken(null); setCaptchaError(true) }}
                   options={{ theme: 'light', size: 'normal' }}
-                />
+                />)}
                 {captchaError && (
                   <div role="alert" className="flex items-center gap-2 text-xs font-semibold text-red-600">
                     <span>{t('authPage.login.captchaFailed')}</span>
@@ -330,7 +334,7 @@ export default function LoginPage() {
               {/* Sign in button */}
               <button
                 type="submit"
-                disabled={isLoading || cooldown > 0 || !captchaToken}
+                disabled={isLoading || cooldown > 0 || captchaBlocks(captchaToken)}
                 className="mt-2 w-full flex items-center justify-center gap-2 py-[15px] rounded-full bg-[#1c1230] text-white text-base font-black tracking-normal font-headline hover:bg-[#110b1e] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)]"
               >
                 {isLoading ? (
@@ -377,7 +381,7 @@ export default function LoginPage() {
                       key={label}
                       type="button"
                       onClick={() => quickLogin(email, password)}
-                      disabled={isLoading || !captchaToken}
+                      disabled={isLoading || captchaBlocks(captchaToken)}
                       className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                     >
                       <div

@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { useConversationStore } from '../../store/conversationStore'
 import { useAuthStore } from '../../store/authStore'
 import type { Conversation } from '../../types/conversation.types'
+import api from '../../lib/api'
+import { timeAgo as describeTimeAgo } from '../../utils/timeAgo'
 
 export default function ConversationsPage() {
   const { t } = useTranslation()
@@ -17,10 +19,23 @@ export default function ConversationsPage() {
   useEffect(() => { fetchConversations() }, [fetchConversations])
 
   useEffect(() => {
-    if (!meetingIdParam || conversations.length === 0) return
+    if (!meetingIdParam) return
     const conv = getByMeetingId(meetingIdParam)
-    if (conv) navigate(`/messages/${conv.id}`, { replace: true })
-  }, [meetingIdParam, conversations, getByMeetingId, navigate])
+    if (conv) {
+      navigate(`/messages/${conv.id}`, { replace: true })
+      return
+    }
+    // A chat opens when a request is accepted, so it may not be in the list
+    // fetched a moment ago — ask the API, which also opens it if needed.
+    let cancelled = false
+    api.get<{ success: boolean; data: { id?: string; _id?: string } }>(`/conversations/by-meeting/${meetingIdParam}`)
+      .then(({ data }) => {
+        const id = data.data.id ?? data.data._id
+        if (!cancelled && id) navigate(`/messages/${id}`, { replace: true })
+      })
+      .catch(() => { /* no chat for this meeting: stay on the list */ })
+    return () => { cancelled = true }
+  }, [meetingIdParam, getByMeetingId, navigate])
 
   if (isLoading && conversations.length === 0) {
     return (
@@ -78,7 +93,7 @@ function ConversationRow({ conv, userId, isLast, onClick, onDelete }: {
 
   const partner = conv.participantDetails.find(p => p.userId !== userId)
   const initials = partner ? partner.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : '??'
-  const timeAgo = formatTimeAgo(conv.lastMessageAt)
+  const timeAgo = describeTimeAgo(conv.lastMessageAt, t)
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation(); setDeleting(true)
@@ -91,7 +106,7 @@ function ConversationRow({ conv, userId, isLast, onClick, onDelete }: {
         <div className="w-12 h-12 rounded-full bg-[#2d1838] text-[#8fdff0] font-black text-sm flex items-center justify-center shrink-0">{initials}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-3 mb-1">
-            <span className="font-headline font-black text-base text-[#2d1838] truncate">{partner?.name ?? 'Unknown'}</span>
+            <span className="font-headline font-black text-base text-[#2d1838] truncate">{partner?.name ?? t('messagesPage.unknownPartner')}</span>
             <span className="flex items-center gap-1 text-xs text-[#9f9aaa] font-semibold shrink-0"><Clock size={11} />{timeAgo}</span>
           </div>
           <p className="text-sm text-[#6f6a76] font-semibold truncate">{conv.postTitle}</p>
@@ -116,16 +131,4 @@ function ConversationRow({ conv, userId, isLast, onClick, onDelete }: {
       </div>
     </div>
   )
-}
-
-function formatTimeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
-  const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
-  const days = Math.floor(hrs / 24)
-  if (days < 7) return `${days}d ago`
-  return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }

@@ -6,14 +6,16 @@ import { asyncHandler } from '../utils/asyncHandler'
 import { log } from '../utils/controllerLog'
 
 export const createPost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const { title, domain, expertiseRequired, description, projectStage,
+  const { title, domain, domains, expertiseRequired, description, projectStage,
           collaborationType, levelOfCommitment, confidentiality, city, country, expiryDate } = req.body
 
-  if (!title || !domain || !expertiseRequired || !description || !projectStage ||
+  const hasDomain = (Array.isArray(domains) && domains.length > 0) || Boolean(domain)
+  if (!title || !hasDomain || !expertiseRequired || !description || !projectStage ||
       !collaborationType || !levelOfCommitment || !confidentiality || !city || !country || !expiryDate) {
     res.status(400).json({ success: false, message: 'All post fields are required' })
     return
   }
+  const resolvedDomains = postService.resolveDomains(domains, domain)
   const parsedExpiry = new Date(expiryDate)
   if (isNaN(parsedExpiry.getTime()) || parsedExpiry <= new Date()) {
     res.status(400).json({ success: false, message: 'expiryDate must be a valid future date' })
@@ -32,7 +34,7 @@ export const createPost = asyncHandler<AuthenticatedRequest>(async (req, res) =>
   }
 
   const post = await postService.createPost({
-    title, domain, expertiseRequired, description, projectStage,
+    title, domains: resolvedDomains, expertiseRequired, description, projectStage,
     collaborationType, levelOfCommitment, confidentiality, city, country, expiryDate,
     authorId: req.userId,
     authorName: author.name,
@@ -43,7 +45,7 @@ export const createPost = asyncHandler<AuthenticatedRequest>(async (req, res) =>
 })
 
 export const getPost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const post = await postService.getPostById(req.params.id)
+  const post = await postService.getPostById(req.params.id, req.userId, req.userRole === 'admin')
   res.json({ success: true, data: post })
 })
 
@@ -90,6 +92,12 @@ export const publishPost = asyncHandler<AuthenticatedRequest>(async (req, res) =
 export const markPartnerFound = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const post = await postService.markPartnerFound(req.params.id, req.userId)
   log(req, LOG.POST_PARTNER_FOUND, req.params.id)
+  res.json({ success: true, data: post })
+})
+
+export const reopenPost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
+  const post = await postService.reopenPost(req.params.id, req.userId, req.body?.expiryDate)
+  log(req, LOG.POST_REOPEN, req.params.id)
   res.json({ success: true, data: post })
 })
 

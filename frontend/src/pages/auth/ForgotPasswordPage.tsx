@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
+import { TURNSTILE_SITE_KEY, captchaConfigured, captchaBlocks } from '../../lib/turnstile'
 import PageWrapper from '../../components/layout/PageWrapper'
 import api from '../../lib/api'
 
@@ -12,6 +13,7 @@ const inputCls = 'w-full bg-hai-offwhite border border-neutral-200 rounded-xl px
 
 export default function ForgotPasswordPage() {
   const { t } = useTranslation()
+  const emailId = useId()
   const [email, setEmail]   = useState('')
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError]   = useState<string | null>(null)
@@ -69,17 +71,18 @@ export default function ForgotPasswordPage() {
       <div className="bg-white rounded-[2rem] shadow-[0_30px_80px_-30px_rgba(54,33,62,0.2)] border border-neutral-100 p-6 md:p-8">
         {status === 'error' && error && (
           <div role="alert" className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
-            <span className="material-symbols-outlined text-red-600 text-xl shrink-0" style={{ fontVariationSettings: '"FILL" 1' }}>error</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-red-600 text-xl shrink-0" style={{ fontVariationSettings: '"FILL" 1' }}>error</span>
             <p className="text-sm text-red-700 font-semibold">{error}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
           <div>
-            <label className="block text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2">
+            <label htmlFor={emailId} className="block text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2">
               {t('authPage.forgot.emailLabel')} <span className="text-red-500">*</span>
             </label>
             <input
+              id={emailId}
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
@@ -91,19 +94,19 @@ export default function ForgotPasswordPage() {
           </div>
 
           <div className="flex justify-center">
-            <Turnstile
+            {captchaConfigured && (<Turnstile
               ref={captchaRef}
-              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+              siteKey={TURNSTILE_SITE_KEY as string}
               onSuccess={setCaptchaToken}
               onExpire={() => setCaptchaToken(null)}
               onError={() => setCaptchaToken(null)}
               options={{ theme: 'light', size: 'normal' }}
-            />
+            />)}
           </div>
 
           <button
             type="submit"
-            disabled={status === 'loading' || !email.trim() || !captchaToken}
+            disabled={status === 'loading' || !email.trim() || captchaBlocks(captchaToken)}
             className="mt-2 w-full py-3.5 rounded-full bg-hai-plum text-white font-bold text-base hover:bg-black disabled:bg-neutral-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2.5"
           >
             {status === 'loading' ? (

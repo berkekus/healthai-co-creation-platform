@@ -45,8 +45,8 @@ MONGO_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/healthai?retryWrites
 JWT_SECRET=<64-char-hex-from-openssl>
 JWT_EXPIRES_IN=7d
 PORT=5000
-CLIENT_ORIGIN=https://your-app.vercel.app
-APP_BASE_URL=https://your-app.vercel.app
+CLIENT_ORIGIN=https://www.healthcocreate.com
+APP_BASE_URL=https://www.healthcocreate.com
 TURNSTILE_SECRET_KEY=<cloudflare-turnstile-secret>
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -61,7 +61,7 @@ LINKEDIN_CLIENT_ID=<optional>
 LINKEDIN_CLIENT_SECRET=<optional>
 ```
 
-> **Not:** `CLIENT_ORIGIN` ve `APP_BASE_URL` deploy ettikten sonra Vercel URL'inizi alınca güncelleyin.
+> **Not:** `CLIENT_ORIGIN` ve `APP_BASE_URL` her zaman canlı alan adına ayarlanmalıdır: `https://www.healthcocreate.com`. Vercel adresi yalnızca teknik barındırma adresidir; e-posta bağlantılarında kullanılmaz.
 
 ### 2.3 Domain
 Railway otomatik bir subdomain verir: `https://your-service.up.railway.app`  
@@ -137,7 +137,7 @@ Gerekli env vars: `MONGO_URI`, `JWT_SECRET`, `CLIENT_ORIGIN`, `APP_BASE_URL`, `T
 - [ ] Yeni JWT_SECRET üretildi (64+ char)
 - [ ] Railway backend deploy edildi ve `/api/health` OK dönüyor
 - [ ] Vercel frontend deploy edildi
-- [ ] Railway → `CLIENT_ORIGIN` Vercel URL'i ile güncellendi
+- [ ] Railway → `CLIENT_ORIGIN` ve `APP_BASE_URL` `https://www.healthcocreate.com` ile güncellendi
 - [ ] Vercel → `VITE_API_URL` Railway URL'i ile güncellendi
 - [ ] Cloudflare Turnstile site key + secret key ayarlandı
 - [ ] SMTP (email) test edildi (kayıt → doğrulama maili geliyor)

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import {
   createPost, getPost, listPosts, updatePost,
-  publishPost, markPartnerFound, deletePost, expressInterest,
+  publishPost, markPartnerFound, reopenPost, deletePost, expressInterest,
 } from '../controllers/postController'
 import { protect } from '../middleware/authMiddleware'
 import { postCreateLimiter } from '../middleware/rateLimiter'
@@ -14,6 +14,7 @@ router.get('/:id', protect, getPost)
 router.put('/:id', protect, updatePost)
 router.post('/:id/publish', protect, publishPost)
 router.post('/:id/partner-found', protect, markPartnerFound)
+router.post('/:id/reopen', protect, reopenPost)
 router.post('/:id/interest', protect, expressInterest)
 router.delete('/:id', protect, deletePost)
 

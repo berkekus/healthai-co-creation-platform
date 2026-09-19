@@ -10,13 +10,14 @@ export default function VerifyEmailPage() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { verifyEmail, resendVerification, pendingVerificationEmail } = useAuthStore()
+  const { verifyEmail, resendVerification, pendingVerificationEmail, verificationResent } = useAuthStore()
   const token = searchParams.get('token')
 
   const [status, setStatus] = useState<Status>(token ? 'verifying' : 'idle')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [resendEmail, setResendEmail] = useState(pendingVerificationEmail ?? '')
   const [resendSent, setResendSent] = useState(false)
+  const [resendError, setResendError] = useState<string | null>(null)
   const [resending, setResending] = useState(false)
 
   useEffect(() => {
@@ -40,9 +41,11 @@ export default function VerifyEmailPage() {
   const handleResend = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!resendEmail.trim()) return
-    setResending(true); setResendSent(false)
-    await resendVerification(resendEmail.trim())
-    setResending(false); setResendSent(true)
+    setResending(true); setResendSent(false); setResendError(null)
+    const sent = await resendVerification(resendEmail.trim())
+    setResending(false)
+    if (sent) setResendSent(true)
+    else setResendError(useAuthStore.getState().error ?? t('authPage.verify.resendFailed'))
   }
 
   if (status === 'verifying') {
@@ -89,10 +92,10 @@ export default function VerifyEmailPage() {
             </svg>
           </div>
           <h1 className="font-headline font-black text-4xl leading-tight text-[#36213E] mb-3">
-            Verification<br />failed<span className="text-[#8AC6D0]">.</span>
+            {t('authPage.verify.failTitle')}
           </h1>
           <p className="text-base text-[#6F6878] mb-8">{errorMsg ?? t('authPage.verify.failDesc')}</p>
-          <ResendForm email={resendEmail} onChange={setResendEmail} onSubmit={handleResend} loading={resending} sent={resendSent} />
+          <ResendForm email={resendEmail} onChange={setResendEmail} onSubmit={handleResend} loading={resending} sent={resendSent} error={resendError} />
           <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-1.5 text-[#1B7A88] font-bold text-sm hover:text-[#36213E] transition-colors mt-6">
             {t('authPage.verify.alreadyVerified')}
           </Link>
@@ -138,12 +141,23 @@ export default function VerifyEmailPage() {
           )}
           <p className="text-base text-[#6F6878] leading-relaxed mb-8">{t('authPage.verify.checkSub')}</p>
 
+          {verificationResent && (
+            <div role="status" className="mb-6 max-w-[460px] rounded-[18px] border border-[#8AC6D0] bg-[#E8F4F7] p-4 text-sm leading-relaxed text-[#36213E]">
+              <p className="font-semibold">{t('authPage.verify.pendingNotice')}</p>
+              <p className="mt-1">
+                {t('authPage.verify.pendingForgot')}{' '}
+                <Link to={ROUTES.FORGOT_PASSWORD} className="font-bold text-[#1B7A88] underline">{t('authPage.verify.pendingResetLink')}</Link>
+              </p>
+            </div>
+          )}
+
           <ResendForm
             email={resendEmail}
             onChange={setResendEmail}
             onSubmit={handleResend}
             loading={resending}
             sent={resendSent}
+            error={resendError}
           />
 
           <Link
@@ -182,8 +196,8 @@ function StepBadge() {
   )
 }
 
-function ResendForm({ email, onChange, onSubmit, loading, sent }: {
-  email: string; onChange: (v: string) => void; onSubmit: (e: React.FormEvent) => void; loading: boolean; sent: boolean
+function ResendForm({ email, onChange, onSubmit, loading, sent, error }: {
+  email: string; onChange: (v: string) => void; onSubmit: (e: React.FormEvent) => void; loading: boolean; sent: boolean; error: string | null
 }) {
   const { t } = useTranslation()
   return (
@@ -195,7 +209,8 @@ function ResendForm({ email, onChange, onSubmit, loading, sent }: {
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M1 7h12M7 1l6 6-6 6" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
           {loading ? t('common.loading') : t('authPage.verify.resend')}
         </button>
-        {sent && <span className="text-xs text-[#6FB8C4] font-semibold">{t('authPage.verify.sent')}</span>}
+        {sent && <span role="status" className="text-xs text-[#6FB8C4] font-semibold">{t('authPage.verify.sent')}</span>}
+        {error && <span role="alert" className="text-xs text-red-600 font-semibold">{error}</span>}
       </div>
     </form>
   )

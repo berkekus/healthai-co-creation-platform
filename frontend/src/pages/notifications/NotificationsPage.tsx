@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Bell, Calendar, Check, FileText, Filter, MessageSquare, Shield, Star, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import type { Notification, NotificationType } from '../../types/common.types'
+import { getNotificationContent } from '../../utils/notificationContent'
+import { timeAgo } from '../../utils/timeAgo'
 
 type FilterTab = 'all' | 'unread' | 'meetings' | 'posts' | 'system'
 
@@ -12,22 +14,9 @@ const MEETING_TYPES: NotificationType[] = [
   'meeting_request', 'meeting_accepted', 'meeting_declined', 'meeting_cancelled', 'meeting_completed',
 ]
 const POST_TYPES: NotificationType[] = [
-  'post_closed', 'post_status_changed', 'partner_found', 'interest_received',
+  'post_closed', 'post_status_changed', 'partner_found', 'interest_received', 'new_comment',
 ]
 const SYSTEM_TYPES: NotificationType[] = ['account_activity', 'new_message']
-
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'Just now'
-  if (mins < 60) return `${mins}m ago`
-  const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
-  const days = Math.floor(hrs / 24)
-  if (days === 1) return 'Yesterday'
-  if (days < 7) return `${days} days ago`
-  return `${Math.floor(days / 7)} week${days >= 14 ? 's' : ''} ago`
-}
 
 function getIconStyle(type: NotificationType): { Icon: typeof Bell; bg: string; color: string } {
   if (type === 'meeting_declined' || type === 'meeting_cancelled') return { Icon: Calendar, bg: '#F7EDEE', color: '#B64B55' }
@@ -36,7 +25,7 @@ function getIconStyle(type: NotificationType): { Icon: typeof Bell; bg: string; 
   if (type === 'interest_received') return { Icon: Star, bg: '#E3DCD2', color: '#36213E' }
   if (type === 'post_closed' || type === 'post_status_changed') return { Icon: FileText, bg: '#E8F4F7', color: '#6FB8C4' }
   if (type === 'account_activity') return { Icon: Shield, bg: '#EEF0F3', color: '#36213E' }
-  if (type === 'new_message') return { Icon: MessageSquare, bg: '#E8F4F7', color: '#6FB8C4' }
+  if (type === 'new_message' || type === 'new_comment') return { Icon: MessageSquare, bg: '#E8F4F7', color: '#6FB8C4' }
   return { Icon: Bell, bg: '#EEF0F3', color: '#6F6878' }
 }
 
@@ -46,6 +35,23 @@ export default function NotificationsPage() {
   const { getByUser, fetchByUser, markRead, markAllRead } = useNotificationStore()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
+  const [filterOpen, setFilterOpen] = useState(false)
+  const filterRef = useRef<HTMLDivElement>(null)
+
+  // The header filter menu closes like any other popup: Escape or a click elsewhere.
+  useEffect(() => {
+    if (!filterOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setFilterOpen(false) }
+    const onPointer = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) setFilterOpen(false)
+    }
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('mousedown', onPointer)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('mousedown', onPointer)
+    }
+  }, [filterOpen])
 
   useEffect(() => {
     if (user) fetchByUser(user.id)
@@ -87,8 +93,8 @@ export default function NotificationsPage() {
     <div className="min-h-screen bg-[#F3F4F6] font-body">
       <div className="max-w-[1320px] mx-auto px-6 pt-8 pb-20 flex gap-5 items-start">
 
-        {/* ── SIDEBAR ── */}
-        <aside className="w-[256px] shrink-0 bg-white rounded-2xl border border-[#E3E7EC] overflow-hidden">
+        {/* ── SIDEBAR (wide screens; narrow screens use the header filter menu) ── */}
+        <aside className="hidden md:block w-[256px] shrink-0 bg-white rounded-2xl border border-[#E3E7EC] overflow-hidden">
           <div className="px-5 pt-5 pb-4 border-b border-[#E3E7EC]">
             <div className="flex items-center gap-2.5 text-base font-black text-[#36213E]">
               <Bell size={17} strokeWidth={2} />
@@ -148,7 +154,7 @@ export default function NotificationsPage() {
         </aside>
 
         {/* ── MAIN ── */}
-        <main className="flex-1 bg-white rounded-2xl border border-[#E3E7EC] overflow-hidden">
+        <main className="flex-1 min-w-0 bg-white rounded-2xl border border-[#E3E7EC] overflow-hidden">
           {/* Header */}
           <div className="px-7 pt-6 pb-5 border-b border-[#E3E7EC] flex items-start justify-between gap-4">
             <div>
@@ -169,9 +175,55 @@ export default function NotificationsPage() {
                   {t('notificationsPage.markAllRead')}
                 </button>
               )}
-              <button className="w-10 h-10 rounded-xl border border-[#E3E7EC] flex items-center justify-center text-[#6F6878] hover:border-[#8AC6D0] hover:text-[#8AC6D0] transition-colors">
-                <Filter size={15} strokeWidth={2} />
-              </button>
+              <div ref={filterRef} className="relative md:hidden">
+                <button
+                  type="button"
+                  onClick={() => setFilterOpen(open => !open)}
+                  aria-label={t('notificationsPage.filter')}
+                  aria-haspopup="menu"
+                  aria-expanded={filterOpen}
+                  className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-colors ${
+                    filterOpen || activeTab !== 'all'
+                      ? 'border-[#8AC6D0] text-[#1B7A88] bg-[#E8F4F7]'
+                      : 'border-[#E3E7EC] text-[#6F6878] hover:border-[#8AC6D0] hover:text-[#8AC6D0]'
+                  }`}
+                >
+                  <Filter size={15} strokeWidth={2} aria-hidden="true" />
+                </button>
+                {filterOpen && (
+                  <div
+                    role="menu"
+                    aria-label={t('notificationsPage.filter')}
+                    className="absolute right-0 top-12 z-30 w-60 rounded-2xl border border-[#E3E7EC] bg-white p-2 shadow-[0_20px_50px_-20px_rgba(54,33,62,0.25)]"
+                  >
+                    {tabs.map(tab => {
+                      const count = counts[tab.key]
+                      const unavailable = count === 0 && tab.key !== 'all'
+                      return (
+                        <button
+                          key={tab.key}
+                          type="button"
+                          role="menuitemradio"
+                          aria-checked={activeTab === tab.key}
+                          disabled={unavailable}
+                          onClick={() => { setActiveTab(tab.key); setFilterOpen(false) }}
+                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
+                            activeTab === tab.key
+                              ? 'bg-[#E8F4F7] text-[#1B7A88]'
+                              : unavailable ? 'cursor-not-allowed text-[#C5CAD6]' : 'text-[#6F6878] hover:bg-[#EEF0F3] hover:text-[#36213E]'
+                          }`}
+                        >
+                          <span className="flex items-center gap-2.5">
+                            <span aria-hidden="true">{tab.icon}</span>
+                            {tab.label}
+                          </span>
+                          <span className="text-xs font-bold">{count}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -187,6 +239,7 @@ export default function NotificationsPage() {
             ) : (
               filtered.map(n => {
                 const { Icon, bg, color } = getIconStyle(n.type)
+                const content = getNotificationContent(n, t)
                 return (
                   <button
                     type="button"
@@ -214,15 +267,15 @@ export default function NotificationsPage() {
                       <div className={`text-sm leading-snug ${
                         n.isRead ? 'text-[#36213E] font-semibold' : 'text-[#36213E] font-bold'
                       }`}>
-                        {n.title}
+                        {content.title}
                       </div>
-                      <div className="text-sm text-[#6F6878] mt-0.5 truncate">{n.body}</div>
+                      <div className="text-sm text-[#6F6878] mt-0.5 truncate">{content.body}</div>
                     </div>
 
                     {/* Time + dot */}
                     <div className="flex items-center gap-2.5 shrink-0 mt-1">
                       <span className="text-xs text-[#6F6878] font-semibold whitespace-nowrap">
-                        {timeAgo(n.createdAt)}
+                        {timeAgo(n.createdAt, t)}
                       </span>
                       {!n.isRead && (
                         <span className="w-2 h-2 rounded-full bg-[#8AC6D0] shrink-0" />

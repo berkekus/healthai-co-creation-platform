@@ -73,5 +73,12 @@
     "cta": {
       "ready": "Pronto para cocriar?"
     }
+  },
+  "common": {
+    "translateToCurrent": "Traduzir para português"
+  },
+  "language": {
+    "change": "Mudar idioma",
+    "options": "Opções de idioma"
   }
 }

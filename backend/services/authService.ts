@@ -10,6 +10,7 @@ import { sendVerificationEmail, sendAccountDeletedEmail, sendPasswordResetEmail 
 import { pushNotification } from './notificationService'
 import { deleteAvatarFile } from '../middleware/uploadMiddleware'
 import { makeError } from '../utils/AppError'
+import { normalizeProfessionalFields } from '../utils/profileFields'
 import logger from '../src/logger'
 
 const SALT_ROUNDS = 12
@@ -25,7 +26,7 @@ function hashToken(token: string): string {
 
 function signToken(user: IUser): string {
   return jwt.sign(
-    { id: user.id as string, role: user.role },
+    { id: user.id as string, role: user.role, tokenVersion: user.tokenVersion ?? 0 },
     process.env.JWT_SECRET as string,
     { expiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as jwt.SignOptions['expiresIn'] }
   )
@@ -43,6 +44,15 @@ function sanitize(user: IUser) {
     bio: user.bio,
     avatarUrl: user.avatarUrl,
     expertiseTags: user.expertiseTags,
+    position: user.position,
+    department: user.department,
+    orcid: user.orcid,
+    institutionWebsite: user.institutionWebsite,
+    contactEmail: user.contactEmail,
+    linkedinUrl: user.linkedinUrl,
+    githubId: user.githubId,
+    githubUsername: user.githubUsername,
+    linkedinId: user.linkedinId,
     notifPrefs: user.notifPrefs,
     isVerified: user.isVerified,
     isSuspended: user.isSuspended,
@@ -62,6 +72,12 @@ function publicSanitize(user: IUser) {
     bio: user.bio,
     avatarUrl: user.avatarUrl,
     expertiseTags: user.expertiseTags,
+    position: user.position,
+    department: user.department,
+    orcid: user.orcid,
+    institutionWebsite: user.institutionWebsite,
+    contactEmail: user.contactEmail,
+    linkedinUrl: user.linkedinUrl,
     lastActive: user.lastActive,
     createdAt: user.createdAt,
   }
@@ -77,7 +93,22 @@ export async function registerUser(data: {
   country: string
 }) {
   const existing = await User.findOne({ email: data.email.toLowerCase() })
-  if (existing) throw makeError('Email already registered', 409)
+  if (existing?.isVerified) throw makeError('Email already registered', 409)
+  if (existing) {
+    // A registration was started but never verified (expired link, lost email).
+    // Send a fresh link instead of blocking the person. The pending account's
+    // password and details stay untouched: nothing yet proves the caller owns
+    // this inbox, so letting a second registration overwrite them would let a
+    // stranger plant a password on someone else's pending account.
+    const rawToken = generateVerifyToken()
+    existing.verifyToken = hashToken(rawToken)
+    existing.verifyTokenExpires = new Date(Date.now() + VERIFY_TOKEN_TTL_MS)
+    await existing.save()
+    sendVerificationEmail(existing.email, rawToken, existing.name).catch((err) => {
+      logger.error({ err }, 'Failed to re-send verification email')
+    })
+    return { email: existing.email, requiresVerification: true, pendingVerification: true }
+  }
 
   const hashed = await bcrypt.hash(data.password, SALT_ROUNDS)
   const rawToken = generateVerifyToken()
@@ -165,11 +196,16 @@ export async function updateNotifPrefs(
 
 export async function updateUserProfile(
   userId: string,
-  data: Partial<Pick<IUser, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>
+  data: Partial<Pick<IUser, 'name' | 'institution' | 'city' | 'country' | 'bio' | 'avatarUrl' | 'expertiseTags'>>,
+  professional: Record<string, unknown> = {},
 ) {
+  const { set, unset } = normalizeProfessionalFields(professional)
+  const defined = Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined))
+  const update: Record<string, unknown> = { $set: { ...defined, ...set } }
+  if (unset.length) update.$unset = Object.fromEntries(unset.map(field => [field, 1]))
   const user = await User.findByIdAndUpdate(
     userId,
-    { $set: data },
+    update,
     { new: true, runValidators: true }
   )
   if (!user) throw makeError('User not found', 404)
@@ -233,11 +269,15 @@ export async function changePassword(userId: string, oldPassword: string, newPas
   if (!match) throw makeError('Current password is incorrect', 400)
 
   user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
+  user.passwordChangedAt = new Date()
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1
   await user.save()
 
   pushNotification({
     userId: user.id as string,
     type: 'account_activity',
+    contentKey: 'password_changed',
+    metadata: {},
     title: 'Şifre değiştirildi',
     body: 'Hesabınızın şifresi başarıyla değiştirildi. Bu işlemi siz yapmadıysanız hemen destek ekibiyle iletişime geçin.',
   }).catch(() => {})
@@ -286,6 +326,8 @@ async function cascadeDeleteUser(
     cancellationNotifications.push({
       userId: otherUserId,
       type: 'meeting_cancelled',
+      contentKey: 'meeting_cancelled_account_deleted',
+      metadata: { postTitle: m.postTitle },
       title: 'Toplantı iptal edildi',
       body: notifyBody.replace('{title}', m.postTitle),
       linkTo: '/meetings',
@@ -341,9 +383,8 @@ export async function deleteAccount(userId: string, password: string) {
     await session.endSession()
   }
 
-  for (const notification of cancellationNotifications) {
-    pushNotification(notification).catch(() => {})
-  }
+  // The account is already gone; a failed notice must not turn that into an error.
+  await Promise.allSettled(cancellationNotifications.map(notification => pushNotification(notification)))
 
   if (avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(avatarUrl)
 
@@ -375,9 +416,8 @@ export async function deleteUserByAdmin(userId: string) {
     await session.endSession()
   }
 
-  for (const notification of cancellationNotifications) {
-    pushNotification(notification).catch(() => {})
-  }
+  // The account is already gone; a failed notice must not turn that into an error.
+  await Promise.allSettled(cancellationNotifications.map(notification => pushNotification(notification)))
 
   if (avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(avatarUrl)
 
@@ -398,8 +438,10 @@ const RESET_TOKEN_TTL_MS = 60 * 60 * 1000 // 1 hour
 
 export async function forgotPassword(email: string) {
   const user = await User.findOne({ email: email.toLowerCase() })
-  // Silently succeed — don't reveal whether email is registered
-  if (!user || !user.isVerified) return
+  // Silently succeed — don't reveal whether email is registered. Unverified
+  // accounts are included: someone who forgot the password they registered
+  // with would otherwise have no way back in.
+  if (!user) return
 
   const rawToken = generateVerifyToken()
   user.resetToken = hashToken(rawToken)
@@ -421,13 +463,24 @@ export async function resetPassword(token: string, newPassword: string) {
   if (!user) throw makeError('Invalid or expired password reset token', 400)
 
   user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
+  user.passwordChangedAt = new Date()
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1
   user.resetToken = undefined
   user.resetTokenExpires = undefined
+  // The reset link was delivered to this inbox, which proves ownership just as
+  // the verification link would have.
+  if (!user.isVerified) {
+    user.isVerified = true
+    user.verifyToken = undefined
+    user.verifyTokenExpires = undefined
+  }
   await user.save()
 
   pushNotification({
     userId: user.id as string,
     type: 'account_activity',
+    contentKey: 'password_reset',
+    metadata: {},
     title: 'Şifre sıfırlandı',
     body: 'Hesabınızın şifresi başarıyla sıfırlandı. Bu işlemi siz yapmadıysanız hemen destek ekibiyle iletişime geçin.',
   }).catch(() => {})

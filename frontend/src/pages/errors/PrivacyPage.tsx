@@ -75,15 +75,11 @@ export default function PrivacyPage() {
           <div className="flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1.5 bg-hai-mint text-hai-plum rounded-full px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
-              GDPR compliant
+              GDPR rights information
             </span>
             <span className="inline-flex items-center gap-1.5 bg-hai-offwhite text-hai-plum rounded-full px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase font-bold">
               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>event</span>
               Last updated · 19 Apr 2026
-            </span>
-            <span className="inline-flex items-center gap-1.5 bg-hai-lime text-hai-plum rounded-full px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase font-bold">
-              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>location_on</span>
-              EEA
             </span>
           </div>
         </div>
@@ -99,7 +95,7 @@ export default function PrivacyPage() {
             Contact:{' '}
             <span className="inline-flex items-center gap-1 bg-hai-offwhite rounded-full px-2.5 py-0.5 font-mono text-xs text-hai-plum font-bold">
               <span className="material-symbols-outlined text-sm">mail</span>
-              admin@healthai.edu
+              admin@healthcocreate.com
             </span>
           </p>
         </SectionCard>
@@ -116,7 +112,7 @@ export default function PrivacyPage() {
               IP address (login events), failed login attempts, rate-limit hits. Retained for 24 months.
             </BulletRow>
             <BulletRow label="Session data:">
-              Session token stored in memory only; expires after 30 minutes of inactivity.
+              A session token is stored in browser session storage, or persistent browser storage when “Remember me” is selected. The application signs users out after 30 minutes of inactivity.
             </BulletRow>
           </div>
           <div className="mt-4 bg-hai-cream/50 border border-hai-plum/10 rounded-2xl p-4 flex items-start gap-3">
@@ -168,7 +164,7 @@ export default function PrivacyPage() {
             <BulletRow label="Portability (Art. 20):">Export your data as JSON via Profile → Export my data.</BulletRow>
             <BulletRow label="Erasure (Art. 17):">Delete your account via Profile → Delete account. Security logs cannot be deleted per retention policy.</BulletRow>
             <BulletRow label="Rectification (Art. 16):">Edit your profile at any time.</BulletRow>
-            <BulletRow label="Objection (Art. 21):">Contact <span className="font-mono bg-hai-offwhite text-hai-plum px-1 rounded font-bold">admin@healthai.edu</span> to object to processing.</BulletRow>
+            <BulletRow label="Objection (Art. 21):">Contact <span className="font-mono bg-hai-offwhite text-hai-plum px-1 rounded font-bold">admin@healthcocreate.com</span> to object to processing.</BulletRow>
           </div>
         </SectionCard>
 
@@ -183,10 +179,10 @@ export default function PrivacyPage() {
 
         <SectionCard index="07" title="Data transfers" icon="public" tone="mint">
           <p>
-            This is a demo platform running locally — no data is transferred outside the user's browser session.
+            To provide the service, account, profile, post, meeting, message, notification, and security-log data are processed through the platform's server infrastructure. This data is not limited to the user's browser session.
           </p>
           <p>
-            In a production deployment, data would remain within the <strong className="text-hai-plum font-body font-bold">European Economic Area (EEA)</strong>.
+            Hosting location and service providers can vary by deployment. For questions about the current hosting arrangement or data processing, contact <span className="font-mono bg-hai-offwhite text-hai-plum px-1 rounded font-bold">admin@healthcocreate.com</span>.
           </p>
         </SectionCard>
       </div>
@@ -207,8 +203,8 @@ export default function PrivacyPage() {
             </div>
             <p className="text-sm leading-relaxed text-hai-offwhite/85">
               Email{' '}
-              <a href="mailto:admin@healthai.edu" className="underline underline-offset-2 text-hai-mint hover:text-white transition-colors">
-                admin@healthai.edu
+              <a href="mailto:admin@healthcocreate.com" className="underline underline-offset-2 text-hai-mint hover:text-white transition-colors">
+                admin@healthcocreate.com
               </a>{' '}
               . You have the right to lodge a complaint with your national data protection authority.
             </p>

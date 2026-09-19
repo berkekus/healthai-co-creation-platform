@@ -20,6 +20,7 @@ export const LOG = {
   POST_UPDATE:      'post_update',
   POST_PUBLISH:     'post_publish',
   POST_PARTNER_FOUND: 'post_partner_found',
+  POST_REOPEN:      'post_reopen',
   POST_DELETE:      'post_delete',
   POST_INTEREST:    'post_interest',
   // Meetings

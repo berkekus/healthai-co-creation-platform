@@ -164,8 +164,8 @@ src/
 ```
 
 **Seed data:**
-- 5 kullanıcı: e.muller@charite.edu, m.rossi@polimi.edu, i.larsson@ki.edu, k.nakamura@tum.edu, admin@healthai.edu
-- Şifreler: `password123` (admin: `admin123`)
+- 5 kullanıcı: e.muller@charite.edu, m.rossi@polimi.edu, i.larsson@ki.edu, k.nakamura@tum.edu, admin@healthcocreate.com
+- Demo passwords are local-development fixtures only; production administrator credentials are not documented here.
 - 10 ilan, 3 toplantı, 20 aktivite logu, 4 bildirim
 
 ### ✅ Faz 2 — Kimlik Doğrulama (v2 · Studio Feixen Sans + hai-* palet refresh · 20·04·2026)
@@ -418,7 +418,7 @@ src/
 **Error pages (redesigned · hai-* palet + Plus Jakarta Sans):**
 - **`NotFoundPage` (`/404`)** — beyaz rounded-[2rem] kart + çift radial glow (mint sağ-üst + lime sol-alt); 22 vw (~220 px) "4·0·4" numerals (0 teal vurgulu); Err badge pill (offwhite + teal/30 border + `explore_off`); "We can't find that page." başlık (Plus Jakarta Sans bold, 44 px, teal nokta); kırık URL için mono pill (`link` ikon + truncate); aksiyon sırası: Go back (outline) · Back to home (plum pill + shadow + `home`) · Browse posts (mint pill + `grid_view`); alt "Quick links" grid (Dashboard / Meetings / Profile → offwhite→mint hover, teal ikon + `arrow_forward`)
 
-- **`UnauthorizedPage` (`/403`)** — aynı kart dil, red-50/red-200 "Err · 403" pill + `lock` ikon; 4·0·3 numerals (0 kırmızı); "You don't have access." başlık (kırmızı nokta); kullanıcı auth durumuna göre dinamik: signed-in → rol badge'ü (mint pill + `badge` ikon) + "Back to dashboard" CTA · signed-out → "Sign in" CTA; ayrıca "Contact admin" (cream pill, mailto:admin@healthai.edu); alt bilgi satırı: `info` ikon + "Common reasons: pending verification / suspended / admin-only"
+- **`UnauthorizedPage` (`/403`)** — aynı kart dil, red-50/red-200 "Err · 403" pill + `lock` ikon; 4·0·3 numerals (0 kırmızı); "You don't have access." başlık (kırmızı nokta); kullanıcı auth durumuna göre dinamik: signed-in → rol badge'ü (mint pill + `badge` ikon) + "Back to dashboard" CTA · signed-out → "Sign in" CTA; ayrıca "Contact admin" (cream pill, mailto:admin@healthcocreate.com); alt bilgi satırı: `info` ikon + "Common reasons: pending verification / suspended / admin-only"
 
 **Skeleton loading primitives** (`src/components/ui/Skeleton.tsx` — yeni):
 - `<Skeleton/>` low-level (width/height/rounded='sm'|'md'|'lg'|'full'|number)
@@ -605,5 +605,5 @@ npm run dev
 4. `/posts/new` → form doldur → Draft / Publish
 5. `/posts` → arama + filtrele → ilan aç → Express Interest (3 adım modal)
 6. `/meetings` → slot kabul/reddet
-7. `/login` → `admin@healthai.edu` / `admin123` → `/admin` → Users/Posts/Logs/CSV
+7. `/login` → provisioned administrator account → `/admin` → Users/Posts/Logs/CSV
 8. `/profile` → edit → Export JSON → Delete (demo)

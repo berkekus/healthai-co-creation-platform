@@ -26,7 +26,7 @@ No environment variables are required — the app ships with realistic seed data
 
 ## Demo accounts
 
-All passwords are `password123` (admin is `admin123`). Sign in via `/login`.
+Demo credentials are for local development only. Production administrators use a separately provisioned account.
 
 | Email                   | Role                     | City       | Highlights                                                       |
 | ----------------------- | ------------------------ | ---------- | ---------------------------------------------------------------- |
@@ -34,7 +34,7 @@ All passwords are `password123` (admin is `admin123`). Sign in via `/login`.
 | `m.rossi@polimi.edu`    | Engineer                 | Barcelona  | FL framework post + incoming stroke-unit collaboration request   |
 | `i.larsson@ki.edu`      | Healthcare professional  | Stockholm  | Oncology + ophthalmology posts, 3 pending meetings               |
 | `k.nakamura@tum.edu`    | Engineer                 | Berlin     | Wearable fall-detector · mental-health NLP post                  |
-| `admin@healthai.edu`    | Admin                    | Amsterdam  | Full admin panel access (users / posts / logs · CSV export)      |
+| `admin@healthcocreate.com` | Admin                 | Amsterdam  | Full admin panel access (users / posts / logs · CSV export)      |
 
 ---
 

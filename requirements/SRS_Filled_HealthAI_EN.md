@@ -143,14 +143,14 @@ The platform is a standalone web application deployed via Docker containers and 
 
 | ID | Requirement Description | Priority | Source |
 |----|------------------------|----------|--------|
-| FR-10 | The system shall allow authenticated engineers and healthcare professionals to create posts with the following mandatory fields: title, domain, required expertise, description, project stage, collaboration type, level of commitment, confidentiality level, city, country, and expiry date. | High | Brief 4.2 |
+| FR-10 | The system shall allow authenticated engineers and healthcare professionals to create posts with the following mandatory fields: title, one to three healthcare domains (chosen from a single grouped domain list), required expertise, description, project stage, collaboration type, level of commitment, confidentiality level, city, country, and expiry date. | High | Brief 4.2 |
 | FR-11 | Newly created posts shall be saved in "Draft" status until explicitly published by the author. | High | Brief 4.2 |
 | FR-12 | The post author shall be able to publish a draft post, changing its status to "Active". | High | Brief 4.2 |
 | FR-13 | The post author shall be able to edit any field of their own post while it is in Draft or Active status. | Medium | Brief 4.2 |
 | FR-14 | The post author shall be able to permanently delete their own post. | Medium | Brief 4.2 |
 | FR-15 | The system shall automatically change the status of Active or Meeting Scheduled posts whose expiry date has passed to "Expired". | High | Brief 4.2 |
-| FR-16 | The post author shall be able to mark an active post as "Partner Found", which closes the post to further meeting requests. | High | Brief 4.2 |
-| FR-17 | The system shall automatically change the post status to "Meeting Scheduled" when a meeting request for that post is accepted by its author. | High | Brief 4.2 |
+| FR-16 | The post author shall be able to mark an active, meeting-scheduled or expired post as "Partner Found" after confirming a dialog that explains the consequences. This closes the post to further meeting requests and closes requests still waiting for a response; meetings that already have a confirmed time are kept. The author shall be able to reopen the post (choosing a new expiry date if the old one has passed). | High | Brief 4.2 |
+| FR-17 | The system shall automatically change the post status to "Meeting Scheduled" while at least one meeting for the post has a confirmed time, and back to "Active" when none remains. Marking a meeting as held shall not close the post. | High | Brief 4.2 |
 | FR-18 | Authenticated users shall be able to express interest in an active post; the interest count shall be incremented accordingly. | Medium | Brief 4.2 |
 | FR-19 | The system shall track and display the interest count and meeting request count for each post. | Low | Brief 4.2 |
 
@@ -168,12 +168,15 @@ The platform is a standalone web application deployed via Docker containers and 
 
 | ID | Requirement Description | Priority | Source |
 |----|------------------------|----------|--------|
-| FR-30 | An authenticated user shall be able to send a meeting request for an active post by providing: a message, NDA acceptance confirmation, and three proposed time slots (date + time). | High | Brief 4.4 |
-| FR-31 | The post author shall be able to accept or decline an incoming meeting request from the Meetings page. | High | Brief 4.4 |
+| FR-30 | An authenticated user shall be able to send a meeting request for an active or meeting-scheduled post (not their own) by providing: a message, NDA acceptance confirmation, and one to five proposed time slots (date + time on a 24-hour clock, stored with the proposer's time zone). | High | Brief 4.4 |
+| FR-31 | The post author shall be able to accept or decline an incoming meeting request from the Meetings page, including declining a pending request without accepting it first. | High | Brief 4.4 |
 | FR-32 | Upon acceptance, the post author shall be able to confirm one of the requester's proposed time slots as the confirmed meeting time. | High | Brief 4.4 |
-| FR-33 | Either party (requester or post owner) shall be able to cancel a confirmed meeting. | Medium | Brief 4.4 |
+| FR-33 | Either party (requester or post owner) shall be able to cancel a confirmed meeting, and the requester shall be able to propose new times while the owner is choosing or after a time was confirmed. | Medium | Brief 4.4 |
 | FR-34 | The system shall push in-app notifications to both parties whenever a meeting request status changes (requested, accepted, declined, cancelled). | High | Brief 4.4 |
-| FR-35 | The system shall prevent a user from submitting duplicate meeting requests for the same post. | Medium | Brief 4.4 |
+| FR-35 | The system shall prevent a user from submitting duplicate meeting requests for the same post while an earlier request is pending, accepted or confirmed. | Medium | Brief 4.4 |
+| FR-36 | The system shall open a private conversation between the two parties as soon as the post author accepts a meeting request, so they can agree on a time before it is confirmed. | High | Usability survey 2026-09 |
+| FR-37 | Confirming a time for one request shall not decline other open requests for the same post, so an author can meet several candidates. | Medium | Usability survey 2026-09 |
+| FR-38 | The system shall notify a post author about new comments on their post and the author of a comment about replies to it. | Medium | Usability survey 2026-09 |
 
 ### 3.5 Administrative Dashboard
 
@@ -241,7 +244,7 @@ The platform is a standalone web application deployed via Docker containers and 
 | **Name** | UC-02: Healthcare Professional Requests a Meeting |
 | **Actor(s)** | Healthcare Professional |
 | **Precondition** | The user must be logged in. An active post must exist from another user. |
-| **Main Flow** | 1. The healthcare professional browses the post list or uses the search/filter feature to find a relevant post. 2. Clicks on the post to view its detail page. 3. Clicks "Request Meeting." 4. Fills in a message describing their interest, checks the NDA acceptance checkbox, and proposes three time slots (date + time each). 5. Clicks "Send Request." 6. The system saves the meeting request with "Pending" status and sends an in-app notification to the post owner. |
+| **Main Flow** | 1. The healthcare professional browses the post list or uses the search/filter feature to find a relevant post. 2. Clicks on the post to view its detail page. 3. Clicks "Request Meeting." 4. Fills in a message describing their interest, checks the NDA acceptance checkbox, and proposes one to five time slots (date + time each, 24-hour clock, in their own time zone). 5. Clicks "Send Request." 6. The system saves the meeting request with "Pending" status and sends an in-app notification to the post owner. |
 | **Postcondition** | A meeting request is created with "Pending" status. The post owner receives an in-app notification. |
 | **Alternative Flow** | 5a. If the user has already submitted a meeting request for this post, the system displays an error message and blocks the duplicate submission. 5b. If required fields (message, NDA, time slots) are incomplete, the system shows validation errors. |
 
@@ -254,9 +257,9 @@ The platform is a standalone web application deployed via Docker containers and 
 | **Name** | UC-03: Post Owner Accepts a Meeting Request |
 | **Actor(s)** | Engineer or Healthcare Professional (post author) |
 | **Precondition** | The post author must be logged in. A meeting request in "Pending" status must exist for their post. |
-| **Main Flow** | 1. The post owner navigates to the Meetings page. 2. Opens the "Incoming" tab and views the pending meeting request. 3. Reviews the requester's message and proposed time slots. 4. Clicks "Accept request" — the system changes the meeting status to "Time Proposed" and notifies the requester. 5. The post owner selects one of the requester's proposed time slots. 6. The system changes the meeting status to "Confirmed" and the post status to "Meeting Scheduled." 7. The system notifies the requester via an in-app notification. |
+| **Main Flow** | 1. The post owner navigates to the Meetings page. 2. Opens the "Received" tab and views the request (status "Awaiting response"). 3. Reviews the requester's message and proposed time slots, each shown with its time zone and the owner's local time. 4. Clicks "Accept request" — the system changes the meeting status to "Choosing a time", opens a private conversation for both parties and notifies the requester. 5. The post owner selects one of the requester's proposed time slots (or agrees on another in the chat, after which the requester proposes it). 6. The system changes the meeting status to "Scheduled" and the post status to "Meeting Scheduled." 7. The system notifies the requester via an in-app notification. |
 | **Postcondition** | Meeting status is "Confirmed." Post status is "Meeting Scheduled." Both parties are notified. |
-| **Alternative Flow** | 4a. If the post owner clicks "Decline" at any point (pending or time_proposed), the meeting status changes to "Declined" and the post status remains "Active." The requester is notified. |
+| **Alternative Flow** | 4a. If the post owner clicks "Decline" at any point (pending or time_proposed), the meeting status changes to "Declined" and the post status remains "Active." The requester is notified. 7a. After the meeting, either party marks it as "Held"; this does not close the post. If a partner was found, the owner closes the post separately with "Mark partner found". |
 
 ---
 
@@ -377,6 +380,9 @@ The application consists of the following main screens:
 | FR-33 | Cancel meeting by either party | Brief 4.4 | — |
 | FR-34 | In-app notifications for meeting events | Brief 4.4 | UC-02, UC-03 |
 | FR-35 | Prevent duplicate meeting requests | Brief 4.4 | — |
+| FR-36 | Conversation opens on acceptance | Usability survey | UC-03 |
+| FR-37 | Several candidates per post | Usability survey | UC-03 |
+| FR-38 | Comment and reply notifications | Usability survey | — |
 | FR-40 | Admin view/search users | Brief 4.5 | UC-04 |
 | FR-41 | Admin view/filter posts | Brief 4.5 | — |
 | FR-42 | Admin suspend/unsuspend users | Brief 4.5 | UC-04 |

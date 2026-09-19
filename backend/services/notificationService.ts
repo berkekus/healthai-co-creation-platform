@@ -6,6 +6,8 @@ export async function pushNotification(data: {
   type: NotificationType
   title: string
   body: string
+  contentKey?: string
+  metadata?: Record<string, string>
   linkTo?: string
 }) {
   return Notification.create({ ...data, isRead: false })

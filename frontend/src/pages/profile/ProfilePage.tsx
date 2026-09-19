@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import PageWrapper from '../../components/layout/PageWrapper'
 import FormField, { inputStyle } from '../../components/ui/FormField'
@@ -11,32 +11,18 @@ import api from '../../lib/api'
 import { useAuthStore } from '../../store/authStore'
 import type { User } from '../../types/auth.types'
 import { createProfileSchema, type ProfileFormData } from '../../utils/validators'
+import { EXPERTISE_SUGGESTIONS } from '../../constants/domains'
+import ProfessionalDetails from '../../components/profile/ProfessionalDetails'
+import { useSelectLabels } from '../../components/ui/useSelectLabels'
 
 const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'
 const ERROR_SHADOW = '0 0 0 3px rgba(220,38,38,0.18)'
 const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
 
-const EXPERTISE_TAGS = [
-  // Clinical domains
-  'Cardiology', 'Neurology', 'Oncology', 'Orthopedics', 'Radiology',
-  'Geriatrics & Rehabilitation', 'Endocrinology & Diabetes', 'Gastroenterology',
-  'Public Health & Epidemiology', 'Clinical Pharmacy', 'Mental Health',
-  'Infectious Diseases', 'Pediatrics', 'Dermatology', 'Ophthalmology',
-  'Emergency Medicine', 'Surgery', 'Pulmonology', 'Nephrology', 'Rheumatology',
-  // Engineering / tech
-  'AI/ML', 'Deep Learning', 'Natural Language Processing', 'Computer Vision',
-  'Federated Learning', 'Wearables', 'Digital Health', 'mHealth',
-  'Clinical NLP', 'Electronic Health Records (EHR)', 'Telemedicine',
-  'Medical Imaging', 'Biostatistics', 'Data Science', 'IoT in Healthcare',
-  'Healthcare Informatics', 'Signal Processing', 'Time Series Analysis',
-  'Bioinformatics', 'Robotics', 'Drug Discovery', 'Genomics',
-]
+/** Institutional domains (.edu / .gov, optionally with a country suffix). */
+const INSTITUTIONAL_EMAIL_RE = /\.(edu|gov)(\.[a-z]{2,})?$/i
 
-const ROLE_LABEL: Record<string, string> = {
-  engineer: 'Engineer',
-  healthcare_professional: 'Healthcare Professional',
-  admin: 'Administrator',
-}
+const PROFESSIONAL_FIELDS = ['position', 'department', 'orcid', 'institutionWebsite', 'contactEmail', 'linkedinUrl'] as const
 
 const ROLE_ICON: Record<string, string> = {
   engineer: 'memory',
@@ -77,12 +63,13 @@ function TagAutocomplete({
   onAdd: (tag: string) => void
   activeTags: string[]
 }) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const query = value.trim().toLowerCase()
   const suggestions = query.length > 0
-    ? EXPERTISE_TAGS.filter(t => t.toLowerCase().includes(query) && !activeTags.includes(t)).slice(0, 8)
+    ? EXPERTISE_SUGGESTIONS.filter(tag => tag.toLowerCase().includes(query) && !activeTags.includes(tag)).slice(0, 8)
     : []
 
   const add = (tag: string) => {
@@ -123,7 +110,8 @@ function TagAutocomplete({
           e.currentTarget.style.borderColor = '#E5E5E5'
           e.currentTarget.style.boxShadow = 'none'
         }}
-        placeholder="Search or type a tag… (Enter to add)"
+        placeholder={t('profile.tagPlaceholder')}
+        aria-label={t('profile.tagPlaceholder')}
         style={inputStyle()}
       />
       {open && suggestions.length > 0 && (
@@ -161,7 +149,7 @@ function Section({
     <section id={id} className="border-b border-[#D5DAE0] py-9 last:border-b-0">
       <div className="mb-7 flex items-start justify-between gap-6">
         <div className="flex items-center gap-4">
-          <span className="material-symbols-outlined text-xl text-hai-plum">{icon}</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-xl text-hai-plum">{icon}</span>
           <h2 className="font-headline text-xl font-black leading-tight text-hai-plum">{title}</h2>
         </div>
         {subtitle && <p className="max-w-[380px] text-right text-sm font-semibold leading-5 text-[#6F6878]">{subtitle}</p>}
@@ -181,6 +169,7 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
 }
 
 function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: (password: string) => Promise<void> }) {
+  const { t } = useTranslation()
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -199,7 +188,7 @@ function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm:
     try {
       await onConfirm(password)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not delete account.')
+      setError(err instanceof Error ? err.message : t('profile.deleteModal.failed'))
       setSubmitting(false)
     }
   }
@@ -213,18 +202,19 @@ function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm:
     >
       <form onSubmit={handleSubmit} className="w-full max-w-[480px] rounded-[2rem] bg-white px-7 pb-6 pt-7 shadow-[0_40px_120px_-20px_rgba(54,33,62,0.5)]">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-red-600">
-          <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>warning</span>
-          Danger zone
+          <span aria-hidden="true" className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>warning</span>
+          {t('profile.deleteModal.badge')}
         </div>
-        <h2 className="mb-3 font-headline text-2xl font-black text-hai-plum">Delete your account?</h2>
+        <h2 className="mb-3 font-headline text-2xl font-black text-hai-plum">{t('profile.deleteModal.title')}</h2>
         <p className="mb-5 text-sm font-semibold leading-6 text-neutral-600">
-          This action cannot be undone. Your profile, posts, and notifications will be permanently deleted. Audit logs are kept for 24 months per our privacy policy.
+          {t('profile.deleteModal.body')}
         </p>
         <input
           type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          placeholder="Confirm with your current password"
+          placeholder={t('profile.deleteModal.passwordPlaceholder')}
+          aria-label={t('profile.deleteModal.passwordPlaceholder')}
           autoFocus
           autoComplete="current-password"
           disabled={submitting}
@@ -233,10 +223,10 @@ function DeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm:
         {error && <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">{error}</div>}
         <div className="flex gap-3">
           <button type="button" onClick={onCancel} disabled={submitting} className="flex-1 rounded-full border border-neutral-200 bg-white px-5 py-3 text-sm font-black text-hai-plum hover:bg-neutral-100 disabled:opacity-60">
-            Cancel
+            {t('common.cancel')}
           </button>
           <button type="submit" disabled={!password || submitting} className="flex-1 rounded-full bg-red-600 px-5 py-3 text-sm font-black text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-500">
-            {submitting ? 'Deleting...' : 'Delete account'}
+            {submitting ? t('profile.deleteModal.deleting') : t('profile.data.deleteBtn')}
           </button>
         </div>
       </form>
@@ -268,7 +258,7 @@ function ChangePasswordCard() {
       setNewPassword('')
       setConfirmPassword('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not update password.')
+      setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
       setSubmitting(false)
     }
@@ -278,7 +268,7 @@ function ChangePasswordCard() {
     <div className="mb-5 rounded-[22px] bg-white/82 p-6 shadow-[0_28px_74px_-60px_rgba(54,33,62,0.36)]">
       <div className="flex items-start gap-5">
         <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E8F4F7] text-hai-plum">
-          <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>password</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>password</span>
         </div>
         <div className="min-w-0 flex-1">
           <div className="mb-2 font-headline text-lg font-bold leading-tight text-hai-plum">{t('profile.password.title')}</div>
@@ -356,7 +346,7 @@ function NotifPrefsSection() {
   return (
     <section className="border-b border-[#D5DAE0] py-9">
       <div className="mb-7 flex items-center gap-4">
-        <span className="material-symbols-outlined text-xl text-hai-plum">notifications</span>
+        <span aria-hidden="true" className="material-symbols-outlined text-xl text-hai-plum">notifications</span>
         <h2 className="font-headline text-xl font-black leading-tight text-hai-plum">{t('profile.notifPrefs')}</h2>
       </div>
       <div className="grid gap-3">
@@ -371,6 +361,7 @@ function NotifPrefsSection() {
               disabled={saving === key}
               onClick={() => toggle(key)}
               aria-pressed={prefs[key]}
+              aria-label={t(labelKey)}
               className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-hai-teal/60 focus:ring-offset-2 ${
                 prefs[key] ? 'bg-hai-teal' : 'bg-[#D5DAE0]'
               } ${saving === key ? 'opacity-60' : ''}`}
@@ -404,37 +395,46 @@ const COMPLETION_ITEMS = (user: User | null) => {
   }))
 }
 
+interface ProfileScore {
+  score: number
+  suggestions: string[]
+  /** Present for rule-based tips; translated here so every language gets them. */
+  suggestionKeys?: string[]
+  source?: 'ai' | 'rules'
+}
+
 function ProfileCompletionCard({ user, onSaved }: { user: User; onSaved?: boolean }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const items = COMPLETION_ITEMS(user)
-  const [aiScore, setAiScore] = useState<number | null>(null)
-  const [aiSuggestions, setAiSuggestions] = useState<string[]>([])
+  const [remote, setRemote] = useState<ProfileScore | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
+  const lang = i18n.language?.split('-')[0] ?? 'en'
+  const remoteScore = remote?.score ?? null
 
   const localOptionalDone = items.filter(i => i.done).length
   const localScore = 40 + Math.round((localOptionalDone / items.length) * 60)
-  const score = aiScore ?? localScore
+  const score = remoteScore ?? localScore
 
   useEffect(() => {
     let cancelled = false
     setAiLoading(true)
-    api.get<{ success: boolean; data: { score: number; suggestions: string[] } }>('/ai/profile-score')
-      .then(res => {
-        if (cancelled) return
-        setAiScore(res.data.data.score)
-        setAiSuggestions(res.data.data.suggestions)
-      })
+    // AI-written tips come back in the requested language, so ask again when it changes.
+    api.get<{ success: boolean; data: ProfileScore }>('/ai/profile-score', { params: { lang } })
+      .then(res => { if (!cancelled) setRemote(res.data.data) })
       .catch(() => { /* fallback to local score */ })
       .finally(() => { if (!cancelled) setAiLoading(false) })
     return () => { cancelled = true }
-  }, [onSaved])
+  }, [onSaved, lang])
 
   const r = 22
   const cx = 28
   const circumference = 2 * Math.PI * r
   const dashOffset = circumference * (1 - score / 100)
   const color = score >= 85 ? '#6FB8C4' : score >= 60 ? '#F59E0B' : '#EF4444'
-  const activeSuggestions = aiSuggestions.length > 0 ? aiSuggestions : items.filter(i => !i.done).map(i => t(i.labelKey))
+  const remoteSuggestions = remote?.suggestionKeys?.length
+    ? remote.suggestionKeys.map((key, index) => t(`profile.scoreTips.${key}`, { defaultValue: remote.suggestions[index] }))
+    : remote?.suggestions ?? []
+  const activeSuggestions = remoteSuggestions.length > 0 ? remoteSuggestions : items.filter(i => !i.done).map(i => t(i.labelKey))
 
   return (
     <div className="mt-6 rounded-2xl border border-[#D5DAE0] bg-white p-4">
@@ -464,9 +464,9 @@ function ProfileCompletionCard({ user, onSaved }: { user: User; onSaved?: boolea
         <div>
           <p className="flex items-center gap-1 text-xs font-black text-hai-plum">
             {t('profile.strength')}
-            {aiScore !== null && (
+            {remote?.source === 'ai' && (
               <span className="inline-flex items-center gap-0.5 rounded-full bg-[#E8F4F7] px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-hai-teal">
-                <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: '"FILL" 1' }}>auto_awesome</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: '"FILL" 1' }}>auto_awesome</span>
                 AI
               </span>
             )}
@@ -482,6 +482,7 @@ function ProfileCompletionCard({ user, onSaved }: { user: User; onSaved?: boolea
           {activeSuggestions.map((suggestion, i) => (
             <li key={i} className="flex items-start gap-2">
               <span
+                aria-hidden="true"
                 className="material-symbols-outlined mt-0.5 shrink-0 text-sm"
                 style={{ fontVariationSettings: '"FILL" 1', color: '#D1D5DB' }}
               >radio_button_unchecked</span>
@@ -506,36 +507,49 @@ const GITHUB_PATH = 'M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.
 const LINKEDIN_PATH = 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z'
 
 /** Callback outcomes the API can hand back on ?oauth_error=. */
-const LINK_ERRORS: Record<string, string> = {
-  no_session:     'That link request expired. Please try again.',
-  already_linked: 'That account is already connected to another HealthAI profile.',
-  user_gone:      'Your session is no longer valid. Please sign in again.',
-  not_configured: 'Sign-in with this provider is not enabled on the server yet.',
-  server_error:   'Something went wrong on our side. Please try again.',
-  failed:         'The connection was cancelled or refused.',
+const LINK_ERROR_KEYS: Record<string, string> = {
+  no_session:     'profile.connected.errors.noSession',
+  already_linked: 'profile.connected.errors.alreadyLinked',
+  user_gone:      'profile.connected.errors.userGone',
+  not_configured: 'profile.connected.errors.notConfigured',
+  server_error:   'profile.connected.errors.serverError',
+  failed:         'profile.connected.errors.failed',
 }
 
+const PROVIDER_LABEL: Record<Provider, string> = { github: 'GitHub', linkedin: 'LinkedIn' }
+
 function ConnectedAccounts({ user }: { user: User }) {
+  const { t } = useTranslation()
   const [busy, setBusy] = useState<Provider | null>(null)
   const [notice, setNotice] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null)
+  // null while unknown: buttons stay disabled rather than promising a link that may not work.
+  const [available, setAvailable] = useState<Record<Provider, boolean> | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    api.get<{ success: boolean; data: Record<Provider, boolean> }>('/auth/providers')
+      .then(({ data }) => { if (!cancelled) setAvailable(data.data) })
+      .catch(() => { if (!cancelled) setAvailable({ github: false, linkedin: false }) })
+    return () => { cancelled = true }
+  }, [])
 
   // The provider sends the browser back to /profile with the outcome in the
   // query string. Read it once, then strip it so a refresh doesn't replay it.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const linked = params.get('linked')
+    const linked = params.get('linked') as Provider | null
     const failure = params.get('oauth_error')
     if (!linked && !failure) return
 
     if (linked) {
-      setNotice({ kind: 'ok', text: `${linked === 'github' ? 'GitHub' : 'LinkedIn'} connected.` })
+      setNotice({ kind: 'ok', text: t('profile.connected.connectedNotice', { provider: PROVIDER_LABEL[linked] ?? linked }) })
       // The linked ids live on the user record, so pull a fresh copy.
       void useAuthStore.getState().hydrate()
     } else if (failure) {
-      setNotice({ kind: 'err', text: LINK_ERRORS[failure] ?? LINK_ERRORS.failed })
+      setNotice({ kind: 'err', text: t(LINK_ERROR_KEYS[failure] ?? LINK_ERROR_KEYS.failed) })
     }
     window.history.replaceState({}, '', window.location.pathname)
-  }, [])
+  }, [t])
 
   /**
    * The callback arrives as a plain browser navigation with no Authorization
@@ -561,7 +575,7 @@ function ConnectedAccounts({ user }: { user: User }) {
     try {
       await api.delete(`/auth/${provider}/link`)
       await useAuthStore.getState().hydrate()
-      setNotice({ kind: 'ok', text: `${provider === 'github' ? 'GitHub' : 'LinkedIn'} disconnected.` })
+      setNotice({ kind: 'ok', text: t('profile.connected.disconnectedNotice', { provider: PROVIDER_LABEL[provider] }) })
     } catch (err) {
       setNotice({ kind: 'err', text: (err as Error).message })
     } finally {
@@ -569,22 +583,22 @@ function ConnectedAccounts({ user }: { user: User }) {
     }
   }
 
-  const tiles: { provider: Provider; label: string; path: string; className: string; connectedAs: string | null }[] = [
+  const tiles: { provider: Provider; path: string; className: string; connectedAs: string | null }[] = [
     {
-      provider: 'github', label: 'GitHub', path: GITHUB_PATH, className: '',
-      connectedAs: user.githubId ? (user.githubUsername ? `@${user.githubUsername}` : 'Connected') : null,
+      provider: 'github', path: GITHUB_PATH, className: '',
+      connectedAs: user.githubId ? (user.githubUsername ? `@${user.githubUsername}` : t('profile.connected.connected')) : null,
     },
     {
-      provider: 'linkedin', label: 'LinkedIn', path: LINKEDIN_PATH, className: 'text-[#0077B5]',
-      connectedAs: user.linkedinId ? 'Connected' : null,
+      provider: 'linkedin', path: LINKEDIN_PATH, className: 'text-[#0077B5]',
+      connectedAs: user.linkedinId ? t('profile.connected.connected') : null,
     },
   ]
 
   return (
     <section className="border-b border-[#E3E7EC] py-9">
       <div className="mb-5 flex items-center gap-4">
-        <span className="material-symbols-outlined text-xl text-hai-plum">link</span>
-        <h2 className="font-headline text-xl font-black text-hai-plum">Connected Accounts</h2>
+        <span aria-hidden="true" className="material-symbols-outlined text-xl text-hai-plum">link</span>
+        <h2 className="font-headline text-xl font-black text-hai-plum">{t('profile.connected.title')}</h2>
       </div>
 
       {notice && (
@@ -601,34 +615,38 @@ function ConnectedAccounts({ user }: { user: User }) {
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {tiles.map(({ provider, label, path, className, connectedAs }) => (
-          <div
-            key={provider}
-            className="flex items-center gap-4 rounded-2xl border border-[#D5DAE0] bg-white p-5"
-          >
-            <svg className={`h-6 w-6 shrink-0 ${className}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-              <path d={path} />
-            </svg>
-            <div className="min-w-0">
-              <p className="text-sm font-black text-hai-plum">{label}</p>
-              <p className="truncate text-xs font-semibold text-[#9CA3AF]">
-                {connectedAs ?? `Connect your ${label} account`}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => (connectedAs ? disconnect(provider) : connect(provider))}
-              disabled={busy !== null}
-              className={`ml-auto shrink-0 rounded-full px-4 py-2 text-xs font-black transition disabled:opacity-50 ${
-                connectedAs
-                  ? 'border border-[#D5DAE0] text-[#6F6878] hover:border-red-300 hover:text-red-600'
-                  : 'bg-hai-plum text-white hover:bg-black'
-              }`}
+        {tiles.map(({ provider, path, className, connectedAs }) => {
+          const unavailable = available !== null && !available[provider] && !connectedAs
+          return (
+            <div
+              key={provider}
+              data-provider={provider}
+              className={`flex items-center gap-4 rounded-2xl border border-[#D5DAE0] p-5 ${unavailable ? 'bg-[#F7F8FA]' : 'bg-white'}`}
             >
-              {busy === provider ? '…' : connectedAs ? 'Disconnect' : 'Connect'}
-            </button>
-          </div>
-        ))}
+              <svg className={`h-6 w-6 shrink-0 ${unavailable ? 'text-[#9CA3AF]' : className}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d={path} />
+              </svg>
+              <div className="min-w-0">
+                <p className="text-sm font-black text-hai-plum">{PROVIDER_LABEL[provider]}</p>
+                <p className="truncate text-xs font-semibold text-[#6B7280]">
+                  {connectedAs ?? (unavailable ? t('profile.connected.unavailable') : t('profile.connected.connectHint', { provider: PROVIDER_LABEL[provider] }))}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => (connectedAs ? disconnect(provider) : connect(provider))}
+                disabled={busy !== null || (!connectedAs && (available === null || unavailable))}
+                className={`ml-auto shrink-0 rounded-full px-4 py-2 text-xs font-black transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                  connectedAs
+                    ? 'border border-[#D5DAE0] text-[#6F6878] hover:border-red-300 hover:text-red-600'
+                    : 'bg-hai-plum text-white hover:bg-black'
+                }`}
+              >
+                {busy === provider ? '…' : connectedAs ? t('profile.connected.disconnect') : t('profile.connected.connect')}
+              </button>
+            </div>
+          )
+        })}
       </div>
     </section>
   )
@@ -636,7 +654,8 @@ function ConnectedAccounts({ user }: { user: User }) {
 
 export default function ProfilePage() {
   const { t } = useTranslation()
-  const { user, updateProfile, uploadAvatar, deleteAccount } = useAuthStore()
+  const { user, updateProfile, uploadAvatar, deleteAccount, error: saveError } = useAuthStore()
+  const selectLabels = useSelectLabels()
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -650,7 +669,7 @@ export default function ProfilePage() {
   const [avatarUploading, setAvatarUploading] = useState(false)
   const [avatarError, setAvatarError] = useState<string | null>(null)
 
-  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<ProfileFormData>({
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors, isDirty } } = useForm<ProfileFormData>({
     resolver: zodResolver(createProfileSchema(t)),
     defaultValues: {
       ...splitName(user?.name),
@@ -658,12 +677,21 @@ export default function ProfilePage() {
       city: user?.city ?? '',
       country: user?.country ?? '',
       bio: user?.bio ?? '',
+      ...Object.fromEntries(PROFESSIONAL_FIELDS.map(field => [field, user?.[field] ?? ''])),
     },
   })
+
+  // The authenticated user can arrive after this page mounts. Mirror the saved
+  // tags when not editing so they are not rendered as an empty local array.
+  useEffect(() => {
+    if (!isEditing) setTags(user?.expertiseTags ?? [])
+  }, [isEditing, user?.expertiseTags])
 
   if (!user) return null
 
   const initials = user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+  const savedTags = user.expertiseTags ?? []
+  const hasUnsavedChanges = isDirty || tags.length !== savedTags.length || tags.some((tag, index) => tag !== savedTags[index])
   const avatarSrc = avatarPreview ?? resolveAvatar(user.avatarUrl)
   const memberSince = new Date(user.createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
 
@@ -671,8 +699,8 @@ export default function ProfilePage() {
     const file = e.target.files?.[0]
     if (!file) return
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-    if (!allowed.includes(file.type)) { setAvatarError('Only JPEG, PNG, WebP, or GIF images are allowed'); return }
-    if (file.size > 5 * 1024 * 1024) { setAvatarError('Image must be under 5 MB'); return }
+    if (!allowed.includes(file.type)) { setAvatarError(t('profile.avatar.wrongType')); return }
+    if (file.size > 5 * 1024 * 1024) { setAvatarError(t('profile.avatar.tooLarge')); return }
     setAvatarError(null)
     const previewUrl = URL.createObjectURL(file)
     setAvatarPreview(previewUrl)
@@ -689,10 +717,14 @@ export default function ProfilePage() {
 
   const onSubmit = async (data: ProfileFormData) => {
     const { firstName, lastName, ...rest } = data
-    await updateProfile({ ...rest, name: `${firstName.trim()} ${lastName.trim()}`, expertiseTags: tags })
-    setSaved(true)
-    setIsEditing(false)
-    setTimeout(() => setSaved(false), 2500)
+    try {
+      await updateProfile({ ...rest, name: `${firstName.trim()} ${lastName.trim()}`, expertiseTags: tags })
+      setSaved(true)
+      setIsEditing(false)
+      setTimeout(() => setSaved(false), 2500)
+    } catch {
+      // Auth store retains the server error; stay in edit mode so the user can retry.
+    }
   }
 
   const handleCancel = () => {
@@ -702,6 +734,7 @@ export default function ProfilePage() {
       city: user.city ?? '',
       country: user.country ?? '',
       bio: user.bio ?? '',
+      ...Object.fromEntries(PROFESSIONAL_FIELDS.map(field => [field, user[field] ?? ''])),
     })
     setTags(user.expertiseTags ?? [])
     setTagInput('')
@@ -740,7 +773,7 @@ export default function ProfilePage() {
               onClick={() => fileInputRef.current?.click()}
               disabled={avatarUploading}
               className="relative h-16 w-16 overflow-hidden rounded-full bg-hai-plum text-xl font-black tracking-normal text-hai-mint"
-              aria-label="Upload profile photo"
+              aria-label={t('profile.avatar.upload')}
             >
               {avatarSrc ? <img src={avatarSrc} alt={user.name} className="h-full w-full object-cover" /> : <span className="flex h-full w-full items-center justify-center">{initials}</span>}
               {avatarUploading && <span className="absolute inset-0 flex items-center justify-center bg-hai-plum/60 text-white">...</span>}
@@ -748,12 +781,12 @@ export default function ProfilePage() {
             <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarChange} />
             <h2 className="mt-5 text-lg font-black leading-tight text-hai-plum">{user.name}</h2>
             <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[#6F6878]">
-              <span className="material-symbols-outlined text-base">{ROLE_ICON[user.role] ?? 'person'}</span>
-              {ROLE_LABEL[user.role]}
+              <span aria-hidden="true" className="material-symbols-outlined text-base">{ROLE_ICON[user.role] ?? 'person'}</span>
+              {t(`common.role.${user.role}`)}
             </p>
             {user.isVerified && (
               <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#E8F4F7] px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-hai-plum">
-                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>verified</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>verified</span>
                 {t('common.verified')}
               </span>
             )}
@@ -767,11 +800,12 @@ export default function ProfilePage() {
               ['badge', t('profile.identity'), '#identity'],
               ['location_on', t('profile.location'), '#location'],
               ['chat_bubble_outline', t('profile.about'), '#about'],
+              ['work', t('professional.title'), '#professional'],
               ['star', t('profile.expertise'), '#expertise'],
               ['lock', t('profile.privacy'), '#data-account'],
             ] as [string, string, string][]).map(([icon, label, href], index) => (
               <a key={label + index} href={href} className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-[#E8F4F7] ${index === 0 ? 'bg-[#E8F4F7] text-[#6FB8C4]' : ''}`}>
-                <span className="material-symbols-outlined text-lg">{icon}</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-lg">{icon}</span>
                 {label}
               </a>
             ))}
@@ -781,7 +815,7 @@ export default function ProfilePage() {
             <div className="text-xs font-black text-hai-plum">{t('profile.help.title')}</div>
             <p className="mt-3 text-xs font-semibold leading-5 text-[#6F6878]">{t('profile.help.desc')}</p>
             <button className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-[#D5DAE0] bg-white text-xs font-black text-hai-plum">
-              <span className="material-symbols-outlined text-base">support_agent</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-base">support_agent</span>
               {t('profile.help.contact')}
             </button>
           </div>
@@ -797,7 +831,7 @@ export default function ProfilePage() {
             </div>
             {!isEditing ? (
               <button onClick={() => setIsEditing(true)} className="mt-1 inline-flex items-center gap-2 rounded-full bg-hai-plum px-7 py-3 text-sm font-black text-white shadow-[0_18px_36px_-22px_rgba(54,33,62,0.7)]">
-                <span className="material-symbols-outlined text-base">edit</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-base">edit</span>
                 {t('profile.edit')}
               </button>
             ) : (
@@ -813,14 +847,14 @@ export default function ProfilePage() {
           <div className="mt-10 flex items-center justify-between gap-6 rounded-[22px] bg-[#E8F4F7] px-7 py-8">
             <div className="flex items-center gap-5">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#D7EEF2] text-[#6FB8C4]">
-                <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: '"FILL" 1' }}>verified_user</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: '"FILL" 1' }}>verified_user</span>
               </div>
               <div>
-                <h2 className="text-lg font-black text-hai-plum">Verified {ROLE_LABEL[user.role]}</h2>
-                <p className="mt-2 text-sm font-semibold text-[#6F6878]">Your profile has been verified. You can now connect and collaborate with others.</p>
+                <h2 className="text-lg font-black text-hai-plum">{t('profile.verifiedRole', { role: t(`common.role.${user.role}`) })}</h2>
+                <p className="mt-2 text-sm font-semibold text-[#6F6878]">{t('profile.verifiedDesc')}</p>
               </div>
             </div>
-            <button className="rounded-full border border-[#D5DAE0] px-6 py-3 text-sm font-black text-hai-plum">Learn more</button>
+            <Link to={ROUTES.ABOUT} className="shrink-0 rounded-full border border-[#D5DAE0] px-6 py-3 text-sm font-black text-hai-plum">{t('common.learnMore')}</Link>
           </div>
 
           <form id="profile-form" onSubmit={handleSubmit(onSubmit)} noValidate className="mt-9">
@@ -848,7 +882,9 @@ export default function ProfilePage() {
                       {/* Institutional addresses run long; without break-all one
                           of them widens the whole page on a narrow screen. */}
                       <span className="break-all">{user.email}</span>
-                      <span className="shrink-0 rounded-full bg-[#E8F4F7] px-2 py-0.5 text-xs font-black uppercase tracking-[0.12em] text-[#6F6878]">.edu / .gov</span>
+                      {INSTITUTIONAL_EMAIL_RE.test(user.email) && (
+                        <span className="shrink-0 rounded-full bg-[#E8F4F7] px-2 py-0.5 text-xs font-black uppercase tracking-[0.12em] text-[#6F6878]">.edu / .gov</span>
+                      )}
                     </span>
                   </FieldRow>
                   <FieldRow label={t('profile.fields.memberSince')}>{memberSince}</FieldRow>
@@ -861,8 +897,8 @@ export default function ProfilePage() {
                 <CountryCityPicker
                   country={watch('country') ?? ''}
                   city={watch('city') ?? ''}
-                  onCountryChange={v => setValue('country', v, { shouldValidate: true })}
-                  onCityChange={v => setValue('city', v, { shouldValidate: true })}
+                  onCountryChange={v => setValue('country', v, { shouldValidate: true, shouldDirty: true })}
+                  onCityChange={v => setValue('city', v, { shouldValidate: true, shouldDirty: true })}
                   countryLabel={<span className="mb-1.5 block text-sm font-bold text-hai-plum">{t('profile.fields.country')}<span className="ml-0.5 text-red-600">*</span></span>}
                   cityLabel={<span className="mb-1.5 block text-sm font-bold text-hai-plum">{t('profile.fields.city')}<span className="ml-0.5 text-red-600">*</span></span>}
                   countryError={errors.country?.message}
@@ -871,12 +907,13 @@ export default function ProfilePage() {
                   cityPlaceholder={t('authPage.register.cityPlaceholder')}
                   cityLockedPlaceholder={t('authPage.register.cityPlaceholderNoCountry')}
                   cityFreeTextPlaceholder={t('authPage.register.cityFreeText')}
+                  selectLabels={selectLabels}
                 />
               ) : (
                 <div className="grid gap-3">
                   <FieldRow label={t('profile.fields.city')}>{user.city || <span className="text-neutral-400">{t('common.noData')}</span>}</FieldRow>
                   <FieldRow label={t('profile.fields.country')}>{user.country || <span className="text-neutral-400">{t('common.noData')}</span>}</FieldRow>
-                  <FieldRow label={t('profile.fields.regionVisibility')}>Visible to members <span className="material-symbols-outlined ml-1 align-middle text-base">visibility</span></FieldRow>
+                  <FieldRow label={t('profile.fields.regionVisibility')}>{t('profile.fields.visibleToMembers')} <span aria-hidden="true" className="material-symbols-outlined ml-1 align-middle text-base">visibility</span></FieldRow>
                 </div>
               )}
             </Section>
@@ -888,6 +925,33 @@ export default function ProfilePage() {
                 </FormField>
               ) : (
                 <p className="max-w-[650px] text-base font-semibold leading-7 text-hai-plum">{user.bio || t('common.noData')}</p>
+              )}
+            </Section>
+
+            <Section id="professional" icon="work" title={t('professional.title')} subtitle={t('professional.subtitle')}>
+              {isEditing ? (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <FormField label={t('professional.position')} error={errors.position?.message}>
+                    <input {...register('position')} type="text" placeholder={t('professional.positionPlaceholder')} style={inputStyle(errors.position?.message)} onFocus={onInputFocus(!!errors.position)} onBlur={onInputBlur(!!errors.position)} />
+                  </FormField>
+                  <FormField label={t('professional.department')} error={errors.department?.message}>
+                    <input {...register('department')} type="text" placeholder={t('professional.departmentPlaceholder')} style={inputStyle(errors.department?.message)} onFocus={onInputFocus(!!errors.department)} onBlur={onInputBlur(!!errors.department)} />
+                  </FormField>
+                  <FormField label={t('professional.orcid')} error={errors.orcid?.message}>
+                    <input {...register('orcid')} type="text" placeholder="0000-0002-1825-0097" style={inputStyle(errors.orcid?.message)} onFocus={onInputFocus(!!errors.orcid)} onBlur={onInputBlur(!!errors.orcid)} />
+                  </FormField>
+                  <FormField label={t('professional.contactEmail')} error={errors.contactEmail?.message}>
+                    <input {...register('contactEmail')} type="email" placeholder={t('professional.contactEmailPlaceholder')} style={inputStyle(errors.contactEmail?.message)} onFocus={onInputFocus(!!errors.contactEmail)} onBlur={onInputBlur(!!errors.contactEmail)} />
+                  </FormField>
+                  <FormField label={t('professional.institutionWebsite')} error={errors.institutionWebsite?.message}>
+                    <input {...register('institutionWebsite')} type="url" placeholder="https://" style={inputStyle(errors.institutionWebsite?.message)} onFocus={onInputFocus(!!errors.institutionWebsite)} onBlur={onInputBlur(!!errors.institutionWebsite)} />
+                  </FormField>
+                  <FormField label={t('professional.linkedinUrl')} error={errors.linkedinUrl?.message}>
+                    <input {...register('linkedinUrl')} type="url" placeholder="https://www.linkedin.com/in/…" style={inputStyle(errors.linkedinUrl?.message)} onFocus={onInputFocus(!!errors.linkedinUrl)} onBlur={onInputBlur(!!errors.linkedinUrl)} />
+                  </FormField>
+                </div>
+              ) : (
+                <ProfessionalDetails user={user} emptyText={t('professional.empty')} />
               )}
             </Section>
 
@@ -906,11 +970,30 @@ export default function ProfilePage() {
                 {tags.length > 0 ? tags.map(tag => (
                   <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-[#EEF0F3] px-4 py-1.5 text-xs font-bold text-hai-plum">
                     {tag}
-                    {isEditing && <button type="button" onClick={() => setTags(prev => prev.filter(item => item !== tag))} className="text-sm">x</button>}
+                    {isEditing && <button type="button" onClick={() => setTags(prev => prev.filter(item => item !== tag))} aria-label={t('profile.removeTag', { tag })} className="text-sm">x</button>}
                   </span>
                 )) : <span className="text-sm font-semibold italic text-neutral-400">{t('common.noData')}</span>}
               </div>
             </Section>
+
+            {isEditing && (
+              // The form is long; the save action has to be where people finish editing, not only at the top.
+              <div
+                role="region"
+                aria-label={t('profile.saveBar.label')}
+                className="sticky bottom-4 z-30 mt-2 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#D5DAE0] bg-white/95 px-5 py-3 shadow-[0_18px_48px_-24px_rgba(54,33,62,0.45)] backdrop-blur"
+              >
+                <span className="text-sm font-bold text-hai-plum">
+                  {saveError
+                    ? <span role="alert" className="text-red-600">{saveError}</span>
+                    : t(hasUnsavedChanges ? 'profile.saveBar.unsaved' : 'profile.saveBar.editing')}
+                </span>
+                <div className="flex gap-2">
+                  <button type="button" onClick={handleCancel} className="rounded-full border border-[#D5DAE0] bg-white px-5 py-2.5 text-sm font-black text-hai-plum">{t('profile.cancel')}</button>
+                  <button type="submit" className="rounded-full bg-hai-plum px-6 py-2.5 text-sm font-black text-white">{t('profile.save')}</button>
+                </div>
+              </div>
+            )}
           </form>
 
           <NotifPrefsSection />
@@ -919,7 +1002,7 @@ export default function ProfilePage() {
 
           <section id="data-account" className="py-9">
             <div className="mb-5 flex items-center gap-4">
-              <span className="material-symbols-outlined text-xl text-hai-plum">lock</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-xl text-hai-plum">lock</span>
               <h2 className="font-headline text-xl font-black text-hai-plum">{t('profile.data.title')}</h2>
             </div>
 
@@ -931,14 +1014,14 @@ export default function ProfilePage() {
               <div className="rounded-[22px] bg-white/82 p-6 shadow-[0_28px_74px_-60px_rgba(54,33,62,0.36)]">
                 <div className="flex items-start gap-5">
                   <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-hai-lime text-hai-plum">
-                    <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>download</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>download</span>
                   </div>
                   <div>
                     <div className="mb-2 font-headline text-lg font-bold leading-tight text-hai-plum">{t('profile.data.export')}</div>
                     <p className="mb-4 text-sm leading-relaxed text-neutral-600">{t('profile.data.exportDesc')}</p>
                     <div className="mb-4 text-xs font-semibold text-neutral-400">{t('profile.data.gdpr20')}</div>
                     <button type="button" onClick={handleExport} className="inline-flex items-center gap-2 rounded-full bg-hai-plum px-5 py-2.5 text-xs font-black text-white hover:bg-black">
-                      <span className="material-symbols-outlined text-base">file_download</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-base">file_download</span>
                       {t('profile.data.exportBtn')}
                     </button>
                   </div>
@@ -948,14 +1031,14 @@ export default function ProfilePage() {
               <div className="rounded-[22px] bg-white/82 p-6 shadow-[0_28px_74px_-60px_rgba(54,33,62,0.36)]">
                 <div className="flex items-start gap-5">
                   <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
-                    <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>delete_forever</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>delete_forever</span>
                   </div>
                   <div>
                     <div className="mb-2 font-headline text-lg font-bold leading-tight text-red-600">{t('profile.data.delete')}</div>
                     <p className="mb-4 text-sm leading-relaxed text-neutral-600">{t('profile.data.deleteDesc')}</p>
                     <div className="mb-4 text-xs font-semibold text-neutral-400">{t('profile.data.gdpr17')}</div>
                     <button type="button" onClick={() => setShowDelete(true)} className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white px-5 py-2.5 text-xs font-black text-red-600 hover:bg-red-50">
-                      <span className="material-symbols-outlined text-base">warning</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-base">warning</span>
                       {t('profile.data.deleteBtn')}
                     </button>
                   </div>
@@ -964,8 +1047,8 @@ export default function ProfilePage() {
             </div>
 
             <p className="mt-6 flex items-start gap-4 rounded-2xl border border-[#D5DAE0] bg-white/36 px-6 py-5 text-xs font-semibold leading-relaxed text-neutral-500">
-              <span className="material-symbols-outlined mt-0.5 shrink-0 text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
-              All data is stored encrypted at rest. Audit logs related to your account are retained for 24 months per our privacy policy, even after account deletion.
+              <span aria-hidden="true" className="material-symbols-outlined mt-0.5 shrink-0 text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
+              {t('profile.data.retentionNote')}
             </p>
           </section>
 

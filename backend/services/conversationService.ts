@@ -1,8 +1,13 @@
 import Conversation from '../models/Conversation'
 import Message from '../models/Message'
+import Meeting, { type IMeeting, type MeetingStatus } from '../models/Meeting'
+import User from '../models/User'
 import { makeError } from '../utils/AppError'
 import { pushNotification } from './notificationService'
 import { emitToUser } from '../src/socket'
+
+/** A meeting has a chat from the moment its owner accepts the request. */
+const CHAT_OPEN_STATUSES: MeetingStatus[] = ['time_proposed', 'confirmed', 'completed']
 
 export async function createConversation(data: {
   meetingId: string
@@ -35,6 +40,32 @@ export async function createConversation(data: {
   )
 }
 
+/** Returns the meeting's conversation, creating it if it does not exist yet. */
+export async function ensureMeetingConversation(meeting: IMeeting) {
+  const [requester, owner] = await Promise.all([
+    User.findById(meeting.requesterId).select('role').lean(),
+    User.findById(meeting.ownerId).select('role').lean(),
+  ])
+  const data = {
+    meetingId:     meeting.id as string,
+    postId:        meeting.postId.toString(),
+    postTitle:     meeting.postTitle,
+    requesterId:   meeting.requesterId.toString(),
+    requesterName: meeting.requesterName,
+    requesterRole: requester?.role ?? 'engineer',
+    ownerId:       meeting.ownerId.toString(),
+    ownerName:     meeting.ownerName,
+    ownerRole:     owner?.role ?? 'healthcare_professional',
+  }
+  try {
+    return await createConversation(data)
+  } catch (err) {
+    // Two first-time opens can race on the unique meetingId; the loser just reads.
+    if ((err as { code?: number }).code === 11000) return Conversation.findOne({ meetingId: data.meetingId })
+    throw err
+  }
+}
+
 export async function getConversationsByUser(userId: string) {
   const convs = await Conversation.find({ participants: userId }).sort({ lastMessageAt: -1 })
   return convs.map(c => c.toJSON())
@@ -50,10 +81,23 @@ export async function getConversationById(id: string, userId: string) {
 
 export async function getConversationByMeetingId(meetingId: string, userId: string) {
   const conv = await Conversation.findOne({ meetingId })
-  if (!conv) throw makeError('Conversation not found', 404)
-  const isParticipant = conv.participants.some(p => p.toString() === userId)
+  if (conv) {
+    const isParticipant = conv.participants.some(p => p.toString() === userId)
+    if (!isParticipant) throw makeError('Forbidden', 403)
+    return conv
+  }
+
+  // Meetings accepted before chats opened on acceptance have no conversation
+  // yet. Open it on first visit rather than leaving those users without one.
+  const meeting = await Meeting.findById(meetingId)
+  if (!meeting) throw makeError('Conversation not found', 404)
+  const isParticipant = meeting.requesterId.toString() === userId || meeting.ownerId.toString() === userId
   if (!isParticipant) throw makeError('Forbidden', 403)
-  return conv
+  if (!CHAT_OPEN_STATUSES.includes(meeting.status)) throw makeError('Conversation not found', 404)
+
+  const created = await ensureMeetingConversation(meeting)
+  if (!created) throw makeError('Conversation not found', 404)
+  return created
 }
 
 export async function getMessages(conversationId: string, userId: string) {
@@ -97,6 +141,8 @@ export async function sendMessage(conversationId: string, senderId: string, send
     pushNotification({
       userId: otherId,
       type: 'new_message',
+      contentKey: 'new_message',
+      metadata: { actorName: senderName, messagePreview: trimmed.length > 60 ? trimmed.slice(0, 60) + '…' : trimmed },
       title: `${senderName} yeni bir mesaj gönderdi`,
       body: trimmed.length > 60 ? trimmed.slice(0, 60) + '…' : trimmed,
       linkTo: `/messages/${conversationId}`,

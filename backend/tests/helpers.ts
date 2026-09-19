@@ -19,28 +19,43 @@ export interface CreatedUser {
 export async function createUser(overrides: Record<string, unknown> = {}): Promise<CreatedUser> {
   const email = (overrides.email as string) ?? uniqueEmail()
   const password = (overrides.password as string) ?? 'password123'
+  const requestedRole = overrides.role as string | undefined
+  const { role: _role, ...registrationOverrides } = overrides
   const regRes = await api.post('/api/auth/register').send({
     name: 'Test User',
     email,
     password,
-    role: 'engineer',
     institution: 'Test University',
     city: 'Istanbul',
     country: 'Turkey',
-    ...overrides,
+    ...registrationOverrides,
+    // Public registration must never create an admin. Tests elevate a verified
+    // fixture directly, mirroring the controlled production admin workflow.
+    role: requestedRole === 'admin' ? 'engineer' : (requestedRole ?? 'engineer'),
   })
   if (regRes.status !== 201) throw new Error(`createUser register failed: ${JSON.stringify(regRes.body)}`)
 
   // Bypass email verification in tests by flipping the flag directly
   await User.findOneAndUpdate(
     { email: email.toLowerCase() },
-    { $set: { isVerified: true }, $unset: { verifyToken: 1, verifyTokenExpires: 1 } }
+    {
+      $set: {
+        isVerified: true,
+        ...(requestedRole === 'admin' ? { role: 'admin' } : {}),
+      },
+      $unset: { verifyToken: 1, verifyTokenExpires: 1 },
+    }
   )
 
   const loginRes = await api.post('/api/auth/login').send({ email, password })
   if (loginRes.status !== 200) throw new Error(`createUser login failed: ${JSON.stringify(loginRes.body)}`)
 
   return { user: loginRes.body.data.user, token: loginRes.body.data.token, email, password }
+}
+
+/** A YYYY-MM-DD date relative to today, so slot fixtures never expire into the past. */
+export function futureDate(daysFromNow: number) {
+  return new Date(Date.now() + daysFromNow * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
 }
 
 export async function createPost(token: string, overrides: Record<string, unknown> = {}) {

@@ -9,9 +9,12 @@ import { verifyTurnstile } from '../utils/verifyTurnstile'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 // Institutional domains: .edu / .gov, optionally with a country suffix
-// (edu.tr, gov.uk, …). Kept in sync with the frontend register schema.
+// (edu.tr, gov.uk, …). Keep this rule for a future institutional-only rollout.
 const INSTITUTIONAL_EMAIL_RE = /\.(edu|gov)(\.[a-z]{2,})?$/i
-const VALID_ROLES = ['engineer', 'healthcare_professional', 'admin'] as const
+const REQUIRE_INSTITUTIONAL_EMAIL = process.env.REQUIRE_INSTITUTIONAL_EMAIL === 'true'
+// Administration is granted only through a controlled operator action, never
+// by a public registration request.
+const REGISTRABLE_ROLES = ['engineer', 'healthcare_professional'] as const
 
 export const register = asyncHandler(async (req, res) => {
   const { name, email, password, role, institution, city, country, captchaToken } = req.body
@@ -30,12 +33,12 @@ export const register = asyncHandler(async (req, res) => {
     res.status(400).json({ success: false, message: 'Invalid email format' })
     return
   }
-  if (!INSTITUTIONAL_EMAIL_RE.test(email)) {
+  if (REQUIRE_INSTITUTIONAL_EMAIL && !INSTITUTIONAL_EMAIL_RE.test(email)) {
     res.status(400).json({ success: false, message: 'Only institutional .edu or .gov email addresses are accepted. Personal email providers are not permitted.' })
     return
   }
-  if (!VALID_ROLES.includes(role)) {
-    res.status(400).json({ success: false, message: `Role must be one of: ${VALID_ROLES.join(', ')}` })
+  if (!REGISTRABLE_ROLES.includes(role)) {
+    res.status(400).json({ success: false, message: `Role must be one of: ${REGISTRABLE_ROLES.join(', ')}` })
     return
   }
   if (password.length < 8) {
@@ -49,6 +52,14 @@ export const register = asyncHandler(async (req, res) => {
 
   try {
     const result = await authService.registerUser({ name: name.trim(), email, password, role, institution, city, country })
+    if ('pendingVerification' in result) {
+      res.status(200).json({
+        success: true,
+        message: 'This email already has a registration waiting for verification. A new verification link has been sent.',
+        data: result,
+      })
+      return
+    }
     createLog({
       userId: result.user.id,
       userEmail: result.user.email,
@@ -124,10 +135,13 @@ export const updateNotifPrefs = asyncHandler<AuthenticatedRequest>(async (req, r
 })
 
 export const updateProfile = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const { name, institution, city, country, bio, avatarUrl, expertiseTags } = req.body
-  const user = await authService.updateUserProfile(req.userId, {
-    name, institution, city, country, bio, avatarUrl, expertiseTags,
-  })
+  const { name, institution, city, country, bio, avatarUrl, expertiseTags,
+          position, department, orcid, institutionWebsite, contactEmail, linkedinUrl } = req.body
+  const user = await authService.updateUserProfile(
+    req.userId,
+    { name, institution, city, country, bio, avatarUrl, expertiseTags },
+    { position, department, orcid, institutionWebsite, contactEmail, linkedinUrl },
+  )
   createLog({
     userId: user.id,
     userEmail: user.email,
@@ -248,7 +262,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     result: 'success',
     ipAddress: req.ip,
   }).catch(() => {})
-  res.json({ success: true, message: 'If the email is registered and verified, a reset link has been sent.' })
+  res.json({ success: true, message: 'If the email is registered, a reset link has been sent.' })
 })
 
 export const resetPassword = asyncHandler(async (req, res) => {

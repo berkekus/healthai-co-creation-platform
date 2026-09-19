@@ -6,8 +6,21 @@ const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'
 
 export interface ProfileScoreResult {
   score: number
+  /** Tips as text: English for the rule-based score, the requested language for the AI score. */
   suggestions: string[]
+  /** Rule-based tips only — stable keys the client translates, in the same order as `suggestions`. */
+  suggestionKeys?: string[]
+  source: 'ai' | 'rules'
 }
+
+/** Languages the AI can be asked to write tips in; anything else gets English. */
+const TIP_LANGUAGES = new Map([
+  ['en', 'English'],
+  ['tr', 'Turkish'],
+  ['pt', 'Portuguese'],
+  ['es', 'Spanish'],
+  ['nl', 'Dutch'],
+])
 
 function localScore(user: {
   bio?: string | null
@@ -18,18 +31,23 @@ function localScore(user: {
   avatarUrl?: string | null
 }): ProfileScoreResult {
   const fields = [
-    { filled: Boolean(user.bio?.trim()), label: 'Add a bio to describe your background and goals' },
-    { filled: (user.expertiseTags?.length ?? 0) >= 3, label: 'Add at least 3 expertise tags to improve matching' },
-    { filled: Boolean(user.institution?.trim()), label: 'Add your institution or organization' },
-    { filled: Boolean(user.city?.trim()), label: 'Add your city for location-based matching' },
-    { filled: Boolean(user.country?.trim()), label: 'Add your country' },
-    { filled: Boolean(user.avatarUrl?.trim()), label: 'Upload a profile photo' },
-    { filled: (user.expertiseTags?.length ?? 0) >= 5, label: 'Add 5+ expertise tags for best matching results' },
+    { filled: Boolean(user.bio?.trim()), key: 'add_bio', label: 'Add a bio to describe your background and goals' },
+    { filled: (user.expertiseTags?.length ?? 0) >= 3, key: 'add_expertise_tags', label: 'Add at least 3 expertise tags to improve matching' },
+    { filled: Boolean(user.institution?.trim()), key: 'add_institution', label: 'Add your institution or organization' },
+    { filled: Boolean(user.city?.trim()), key: 'add_city', label: 'Add your city for location-based matching' },
+    { filled: Boolean(user.country?.trim()), key: 'add_country', label: 'Add your country' },
+    { filled: Boolean(user.avatarUrl?.trim()), key: 'upload_photo', label: 'Upload a profile photo' },
+    { filled: (user.expertiseTags?.length ?? 0) >= 5, key: 'add_more_expertise_tags', label: 'Add 5+ expertise tags for best matching results' },
   ]
   const filledCount = fields.filter(f => f.filled).length
   const score = Math.round((filledCount / fields.length) * 100)
-  const suggestions = fields.filter(f => !f.filled).map(f => f.label).slice(0, 3)
-  return { score, suggestions }
+  const missing = fields.filter(f => !f.filled).slice(0, 3)
+  return {
+    score,
+    suggestions: missing.map(f => f.label),
+    suggestionKeys: missing.map(f => f.key),
+    source: 'rules',
+  }
 }
 
 function parseScoreResponse(text: string): ProfileScoreResult | null {
@@ -42,13 +60,14 @@ function parseScoreResponse(text: string): ProfileScoreResult | null {
       ? parsed.suggestions.filter((s): s is string => typeof s === 'string').slice(0, 3)
       : []
     if (score === null) return null
-    return { score, suggestions }
+    return { score, suggestions, source: 'ai' }
   } catch {
     return null
   }
 }
 
-export async function getProfileScore(userId: string): Promise<ProfileScoreResult> {
+export async function getProfileScore(userId: string, lang?: unknown): Promise<ProfileScoreResult> {
+  const language = (typeof lang === 'string' && TIP_LANGUAGES.get(lang)) || 'English'
   const user = await User.findById(userId).select('bio expertiseTags institution city country avatarUrl name role')
   if (!user) throw makeError('User not found', 404)
 
@@ -74,6 +93,7 @@ Rules:
 - A bio with real content is worth more than a one-word bio
 - Having 5+ specific expertise tags is much better than 1-2 vague ones
 - suggestions must be SHORT actionable imperatives (max 60 chars each)
+- Write the suggestions in ${language}
 - Return exactly 3 suggestions for the most impactful improvements
 - If profile is 100% complete, return an empty suggestions array`
 

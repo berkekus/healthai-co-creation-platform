@@ -926,3 +926,19 @@ a[href],
     padding-right: 20px;
   }
 }
+
+/* ── Date inputs ──
+   A date field draws two calendar icons: the browser's own picker indicator
+   and the styled one the form overlays on top of it. Hiding the native icon
+   outright would take the click target with it — it is what opens the picker —
+   so it stays, stretched over the visible icon and transparent. One icon on
+   screen, and clicking it still opens the calendar. */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 3rem;
+  height: 100%;
+  cursor: pointer;
+}
