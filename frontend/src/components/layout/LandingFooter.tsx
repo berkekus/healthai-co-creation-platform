@@ -12,11 +12,19 @@ export default function LandingFooter() {
         <div>
           <h4 className="font-bold mb-4 text-lg font-headline">{t('footer.contact')}</h4>
           <p className="font-semibold text-base leading-snug text-hai-mint/90">
-            {t('footer.university')}<br />
-            {t('footer.department')}<br />
-            06800 Çankaya, Ankara<br />
-            TÜRKİYE
+            {t('footer.contactIntro')}
           </p>
+          <p className="font-semibold text-base leading-snug text-hai-mint/90 mt-3">
+            {t('footer.contactSub')}
+          </p>
+          <a
+            href="https://healthai.cankaya.edu.tr/contact"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-block font-semibold text-sm text-hai-mint/90 hover:text-white transition-colors underline"
+          >
+            healthai.cankaya.edu.tr/contact
+          </a>
         </div>
 
         <div>
