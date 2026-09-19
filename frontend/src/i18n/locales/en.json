@@ -1,4 +1,12 @@
 {
+  "sessionTimeout": {
+    "badge": "Session · Timeout warning",
+    "title": "Still there",
+    "descriptionBefore": "You'll be signed out in",
+    "descriptionAfter": "seconds due to inactivity.",
+    "signOut": "Sign out",
+    "staySignedIn": "Stay signed in"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "browse": "Browse Posts",
@@ -175,6 +183,8 @@
     "noResultsHint": "Try adjusting your filters or search terms.",
     "daysLeft": "{{count}} day left",
     "daysLeft_other": "{{count}} days left",
+    "interestedCount": "{{count}} interested",
+    "openPostAriaLabel": "Open post: {{title}}",
     "expired": "Expired",
     "delete": "Delete post",
     "confirmDelete": "Delete this post? This action cannot be undone.",
@@ -355,6 +365,8 @@
     "googleCalendar": "Google Calendar",
     "outlook": "Outlook",
     "accept": "Accept request",
+    "acceptSlot": "Accept",
+    "slotTimeAt": "at {{time}}",
     "decline": "Decline",
     "cancel": "Cancel request",
     "complete": "Meeting done",
@@ -923,6 +935,7 @@
     "badge": "08  Edit post"
   },
   "errors": {
+    "badgePrefix": "Err",
     "notFound": {
       "code": "404 · Not found",
       "title": "We can't find that page",

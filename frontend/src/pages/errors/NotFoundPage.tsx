@@ -17,7 +17,7 @@ export default function NotFoundPage() {
         <div className="relative">
           <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-4 py-1.5 mb-6 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
             <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>explore_off</span>
-            <span className="text-hai-plum/70">Err</span>
+            <span className="text-hai-plum/70">{t('errors.badgePrefix')}</span>
             <span>{t('errors.notFound.code')}</span>
           </div>
 

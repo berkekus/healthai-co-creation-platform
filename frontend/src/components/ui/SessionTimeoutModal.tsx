@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { ROUTES } from '../../constants/routes'
 import { SESSION_TIMEOUT_MS, SESSION_WARN_MS } from '../../constants/config'
 import { useFocusTrap } from '../../hooks/useFocusTrap'
 
 export default function SessionTimeoutModal() {
+  const { t } = useTranslation()
   const { isAuthenticated, logout } = useAuthStore()
   const navigate = useNavigate()
   const [showWarning, setShowWarning] = useState(false)
@@ -82,20 +84,20 @@ export default function SessionTimeoutModal() {
               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>
                 {isCritical ? 'warning' : 'schedule'}
               </span>
-              Session · Timeout warning
+              {t('sessionTimeout.badge')}
             </div>
 
             <h2 id="session-timeout-title" className="font-headline font-bold text-2xl leading-tight tracking-normal text-hai-plum mb-3">
-              Still there<span className="text-hai-teal">?</span>
+              {t('sessionTimeout.title')}<span className="text-hai-teal">?</span>
             </h2>
             <p id="session-timeout-desc" className="text-sm text-neutral-600 leading-relaxed mb-5">
-              You'll be signed out in{' '}
+              {t('sessionTimeout.descriptionBefore')}{' '}
               <span className={`font-headline font-bold text-xl inline-block min-w-[2ch] text-center align-baseline ${
                 isCritical ? 'text-red-600' : 'text-hai-plum'
               }`}>
                 {countdown}
               </span>{' '}
-              seconds due to inactivity.
+              {t('sessionTimeout.descriptionAfter')}
             </p>
 
             {/* Progress bar */}
@@ -117,14 +119,14 @@ export default function SessionTimeoutModal() {
                 onClick={() => { logout(); navigate(ROUTES.LOGIN) }}
                 className="px-5 py-3 rounded-full bg-white border border-neutral-200 text-hai-plum text-sm font-bold hover:bg-neutral-100 transition-colors"
               >
-                Sign out
+                {t('sessionTimeout.signOut')}
               </button>
               <button
                 onClick={reset}
                 className="flex-1 px-5 py-3 rounded-full bg-hai-plum text-white text-sm font-bold hover:bg-black transition-colors inline-flex items-center justify-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]"
               >
                 <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: '"FILL" 1' }}>refresh</span>
-                Stay signed in
+                {t('sessionTimeout.staySignedIn')}
               </button>
             </div>
           </div>

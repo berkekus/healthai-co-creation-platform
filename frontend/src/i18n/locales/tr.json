@@ -1,4 +1,12 @@
 {
+  "sessionTimeout": {
+    "badge": "Oturum · Zaman aşımı uyarısı",
+    "title": "Hâlâ orada mısın",
+    "descriptionBefore": "Hareketsizlik nedeniyle",
+    "descriptionAfter": "saniye içinde oturumunuz kapatılacak.",
+    "signOut": "Çıkış yap",
+    "staySignedIn": "Oturumda kal"
+  },
   "nav": {
     "dashboard": "Kontrol Paneli",
     "browse": "İlanları Keşfet",
@@ -175,6 +183,8 @@
     "noResultsHint": "Filtrelerinizi veya arama terimlerinizi değiştirmeyi deneyin.",
     "daysLeft": "{{count}} gün kaldı",
     "daysLeft_other": "{{count}} gün kaldı",
+    "interestedCount": "{{count}} ilgilenen",
+    "openPostAriaLabel": "İlanı aç: {{title}}",
     "expired": "Süresi Doldu",
     "delete": "İlanı sil",
     "confirmDelete": "Bu ilan silinsin mi? Bu işlem geri alınamaz.",
@@ -355,6 +365,8 @@
     "googleCalendar": "Google Takvim",
     "outlook": "Outlook",
     "accept": "Talebi kabul et",
+    "acceptSlot": "Kabul et",
+    "slotTimeAt": "saat {{time}}",
     "decline": "Reddet",
     "cancel": "Talebi iptal et",
     "complete": "Görüşme yapıldı",
@@ -923,6 +935,7 @@
     "badge": "08  İlanı düzenle"
   },
   "errors": {
+    "badgePrefix": "Hata",
     "notFound": {
       "code": "404 · Bulunamadı",
       "title": "Bu sayfayı bulamıyoruz",
