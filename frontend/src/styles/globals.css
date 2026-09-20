@@ -255,6 +255,20 @@
 .landing-fade-left { background: linear-gradient(to right, rgb(var(--landing-hero-bg)), transparent); }
 .landing-fade-right { background: linear-gradient(to left, rgb(var(--landing-hero-bg)), transparent); }
 
+/* Small, local hover effects; no scroll listeners or permanently promoted page layers. */
+.landing-path-card { z-index: 1; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .landing-path-card { transition: transform 180ms ease-out; }
+  .landing-path-card:hover,
+  .landing-path-card:focus-within {
+    z-index: 2;
+    transform: scale(1.02);
+  }
+}
+.landing-card-glow {
+  background: radial-gradient(closest-side, rgb(59 130 246 / 0.3), transparent);
+}
+
 .landing-path-card-engineer { background-color: rgb(var(--landing-path-engineer)); }
 .landing-path-card-clinician { background-color: rgb(var(--landing-path-clinician)); }
 .landing-path-label { color: rgb(var(--landing-text)); }

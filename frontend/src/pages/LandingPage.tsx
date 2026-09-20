@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../constants/routes'
 import LandingFooter from '../components/layout/LandingFooter'
@@ -21,23 +20,6 @@ import LanguageToggle from '../components/ui/LanguageToggle'
 // of the hero — and everything through the "Ready to co-create?" CTA —
 // sits on a calm off-white surface.
 // ─────────────────────────────────────────────────────────────────────
-
-/** Read input capabilities and viewport size before the first paint. */
-function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return false
-    return window.matchMedia(query).matches
-  })
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return
-    const mq = window.matchMedia(query)
-    const update = () => setMatches(mq.matches)
-    update()
-    mq.addEventListener('change', update)
-    return () => mq.removeEventListener('change', update)
-  }, [query])
-  return matches
-}
 
 // ── Icon helper ─────────────────────────────────────────────────────
 function Icon({ name, className = '', filled = false }: { name: string; className?: string; filled?: boolean }) {
@@ -119,7 +101,7 @@ function TopNav() {
         <Logo />
 
         {/* Center pill — hidden below lg */}
-        <div className="hidden lg:flex items-center bg-white/25 lg:backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+        <div className="hidden lg:flex items-center bg-white/25 rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
           <div className="flex items-center bg-white rounded-full h-full">
             {user ? (
               <div className="flex items-center px-1">
@@ -177,7 +159,7 @@ function TopNav() {
               </Link>
             </>
           )}
-          <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] lg:backdrop-blur-md hover:bg-white" />
+          <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] hover:bg-white" />
 
           {/* Mobile hamburger — below lg the centre pill is hidden, so this is the
               only way to the nav; signed-in users need it just as much. */}
@@ -510,119 +492,17 @@ export default function LandingPage() {
   const ActiveVisual = active.Visual
 
 
-  // Desktop overlap uses only translation and opacity; mobile stays in normal flow.
-  const parallaxRef = useRef<HTMLDivElement>(null)
-  const prefersReducedMotion = useReducedMotion()
-  const isDesktop = useMediaQuery('(min-width: 1024px)')
-  const enableParallax = isDesktop && !prefersReducedMotion
-  const { scrollYProgress } = useScroll({
-    target: parallaxRef,
-    offset: ['start start', 'end start'],
-  })
-  const heroOpacity = useTransform(scrollYProgress, [0.16, 0.34], [1, 0])
-  const heroY       = useTransform(scrollYProgress, [0.04, 0.28], [0, -60])
-  const slabY = useTransform(scrollYProgress, [0, 0.26], [0, -180])
-
-  /* ──────────────────────────────────────────────────────────────
-     CARD MICRO-INTERACTIONS — two-layer hover effect
-     ──────────────────────────────────────────────────────────────
-     1) Outer pathway card (clinician / engineer):
-          rest  → scale 1,    zIndex 1
-          hover → scale 1.03, zIndex 50   (spring — overlaps sibling)
-
-     2) Inner reveal box (description + CTA pill, frosted glass):
-          rest  → opacity 0, y 20px       (tucked below, invisible)
-          hover → opacity 1, y 0          (floats into place, spring)
-
-     Children inherit the parent's `hover`/`rest` state via Framer
-     Motion's variant propagation, so a single pointer-enter on the
-     outer card drives BOTH animations in lockstep.
-
-     Touch / mobile: `useMediaQuery()` detects `(hover: hover)` media
-     query. If hover is unavailable, we force both cards into the
-     "hover" state permanently so the reveal box is always visible
-     (otherwise the CTA would be unreachable on touch devices).
-
-     Reduced motion: when user prefers reduced motion, scale snaps
-     1→1 (no bump) and the reveal box still appears but without the
-     spring — a subtle opacity crossfade only.
-  ────────────────────────────────────────────────────────────── */
-  const canHover = useMediaQuery('(hover: hover) and (pointer: fine)')
-
-  /*
-    Per-card hover state. We drive BOTH the outer card (scale/zIndex)
-    and the inner reveal box from the same boolean so the two
-    animations are perfectly in lockstep. Using explicit state here
-    is intentional — Framer Motion's automatic variant propagation
-    via `whileHover` only covers the direct motion component; once
-    the inner reveal motion.div wanted its OWN transition + initial
-    state, propagation proved brittle (children kept missing the
-    parent's hover variant). A shared hover flag is bullet-proof.
-
-    On touch devices (`!canHover`) the outer card stays at "rest"
-    (no scale bump) while the inner reveal box is forced to "hover"
-    permanently so the CTA remains reachable.
-  */
-  const [clinicianHovered, setClinicianHovered] = useState(false)
-  const [engineerHovered,  setEngineerHovered]  = useState(false)
-
-  const clinicianOuterState = canHover ? (clinicianHovered ? 'hover' : 'rest') : 'rest'
-  const engineerOuterState  = canHover ? (engineerHovered  ? 'hover' : 'rest') : 'rest'
-
-  const cardSpring = prefersReducedMotion
-    ? { duration: 0.2 }
-    : { type: 'spring' as const, stiffness: 260, damping: 22, mass: 0.9 }
-
-  const cardOverlapVariants: Variants = {
-    rest:  { scale: 1,                               zIndex: 1,  transition: cardSpring },
-    hover: { scale: prefersReducedMotion ? 1 : 1.02, zIndex: 50, transition: cardSpring },
-  }
-
   return (
     <div className="landing-page min-h-screen flex flex-col font-body overflow-x-hidden antialiased">
       <TopNav />
 
       <main className="landing-main flex-grow pb-0 relative">
-        {/*
-          ──────────────────────────────────────────────────────────────
-          STICKY PARALLAX OVERLAP ZONE
-          ──────────────────────────────────────────────────────────────
-          Two physical layers, one visual composition:
-
-            Layer 1 (z-0, background) — `sticky top-0 h-screen` hero.
-              Pins to the viewport. Badge + headline + subtitle fade
-              (opacity 1 → 0) and drift up (y 0 → -60 px) as the
-              foreground climbs over it.
-
-            Layer 2 (z-10, foreground) — solid off-white slab carrying
-              the "Join the Directory" panel, stats ribbon, giant
-              "Platform" wordmark, 4-card platform grid and CTA row.
-              Pulled up with `-mt-[20vh] md:-mt-[28vh]` so the Join
-              panel is already *peeking* at page-load. As the user
-              scrolls, this slab climbs up and fully occludes the
-              sticky hero (its `bg-hai-offwhite` is opaque = zero
-              bleed-through).
-
-          ──────────────────────────────────────────────────────────────
-        */}
-        <div ref={parallaxRef} className="relative">
-
-          {/* ── HERO · sticky background layer (z-0) ───────────
-              `min-h-[720px]` gives the hero a longer sticky budget on
-              tall viewports so the foreground slab has plenty of room
-              to climb completely over it before the parent container
-              runs out and un-sticks the hero. */}
-          {/*
-            items-start + large top padding (instead of items-center) —
-            pins the hero copy near the upper third of the viewport so
-            that as the foreground slab rises it *never clips* the
-            headline. Both lines stay readable through the entire overlap
-            transition; the card climbs over empty teal space below it
-            before starting to encroach on the copy.
-          */}
+        {/* Keep the hero and long content panel in normal document flow.
+            Scrolling must not animate a layer spanning several screens. */}
+        <div className="relative">
           <section
             aria-labelledby="hero-headline"
-            className={`landing-hero ${enableParallax ? 'sticky' : 'relative'} top-0 z-0 w-full overflow-hidden flex items-start justify-center pt-24 sm:pt-28 md:pt-32 pb-16`}
+            className="landing-hero relative z-20 w-full overflow-hidden flex items-start justify-center pt-24 sm:pt-28 md:pt-32 pb-16"
           >
             {/* dot atmosphere */}
             <div
@@ -635,13 +515,7 @@ export default function LandingPage() {
               className="landing-soft-glow absolute top-[18%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full pointer-events-none"
             />
 
-            <motion.div
-              style={{
-                opacity: enableParallax ? heroOpacity : 1,
-                y: enableParallax ? heroY : 0,
-              }}
-              className="relative text-center max-w-5xl mx-auto px-6 md:px-8"
-            >
+            <div className="relative text-center max-w-5xl mx-auto px-6 md:px-8">
               <h1
                 id="hero-headline"
                 className="font-headline font-bold landing-text leading-none tracking-normal text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
@@ -649,59 +523,15 @@ export default function LandingPage() {
                 {t('landing.hero.titleLine1')}<br />
                 <span className="text-[#008EA2]">{t('landing.hero.titleLine2')}</span>
               </h1>
-              <p className="landing-body-text mt-6 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed font-semibold">
+              <p className="landing-text mt-6 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed font-semibold">
                 {t('landing.hero.subtitle')}
               </p>
-            </motion.div>
+            </div>
 
           </section>
 
-          {/* ── FOREGROUND · teal→off-white gradient slab (z-10) ──
-              Climbs up over the sticky hero. Negative margin pulls the
-              slab UP into the hero zone so the "Join the Directory"
-              panel is peeking at page-load.
-
-              Its background is a vertical gradient that starts in the
-              SAME teal as the sticky hero (so slab ↔ hero merge
-              seamlessly during the overlap climb) and fades to
-              off-white right before the "Platform" wordmark. The
-              effect recreates the pre-parallax atmosphere: teal
-              atmosphere extends across the Join Directory cards and
-              calmly resolves to off-white from the Platform section
-              onwards.
-
-              The gradient is OPAQUE — still fully occludes the hero
-              when scrolled. The plum-tinted shadow was removed
-              because with a teal top edge there is no longer a
-              colour contrast for the halo to read against (both
-              surfaces are teal at the seam).
-          */}
-          {/*
-            Negative margin defines how deeply the slab "peeks" into
-            the hero at rest. Previous values (-20vh / -28vh) climbed
-            so deep that the headline's second line + subtitle landed
-            in the slab's feather zone and became illegible before any
-            scroll. New values (-10vh / -14vh) keep a clear visual
-            HINT of the pathway panel below the fold — enough to say
-            "there's something to scroll to" — while guaranteeing that
-            the FULL hero copy, down to the last word of the subtitle,
-            is uncovered at scrollY = 0 across every reasonable
-            viewport height (≥ 640 px).
-          */}
-          <motion.div
-            className="landing-slab relative z-10 -mt-4"
-            style={{
-              /*
-                Top 3% ramps from transparent → solid teal so the slab's
-                leading edge BLENDS into the sticky hero's teal instead
-                of landing as a hard horizontal line. Both layers share
-                #8AC6D0, so even a 3% alpha ramp (≈ 100 px on a 3500 px
-                slab) is enough to dissolve the seam completely while
-                preserving the calm teal-to-off-white journey below.
-              */
-              y: enableParallax ? slabY : 0,
-            }}
-          >
+          {/* Static gradient preserves the hero-to-content color transition. */}
+          <div className="landing-slab relative z-10 -mt-4">
             <div
               aria-hidden
               className="landing-slab-feather pointer-events-none absolute inset-x-0 -top-40 z-0 h-80"
@@ -726,13 +556,8 @@ export default function LandingPage() {
                 <div className="relative grid gap-4 md:grid-cols-2">
 
                   {/* ───── Engineer card (LEFT) ───── */}
-                  <motion.div
-                    className="landing-path-card-engineer relative min-h-[390px] overflow-hidden rounded-[24px] landing-text"
-                    variants={cardOverlapVariants}
-                    initial="rest"
-                    animate={engineerOuterState}
-                    onHoverStart={() => canHover && setEngineerHovered(true)}
-                    onHoverEnd={() => canHover && setEngineerHovered(false)}
+                  <div
+                    className="landing-path-card landing-path-card-engineer relative min-h-[390px] overflow-hidden rounded-[24px] landing-text"
                   >
                     {/* Content — stacks naturally from top, no h-full stretch */}
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
@@ -770,16 +595,11 @@ export default function LandingPage() {
                       />
                       <div className="landing-card-topfade-engineer absolute inset-x-0 top-0 h-16" />
                     </div>
-                  </motion.div>
+                  </div>
 
                   {/* ───── Healthcare Professional card (RIGHT) ───── */}
-                  <motion.div
-                    className="landing-path-card-clinician relative min-h-[390px] overflow-hidden rounded-[24px] landing-text"
-                    variants={cardOverlapVariants}
-                    initial="rest"
-                    animate={clinicianOuterState}
-                    onHoverStart={() => canHover && setClinicianHovered(true)}
-                    onHoverEnd={() => canHover && setClinicianHovered(false)}
+                  <div
+                    className="landing-path-card landing-path-card-clinician relative min-h-[390px] overflow-hidden rounded-[24px] landing-text"
                   >
                     {/* Content — stacks naturally from top */}
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
@@ -817,7 +637,7 @@ export default function LandingPage() {
                       />
                       <div className="landing-card-topfade-clinician absolute inset-x-0 top-0 h-16" />
                     </div>
-                  </motion.div>
+                  </div>
 
                 </div>
 
@@ -904,7 +724,7 @@ export default function LandingPage() {
                     className="absolute inset-[-58px_-120px_-20px_-120px] h-[calc(100%+78px)] w-[calc(100%+240px)] object-contain object-center opacity-95 dark:opacity-50 dark:saturate-75"
                   />
 
-                  <div className="landing-glass-card relative z-10 ml-auto mt-8 max-w-[270px] rounded-[14px] border p-6 shadow-[0_28px_72px_-50px_rgba(54,33,62,0.38)] lg:backdrop-blur-md lg:mt-28">
+                  <div className="landing-glass-card relative z-10 ml-auto mt-8 max-w-[270px] rounded-[14px] border p-6 shadow-[0_28px_72px_-50px_rgba(54,33,62,0.38)] lg:mt-28">
                     <div className="flex items-start gap-4">
                       <div className="landing-accent-bg flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white">
                         <Icon name="stars" className="text-xl" filled />
@@ -1015,7 +835,7 @@ export default function LandingPage() {
                   <IconSquare icon="public" color="#FFFFFF" bg="rgba(59,130,246,0.9)" />
                   <h3 className="text-xl font-headline font-bold leading-tight">GDPR-native by design.</h3>
                 </div>
-                <div className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-blue-500/30 blur-2xl z-0" />
+                <div className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full landing-card-glow z-0" />
                 <div className="flex-grow flex items-center justify-center relative z-10 mb-5 min-h-[200px]">
                   <div className="relative w-40 h-40">
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400 via-blue-600 to-black shadow-[0_0_60px_rgba(37,99,235,0.6)] border border-blue-400/40" />
@@ -1040,10 +860,10 @@ export default function LandingPage() {
             </div>
           </section>
 
-          </motion.div>
+          </div>
           {/* ── end foreground slab (z-10, opaque bg-hai-offwhite) ─ */}
         </div>
-        {/* ── end parallax container (ref={parallaxRef}) ────────── */}
+        {/* ── end hero and content group ────────── */}
 
         {/* ── HOW IT WORKS · interactive step-by-step guide ───── */}
         <section id="how" className="w-full bg-hai-offwhite py-24 md:py-28 border-t border-neutral-200">
