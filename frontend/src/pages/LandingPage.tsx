@@ -293,7 +293,11 @@ type Step = {
   Visual: () => JSX.Element
 }
 
-const ProfileVisual = () => (
+// The tour visuals are small sketches of real screens. Their interface labels follow the
+// UI language; names, places and sample post titles are example data and stay as they are.
+const ProfileVisual = () => {
+  const { t } = useTranslation()
+  return (
   <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
     <div className="flex items-center gap-3 pb-4 border-b border-neutral-100">
       <div className="w-12 h-12 rounded-2xl bg-hai-plum text-white flex items-center justify-center font-headline font-bold">
@@ -301,12 +305,12 @@ const ProfileVisual = () => (
       </div>
       <div>
         <div className="font-headline font-bold text-hai-plum text-lg leading-tight">Aylin Yilmaz</div>
-        <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">Clinician profile</div>
+        <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{t('landing.tour.visual.clinicianProfile')}</div>
       </div>
       <Icon name="verified" className="ml-auto text-hai-teal text-2xl" filled />
     </div>
     <div className="grid grid-cols-2 gap-2 mt-4">
-      {['Cardiology', 'Istanbul, Turkiye', 'Clinical AI', 'Institution verified'].map((item) => (
+      {['Cardiology', 'Istanbul, Turkiye', 'Clinical AI', t('landing.tour.visual.institutionVerified')].map((item) => (
         <div key={item} className="rounded-xl bg-neutral-100 px-3 py-2 text-xs font-bold text-hai-plum">
           {item}
         </div>
@@ -315,48 +319,53 @@ const ProfileVisual = () => (
     <div className="mt-4 rounded-2xl bg-hai-mint/45 p-3 flex items-center gap-3">
       <Icon name="tune" className="text-hai-plum text-xl" filled />
       <div>
-        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Match basis</div>
-        <div className="text-sm font-semibold text-neutral-700">Expertise, location, role, and collaboration goals.</div>
+        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">{t('landing.tour.visual.matchBasis')}</div>
+        <div className="text-sm font-semibold text-neutral-700">{t('landing.tour.visual.matchBasisDesc')}</div>
       </div>
     </div>
   </div>
-)
+  )
+}
 
-const PostVisual = () => (
+const PostVisual = () => {
+  const { t } = useTranslation()
+  return (
   <div className="relative w-full max-w-[340px] aspect-[5/4] mx-auto">
     <div className="absolute inset-0 bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5 flex flex-col gap-2.5">
       <div className="flex items-center gap-2 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" /> Draft · new post
+        <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" /> {t('landing.tour.visual.draftPost')}
       </div>
       <div className="h-6 bg-gradient-to-r from-hai-teal/30 to-hai-mint/40 rounded-md w-5/6" />
       <div className="grid grid-cols-2 gap-2 mt-1">
-        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">Domain</div>
-        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">Stage</div>
+        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{t('posts.domain')}</div>
+        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{t('posts.stageFilterLabel')}</div>
       </div>
       <div className="h-2 bg-neutral-100 rounded-full w-full" />
       <div className="h-2 bg-neutral-100 rounded-full w-4/5" />
       <div className="h-2 bg-neutral-100 rounded-full w-3/5" />
       <div className="mt-auto flex items-center justify-between pt-2">
-        <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">0 / 0 files</span>
-        <span className="bg-hai-plum text-white text-xs font-bold px-3 py-1.5 rounded-full">Publish →</span>
+        <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{t('landing.tour.visual.files')}</span>
+        <span className="bg-hai-plum text-white text-xs font-bold px-3 py-1.5 rounded-full">{t('posts.form.publish')} →</span>
       </div>
     </div>
     <div className="absolute -bottom-3 -right-3 w-14 h-14 bg-hai-lime rounded-2xl shadow-lg flex items-center justify-center rotate-6">
       <Icon name="edit_note" className="text-hai-plum text-3xl" filled />
     </div>
   </div>
-)
+  )
+}
 
 const MatchVisual = () => {
+  const { t } = useTranslation()
   const chips: [string, boolean][] = [
-    ['AI best match', true], ['Orthopedics', false], ['Machine learning', true], ['Research partner', false],
-    ['Ankara, Turkiye', true], ['Page 1 of 3', false],
+    [t('landing.tour.visual.bestMatch'), true], ['Orthopedics', false], ['Machine learning', true], [t('posts.collab.research_partner'), false],
+    ['Ankara, Turkiye', true], [t('landing.tour.visual.page'), false],
   ]
   return (
     <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Browse Posts</span>
-        <span className="flex items-center gap-1 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum"><Icon name="auto_awesome" className="text-sm" filled /> 82% match</span>
+        <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">{t('nav.browse')}</span>
+        <span className="flex items-center gap-1 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum"><Icon name="auto_awesome" className="text-sm" filled /> {t('landing.tour.visual.matchScore', { score: 82 })}</span>
       </div>
       <div className="rounded-2xl border border-neutral-100 p-3 mb-4">
         <div className="font-headline font-bold text-hai-plum text-base leading-tight">Structured MRI report assistant</div>
@@ -374,28 +383,33 @@ const MatchVisual = () => {
       </div>
       <div className="mt-5 pt-4 border-t border-neutral-100 flex items-center gap-3">
         <Icon name="view_list" className="text-hai-plum text-lg" filled />
-        <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">Filters, sorting, and pagination stay in sync.</span>
+        <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{t('landing.tour.visual.inSync')}</span>
       </div>
     </div>
   )
 }
 
-const MeetVisual = () => (
+const MeetVisual = () => {
+  const { t, i18n } = useTranslation()
+  // Sample slots (a Monday, Wednesday and Friday), written the way the viewer's language writes dates.
+  const slotLabel = (date: Date) =>
+    `${date.toLocaleDateString(i18n.language, { weekday: 'short' })} · ${date.toLocaleDateString(i18n.language, { day: '2-digit', month: 'short' })}`
+  return (
   <div className="w-full max-w-[340px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
     <div className="flex items-start gap-3 mb-4 pb-4 border-b border-neutral-100">
       <div className="w-9 h-9 rounded-xl bg-hai-mint/60 flex items-center justify-center shrink-0">
         <Icon name="shield_lock" className="text-hai-plum text-xl" filled />
       </div>
       <div className="flex-1">
-        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-0.5">Step 01 · NDA</div>
-        <div className="font-headline text-base font-bold text-hai-plum leading-tight">One-page NDA, accepted inline.</div>
+        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-0.5">{t('landing.tour.visual.ndaStep')}</div>
+        <div className="font-headline text-base font-bold text-hai-plum leading-tight">{t('landing.tour.visual.ndaInline')}</div>
       </div>
       <Icon name="check_circle" className="text-hai-teal text-xl" filled />
     </div>
     {[
-      ['Mon · 28 Apr', '14:00 CET'],
-      ['Wed · 30 Apr', '10:30 CET'],
-      ['Fri · 02 May', '16:00 CET'],
+      [slotLabel(new Date(2025, 3, 28)), '14:00 CET'],
+      [slotLabel(new Date(2025, 3, 30)), '10:30 CET'],
+      [slotLabel(new Date(2025, 4, 2)), '16:00 CET'],
     ].map(([date, time], i) => (
       <div key={date} className="flex items-center justify-between py-2.5 border-b border-neutral-100 last:border-0">
         <span className="flex items-center gap-2.5">
@@ -406,19 +420,22 @@ const MeetVisual = () => (
       </div>
     ))}
   </div>
-)
+  )
+}
 
-const MeetingsVisual = () => (
+const MeetingsVisual = () => {
+  const { t } = useTranslation()
+  return (
   <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
     <div className="flex items-center justify-between mb-4">
-      <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Meetings</span>
-      <span className="rounded-full bg-hai-mint px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold">Pending review</span>
+      <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">{t('nav.meetings')}</span>
+      <span className="rounded-full bg-hai-mint px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold">{t('landing.tour.visual.pendingReview')}</span>
     </div>
     <div className="space-y-3">
       {[
-        ['Incoming', 'MRI report assistant', 'Accept'],
-        ['Confirmed', 'CGM feasibility review', 'Complete'],
-        ['Outgoing', 'Stroke prediction labels', 'Cancel'],
+        [t('meetingsPage.tabs.incoming'), 'MRI report assistant', t('landing.tour.visual.accept')],
+        [t('meetingsPage.tabs.confirmed'), 'CGM feasibility review', t('landing.tour.visual.complete')],
+        [t('meetingsPage.tabs.outgoing'), 'Stroke prediction labels', t('common.cancel')],
       ].map(([status, title, action]) => (
         <div key={title} className="rounded-2xl border border-neutral-100 p-3">
           <div className="flex items-start gap-3">
@@ -435,14 +452,17 @@ const MeetingsVisual = () => (
       ))}
     </div>
   </div>
-)
+  )
+}
 
-const NotifyVisual = () => (
+const NotifyVisual = () => {
+  const { t } = useTranslation()
+  return (
   <div className="w-full max-w-[350px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
     <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
       <div>
-        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Notifications</div>
-        <div className="font-headline text-xl font-bold text-hai-plum">Follow the thread.</div>
+        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">{t('nav.notifications')}</div>
+        <div className="font-headline text-xl font-bold text-hai-plum">{t('landing.tour.visual.followThread')}</div>
       </div>
       <div className="relative">
         <Icon name="notifications" className="text-hai-plum text-3xl" filled />
@@ -450,9 +470,9 @@ const NotifyVisual = () => (
       </div>
     </div>
     {[
-      ['Meeting request accepted', '2 min ago'],
-      ['New AI match is available', 'Today'],
-      ['Profile export is ready', 'Yesterday'],
+      [t('landing.tour.visual.requestAccepted'), t('common.minutesAgo', { count: 2 })],
+      [t('landing.tour.visual.newMatch'), t('landing.tour.visual.today')],
+      [t('landing.tour.visual.exportReady'), t('common.yesterday')],
     ].map(([title, time]) => (
       <div key={title} className="flex items-center gap-3 py-3 border-b border-neutral-100 last:border-0">
         <span className="w-2 h-2 rounded-full bg-hai-teal shrink-0" />
@@ -463,7 +483,8 @@ const NotifyVisual = () => (
       </div>
     ))}
   </div>
-)
+  )
+}
 
 const STEPS: Step[] = [
   { num: '01', key: 'profile', icon: 'badge', accent: '#B8F3FF', route: ROUTES.PROFILE, Visual: ProfileVisual },

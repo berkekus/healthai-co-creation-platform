@@ -46,7 +46,7 @@ export default function UnauthorizedPage() {
             {isAuthenticated && user && (
               <span className="inline-flex items-center gap-1.5 bg-hai-mint rounded-full px-3 py-1.5 font-mono text-xs text-hai-plum font-bold">
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>badge</span>
-                {t('errors.unauthorized.signedInAs', { role: user.role.replace('_', ' ') })}
+                {t('errors.unauthorized.signedInAs', { role: t(`common.role.${user.role}`, { defaultValue: user.role }) })}
               </span>
             )}
           </div>
