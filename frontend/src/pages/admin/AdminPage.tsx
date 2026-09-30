@@ -154,7 +154,7 @@ function StatCard({ label, value, icon, iconBg, iconColor, change, up, vsLast7 }
       <div className="text-sm text-[#6b7280] font-semibold mb-1.5">{label}</div>
       <div className={`text-xs font-semibold ${up === true ? 'text-[#22c55e]' : up === false ? 'text-[#ef4444]' : 'text-[#6b7280]'}`}>
         {up === true ? '↑' : up === false ? '↓' : '—'} {change}
-        <span className="text-[#b0b7c3] font-normal ml-1">{vsLast7}</span>
+        <span className="text-[#6b7280] font-normal ml-1">{vsLast7}</span>
       </div>
     </div>
   )
@@ -626,11 +626,11 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                       <div className="text-xs font-semibold text-[#374151] leading-snug capitalize">{log.action.replace(/_/g, ' ')}</div>
                       <div className="text-xs text-[#6b7280] truncate">{log.userEmail}</div>
                     </div>
-                    <span className="text-xs text-[#b0b7c3] whitespace-nowrap shrink-0">{timeAgo(log.timestamp, t)}</span>
+                    <span className="text-xs text-[#6b7280] whitespace-nowrap shrink-0">{timeAgo(log.timestamp, t)}</span>
                   </div>
                 )
               }) : (
-                <p className="text-sm text-[#b0b7c3]">{t('admin.noRecentActivity')}</p>
+                <p className="text-sm text-[#6b7280]">{t('admin.noRecentActivity')}</p>
               )}
             </div>
           </div>

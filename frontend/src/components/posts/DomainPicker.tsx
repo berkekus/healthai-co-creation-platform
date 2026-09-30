@@ -41,7 +41,7 @@ export default function DomainPicker({ value, onChange, error, labelledBy }: Pro
     <div role="group" aria-labelledby={labelledBy} aria-describedby={hintId} className="space-y-3">
       <div className="flex min-h-[40px] flex-wrap items-center gap-2">
         {value.length === 0 ? (
-          <span className="text-sm font-semibold text-[#9a95a1]">{t('posts.form.domainNoneSelected')}</span>
+          <span className="text-sm font-semibold text-[#6b7280]">{t('posts.form.domainNoneSelected')}</span>
         ) : value.map((domain, index) => (
           <span
             key={domain}
@@ -71,7 +71,7 @@ export default function DomainPicker({ value, onChange, error, labelledBy }: Pro
       <div className={`rounded-[10px] border bg-white ${error ? 'border-red-400' : 'border-[#d7dbe3]'}`}>
         <label className="relative block border-b border-[#eef0f3]">
           <span className="sr-only">{t('posts.form.domainSearch')}</span>
-          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9a95a1]" aria-hidden="true" />
+          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#6b7280]" aria-hidden="true" />
           <input
             type="search"
             value={query}
@@ -83,7 +83,7 @@ export default function DomainPicker({ value, onChange, error, labelledBy }: Pro
 
         <div className="max-h-64 overflow-y-auto overscroll-contain p-3">
           {groups.length === 0 ? (
-            <p className="px-1 py-2 text-sm font-semibold text-[#9a95a1]">{t('common.select.noResults', { query })}</p>
+            <p className="px-1 py-2 text-sm font-semibold text-[#6b7280]">{t('common.select.noResults', { query })}</p>
           ) : groups.map(group => (
             <fieldset key={group.id} className="mb-3 last:mb-0">
               <legend className="mb-1.5 px-1 text-xs font-black uppercase tracking-[0.14em] text-[#6f6a76]">

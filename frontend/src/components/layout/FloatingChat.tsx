@@ -202,11 +202,11 @@ export default function FloatingChat() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-3">
                           <span className="truncate text-sm font-black text-[#36213E]">{itemPartner?.name ?? t('messagesPage.unknownPartner')}</span>
-                          <span className="shrink-0 text-xs font-semibold text-[#9F9AAA]">{timeAgo(conv.lastMessageAt, t)}</span>
+                          <span className="shrink-0 text-xs font-semibold text-[#6b7280]">{timeAgo(conv.lastMessageAt, t)}</span>
                         </div>
                         <p className="mt-0.5 truncate text-xs font-semibold text-[#6F6878]">{conv.postTitle}</p>
                         {conv.lastMessagePreview && (
-                          <p className="mt-0.5 truncate text-xs text-[#9F9AAA]">{conv.lastMessagePreview}</p>
+                          <p className="mt-0.5 truncate text-xs text-[#6b7280]">{conv.lastMessagePreview}</p>
                         )}
                       </div>
                     </button>

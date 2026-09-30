@@ -156,7 +156,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
                 <Sparkles size={14} />
                 {t('posts.form.aiSuggestions')}
               </div>
-              <button type="button" onClick={() => setAiResult(null)} aria-label={t('common.close')} className="text-[#9a95a1] hover:text-[#2d1838] transition-colors">✕</button>
+              <button type="button" onClick={() => setAiResult(null)} aria-label={t('common.close')} className="text-[#6b7280] hover:text-[#2d1838] transition-colors">✕</button>
             </div>
             {aiResult.improvedTitle && (
               <div className="mb-2">

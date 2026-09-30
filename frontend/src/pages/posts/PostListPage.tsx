@@ -167,8 +167,8 @@ export default function PostListPage() {
   const openSaveSearch = () => {
     const filterParts: string[] = []
     if (domain) filterParts.push(domain)
-    if (stage) filterParts.push(stage)
-    if (postedBy !== 'Anyone') filterParts.push(postedBy)
+    if (stage) filterParts.push(t(`posts.stage.${stage}`, { defaultValue: stage }))
+    if (postedBy !== 'Anyone') filterParts.push(postedByShortLabel(t, postedBy))
     if (location.trim()) filterParts.push(location.trim())
     if (search.trim()) filterParts.push(`"${search.trim()}"`)
     setSaveSearchError(null)

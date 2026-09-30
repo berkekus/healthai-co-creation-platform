@@ -355,7 +355,7 @@ export default function LoginPage() {
             </form>
 
             {/* Footer */}
-            <p className="mt-7 text-center text-sm text-[#9ca3b0] dark:text-[rgb(var(--text-secondary))] font-body">
+            <p className="mt-7 text-center text-sm text-[#6b7280] dark:text-[rgb(var(--text-secondary))] font-body">
               {t('authPage.login.noAccount')}{' '}
               <Link to={ROUTES.REGISTER} className="font-black text-[#36213E] dark:text-hai-plum hover:text-[#8AC6D0] transition-colors">
                 {t('authPage.login.createAccount')}

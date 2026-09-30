@@ -85,12 +85,12 @@ export default function PublicProfilePage() {
             <div className="flex flex-wrap gap-4 text-[13px] text-[#6f6a76] font-semibold mb-6">
               {user.institution && (
                 <span className="flex items-center gap-1.5">
-                  <Building2 size={13} className="text-[#9f9aaa]" /> {user.institution}
+                  <Building2 size={13} className="text-[#6b7280]" /> {user.institution}
                 </span>
               )}
               {(user.city || user.country) && (
                 <span className="flex items-center gap-1.5">
-                  <MapPin size={13} className="text-[#9f9aaa]" /> {[user.city, user.country].filter(Boolean).join(', ')}
+                  <MapPin size={13} className="text-[#6b7280]" /> {[user.city, user.country].filter(Boolean).join(', ')}
                 </span>
               )}
             </div>
@@ -108,7 +108,7 @@ export default function PublicProfilePage() {
 
             {user.expertiseTags && user.expertiseTags.length > 0 && (
               <div>
-                <div className="flex items-center gap-1.5 text-xs font-bold tracking-[0.12em] uppercase text-[#9f9aaa] mb-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold tracking-[0.12em] uppercase text-[#6b7280] mb-3">
                   <Tag size={11} /> {t('publicProfile.expertise')}
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -123,7 +123,7 @@ export default function PublicProfilePage() {
 
         {userId && <BadgeList userId={userId} />}
 
-        <p className="mt-5 text-center text-[12.5px] text-[#9f9aaa] font-semibold">
+        <p className="mt-5 text-center text-[12.5px] text-[#6b7280] font-semibold">
           {t('publicProfile.memberSince', {
             date: new Date(user.createdAt).toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' })
           })}

@@ -107,15 +107,15 @@ function ConversationRow({ conv, userId, isLast, onClick, onDelete }: {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-3 mb-1">
             <span className="font-headline font-black text-base text-[#2d1838] truncate">{partner?.name ?? t('messagesPage.unknownPartner')}</span>
-            <span className="flex items-center gap-1 text-xs text-[#9f9aaa] font-semibold shrink-0"><Clock size={11} />{timeAgo}</span>
+            <span className="flex items-center gap-1 text-xs text-[#6b7280] font-semibold shrink-0"><Clock size={11} />{timeAgo}</span>
           </div>
           <p className="text-sm text-[#6f6a76] font-semibold truncate">{conv.postTitle}</p>
-          {conv.lastMessagePreview && <p className="text-xs text-[#9f9aaa] truncate mt-0.5">{conv.lastMessagePreview}</p>}
+          {conv.lastMessagePreview && <p className="text-xs text-[#6b7280] truncate mt-0.5">{conv.lastMessagePreview}</p>}
         </div>
       </button>
       <div className="shrink-0 flex items-center gap-2">
         {!confirm ? (
-          <button onClick={e => { e.stopPropagation(); setConfirm(true) }} title={t('messagesPage.deleteConv')} className="w-8 h-8 rounded-full flex items-center justify-center text-[#d0ccd8] hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
+          <button onClick={e => { e.stopPropagation(); setConfirm(true) }} title={t('messagesPage.deleteConv')} className="w-8 h-8 rounded-full flex items-center justify-center text-[#6b7280] hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
             <Trash2 size={14} />
           </button>
         ) : (

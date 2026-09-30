@@ -453,7 +453,7 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
               </div>
               <div className="text-[12.5px] font-semibold text-[#6F6878] mb-3">{postDomains(post).join(' · ')}</div>
               <div className="flex items-center justify-between">
-                <span className="text-[11.5px] font-semibold text-[#9f9aaa]">{post.authorName}</span>
+                <span className="text-xs font-semibold text-[#6b7280]">{post.authorName}</span>
                 <StatusPill status={post.status} />
               </div>
             </Link>

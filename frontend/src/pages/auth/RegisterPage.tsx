@@ -163,7 +163,7 @@ export default function RegisterPage() {
 
           {/* Top bar */}
           <div className="flex items-center justify-end mb-8 shrink-0">
-            <span className="text-sm text-[#9ca3b0] mr-3">{t('authPage.register.alreadyHave')}</span>
+            <span className="text-sm text-[#6b7280] mr-3">{t('authPage.register.alreadyHave')}</span>
             <Link
               to={ROUTES.LOGIN}
               className="px-4 py-2 rounded-full border border-[#dde2ea] text-sm font-bold text-[#18203a] hover:border-[#3db8d8] hover:text-[#3db8d8] transition-colors"
@@ -178,7 +178,7 @@ export default function RegisterPage() {
             <h1 className="font-headline font-black text-4xl sm:text-4xl leading-tight tracking-normal text-[#18203a] mb-2">
               {t('authPage.register.heading')}
             </h1>
-            <p className="text-sm text-[#7a8399] mb-8 font-body">
+            <p className="text-sm text-[#6b7280] mb-8 font-body">
               {t('authPage.register.sub')}
             </p>
 
@@ -391,7 +391,7 @@ export default function RegisterPage() {
                                 {selected && <div className="w-2 h-2 rounded-full bg-white" />}
                               </div>
                             </div>
-                            <p className="mt-1 text-xs text-[#7a8399] leading-relaxed">{desc}</p>
+                            <p className="mt-1 text-xs text-[#6b7280] leading-relaxed">{desc}</p>
                           </button>
                         )
                       })}
