@@ -22,6 +22,7 @@
     "messages": "Mensajes",
     "notifications": "Notificaciones",
     "notificationsUnread": "Notificaciones ({{n}} sin leer)",
+    "messagesUnread": "Mensajes ({{n}} sin leer)",
     "accountMenu": "Menú de cuenta",
     "toggleMenu": "Alternar menú"
   },

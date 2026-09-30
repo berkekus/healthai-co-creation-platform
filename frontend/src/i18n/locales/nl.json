@@ -22,6 +22,7 @@
     "messages": "Berichten",
     "notifications": "Meldingen",
     "notificationsUnread": "Meldingen ({{n}} ongelezen)",
+    "messagesUnread": "Berichten ({{n}} ongelezen)",
     "accountMenu": "Accountmenu",
     "toggleMenu": "Menu openen/sluiten"
   },

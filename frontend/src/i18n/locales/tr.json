@@ -22,6 +22,7 @@
     "messages": "Mesajlar",
     "notifications": "Bildirimler",
     "notificationsUnread": "Bildirimler ({{n}} okunmamış)",
+    "messagesUnread": "Mesajlar ({{n}} okunmamış)",
     "accountMenu": "Hesap menüsü",
     "toggleMenu": "Menüyü aç/kapat"
   },

@@ -4,8 +4,9 @@ import { Bell, Calendar, FileText, Menu, MessageSquare, Star, Users, X, LogOut, 
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
+import { useConversationStore } from '../../store/conversationStore'
 import LanguageToggle from '../ui/LanguageToggle'
-import { Badge, IconButton } from '../ui'
+import { Badge, IconButton, IconLink } from '../ui'
 import { ROUTES } from '../../constants/routes'
 import type { NotificationType, Notification } from '../../types/common.types'
 import { getNotificationContent } from '../../utils/notificationContent'
@@ -133,6 +134,8 @@ export default function Navbar() {
   const notifTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const unread = user ? unreadCount(user.id) : 0
+  // Kept fresh by FloatingChat's polling; read here so messages are reachable from the header too.
+  const unreadMessages = useConversationStore(s => s.unreadCount)
   const recentNotifs = user ? getByUser(user.id).slice(0, 5) : []
 
   const handleNotifEnter = () => {
@@ -255,6 +258,26 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
           {user ? (
             <>
+              {/* Messages — below sm the drawer carries it, so the header does not overflow at 375px */}
+              <IconLink
+                to={ROUTES.MESSAGES}
+                label={unreadMessages > 0 ? t('nav.messagesUnread', { n: unreadMessages }) : t('nav.messages')}
+                aria-current={isActive(ROUTES.MESSAGES) ? 'page' : undefined}
+                size="lg"
+                variant={isActive(ROUTES.MESSAGES) ? 'soft' : 'default'}
+                className="hidden sm:inline-flex"
+                icon={(
+                  <>
+                    <MessageSquare size={17} />
+                    {unreadMessages > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-white bg-hai-plum px-1 font-mono text-xs font-bold text-hai-mint">
+                        {unreadMessages > 9 ? '9+' : unreadMessages}
+                      </span>
+                    )}
+                  </>
+                )}
+              />
+
               {/* Notifications with hover dropdown */}
               <div
                 ref={notifRef}
@@ -368,7 +391,7 @@ export default function Navbar() {
       {/* Mobile drawer */}
       {menuOpen && user && (
         <div className="md:hidden absolute top-[76px] inset-x-0 z-40 bg-white border-b border-neutral-200 shadow-lg py-2 font-body">
-          {navLinks.map(({ to, label }) => {
+          {[...navLinks, { to: ROUTES.MESSAGES, label: unreadMessages > 0 ? t('nav.messagesUnread', { n: unreadMessages }) : t('nav.messages') }].map(({ to, label }) => {
             const active = isActive(to)
             return (
               <Link
