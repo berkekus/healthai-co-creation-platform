@@ -22,6 +22,7 @@
     "messages": "Mensagens",
     "notifications": "Notificações",
     "notificationsUnread": "Notificações ({{n}} não lidas)",
+    "messagesUnread": "Mensagens ({{n}} não lidas)",
     "accountMenu": "Menu da conta",
     "toggleMenu": "Alternar menu"
   },
@@ -132,6 +133,7 @@
       "headingLine2": "de utilização real.",
       "subtitle": "Cada passo corresponde a um ecrã real da HealthAI, desde a configuração do perfil e a navegação classificada por IA até às decisões de reuniões e notificações.",
       "stepCounter": "Passo {{num}} / 0{{total}}",
+      "visual": {"clinicianProfile":"Perfil clínico","institutionVerified":"Instituição verificada","matchBasis":"Base de correspondência","matchBasisDesc":"Especialidade, localização, função e objetivos de colaboração.","draftPost":"Rascunho · nova publicação","bestMatch":"Melhor correspondência IA","page":"Página 1 de 3","matchScore":"{{score}}% de correspondência","inSync":"Filtros, ordenação e paginação mantêm-se sincronizados.","ndaStep":"Passo 01 · NDA","ndaInline":"NDA de uma página, aceite na própria página.","pendingReview":"Revisão pendente","accept":"Aceitar","complete":"Concluir","followThread":"Acompanhe o processo.","requestAccepted":"Pedido de reunião aceite","newMatch":"Nova correspondência de IA disponível","exportReady":"A exportação do perfil está pronta"},
       "jumpToStep": "Ir para o passo {{num}}: {{name}}",
       "previousStep": "Passo anterior",
       "nextStep": "Passo seguinte",
@@ -445,6 +447,7 @@
     "saveSearchDefaultName": "Todas as publicações",
     "saveSearchSuccess": "Pesquisa \"{{name}}\" guardada! Será notificado quando forem publicadas novas publicações correspondentes.",
     "saveSearchError": "Não foi possível guardar a pesquisa. Tente novamente.",
+    "deleteError": "Não foi possível eliminar a publicação. Tente novamente.",
     "commitment": {
       "flexible": "Flexível",
       "low": "Consultoria pontual",
@@ -735,9 +738,9 @@
       "nameLabel": "Nome completo",
       "namePlaceholder": "Dra. Joana Silva",
       "firstNameLabel": "Primeiro nome",
-      "firstNamePlaceholder": "Joana",
+      "firstNamePlaceholder": "ex.: Joana",
       "lastNameLabel": "Último nome",
-      "lastNamePlaceholder": "Silva",
+      "lastNamePlaceholder": "ex.: Silva",
       "emailLabel": "Endereço de email",
       "emailHint": "Utilize um endereço de email a que tenha acesso",
       "emailPlaceholder": "voce@exemplo.com",
@@ -753,7 +756,7 @@
       "healthcareDesc": "Clínico, médico, enfermeiro, investigador, gestor de saúde…",
       "backBtn": "← Voltar",
       "institutionLabel": "Instituição",
-      "institutionPlaceholder": "Charité – Universitätsmedizin Berlin",
+      "institutionPlaceholder": "ex.: Charité – Universitätsmedizin Berlin",
       "cityLabel": "Cidade",
       "cityPlaceholder": "Selecione a cidade",
       "cityPlaceholderNoCountry": "Selecione primeiro o país",
@@ -791,10 +794,11 @@
       "changedMind": "Mudou de ideias?",
       "backToSignIn": "Voltar a iniciar sessão →",
       "successTitle": "Palavra-passe reposta!",
-      "successDesc": "A sua palavra-passe foi atualizada. A redirecioná-lo para o início de sessão…",
+      "successDesc": "A sua palavra-passe foi atualizada. Já pode iniciar sessão com a nova palavra-passe.",
       "signInNow": "Iniciar sessão agora →",
       "errShort": "A palavra-passe deve ter pelo menos 8 caracteres.",
       "errMatch": "As palavras-passe não coincidem.",
+      "matchOk": "As palavras-passe coincidem.",
       "errExpired": "O link é inválido ou já expirou.",
       "requestNew": "Solicitar um novo link de reposição →"
     },
@@ -802,7 +806,7 @@
       "verifying": "A verificar o seu email…",
       "verifyingWait": "Por favor, aguarde um momento.",
       "successTitle": "Email verificado!",
-      "successDesc": "Bem-vindo a bordo. A redirecioná-lo para o seu painel…",
+      "successDesc": "Bem-vindo a bordo. O seu e-mail foi confirmado e a sua conta está pronta.",
       "successCta": "Ir para o painel →",
       "failTitle": "A verificação falhou.",
       "failDesc": "O link é inválido ou já expirou.",
@@ -861,6 +865,11 @@
     "total": "Total",
     "overview": "Resumo de reuniões",
     "tabsHelp": "Recebidas: pedidos que outros enviaram sobre as suas publicações · Enviadas: pedidos que enviou sobre publicações de outras pessoas.",
+    "filterStatus": "Estado",
+    "filterDirection": "Direção",
+    "awaitingReply": "{{count}} pedido aguarda a sua resposta",
+    "awaitingReply_other": "{{count}} pedidos aguardam a sua resposta",
+    "awaitingShow": "Mostrar",
     "requestSent": "Pedido enviado a {{name}}. Será notificado assim que responder.",
     "direction": {
       "incoming": "Pedido de {{name}}",
@@ -908,6 +917,9 @@
     "markHeldHelp": "Já nos reunimos — isto não encerra a publicação.",
     "goToPost": "Ir para a publicação",
     "actionFailed": "Isso não funcionou. Por favor, tente novamente.",
+    "loadError": "Não foi possível carregar as reuniões.",
+    "refreshError": "Não foi possível atualizar as reuniões; esta lista pode estar desatualizada.",
+    "retry": "Tentar novamente",
     "previousMonth": "Mês anterior",
     "nextMonth": "Mês seguinte"
   },
@@ -929,7 +941,10 @@
     "stayInLoop": "Mantenha-se a par",
     "enableDesc": "Ative as notificações do navegador para nunca perder atualizações importantes.",
     "enableBtn": "Ativar notificações",
-    "noMore": "Não há mais notificações"
+    "noMore": "Não há mais notificações",
+    "loadError": "Não foi possível carregar as notificações.",
+    "refreshError": "Não foi possível atualizar as notificações; esta lista pode estar desatualizada.",
+    "retry": "Tentar novamente"
   },
   "notificationContent": {
     "meeting_request": {
@@ -1044,6 +1059,7 @@
   },
   "errors": {
     "badgePrefix": "Erro",
+    "boundary": {"title":"Esta página encontrou um problema","desc":"Algo nesta página deixou de funcionar. Os seus dados estão seguros. Tente novamente ou use o menu para ir para outra página.","updateDesc":"Foi publicada uma nova versão da HealthAI enquanto este separador estava aberto. Recarregue para continuar.","retry":"Tentar novamente","reload":"Recarregar página"},
     "notFound": {
       "code": "404 · Não encontrado",
       "title": "Não conseguimos encontrar essa página",
@@ -1166,9 +1182,13 @@
       "deleteConfirm": "Eliminar permanentemente \"{{name}}\"? Esta ação não pode ser desfeita.",
       "suspendError": "Não foi possível atualizar o estado de suspensão.",
       "deleteError": "Não foi possível eliminar a conta.",
+      "deleteConfirmTitle": "Eliminar esta conta?",
       "suspendedNotifTitle": "Conta suspensa",
       "suspendedNotifBody": "A sua conta foi suspensa.",
-      "pageRange": "{{from}}–{{to}} de {{total}}"
+      "pageRange": "{{from}}–{{to}} de {{total}}",
+      "perPage": "Por página",
+      "previousPage": "Página anterior",
+      "nextPage": "Página seguinte"
     },
     "posts": {
       "title": "Publicações e anúncios",
@@ -1183,7 +1203,11 @@
       },
       "remove": "Remover",
       "removedNotifTitle": "Publicação removida",
-      "removedNotifBody": "Uma das suas publicações foi removida por um administrador."
+      "removedNotifBody": "Uma das suas publicações foi removida por um administrador.",
+      "removeConfirmTitle": "Remover esta publicação?",
+      "removeConfirmBody": "\"{{title}}\" será removida da plataforma e o autor será notificado.",
+      "removeConfirmUndo": "Esta ação não pode ser desfeita.",
+      "removeError": "Não foi possível remover a publicação. Tente novamente."
     },
     "logs": {
       "title": "Registos de atividade",
@@ -1231,6 +1255,7 @@
     "hoursAgo": "há {{count}}h",
     "daysAgo": "há {{count}}d",
     "yesterday": "Ontem",
+    "today": "Hoje",
     "translate": "Traduzir",
     "showOriginal": "Mostrar original",
     "translating": "A traduzir…",

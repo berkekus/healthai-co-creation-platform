@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useCanGoBack } from '../../hooks/useCanGoBack'
 import { ROUTES } from '../../constants/routes'
 import PageWrapper from '../../components/layout/PageWrapper'
 
@@ -7,6 +8,7 @@ export default function NotFoundPage() {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
+  const canGoBack = useCanGoBack()
 
   return (
     <PageWrapper maxWidth={820}>
@@ -39,10 +41,14 @@ export default function NotFoundPage() {
           )}
 
           <div className="flex flex-wrap gap-2.5 mb-8">
-            <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 bg-white border border-neutral-200 hover:border-hai-plum text-hai-plum rounded-full px-5 py-3 text-sm font-bold transition-colors">
-              <span className="material-symbols-outlined text-lg">arrow_back</span>
-              {t('errors.notFound.goBack')}
-            </button>
+            {/* Only offer "back" when there is an in-app page to return to; arriving from an
+                outside link, history.back() would leave the site. */}
+            {canGoBack && (
+              <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 bg-white border border-neutral-200 hover:border-hai-plum text-hai-plum rounded-full px-5 py-3 text-sm font-bold transition-colors">
+                <span className="material-symbols-outlined text-lg">arrow_back</span>
+                {t('errors.notFound.goBack')}
+              </button>
+            )}
             <Link to={ROUTES.HOME} className="inline-flex items-center gap-2 bg-hai-plum text-white hover:bg-black rounded-full px-5 py-3 text-sm font-bold transition-colors shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]">
               <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: '"FILL" 1' }}>home</span>
               {t('errors.notFound.backHome')}

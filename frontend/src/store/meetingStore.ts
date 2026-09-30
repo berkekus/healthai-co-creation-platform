@@ -4,6 +4,8 @@ import api from '../lib/api'
 
 interface MeetingState {
   meetings: Meeting[]
+  /** State of the last list fetch, so pages can tell "loading" and "failed" apart from "none yet". */
+  listStatus: 'idle' | 'loading' | 'loaded' | 'error'
   fetchByUser: (userId?: string) => Promise<void>
   request: (data: MeetingRequestData, requesterId: string, requesterName: string, ownerId: string, ownerName: string, postTitle: string) => Promise<Meeting>
   accept: (id: string) => Promise<void>
@@ -23,13 +25,16 @@ function normalise(raw: Meeting & { _id?: string }): Meeting {
 
 export const useMeetingStore = create<MeetingState>()((set, get) => ({
   meetings: [],
+  listStatus: 'idle',
 
   fetchByUser: async (_userId?: string) => {
+    set({ listStatus: 'loading' })
     try {
       const { data } = await api.get<{ success: boolean; data: Meeting[] }>('/meetings')
-      set({ meetings: data.data.map(normalise) })
+      set({ meetings: data.data.map(normalise), listStatus: 'loaded' })
     } catch {
-      // keep existing state on error
+      // keep existing meetings on error; the status lets the page say so
+      set({ listStatus: 'error' })
     }
   },
 

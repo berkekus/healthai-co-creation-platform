@@ -5,6 +5,8 @@ import api from '../lib/api'
 interface NotificationState {
   notifications: Notification[]
   unreadTotal: number
+  /** State of the last list fetch, so pages can tell "loading" and "failed" apart from "empty". */
+  listStatus: 'idle' | 'loading' | 'loaded' | 'error'
   fetchByUser: (userId?: string) => Promise<void>
   fetchUnreadCount: () => Promise<void>
   unreadCount: (userId: string) => number
@@ -28,17 +30,20 @@ const POLL_INTERVAL_MS = 30_000
 export const useNotificationStore = create<NotificationState>()((set, get) => ({
   notifications: [],
   unreadTotal: 0,
+  listStatus: 'idle',
 
   fetchByUser: async (_userId?: string) => {
+    set({ listStatus: 'loading' })
     try {
       const { data } = await api.get<{
         success: boolean
         data: { notifications: Notification[]; total: number; page: number; limit: number; pages: number }
       }>('/notifications')
-      set({ notifications: data.data.notifications.map(normalise) })
+      set({ notifications: data.data.notifications.map(normalise), listStatus: 'loaded' })
       get().fetchUnreadCount()
     } catch {
-      // keep existing state on error
+      // keep existing notifications on error; the status lets the page say so
+      set({ listStatus: 'error' })
     }
   },
 

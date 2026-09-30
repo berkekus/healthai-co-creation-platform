@@ -38,7 +38,7 @@ export default function ProfessionalDetails({ user, emptyText }: { user: Details
   }
 
   if (rows.length === 0) {
-    return emptyText ? <p className="text-sm font-semibold italic text-neutral-400">{emptyText}</p> : null
+    return emptyText ? <p className="text-sm font-semibold italic text-neutral-500">{emptyText}</p> : null
   }
 
   return (

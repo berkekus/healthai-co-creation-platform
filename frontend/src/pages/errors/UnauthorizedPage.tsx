@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useCanGoBack } from '../../hooks/useCanGoBack'
 import { ROUTES } from '../../constants/routes'
 import PageWrapper from '../../components/layout/PageWrapper'
 import { useAuthStore } from '../../store/authStore'
@@ -8,6 +9,7 @@ export default function UnauthorizedPage() {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
+  const canGoBack = useCanGoBack()
   const { isAuthenticated, user } = useAuthStore()
 
   return (
@@ -44,16 +46,20 @@ export default function UnauthorizedPage() {
             {isAuthenticated && user && (
               <span className="inline-flex items-center gap-1.5 bg-hai-mint rounded-full px-3 py-1.5 font-mono text-xs text-hai-plum font-bold">
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>badge</span>
-                {t('errors.unauthorized.signedInAs', { role: user.role.replace('_', ' ') })}
+                {t('errors.unauthorized.signedInAs', { role: t(`common.role.${user.role}`, { defaultValue: user.role }) })}
               </span>
             )}
           </div>
 
           <div className="flex flex-wrap gap-2.5 mb-8">
-            <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 bg-white border border-neutral-200 hover:border-hai-plum text-hai-plum rounded-full px-5 py-3 text-sm font-bold transition-colors">
-              <span className="material-symbols-outlined text-lg">arrow_back</span>
-              {t('errors.unauthorized.goBack')}
-            </button>
+            {/* Only offer "back" when there is an in-app page to return to; arriving from an
+                outside link, history.back() would leave the site. */}
+            {canGoBack && (
+              <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 bg-white border border-neutral-200 hover:border-hai-plum text-hai-plum rounded-full px-5 py-3 text-sm font-bold transition-colors">
+                <span className="material-symbols-outlined text-lg">arrow_back</span>
+                {t('errors.unauthorized.goBack')}
+              </button>
+            )}
             {isAuthenticated ? (
               <Link to={ROUTES.DASHBOARD} className="inline-flex items-center gap-2 bg-hai-plum text-white hover:bg-black rounded-full px-5 py-3 text-sm font-bold transition-colors shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)]">
                 <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: '"FILL" 1' }}>dashboard</span>

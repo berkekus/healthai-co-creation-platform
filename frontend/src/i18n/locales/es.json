@@ -22,6 +22,7 @@
     "messages": "Mensajes",
     "notifications": "Notificaciones",
     "notificationsUnread": "Notificaciones ({{n}} sin leer)",
+    "messagesUnread": "Mensajes ({{n}} sin leer)",
     "accountMenu": "Menú de cuenta",
     "toggleMenu": "Alternar menú"
   },
@@ -132,6 +133,7 @@
       "headingLine2": "de uso real.",
       "subtitle": "Cada paso corresponde a una pantalla real de HealthAI, desde la configuración del perfil y la exploración clasificada por IA hasta las decisiones de reuniones y las notificaciones.",
       "stepCounter": "Paso {{num}} / 0{{total}}",
+      "visual": {"clinicianProfile":"Perfil clínico","institutionVerified":"Institución verificada","matchBasis":"Base de coincidencia","matchBasisDesc":"Experiencia, ubicación, rol y objetivos de colaboración.","draftPost":"Borrador · nueva publicación","bestMatch":"Mejor coincidencia IA","page":"Página 1 de 3","matchScore":"{{score}} % de coincidencia","inSync":"Filtros, orden y paginación se mantienen sincronizados.","ndaStep":"Paso 01 · NDA","ndaInline":"NDA de una página, aceptado en línea.","pendingReview":"Pendiente de revisión","accept":"Aceptar","complete":"Completar","followThread":"Sigue el proceso.","requestAccepted":"Solicitud de reunión aceptada","newMatch":"Hay una nueva coincidencia de IA","exportReady":"La exportación del perfil está lista"},
       "jumpToStep": "Ir al paso {{num}}: {{name}}",
       "previousStep": "Paso anterior",
       "nextStep": "Paso siguiente",
@@ -445,6 +447,7 @@
     "saveSearchDefaultName": "Todas las publicaciones",
     "saveSearchSuccess": "¡Búsqueda \"{{name}}\" guardada! Te avisaremos cuando se publiquen nuevas publicaciones que coincidan.",
     "saveSearchError": "No se pudo guardar la búsqueda. Inténtalo de nuevo.",
+    "deleteError": "No se pudo eliminar la publicación. Inténtalo de nuevo.",
     "commitment": {
       "flexible": "Flexible",
       "low": "Asesoría puntual",
@@ -735,9 +738,9 @@
       "nameLabel": "Nombre completo",
       "namePlaceholder": "Dra. Ana García",
       "firstNameLabel": "Nombre",
-      "firstNamePlaceholder": "Ana",
+      "firstNamePlaceholder": "p. ej. Ana",
       "lastNameLabel": "Apellidos",
-      "lastNamePlaceholder": "García",
+      "lastNamePlaceholder": "p. ej. García",
       "emailLabel": "Correo electrónico",
       "emailHint": "Usa una dirección de correo a la que tengas acceso",
       "emailPlaceholder": "tu@ejemplo.com",
@@ -753,7 +756,7 @@
       "healthcareDesc": "Clínico, médico, enfermero, investigador, gestión sanitaria…",
       "backBtn": "← Atrás",
       "institutionLabel": "Institución",
-      "institutionPlaceholder": "Hospital Clínic de Barcelona",
+      "institutionPlaceholder": "p. ej. Hospital Clínic de Barcelona",
       "cityLabel": "Ciudad",
       "cityPlaceholder": "Selecciona una ciudad",
       "cityPlaceholderNoCountry": "Selecciona primero un país",
@@ -791,10 +794,11 @@
       "changedMind": "¿Cambiaste de opinión?",
       "backToSignIn": "Volver a iniciar sesión →",
       "successTitle": "¡Contraseña restablecida!",
-      "successDesc": "Tu contraseña se ha actualizado. Te estamos redirigiendo para iniciar sesión…",
+      "successDesc": "Tu contraseña se ha actualizado. Ya puedes iniciar sesión con tu nueva contraseña.",
       "signInNow": "Iniciar sesión ahora →",
       "errShort": "La contraseña debe tener al menos 8 caracteres.",
       "errMatch": "Las contraseñas no coinciden.",
+      "matchOk": "Las contraseñas coinciden.",
       "errExpired": "El enlace no es válido o ha caducado.",
       "requestNew": "Solicitar un nuevo enlace →"
     },
@@ -802,7 +806,7 @@
       "verifying": "Verificando tu correo electrónico…",
       "verifyingWait": "Espera un momento.",
       "successTitle": "¡Correo verificado!",
-      "successDesc": "Bienvenido a bordo. Te estamos redirigiendo a tu panel…",
+      "successDesc": "Bienvenido a bordo. Tu correo está confirmado y tu cuenta está lista.",
       "successCta": "Ir al panel →",
       "failTitle": "La verificación ha fallado.",
       "failDesc": "El enlace no es válido o ha caducado.",
@@ -861,6 +865,11 @@
     "total": "Total",
     "overview": "Resumen de reuniones",
     "tabsHelp": "Recibidas: solicitudes que otros enviaron sobre tus publicaciones · Enviadas: solicitudes que enviaste sobre publicaciones de otras personas.",
+    "filterStatus": "Estado",
+    "filterDirection": "Dirección",
+    "awaitingReply": "{{count}} solicitud espera tu respuesta",
+    "awaitingReply_other": "{{count}} solicitudes esperan tu respuesta",
+    "awaitingShow": "Mostrar",
     "requestSent": "Solicitud enviada a {{name}}. Te avisaremos en cuanto responda.",
     "direction": {
       "incoming": "Solicitud de {{name}}",
@@ -908,6 +917,9 @@
     "markHeldHelp": "Ya nos reunimos — esto no cierra la publicación.",
     "goToPost": "Ir a la publicación",
     "actionFailed": "Eso no funcionó. Inténtalo de nuevo.",
+    "loadError": "No se pudieron cargar las reuniones.",
+    "refreshError": "No se pudieron actualizar las reuniones; esta lista puede estar desactualizada.",
+    "retry": "Reintentar",
     "previousMonth": "Mes anterior",
     "nextMonth": "Mes siguiente"
   },
@@ -929,7 +941,10 @@
     "stayInLoop": "Mantente al día",
     "enableDesc": "Activa las notificaciones del navegador para no perderte novedades importantes.",
     "enableBtn": "Activar notificaciones",
-    "noMore": "No hay más notificaciones"
+    "noMore": "No hay más notificaciones",
+    "loadError": "No se pudieron cargar las notificaciones.",
+    "refreshError": "No se pudieron actualizar las notificaciones; esta lista puede estar desactualizada.",
+    "retry": "Reintentar"
   },
   "notificationContent": {
     "meeting_request": {
@@ -1044,6 +1059,7 @@
   },
   "errors": {
     "badgePrefix": "Err",
+    "boundary": {"title":"Esta página tuvo un problema","desc":"Algo en esta página dejó de funcionar. Tus datos están a salvo. Inténtalo de nuevo o usa el menú para ir a otra página.","updateDesc":"Se publicó una nueva versión de HealthAI mientras esta pestaña estaba abierta. Recarga para continuar.","retry":"Reintentar","reload":"Recargar página"},
     "notFound": {
       "code": "404 · No encontrado",
       "title": "No podemos encontrar esa página",
@@ -1166,9 +1182,13 @@
       "deleteConfirm": "¿Eliminar permanentemente a \"{{name}}\"? Esta acción no se puede deshacer.",
       "suspendError": "No se pudo actualizar el estado de suspensión.",
       "deleteError": "No se pudo eliminar la cuenta.",
+      "deleteConfirmTitle": "¿Eliminar esta cuenta?",
       "suspendedNotifTitle": "Cuenta suspendida",
       "suspendedNotifBody": "Tu cuenta ha sido suspendida.",
-      "pageRange": "{{from}}–{{to}} de {{total}}"
+      "pageRange": "{{from}}–{{to}} de {{total}}",
+      "perPage": "Por página",
+      "previousPage": "Página anterior",
+      "nextPage": "Página siguiente"
     },
     "posts": {
       "title": "Publicaciones y anuncios",
@@ -1183,7 +1203,11 @@
       },
       "remove": "Eliminar",
       "removedNotifTitle": "Publicación eliminada",
-      "removedNotifBody": "Una de tus publicaciones fue eliminada por un administrador."
+      "removedNotifBody": "Una de tus publicaciones fue eliminada por un administrador.",
+      "removeConfirmTitle": "¿Eliminar esta publicación?",
+      "removeConfirmBody": "\"{{title}}\" se eliminará de la plataforma y se notificará a su autor.",
+      "removeConfirmUndo": "Esta acción no se puede deshacer.",
+      "removeError": "No se pudo eliminar la publicación. Inténtalo de nuevo."
     },
     "logs": {
       "title": "Registros de actividad",
@@ -1231,6 +1255,7 @@
     "hoursAgo": "hace {{count}}h",
     "daysAgo": "hace {{count}}d",
     "yesterday": "Ayer",
+    "today": "Hoy",
     "translate": "Traducir",
     "showOriginal": "Mostrar original",
     "translating": "Traduciendo…",

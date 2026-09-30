@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { HEALTH_DOMAIN_GROUPS, postDomains, postHasDomain } from '../../constants/domains'
@@ -21,6 +21,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import api from '../../lib/api'
+import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import { Skeleton, SkeletonLine, SkeletonPill } from '../../components/ui/Skeleton'
 import {
   Badge,
@@ -42,6 +43,9 @@ import { computeMatchReasons, getCombinedMatchScore } from '../../utils/matchPos
 import type { Post, PostAuthorRole, PostStatus, ProjectStage } from '../../types/post.types'
 
 type PostedBy = 'Anyone' | 'Engineer' | 'Healthcare Professional'
+
+const POSTED_BY_TO_PARAM: Record<PostedBy, string> = { Anyone: '', Engineer: 'engineer', 'Healthcare Professional': 'clinician' }
+const POSTED_BY_FROM_PARAM: Record<string, PostedBy> = { engineer: 'Engineer', clinician: 'Healthcare Professional' }
 
 function postedByShortLabel(t: TFunction, value: PostedBy): string {
   if (value === 'Engineer') return t('posts.postedByOptions.engineer')
@@ -86,17 +90,46 @@ export default function PostListPage() {
   const { user } = useAuthStore()
   const { posts, fetchPosts, isLoading, remove } = usePostStore()
   const { suggestions, isLoading: isMatching, load: loadSmartSuggestions, reset: resetSmartSuggestions } = useSmartSuggestions()
-  const [searchParams] = useSearchParams()
-  const [search, setSearch] = useState('')
-  const [domain, setDomain] = useState('')
-  const [stage, setStage] = useState('')
-  const [status, setStatus] = useState('')
-  const [postedBy, setPostedBy] = useState<PostedBy>('Anyone')
-  const [location, setLocation] = useState('')
+  // Filters and page live in the URL, so returning from a post, reloading or sharing the
+  // link keeps them. Updates replace the history entry so Back leaves the list, not each keystroke.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const search = searchParams.get('q') ?? ''
+  const domain = searchParams.get('domain') ?? ''
+  const stage = searchParams.get('stage') ?? ''
+  const status = searchParams.get('status') ?? ''
+  const postedBy = POSTED_BY_FROM_PARAM[searchParams.get('by') ?? ''] ?? 'Anyone'
+  const location = searchParams.get('loc') ?? ''
+  const page = Math.max(1, Number(searchParams.get('page')) || 1)
+  // React Router hands the updater the params of the last render, so two updates in one
+  // tick would drop the first; read and write through a ref that always holds the latest.
+  const latestParams = useRef(searchParams)
+  latestParams.current = searchParams
+  const updateParams = (changes: Record<string, string>, keepPage = false) => {
+    const next = new URLSearchParams(latestParams.current)
+    for (const [key, value] of Object.entries(changes)) {
+      if (value) next.set(key, value)
+      else next.delete(key)
+    }
+    if (!keepPage) next.delete('page')
+    latestParams.current = next
+    setSearchParams(next, { replace: true })
+  }
+  const setSearch = (value: string) => updateParams({ q: value })
+  const setDomain = (value: string) => updateParams({ domain: value })
+  const setStage = (value: string) => updateParams({ stage: value })
+  const setStatus = (value: string) => updateParams({ status: value })
+  const setPostedBy = (value: PostedBy) => updateParams({ by: POSTED_BY_TO_PARAM[value] })
+  const setLocation = (value: string) => updateParams({ loc: value })
+  const setPage = (value: number) => updateParams({ page: value > 1 ? String(value) : '' }, true)
   const [sort, setSort] = useState<SortMode>(() => (localStorage.getItem('postList_sort') as SortMode) ?? 'best')
   const [viewMode, setViewMode] = useState<ViewMode>(() => (localStorage.getItem('postList_view') as ViewMode) ?? 'list')
-  const [page, setPage] = useState(1)
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
+  const [postToDelete, setPostToDelete] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [saveSearchName, setSaveSearchName] = useState<string | null>(null)
+  const [saveSearchBusy, setSaveSearchBusy] = useState(false)
+  const [saveSearchError, setSaveSearchError] = useState<string | null>(null)
+  const [savedSearchName, setSavedSearchName] = useState<string | null>(null)
   const [filterOpen, setFilterOpen] = useState(false)
   const mineOnly = searchParams.get('mine') === 'true'
 
@@ -148,28 +181,28 @@ export default function PostListPage() {
   }, [domain, location, postedBy, posts, search, sort, stage, status, suggestions, user, t])
 
   const clearFilters = () => {
-    setSearch('')
-    setDomain('')
-    setStage('')
-    setStatus('')
-    setPostedBy('Anyone')
-    setLocation('')
-    setPage(1)
+    updateParams({ q: '', domain: '', stage: '', status: '', by: '', loc: '' })
+  }
+
+  const openSaveSearch = () => {
+    const filterParts: string[] = []
+    if (domain) filterParts.push(domain)
+    if (stage) filterParts.push(t(`posts.stage.${stage}`, { defaultValue: stage }))
+    if (postedBy !== 'Anyone') filterParts.push(postedByShortLabel(t, postedBy))
+    if (location.trim()) filterParts.push(location.trim())
+    if (search.trim()) filterParts.push(`"${search.trim()}"`)
+    setSaveSearchError(null)
+    setSaveSearchName(filterParts.length > 0 ? filterParts.join(' · ') : t('posts.saveSearchDefaultName'))
   }
 
   const saveCurrentSearch = async () => {
-    const filterParts: string[] = []
-    if (domain) filterParts.push(domain)
-    if (stage) filterParts.push(stage)
-    if (postedBy !== 'Anyone') filterParts.push(postedBy)
-    if (location.trim()) filterParts.push(location.trim())
-    if (search.trim()) filterParts.push(`"${search.trim()}"`)
-    const defaultName = filterParts.length > 0 ? filterParts.join(' · ') : t('posts.saveSearchDefaultName')
-    const name = window.prompt(t('posts.saveSearchPromptTitle'), defaultName)
+    const name = saveSearchName?.trim()
     if (!name) return
+    setSaveSearchBusy(true)
+    setSaveSearchError(null)
     try {
       await api.post('/saved-searches', {
-        name: name.trim(),
+        name,
         filters: {
           domain: domain || undefined,
           expertise: search.trim() || undefined,
@@ -178,15 +211,18 @@ export default function PostListPage() {
           authorRole: postedBy === 'Engineer' ? 'engineer' : postedBy === 'Healthcare Professional' ? 'healthcare_professional' : undefined,
         },
       })
-      window.alert(t('posts.saveSearchSuccess', { name: name.trim() }))
+      setSaveSearchName(null)
+      setSavedSearchName(name)
     } catch {
-      window.alert(t('posts.saveSearchError'))
+      setSaveSearchError(t('posts.saveSearchError'))
+    } finally {
+      setSaveSearchBusy(false)
     }
   }
 
   useEffect(() => {
-    setPage(1)
-  }, [domain, location, postedBy, search, sort, stage, status, viewMode])
+    setSavedSearchName(null)
+  }, [domain, location, postedBy, search, stage])
 
   const totalPages = Math.max(1, Math.ceil(directoryPosts.length / POSTS_PER_PAGE))
   const currentPage = Math.min(page, totalPages)
@@ -195,11 +231,20 @@ export default function PostListPage() {
     currentPage * POSTS_PER_PAGE,
   )
 
-  const deletePost = async (postId: string) => {
-    if (!window.confirm(t('posts.confirmDelete'))) return
-    setDeletingPostId(postId)
+  const requestDeletePost = (postId: string) => {
+    setDeleteError(null)
+    setPostToDelete(postId)
+  }
+
+  const deletePost = async () => {
+    if (!postToDelete) return
+    setDeletingPostId(postToDelete)
+    setDeleteError(null)
     try {
-      await remove(postId)
+      await remove(postToDelete)
+      setPostToDelete(null)
+    } catch {
+      setDeleteError(t('posts.deleteError'))
     } finally {
       setDeletingPostId(null)
     }
@@ -284,10 +329,15 @@ export default function PostListPage() {
           />
           <div className="min-w-0">
             {hasActiveFilters && user && (
-              <div className="mb-4 flex justify-end">
+              <div className="mb-4 flex flex-wrap items-center justify-end gap-3">
+                {savedSearchName && (
+                  <p role="status" className="text-xs font-semibold text-hai-plum">
+                    {t('posts.saveSearchSuccess', { name: savedSearchName })}
+                  </p>
+                )}
                 <button
                   type="button"
-                  onClick={saveCurrentSearch}
+                  onClick={openSaveSearch}
                   className="inline-flex items-center gap-2 rounded-full border border-[#D5DAE0] bg-white px-4 py-2 text-xs font-black text-hai-plum hover:bg-hai-mint/30 transition-colors"
                 >
                   <Bookmark size={13} />
@@ -305,18 +355,56 @@ export default function PostListPage() {
               hasActiveFilters={hasActiveFilters}
               sort={sort}
               viewMode={viewMode}
-              onSort={v => { setSort(v); localStorage.setItem('postList_sort', v) }}
-              onViewMode={v => { setViewMode(v); localStorage.setItem('postList_view', v) }}
+              onSort={v => { setSort(v); setPage(1); localStorage.setItem('postList_sort', v) }}
+              onViewMode={v => { setViewMode(v); setPage(1); localStorage.setItem('postList_view', v) }}
               onClear={clearFilters}
               page={currentPage}
               totalPages={totalPages}
               onPage={setPage}
-              onDelete={deletePost}
+              onDelete={requestDeletePost}
               deletingPostId={deletingPostId}
             />
           </div>
         </section>
       </div>
+
+      {saveSearchName !== null && (
+        <ConfirmDialog
+          title={t('posts.saveSearch')}
+          confirmLabel={saveSearchBusy ? t('common.loading') : t('common.save')}
+          cancelLabel={t('common.cancel')}
+          onConfirm={saveCurrentSearch}
+          onCancel={() => setSaveSearchName(null)}
+          busy={saveSearchBusy}
+          confirmDisabled={!saveSearchName.trim()}
+          error={saveSearchError}
+        >
+          <label htmlFor="save-search-name" className="block">{t('posts.saveSearchPromptTitle')}</label>
+          <input
+            id="save-search-name"
+            value={saveSearchName}
+            onChange={e => setSaveSearchName(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && saveSearchName.trim() && !saveSearchBusy) saveCurrentSearch() }}
+            maxLength={80}
+            className="w-full rounded-xl border border-[#D5DAE0] bg-white px-4 py-2.5 text-sm text-hai-plum outline-none focus:border-hai-plum"
+          />
+        </ConfirmDialog>
+      )}
+
+      {postToDelete && (
+        <ConfirmDialog
+          title={t('posts.delete')}
+          confirmLabel={deletingPostId ? t('common.loading') : t('common.delete')}
+          cancelLabel={t('common.cancel')}
+          onConfirm={deletePost}
+          onCancel={() => setPostToDelete(null)}
+          busy={deletingPostId !== null}
+          error={deleteError}
+        >
+          <p className="font-black text-hai-plum">{posts.find(p => p.id === postToDelete)?.title}</p>
+          <p>{t('posts.confirmDelete')}</p>
+        </ConfirmDialog>
+      )}
     </main>
   )
 }
@@ -369,7 +457,7 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={t('posts.searchPlaceholder')}
-          className="w-full rounded-full border border-transparent bg-[#EEF0F3] py-5 pl-14 pr-6 text-base font-semibold text-[var(--text)] outline-none transition placeholder:text-[#9CA3AF] hover:border-[var(--border)] hover:bg-white focus:border-[var(--accent)] focus:bg-white"
+          className="w-full rounded-full border border-transparent bg-[#EEF0F3] py-5 pl-14 pr-6 text-base font-semibold text-[var(--text)] outline-none transition placeholder:text-[#6F6878] hover:border-[var(--border)] hover:bg-white focus:border-[var(--accent)] focus:bg-white"
         />
       </div>
 
@@ -541,6 +629,7 @@ function SegmentedControl({ active, onChange }: { active: PostedBy; onChange: (v
           <button
             key={item}
             onClick={() => onChange(item)}
+            aria-pressed={active === item}
             title={postedByShortLabel(t, item)}
             className={`rounded-[11px] text-xs font-black transition ${
               active === item

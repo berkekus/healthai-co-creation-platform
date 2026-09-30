@@ -22,6 +22,7 @@
     "messages": "Messages",
     "notifications": "Notifications",
     "notificationsUnread": "Notifications ({{n}} unread)",
+    "messagesUnread": "Messages ({{n}} unread)",
     "accountMenu": "Account menu",
     "toggleMenu": "Toggle menu"
   },
@@ -132,6 +133,7 @@
       "headingLine2": "user guide.",
       "subtitle": "Each step maps to a real screen in HealthAI, from profile setup and AI-ranked browsing to meeting decisions and notifications.",
       "stepCounter": "Step {{num}} / 0{{total}}",
+      "visual": {"clinicianProfile":"Clinician profile","institutionVerified":"Institution verified","matchBasis":"Match basis","matchBasisDesc":"Expertise, location, role, and collaboration goals.","draftPost":"Draft · new post","bestMatch":"AI best match","page":"Page 1 of 3","matchScore":"{{score}}% match","inSync":"Filters, sorting, and pagination stay in sync.","ndaStep":"Step 01 · NDA","ndaInline":"One-page NDA, accepted inline.","pendingReview":"Pending review","accept":"Accept","complete":"Complete","followThread":"Follow the thread.","requestAccepted":"Meeting request accepted","newMatch":"New AI match is available","exportReady":"Profile export is ready"},
       "jumpToStep": "Jump to step {{num}}: {{name}}",
       "previousStep": "Previous step",
       "nextStep": "Next step",
@@ -445,6 +447,7 @@
     "saveSearchDefaultName": "All posts",
     "saveSearchSuccess": "Search \"{{name}}\" saved! You'll be notified when new matching posts are published.",
     "saveSearchError": "Could not save search. Try again.",
+    "deleteError": "The post could not be deleted. Please try again.",
     "commitment": {
       "flexible": "Flexible",
       "low": "Light advisory",
@@ -735,9 +738,9 @@
       "nameLabel": "Full name",
       "namePlaceholder": "Dr. Jane Smith",
       "firstNameLabel": "First name",
-      "firstNamePlaceholder": "Jane",
+      "firstNamePlaceholder": "e.g. Jane",
       "lastNameLabel": "Last name",
-      "lastNamePlaceholder": "Smith",
+      "lastNamePlaceholder": "e.g. Smith",
       "emailLabel": "Email address",
       "emailHint": "Use an email address you can access",
       "emailPlaceholder": "you@example.com",
@@ -753,7 +756,7 @@
       "healthcareDesc": "Clinician, doctor, nurse, researcher, health admin…",
       "backBtn": "← Back",
       "institutionLabel": "Institution",
-      "institutionPlaceholder": "Charité – Universitätsmedizin Berlin",
+      "institutionPlaceholder": "e.g. Charité – Universitätsmedizin Berlin",
       "cityLabel": "City",
       "cityPlaceholder": "Select city",
       "cityPlaceholderNoCountry": "Select country first",
@@ -791,10 +794,11 @@
       "changedMind": "Changed your mind?",
       "backToSignIn": "Back to sign in →",
       "successTitle": "Password reset!",
-      "successDesc": "Your password has been updated. Redirecting you to sign in…",
+      "successDesc": "Your password has been updated. You can now sign in with your new password.",
       "signInNow": "Sign in now →",
       "errShort": "Password must be at least 8 characters.",
       "errMatch": "Passwords do not match.",
+      "matchOk": "Passwords match.",
       "errExpired": "The link is invalid or has expired.",
       "requestNew": "Request a new reset link →"
     },
@@ -802,7 +806,7 @@
       "verifying": "Verifying your email…",
       "verifyingWait": "Please wait a moment.",
       "successTitle": "Email verified!",
-      "successDesc": "Welcome aboard. Redirecting you to your dashboard…",
+      "successDesc": "Welcome aboard. Your email is confirmed and your account is ready.",
       "successCta": "Go to dashboard →",
       "failTitle": "Verification failed.",
       "failDesc": "The link is invalid or has expired.",
@@ -861,6 +865,11 @@
     "total": "Total",
     "overview": "Meetings overview",
     "tabsHelp": "Received: requests others sent about your posts · Sent: requests you sent about other people's posts.",
+    "filterStatus": "Status",
+    "filterDirection": "Direction",
+    "awaitingReply": "{{count}} request is waiting for your reply",
+    "awaitingReply_other": "{{count}} requests are waiting for your reply",
+    "awaitingShow": "Show",
     "requestSent": "Request sent to {{name}}. You will be notified as soon as they respond.",
     "direction": {
       "incoming": "Request from {{name}}",
@@ -908,6 +917,9 @@
     "markHeldHelp": "We have met — this does not close the post.",
     "goToPost": "Go to post",
     "actionFailed": "That did not work. Please try again.",
+    "loadError": "Meetings could not be loaded.",
+    "refreshError": "Meetings could not be refreshed; this list may be out of date.",
+    "retry": "Try again",
     "previousMonth": "Previous month",
     "nextMonth": "Next month"
   },
@@ -929,7 +941,10 @@
     "stayInLoop": "Stay in the loop",
     "enableDesc": "Enable browser notifications to never miss important updates.",
     "enableBtn": "Enable Notifications",
-    "noMore": "No more notifications"
+    "noMore": "No more notifications",
+    "loadError": "Notifications could not be loaded.",
+    "refreshError": "Notifications could not be refreshed; this list may be out of date.",
+    "retry": "Try again"
   },
   "notificationContent": {
     "meeting_request": {
@@ -1044,6 +1059,7 @@
   },
   "errors": {
     "badgePrefix": "Err",
+    "boundary": {"title":"This page ran into a problem","desc":"Something on this page stopped working. Your data is safe. Try again, or use the menu to go somewhere else.","updateDesc":"A new version of HealthAI was published while this tab was open. Reload to continue.","retry":"Try again","reload":"Reload page"},
     "notFound": {
       "code": "404 · Not found",
       "title": "We can't find that page",
@@ -1166,9 +1182,13 @@
       "deleteConfirm": "Permanently delete \"{{name}}\"? This cannot be undone.",
       "suspendError": "Could not update suspension status.",
       "deleteError": "Could not delete account.",
+      "deleteConfirmTitle": "Delete this account?",
       "suspendedNotifTitle": "Account suspended",
       "suspendedNotifBody": "Your account has been suspended.",
-      "pageRange": "{{from}}–{{to}} of {{total}}"
+      "pageRange": "{{from}}–{{to}} of {{total}}",
+      "perPage": "Per page",
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
     },
     "posts": {
       "title": "Posts & Listings",
@@ -1183,7 +1203,11 @@
       },
       "remove": "Remove",
       "removedNotifTitle": "Post removed",
-      "removedNotifBody": "One of your posts was removed by an administrator."
+      "removedNotifBody": "One of your posts was removed by an administrator.",
+      "removeConfirmTitle": "Remove this post?",
+      "removeConfirmBody": "\"{{title}}\" will be removed from the platform and its author will be notified.",
+      "removeConfirmUndo": "This cannot be undone.",
+      "removeError": "The post could not be removed. Please try again."
     },
     "logs": {
       "title": "Activity Logs",
@@ -1231,6 +1255,7 @@
     "hoursAgo": "{{count}}h ago",
     "daysAgo": "{{count}}d ago",
     "yesterday": "Yesterday",
+    "today": "Today",
     "translate": "Translate",
     "showOriginal": "Show original",
     "translating": "Translating…",

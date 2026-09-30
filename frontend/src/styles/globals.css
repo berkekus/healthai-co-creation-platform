@@ -18,6 +18,8 @@
   --hai-offwhite: 243 244 246;
   --hai-lime:     216 239 242;
   --hai-cream:    227 220 210;
+  /* Focus indicator: hai-teal is only 1.9:1 on white, so light mode uses the darker teal (5:1). */
+  --focus-ring:   27 122 136;
 
   /* Semantic surface / text / border tokens (used by dark-mode page overrides) */
   --surface-base:   247 248 250;
@@ -137,6 +139,7 @@
   --hai-offwhite: 6 8 18;
   --hai-lime:     42 82 92;
   --hai-cream:    35 32 28;
+  --focus-ring:   85 195 215;
 
   --surface-base:   6 8 18;
   --surface-card:   12 14 30;
@@ -254,6 +257,20 @@
 }
 .landing-fade-left { background: linear-gradient(to right, rgb(var(--landing-hero-bg)), transparent); }
 .landing-fade-right { background: linear-gradient(to left, rgb(var(--landing-hero-bg)), transparent); }
+
+/* Small, local hover effects; no scroll listeners or permanently promoted page layers. */
+.landing-path-card { z-index: 1; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .landing-path-card { transition: transform 180ms ease-out; }
+  .landing-path-card:hover,
+  .landing-path-card:focus-within {
+    z-index: 2;
+    transform: scale(1.02);
+  }
+}
+.landing-card-glow {
+  background: radial-gradient(closest-side, rgb(59 130 246 / 0.3), transparent);
+}
 
 .landing-path-card-engineer { background-color: rgb(var(--landing-path-engineer)); }
 .landing-path-card-clinician { background-color: rgb(var(--landing-path-clinician)); }
@@ -505,8 +522,6 @@
 
 /* Focus rings */
 .dark .focus\:ring-2:focus { --tw-ring-color: rgba(85, 195, 215, 0.2) !important; }
-.dark .focus\:border-\[\#3db8d8\]:focus { border-color: rgb(85, 195, 215) !important; }
-.dark .focus\:border-\[\#55c7df\]:focus { border-color: rgb(85, 195, 215) !important; }
 
 /* Post/meeting status chips — keep text legible */
 .dark .bg-\[\#d8ff8f\] { background-color: rgb(32, 55, 15) !important; color: rgb(180, 230, 100) !important; }
@@ -579,9 +594,9 @@ a[href],
 }
 
 :where(input, textarea, select, button, a[href], [role="button"], [role="link"], [tabindex]:not([tabindex="-1"])):focus-visible {
-  outline: 2px solid rgb(var(--hai-teal));
+  outline: 2px solid rgb(var(--focus-ring));
   outline-offset: 3px;
-  box-shadow: 0 0 0 4px rgba(var(--hai-teal), 0.24);
+  box-shadow: 0 0 0 4px rgb(var(--focus-ring) / 0.24);
 }
 
 .wrap {

@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../constants/routes'
 import LandingFooter from '../components/layout/LandingFooter'
@@ -21,23 +20,6 @@ import LanguageToggle from '../components/ui/LanguageToggle'
 // of the hero — and everything through the "Ready to co-create?" CTA —
 // sits on a calm off-white surface.
 // ─────────────────────────────────────────────────────────────────────
-
-/** Read input capabilities and viewport size before the first paint. */
-function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return false
-    return window.matchMedia(query).matches
-  })
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return
-    const mq = window.matchMedia(query)
-    const update = () => setMatches(mq.matches)
-    update()
-    mq.addEventListener('change', update)
-    return () => mq.removeEventListener('change', update)
-  }, [query])
-  return matches
-}
 
 // ── Icon helper ─────────────────────────────────────────────────────
 function Icon({ name, className = '', filled = false }: { name: string; className?: string; filled?: boolean }) {
@@ -119,7 +101,7 @@ function TopNav() {
         <Logo />
 
         {/* Center pill — hidden below lg */}
-        <div className="hidden lg:flex items-center bg-white/25 lg:backdrop-blur-md rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+        <div className="hidden lg:flex items-center bg-white/25 rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
           <div className="flex items-center bg-white rounded-full h-full">
             {user ? (
               <div className="flex items-center px-1">
@@ -177,7 +159,7 @@ function TopNav() {
               </Link>
             </>
           )}
-          <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] lg:backdrop-blur-md hover:bg-white" />
+          <LanguageToggle compact className="border-white/60 bg-white/70 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.35)] hover:bg-white" />
 
           {/* Mobile hamburger — below lg the centre pill is hidden, so this is the
               only way to the nav; signed-in users need it just as much. */}
@@ -292,15 +274,6 @@ function HeroPortraitCard({ side }: { side: 'clinician' | 'engineer' }) {
   )
 }
 
-// ── Platform card icon square ───────────────────────────────────────
-function IconSquare({ color, bg, icon }: { color: string; bg: string; icon: string }) {
-  return (
-    <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: bg, color }}>
-      <Icon name={icon} filled />
-    </div>
-  )
-}
-
 // ── Step data & visuals for the interactive user guide ──────────────
 type Step = {
   num: string
@@ -311,7 +284,11 @@ type Step = {
   Visual: () => JSX.Element
 }
 
-const ProfileVisual = () => (
+// The tour visuals are small sketches of real screens. Their interface labels follow the
+// UI language; names, places and sample post titles are example data and stay as they are.
+const ProfileVisual = () => {
+  const { t } = useTranslation()
+  return (
   <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
     <div className="flex items-center gap-3 pb-4 border-b border-neutral-100">
       <div className="w-12 h-12 rounded-2xl bg-hai-plum text-white flex items-center justify-center font-headline font-bold">
@@ -319,12 +296,12 @@ const ProfileVisual = () => (
       </div>
       <div>
         <div className="font-headline font-bold text-hai-plum text-lg leading-tight">Aylin Yilmaz</div>
-        <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">Clinician profile</div>
+        <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{t('landing.tour.visual.clinicianProfile')}</div>
       </div>
       <Icon name="verified" className="ml-auto text-hai-teal text-2xl" filled />
     </div>
     <div className="grid grid-cols-2 gap-2 mt-4">
-      {['Cardiology', 'Istanbul, Turkiye', 'Clinical AI', 'Institution verified'].map((item) => (
+      {['Cardiology', 'Istanbul, Turkiye', 'Clinical AI', t('landing.tour.visual.institutionVerified')].map((item) => (
         <div key={item} className="rounded-xl bg-neutral-100 px-3 py-2 text-xs font-bold text-hai-plum">
           {item}
         </div>
@@ -333,48 +310,53 @@ const ProfileVisual = () => (
     <div className="mt-4 rounded-2xl bg-hai-mint/45 p-3 flex items-center gap-3">
       <Icon name="tune" className="text-hai-plum text-xl" filled />
       <div>
-        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Match basis</div>
-        <div className="text-sm font-semibold text-neutral-700">Expertise, location, role, and collaboration goals.</div>
+        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">{t('landing.tour.visual.matchBasis')}</div>
+        <div className="text-sm font-semibold text-neutral-700">{t('landing.tour.visual.matchBasisDesc')}</div>
       </div>
     </div>
   </div>
-)
+  )
+}
 
-const PostVisual = () => (
+const PostVisual = () => {
+  const { t } = useTranslation()
+  return (
   <div className="relative w-full max-w-[340px] aspect-[5/4] mx-auto">
     <div className="absolute inset-0 bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5 flex flex-col gap-2.5">
       <div className="flex items-center gap-2 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" /> Draft · new post
+        <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" /> {t('landing.tour.visual.draftPost')}
       </div>
       <div className="h-6 bg-gradient-to-r from-hai-teal/30 to-hai-mint/40 rounded-md w-5/6" />
       <div className="grid grid-cols-2 gap-2 mt-1">
-        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">Domain</div>
-        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">Stage</div>
+        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{t('posts.domain')}</div>
+        <div className="bg-neutral-100 rounded-md h-7 flex items-center px-2 text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{t('posts.stageFilterLabel')}</div>
       </div>
       <div className="h-2 bg-neutral-100 rounded-full w-full" />
       <div className="h-2 bg-neutral-100 rounded-full w-4/5" />
       <div className="h-2 bg-neutral-100 rounded-full w-3/5" />
-      <div className="mt-auto flex items-center justify-between pt-2">
-        <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-400">0 / 0 files</span>
-        <span className="bg-hai-plum text-white text-xs font-bold px-3 py-1.5 rounded-full">Publish →</span>
+      {/* No file counter: the platform deliberately takes no uploads. */}
+      <div className="mt-auto flex items-center justify-end pt-2">
+        <span className="bg-hai-plum text-white text-xs font-bold px-3 py-1.5 rounded-full">{t('posts.form.publish')} →</span>
       </div>
     </div>
     <div className="absolute -bottom-3 -right-3 w-14 h-14 bg-hai-lime rounded-2xl shadow-lg flex items-center justify-center rotate-6">
       <Icon name="edit_note" className="text-hai-plum text-3xl" filled />
     </div>
   </div>
-)
+  )
+}
 
 const MatchVisual = () => {
+  const { t } = useTranslation()
   const chips: [string, boolean][] = [
-    ['AI best match', true], ['Orthopedics', false], ['Machine learning', true], ['Research partner', false],
-    ['Ankara, Turkiye', true], ['Page 1 of 3', false],
+    [t('landing.tour.visual.bestMatch'), true], ['Orthopedics', false], ['Machine learning', true], [t('posts.collab.research_partner'), false],
+    ['Ankara, Turkiye', true], [t('landing.tour.visual.page'), false],
   ]
   return (
     <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Browse Posts</span>
-        <span className="flex items-center gap-1 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum"><Icon name="auto_awesome" className="text-sm" filled /> 82% match</span>
+        <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">{t('nav.browse')}</span>
+        <span className="flex items-center gap-1 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum"><Icon name="auto_awesome" className="text-sm" filled /> {t('landing.tour.visual.matchScore', { score: 82 })}</span>
       </div>
       <div className="rounded-2xl border border-neutral-100 p-3 mb-4">
         <div className="font-headline font-bold text-hai-plum text-base leading-tight">Structured MRI report assistant</div>
@@ -392,28 +374,33 @@ const MatchVisual = () => {
       </div>
       <div className="mt-5 pt-4 border-t border-neutral-100 flex items-center gap-3">
         <Icon name="view_list" className="text-hai-plum text-lg" filled />
-        <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">Filters, sorting, and pagination stay in sync.</span>
+        <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{t('landing.tour.visual.inSync')}</span>
       </div>
     </div>
   )
 }
 
-const MeetVisual = () => (
+const MeetVisual = () => {
+  const { t, i18n } = useTranslation()
+  // Sample slots (a Monday, Wednesday and Friday), written the way the viewer's language writes dates.
+  const slotLabel = (date: Date) =>
+    `${date.toLocaleDateString(i18n.language, { weekday: 'short' })} · ${date.toLocaleDateString(i18n.language, { day: '2-digit', month: 'short' })}`
+  return (
   <div className="w-full max-w-[340px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
     <div className="flex items-start gap-3 mb-4 pb-4 border-b border-neutral-100">
       <div className="w-9 h-9 rounded-xl bg-hai-mint/60 flex items-center justify-center shrink-0">
         <Icon name="shield_lock" className="text-hai-plum text-xl" filled />
       </div>
       <div className="flex-1">
-        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-0.5">Step 01 · NDA</div>
-        <div className="font-headline text-base font-bold text-hai-plum leading-tight">One-page NDA, accepted inline.</div>
+        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold mb-0.5">{t('landing.tour.visual.ndaStep')}</div>
+        <div className="font-headline text-base font-bold text-hai-plum leading-tight">{t('landing.tour.visual.ndaInline')}</div>
       </div>
       <Icon name="check_circle" className="text-hai-teal text-xl" filled />
     </div>
     {[
-      ['Mon · 28 Apr', '14:00 CET'],
-      ['Wed · 30 Apr', '10:30 CET'],
-      ['Fri · 02 May', '16:00 CET'],
+      [slotLabel(new Date(2025, 3, 28)), '14:00 CET'],
+      [slotLabel(new Date(2025, 3, 30)), '10:30 CET'],
+      [slotLabel(new Date(2025, 4, 2)), '16:00 CET'],
     ].map(([date, time], i) => (
       <div key={date} className="flex items-center justify-between py-2.5 border-b border-neutral-100 last:border-0">
         <span className="flex items-center gap-2.5">
@@ -424,19 +411,22 @@ const MeetVisual = () => (
       </div>
     ))}
   </div>
-)
+  )
+}
 
-const MeetingsVisual = () => (
+const MeetingsVisual = () => {
+  const { t } = useTranslation()
+  return (
   <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
     <div className="flex items-center justify-between mb-4">
-      <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Meetings</span>
-      <span className="rounded-full bg-hai-mint px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold">Pending review</span>
+      <span className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">{t('nav.meetings')}</span>
+      <span className="rounded-full bg-hai-mint px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold">{t('landing.tour.visual.pendingReview')}</span>
     </div>
     <div className="space-y-3">
       {[
-        ['Incoming', 'MRI report assistant', 'Accept'],
-        ['Confirmed', 'CGM feasibility review', 'Complete'],
-        ['Outgoing', 'Stroke prediction labels', 'Cancel'],
+        [t('meetingsPage.tabs.incoming'), 'MRI report assistant', t('landing.tour.visual.accept')],
+        [t('meetingsPage.tabs.confirmed'), 'CGM feasibility review', t('landing.tour.visual.complete')],
+        [t('meetingsPage.tabs.outgoing'), 'Stroke prediction labels', t('common.cancel')],
       ].map(([status, title, action]) => (
         <div key={title} className="rounded-2xl border border-neutral-100 p-3">
           <div className="flex items-start gap-3">
@@ -444,7 +434,7 @@ const MeetingsVisual = () => (
               {status.slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-400 font-bold">{status}</div>
+              <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold">{status}</div>
               <div className="font-headline font-bold text-hai-plum text-sm truncate">{title}</div>
             </div>
             <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-hai-plum">{action}</span>
@@ -453,14 +443,17 @@ const MeetingsVisual = () => (
       ))}
     </div>
   </div>
-)
+  )
+}
 
-const NotifyVisual = () => (
+const NotifyVisual = () => {
+  const { t } = useTranslation()
+  return (
   <div className="w-full max-w-[350px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
     <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
       <div>
-        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">Notifications</div>
-        <div className="font-headline text-xl font-bold text-hai-plum">Follow the thread.</div>
+        <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-plum/70 font-bold">{t('nav.notifications')}</div>
+        <div className="font-headline text-xl font-bold text-hai-plum">{t('landing.tour.visual.followThread')}</div>
       </div>
       <div className="relative">
         <Icon name="notifications" className="text-hai-plum text-3xl" filled />
@@ -468,20 +461,21 @@ const NotifyVisual = () => (
       </div>
     </div>
     {[
-      ['Meeting request accepted', '2 min ago'],
-      ['New AI match is available', 'Today'],
-      ['Profile export is ready', 'Yesterday'],
+      [t('landing.tour.visual.requestAccepted'), t('common.minutesAgo', { count: 2 })],
+      [t('landing.tour.visual.newMatch'), t('common.today')],
+      [t('landing.tour.visual.exportReady'), t('common.yesterday')],
     ].map(([title, time]) => (
       <div key={title} className="flex items-center gap-3 py-3 border-b border-neutral-100 last:border-0">
         <span className="w-2 h-2 rounded-full bg-hai-teal shrink-0" />
         <div className="min-w-0 flex-1">
           <div className="text-sm font-bold text-hai-plum truncate">{title}</div>
-          <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-400">{time}</div>
+          <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{time}</div>
         </div>
       </div>
     ))}
   </div>
-)
+  )
+}
 
 const STEPS: Step[] = [
   { num: '01', key: 'profile', icon: 'badge', accent: '#B8F3FF', route: ROUTES.PROFILE, Visual: ProfileVisual },
@@ -510,119 +504,17 @@ export default function LandingPage() {
   const ActiveVisual = active.Visual
 
 
-  // Desktop overlap uses only translation and opacity; mobile stays in normal flow.
-  const parallaxRef = useRef<HTMLDivElement>(null)
-  const prefersReducedMotion = useReducedMotion()
-  const isDesktop = useMediaQuery('(min-width: 1024px)')
-  const enableParallax = isDesktop && !prefersReducedMotion
-  const { scrollYProgress } = useScroll({
-    target: parallaxRef,
-    offset: ['start start', 'end start'],
-  })
-  const heroOpacity = useTransform(scrollYProgress, [0.16, 0.34], [1, 0])
-  const heroY       = useTransform(scrollYProgress, [0.04, 0.28], [0, -60])
-  const slabY = useTransform(scrollYProgress, [0, 0.26], [0, -180])
-
-  /* ──────────────────────────────────────────────────────────────
-     CARD MICRO-INTERACTIONS — two-layer hover effect
-     ──────────────────────────────────────────────────────────────
-     1) Outer pathway card (clinician / engineer):
-          rest  → scale 1,    zIndex 1
-          hover → scale 1.03, zIndex 50   (spring — overlaps sibling)
-
-     2) Inner reveal box (description + CTA pill, frosted glass):
-          rest  → opacity 0, y 20px       (tucked below, invisible)
-          hover → opacity 1, y 0          (floats into place, spring)
-
-     Children inherit the parent's `hover`/`rest` state via Framer
-     Motion's variant propagation, so a single pointer-enter on the
-     outer card drives BOTH animations in lockstep.
-
-     Touch / mobile: `useMediaQuery()` detects `(hover: hover)` media
-     query. If hover is unavailable, we force both cards into the
-     "hover" state permanently so the reveal box is always visible
-     (otherwise the CTA would be unreachable on touch devices).
-
-     Reduced motion: when user prefers reduced motion, scale snaps
-     1→1 (no bump) and the reveal box still appears but without the
-     spring — a subtle opacity crossfade only.
-  ────────────────────────────────────────────────────────────── */
-  const canHover = useMediaQuery('(hover: hover) and (pointer: fine)')
-
-  /*
-    Per-card hover state. We drive BOTH the outer card (scale/zIndex)
-    and the inner reveal box from the same boolean so the two
-    animations are perfectly in lockstep. Using explicit state here
-    is intentional — Framer Motion's automatic variant propagation
-    via `whileHover` only covers the direct motion component; once
-    the inner reveal motion.div wanted its OWN transition + initial
-    state, propagation proved brittle (children kept missing the
-    parent's hover variant). A shared hover flag is bullet-proof.
-
-    On touch devices (`!canHover`) the outer card stays at "rest"
-    (no scale bump) while the inner reveal box is forced to "hover"
-    permanently so the CTA remains reachable.
-  */
-  const [clinicianHovered, setClinicianHovered] = useState(false)
-  const [engineerHovered,  setEngineerHovered]  = useState(false)
-
-  const clinicianOuterState = canHover ? (clinicianHovered ? 'hover' : 'rest') : 'rest'
-  const engineerOuterState  = canHover ? (engineerHovered  ? 'hover' : 'rest') : 'rest'
-
-  const cardSpring = prefersReducedMotion
-    ? { duration: 0.2 }
-    : { type: 'spring' as const, stiffness: 260, damping: 22, mass: 0.9 }
-
-  const cardOverlapVariants: Variants = {
-    rest:  { scale: 1,                               zIndex: 1,  transition: cardSpring },
-    hover: { scale: prefersReducedMotion ? 1 : 1.02, zIndex: 50, transition: cardSpring },
-  }
-
   return (
     <div className="landing-page min-h-screen flex flex-col font-body overflow-x-hidden antialiased">
       <TopNav />
 
       <main className="landing-main flex-grow pb-0 relative">
-        {/*
-          ──────────────────────────────────────────────────────────────
-          STICKY PARALLAX OVERLAP ZONE
-          ──────────────────────────────────────────────────────────────
-          Two physical layers, one visual composition:
-
-            Layer 1 (z-0, background) — `sticky top-0 h-screen` hero.
-              Pins to the viewport. Badge + headline + subtitle fade
-              (opacity 1 → 0) and drift up (y 0 → -60 px) as the
-              foreground climbs over it.
-
-            Layer 2 (z-10, foreground) — solid off-white slab carrying
-              the "Join the Directory" panel, stats ribbon, giant
-              "Platform" wordmark, 4-card platform grid and CTA row.
-              Pulled up with `-mt-[20vh] md:-mt-[28vh]` so the Join
-              panel is already *peeking* at page-load. As the user
-              scrolls, this slab climbs up and fully occludes the
-              sticky hero (its `bg-hai-offwhite` is opaque = zero
-              bleed-through).
-
-          ──────────────────────────────────────────────────────────────
-        */}
-        <div ref={parallaxRef} className="relative">
-
-          {/* ── HERO · sticky background layer (z-0) ───────────
-              `min-h-[720px]` gives the hero a longer sticky budget on
-              tall viewports so the foreground slab has plenty of room
-              to climb completely over it before the parent container
-              runs out and un-sticks the hero. */}
-          {/*
-            items-start + large top padding (instead of items-center) —
-            pins the hero copy near the upper third of the viewport so
-            that as the foreground slab rises it *never clips* the
-            headline. Both lines stay readable through the entire overlap
-            transition; the card climbs over empty teal space below it
-            before starting to encroach on the copy.
-          */}
+        {/* Keep the hero and long content panel in normal document flow.
+            Scrolling must not animate a layer spanning several screens. */}
+        <div className="relative">
           <section
             aria-labelledby="hero-headline"
-            className={`landing-hero ${enableParallax ? 'sticky' : 'relative'} top-0 z-0 w-full overflow-hidden flex items-start justify-center pt-24 sm:pt-28 md:pt-32 pb-16`}
+            className="landing-hero relative z-20 w-full overflow-hidden flex items-start justify-center pt-24 sm:pt-28 md:pt-32 pb-16"
           >
             {/* dot atmosphere */}
             <div
@@ -635,13 +527,7 @@ export default function LandingPage() {
               className="landing-soft-glow absolute top-[18%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full pointer-events-none"
             />
 
-            <motion.div
-              style={{
-                opacity: enableParallax ? heroOpacity : 1,
-                y: enableParallax ? heroY : 0,
-              }}
-              className="relative text-center max-w-5xl mx-auto px-6 md:px-8"
-            >
+            <div className="relative text-center max-w-5xl mx-auto px-6 md:px-8">
               <h1
                 id="hero-headline"
                 className="font-headline font-bold landing-text leading-none tracking-normal text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
@@ -649,59 +535,15 @@ export default function LandingPage() {
                 {t('landing.hero.titleLine1')}<br />
                 <span className="text-[#008EA2]">{t('landing.hero.titleLine2')}</span>
               </h1>
-              <p className="landing-body-text mt-6 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed font-semibold">
+              <p className="landing-text mt-6 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed font-semibold">
                 {t('landing.hero.subtitle')}
               </p>
-            </motion.div>
+            </div>
 
           </section>
 
-          {/* ── FOREGROUND · teal→off-white gradient slab (z-10) ──
-              Climbs up over the sticky hero. Negative margin pulls the
-              slab UP into the hero zone so the "Join the Directory"
-              panel is peeking at page-load.
-
-              Its background is a vertical gradient that starts in the
-              SAME teal as the sticky hero (so slab ↔ hero merge
-              seamlessly during the overlap climb) and fades to
-              off-white right before the "Platform" wordmark. The
-              effect recreates the pre-parallax atmosphere: teal
-              atmosphere extends across the Join Directory cards and
-              calmly resolves to off-white from the Platform section
-              onwards.
-
-              The gradient is OPAQUE — still fully occludes the hero
-              when scrolled. The plum-tinted shadow was removed
-              because with a teal top edge there is no longer a
-              colour contrast for the halo to read against (both
-              surfaces are teal at the seam).
-          */}
-          {/*
-            Negative margin defines how deeply the slab "peeks" into
-            the hero at rest. Previous values (-20vh / -28vh) climbed
-            so deep that the headline's second line + subtitle landed
-            in the slab's feather zone and became illegible before any
-            scroll. New values (-10vh / -14vh) keep a clear visual
-            HINT of the pathway panel below the fold — enough to say
-            "there's something to scroll to" — while guaranteeing that
-            the FULL hero copy, down to the last word of the subtitle,
-            is uncovered at scrollY = 0 across every reasonable
-            viewport height (≥ 640 px).
-          */}
-          <motion.div
-            className="landing-slab relative z-10 -mt-4"
-            style={{
-              /*
-                Top 3% ramps from transparent → solid teal so the slab's
-                leading edge BLENDS into the sticky hero's teal instead
-                of landing as a hard horizontal line. Both layers share
-                #8AC6D0, so even a 3% alpha ramp (≈ 100 px on a 3500 px
-                slab) is enough to dissolve the seam completely while
-                preserving the calm teal-to-off-white journey below.
-              */
-              y: enableParallax ? slabY : 0,
-            }}
-          >
+          {/* Static gradient preserves the hero-to-content color transition. */}
+          <div className="landing-slab relative z-10 -mt-4">
             <div
               aria-hidden
               className="landing-slab-feather pointer-events-none absolute inset-x-0 -top-40 z-0 h-80"
@@ -726,13 +568,8 @@ export default function LandingPage() {
                 <div className="relative grid gap-4 md:grid-cols-2">
 
                   {/* ───── Engineer card (LEFT) ───── */}
-                  <motion.div
-                    className="landing-path-card-engineer relative min-h-[390px] overflow-hidden rounded-[24px] landing-text"
-                    variants={cardOverlapVariants}
-                    initial="rest"
-                    animate={engineerOuterState}
-                    onHoverStart={() => canHover && setEngineerHovered(true)}
-                    onHoverEnd={() => canHover && setEngineerHovered(false)}
+                  <div
+                    className="landing-path-card landing-path-card-engineer relative min-h-[390px] overflow-hidden rounded-[24px] landing-text"
                   >
                     {/* Content — stacks naturally from top, no h-full stretch */}
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
@@ -770,16 +607,11 @@ export default function LandingPage() {
                       />
                       <div className="landing-card-topfade-engineer absolute inset-x-0 top-0 h-16" />
                     </div>
-                  </motion.div>
+                  </div>
 
                   {/* ───── Healthcare Professional card (RIGHT) ───── */}
-                  <motion.div
-                    className="landing-path-card-clinician relative min-h-[390px] overflow-hidden rounded-[24px] landing-text"
-                    variants={cardOverlapVariants}
-                    initial="rest"
-                    animate={clinicianOuterState}
-                    onHoverStart={() => canHover && setClinicianHovered(true)}
-                    onHoverEnd={() => canHover && setClinicianHovered(false)}
+                  <div
+                    className="landing-path-card landing-path-card-clinician relative min-h-[390px] overflow-hidden rounded-[24px] landing-text"
                   >
                     {/* Content — stacks naturally from top */}
                     <div className="relative z-10 flex min-h-[390px] flex-col p-6 pb-7 sm:p-8 md:w-[56%] lg:p-9">
@@ -817,7 +649,7 @@ export default function LandingPage() {
                       />
                       <div className="landing-card-topfade-clinician absolute inset-x-0 top-0 h-16" />
                     </div>
-                  </motion.div>
+                  </div>
 
                 </div>
 
@@ -836,21 +668,6 @@ export default function LandingPage() {
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* Trust badges ribbon */}
-            <div className="hidden flex-wrap items-center justify-center gap-x-8 md:gap-x-10 gap-y-3 mb-14">
-              {([
-                ['language',        '.EU hosted & GDPR-native'],
-                ['history',         'Immutable audit trail'],
-                ['block',           'Zero patient data'],
-                ['account_balance', 'Built for European institutions'],
-              ] as [string, string][]).map(([icon, label]) => (
-                <span key={label} className="landing-muted flex items-center gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold">
-                  <Icon name={icon} className="landing-muted text-base" filled />
-                  {label}
-                </span>
-              ))}
             </div>
 
             {/* Giant "Platform" wordmark — on off-white, uses ghost tone */}
@@ -904,7 +721,7 @@ export default function LandingPage() {
                     className="absolute inset-[-58px_-120px_-20px_-120px] h-[calc(100%+78px)] w-[calc(100%+240px)] object-contain object-center opacity-95 dark:opacity-50 dark:saturate-75"
                   />
 
-                  <div className="landing-glass-card relative z-10 ml-auto mt-8 max-w-[270px] rounded-[14px] border p-6 shadow-[0_28px_72px_-50px_rgba(54,33,62,0.38)] lg:backdrop-blur-md lg:mt-28">
+                  <div className="landing-glass-card relative z-10 ml-auto mt-8 max-w-[270px] rounded-[14px] border p-6 shadow-[0_28px_72px_-50px_rgba(54,33,62,0.38)] lg:mt-28">
                     <div className="flex items-start gap-4">
                       <div className="landing-accent-bg flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white">
                         <Icon name="stars" className="text-xl" filled />
@@ -940,94 +757,6 @@ export default function LandingPage() {
                 ))}
               </div>
             </div>
-
-            <div className="hidden">
-
-              {/* Card 1 — Structured Directory */}
-              <div className="bg-white rounded-3xl p-7 shadow-sm border border-neutral-100 flex flex-col h-full">
-                <div className="flex items-center gap-3 mb-5">
-                  <IconSquare icon="account_tree" color="#006C7A" bg="rgba(138,198,208,0.25)" />
-                  <h3 className="text-xl font-headline font-bold">Structured Directory</h3>
-                </div>
-                <div className="flex-grow flex items-center justify-center mb-5 min-h-[200px] bg-hai-cream rounded-2xl p-4 relative overflow-hidden">
-                  <div className="w-28 h-36 bg-gradient-to-b from-white to-neutral-200 shadow-xl rounded-sm relative">
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-20 h-10 bg-white/95 rounded shadow-md border border-neutral-200" />
-                    <div className="absolute inset-x-3 top-9  h-1.5 bg-neutral-300 rounded-full" />
-                    <div className="absolute inset-x-3 top-12 h-1   bg-neutral-200 rounded-full" />
-                    <div className="absolute inset-x-3 bottom-4 h-1.5 bg-hai-teal rounded-full w-1/2" />
-                  </div>
-                </div>
-                <p className="font-body text-sm text-neutral-600 leading-relaxed">
-                  Every post follows a clinical–engineering grammar: domain, expertise required, project stage, confidentiality level. Engineers publish capability, clinicians publish need — matches become meaningful.
-                </p>
-              </div>
-
-              {/* Card 2 — NDA → Meeting */}
-              <div className="bg-white rounded-3xl p-7 shadow-sm border border-neutral-100 flex flex-col h-full">
-                <div className="flex flex-col mb-5">
-                  <IconSquare icon="shield_lock" color="#5B9E00" bg="rgba(210,255,116,0.35)" />
-                  <h3 className="text-xl font-headline font-bold leading-tight mt-4">NDA-first meetings, logged &amp; immutable.</h3>
-                </div>
-                <div className="grid grid-cols-1 gap-3 mb-5 flex-grow">
-                  <div className="bg-neutral-100 rounded-2xl flex items-center justify-between px-5 py-4 min-h-[72px]">
-                    <span className="text-neutral-900 font-semibold text-sm">One-page NDA</span>
-                    <Icon name="check_circle" filled className="text-hai-teal" />
-                  </div>
-                  <div className="bg-neutral-100 rounded-2xl flex items-center justify-between px-5 py-4 min-h-[72px]">
-                    <span className="text-neutral-900 font-semibold text-sm">Three timeslots</span>
-                    <span className="flex gap-1">
-                      <span className="w-2 h-2 rounded-full bg-hai-teal" />
-                      <span className="w-2 h-2 rounded-full bg-hai-teal" />
-                      <span className="w-2 h-2 rounded-full bg-hai-teal" />
-                    </span>
-                  </div>
-                </div>
-                <p className="font-body text-sm text-neutral-600 leading-relaxed">
-                  Express interest. Accept a one-page NDA inline. Propose three timeslots. The post owner confirms — a meeting is scheduled and the handshake is logged in a 24-month audit trail.
-                </p>
-              </div>
-
-              {/* Card 3 — Matching */}
-              <div className="bg-white rounded-3xl p-7 shadow-sm border border-neutral-100 flex flex-col h-full">
-                <div className="flex items-center gap-3 mb-5">
-                  <IconSquare icon="tune" color="#6FB8C4" bg="rgba(59,130,246,0.18)" />
-                  <h3 className="text-xl font-headline font-bold leading-tight">Intelligent matching across disciplines.</h3>
-                </div>
-                <div className="flex-grow flex flex-col items-center justify-center mb-5 bg-hai-plum rounded-2xl p-6 min-h-[200px] relative overflow-hidden">
-                  <div className="w-full max-w-[200px] bg-hai-cream h-11 rounded-lg mb-2 relative z-10 shadow-lg border border-white/20 flex items-center px-3 text-xs font-mono uppercase tracking-[0.12em]st text-neutral-700">
-                    Cardiology · ICU
-                  </div>
-                  <button className="bg-hai-plum text-hai-mint font-bold py-2 px-7 rounded-full relative z-20 -my-3 shadow-lg border-[3px] border-hai-plum w-max text-sm">
-                    Match
-                  </button>
-                  <div className="w-full max-w-[200px] bg-hai-mint h-11 rounded-lg mt-2 relative z-10 shadow-lg border border-white/20 flex items-center px-3 text-xs font-mono uppercase tracking-[0.12em]st text-hai-plum">
-                    Embedded ML · Berlin
-                  </div>
-                </div>
-                <p className="font-body text-sm text-neutral-600 leading-relaxed">
-                  Filter across <b>20 medical domains</b> and <b>12 engineering specialties</b>. By city. By project stage. By collaboration type. City-based match highlights surface the nearest credible partner.
-                </p>
-              </div>
-
-              {/* Card 4 — GDPR native (dark) */}
-              <div className="bg-black text-white rounded-3xl p-7 shadow-sm border border-neutral-800 flex flex-col h-full relative overflow-hidden">
-                <div className="flex items-start gap-3 mb-5 relative z-10">
-                  <IconSquare icon="public" color="#FFFFFF" bg="rgba(59,130,246,0.9)" />
-                  <h3 className="text-xl font-headline font-bold leading-tight">GDPR-native by design.</h3>
-                </div>
-                <div className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-blue-500/30 blur-2xl z-0" />
-                <div className="flex-grow flex items-center justify-center relative z-10 mb-5 min-h-[200px]">
-                  <div className="relative w-40 h-40">
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400 via-blue-600 to-black shadow-[0_0_60px_rgba(37,99,235,0.6)] border border-blue-400/40" />
-                    <div className="absolute inset-4 rounded-full border border-blue-300/30" />
-                    <div className="absolute inset-8 rounded-full border border-blue-300/20" />
-                  </div>
-                </div>
-                <p className="font-body text-sm text-neutral-300 leading-relaxed relative z-10">
-                  Institutional .edu verification, tamper-resistant audit log, export everything, delete everything. No file uploads. No patient data. <b className="text-white">No exceptions.</b>
-                </p>
-              </div>
-            </div>
           </section>
 
           {/* ── CTA row — last piece of the foreground slab ──── */}
@@ -1040,10 +769,10 @@ export default function LandingPage() {
             </div>
           </section>
 
-          </motion.div>
+          </div>
           {/* ── end foreground slab (z-10, opaque bg-hai-offwhite) ─ */}
         </div>
-        {/* ── end parallax container (ref={parallaxRef}) ────────── */}
+        {/* ── end hero and content group ────────── */}
 
         {/* ── HOW IT WORKS · interactive step-by-step guide ───── */}
         <section id="how" className="w-full bg-hai-offwhite py-24 md:py-28 border-t border-neutral-200">
@@ -1131,10 +860,10 @@ export default function LandingPage() {
                           <button
                             key={s.num}
                             onClick={() => goTo(i)}
-                            className={`flex items-center gap-1.5 sm:gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold transition-colors ${i === step ? 'text-hai-plum' : 'text-neutral-400 hover:text-neutral-700'}`}
+                            className={`flex items-center gap-1.5 sm:gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold transition-colors ${i === step ? 'text-hai-plum' : 'text-neutral-500 hover:text-neutral-700'}`}
                             aria-label={t('landing.tour.jumpToStep', { num: s.num, name: t(`landing.tour.steps.${s.key}.name`) })}
                           >
-                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all shrink-0 ${i === step ? 'bg-hai-plum text-white' : i < step ? 'bg-hai-teal text-hai-plum' : 'bg-neutral-100 text-neutral-400'}`}>
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all shrink-0 ${i === step ? 'bg-hai-plum text-white' : i < step ? 'bg-hai-teal text-hai-plum' : 'bg-neutral-100 text-neutral-500'}`}>
                               {i < step ? '✓' : s.num}
                             </span>
                             <span className="hidden sm:inline">{t(`landing.tour.steps.${s.key}.name`)}</span>
@@ -1261,11 +990,11 @@ export default function LandingPage() {
               <div className="space-y-5">
                 <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-neutral-100 flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow">
                   <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">{t('landing.structured.directoryMatching')}</span>
-                  <Icon name="add" className="text-neutral-400 group-hover:text-neutral-900 transition-colors" />
+                  <Icon name="add" className="text-neutral-500 group-hover:text-neutral-900 transition-colors" />
                 </div>
                 <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-neutral-100 flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow">
                   <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">{t('landing.structured.institutionalVerification')}</span>
-                  <Icon name="add" className="text-neutral-400 group-hover:text-neutral-900 transition-colors" />
+                  <Icon name="add" className="text-neutral-500 group-hover:text-neutral-900 transition-colors" />
                 </div>
               </div>
 

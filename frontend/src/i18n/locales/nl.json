@@ -22,6 +22,7 @@
     "messages": "Berichten",
     "notifications": "Meldingen",
     "notificationsUnread": "Meldingen ({{n}} ongelezen)",
+    "messagesUnread": "Berichten ({{n}} ongelezen)",
     "accountMenu": "Accountmenu",
     "toggleMenu": "Menu openen/sluiten"
   },
@@ -132,6 +133,7 @@
       "headingLine2": "gebruikersgids.",
       "subtitle": "Elke stap komt overeen met een echt scherm in HealthAI, van profielinstelling en AI-gerangschikt bladeren tot vergaderbeslissingen en meldingen.",
       "stepCounter": "Stap {{num}} / 0{{total}}",
+      "visual": {"clinicianProfile":"Profiel van zorgprofessional","institutionVerified":"Instelling geverifieerd","matchBasis":"Basis voor matching","matchBasisDesc":"Expertise, locatie, rol en samenwerkingsdoelen.","draftPost":"Concept · nieuw bericht","bestMatch":"Beste AI-match","page":"Pagina 1 van 3","matchScore":"{{score}}% match","inSync":"Filters, sortering en paginering blijven op elkaar afgestemd.","ndaStep":"Stap 01 · NDA","ndaInline":"NDA van één pagina, direct geaccepteerd.","pendingReview":"Wacht op beoordeling","accept":"Accepteren","complete":"Afronden","followThread":"Volg het proces.","requestAccepted":"Afspraakverzoek geaccepteerd","newMatch":"Nieuwe AI-match beschikbaar","exportReady":"Profielexport staat klaar"},
       "jumpToStep": "Ga naar stap {{num}}: {{name}}",
       "previousStep": "Vorige stap",
       "nextStep": "Volgende stap",
@@ -445,6 +447,7 @@
     "saveSearchDefaultName": "Alle berichten",
     "saveSearchSuccess": "Zoekopdracht \"{{name}}\" opgeslagen! Je krijgt een melding zodra nieuwe overeenkomende berichten worden gepubliceerd.",
     "saveSearchError": "Kan zoekopdracht niet opslaan. Probeer het opnieuw.",
+    "deleteError": "Het bericht kon niet worden verwijderd. Probeer het opnieuw.",
     "commitment": {
       "flexible": "Flexibel",
       "low": "Lichte advisering",
@@ -735,9 +738,9 @@
       "nameLabel": "Volledige naam",
       "namePlaceholder": "Dr. Jan Jansen",
       "firstNameLabel": "Voornaam",
-      "firstNamePlaceholder": "Jan",
+      "firstNamePlaceholder": "bijv. Jan",
       "lastNameLabel": "Achternaam",
-      "lastNamePlaceholder": "Jansen",
+      "lastNamePlaceholder": "bijv. Jansen",
       "emailLabel": "E-mailadres",
       "emailHint": "Gebruik een e-mailadres waar je toegang toe hebt",
       "emailPlaceholder": "jij@voorbeeld.nl",
@@ -753,7 +756,7 @@
       "healthcareDesc": "Clinicus, arts, verpleegkundige, onderzoeker, zorgbeheerder…",
       "backBtn": "← Terug",
       "institutionLabel": "Instelling",
-      "institutionPlaceholder": "Charité – Universitätsmedizin Berlin",
+      "institutionPlaceholder": "bijv. Charité – Universitätsmedizin Berlin",
       "cityLabel": "Stad",
       "cityPlaceholder": "Selecteer stad",
       "cityPlaceholderNoCountry": "Selecteer eerst een land",
@@ -791,10 +794,11 @@
       "changedMind": "Van gedachten veranderd?",
       "backToSignIn": "Terug naar inloggen →",
       "successTitle": "Wachtwoord gereset!",
-      "successDesc": "Je wachtwoord is bijgewerkt. Je wordt doorgestuurd naar de inlogpagina…",
+      "successDesc": "Je wachtwoord is bijgewerkt. Je kunt nu inloggen met je nieuwe wachtwoord.",
       "signInNow": "Nu inloggen →",
       "errShort": "Wachtwoord moet minstens 8 tekens bevatten.",
       "errMatch": "Wachtwoorden komen niet overeen.",
+      "matchOk": "Wachtwoorden komen overeen.",
       "errExpired": "De link is ongeldig of verlopen.",
       "requestNew": "Nieuwe resetlink aanvragen →"
     },
@@ -802,7 +806,7 @@
       "verifying": "Je e-mailadres wordt geverifieerd…",
       "verifyingWait": "Een moment geduld.",
       "successTitle": "E-mailadres geverifieerd!",
-      "successDesc": "Welkom aan boord. Je wordt doorgestuurd naar je dashboard…",
+      "successDesc": "Welkom aan boord. Je e-mailadres is bevestigd en je account is klaar.",
       "successCta": "Naar dashboard →",
       "failTitle": "Verificatie mislukt.",
       "failDesc": "De link is ongeldig of verlopen.",
@@ -861,6 +865,11 @@
     "total": "Totaal",
     "overview": "Overzicht vergaderingen",
     "tabsHelp": "Ontvangen: verzoeken die anderen over jouw berichten stuurden · Verzonden: verzoeken die jij over andermans berichten hebt gestuurd.",
+    "filterStatus": "Status",
+    "filterDirection": "Richting",
+    "awaitingReply": "{{count}} verzoek wacht op je antwoord",
+    "awaitingReply_other": "{{count}} verzoeken wachten op je antwoord",
+    "awaitingShow": "Tonen",
     "requestSent": "Verzoek verzonden naar {{name}}. Je krijgt bericht zodra diegene reageert.",
     "direction": {
       "incoming": "Verzoek van {{name}}",
@@ -908,6 +917,9 @@
     "markHeldHelp": "We hebben afgesproken — dit sluit het bericht niet af.",
     "goToPost": "Naar bericht",
     "actionFailed": "Dat is niet gelukt. Probeer het opnieuw.",
+    "loadError": "Afspraken konden niet worden geladen.",
+    "refreshError": "Afspraken konden niet worden vernieuwd; deze lijst is mogelijk verouderd.",
+    "retry": "Opnieuw proberen",
     "previousMonth": "Vorige maand",
     "nextMonth": "Volgende maand"
   },
@@ -929,7 +941,10 @@
     "stayInLoop": "Blijf op de hoogte",
     "enableDesc": "Schakel browsermeldingen in om nooit belangrijke updates te missen.",
     "enableBtn": "Meldingen inschakelen",
-    "noMore": "Geen meldingen meer"
+    "noMore": "Geen meldingen meer",
+    "loadError": "Meldingen konden niet worden geladen.",
+    "refreshError": "Meldingen konden niet worden vernieuwd; deze lijst is mogelijk verouderd.",
+    "retry": "Opnieuw proberen"
   },
   "notificationContent": {
     "meeting_request": {
@@ -1044,6 +1059,7 @@
   },
   "errors": {
     "badgePrefix": "Fout",
+    "boundary": {"title":"Er ging iets mis op deze pagina","desc":"Een onderdeel van deze pagina werkt niet meer. Je gegevens zijn veilig. Probeer het opnieuw of ga via het menu naar een andere pagina.","updateDesc":"Er is een nieuwe versie van HealthAI gepubliceerd terwijl dit tabblad open was. Herlaad om verder te gaan.","retry":"Opnieuw proberen","reload":"Pagina herladen"},
     "notFound": {
       "code": "404 · Niet gevonden",
       "title": "We kunnen die pagina niet vinden",
@@ -1166,9 +1182,13 @@
       "deleteConfirm": "\"{{name}}\" permanent verwijderen? Dit kan niet ongedaan worden gemaakt.",
       "suspendError": "Kan schorsingsstatus niet bijwerken.",
       "deleteError": "Kan account niet verwijderen.",
+      "deleteConfirmTitle": "Dit account verwijderen?",
       "suspendedNotifTitle": "Account geschorst",
       "suspendedNotifBody": "Je account is geschorst.",
-      "pageRange": "{{from}}–{{to}} van {{total}}"
+      "pageRange": "{{from}}–{{to}} van {{total}}",
+      "perPage": "Per pagina",
+      "previousPage": "Vorige pagina",
+      "nextPage": "Volgende pagina"
     },
     "posts": {
       "title": "Berichten & vermeldingen",
@@ -1183,7 +1203,11 @@
       },
       "remove": "Verwijderen",
       "removedNotifTitle": "Bericht verwijderd",
-      "removedNotifBody": "Een van je berichten is verwijderd door een beheerder."
+      "removedNotifBody": "Een van je berichten is verwijderd door een beheerder.",
+      "removeConfirmTitle": "Dit bericht verwijderen?",
+      "removeConfirmBody": "\"{{title}}\" wordt van het platform verwijderd en de auteur krijgt een melding.",
+      "removeConfirmUndo": "Dit kan niet ongedaan worden gemaakt.",
+      "removeError": "Het bericht kon niet worden verwijderd. Probeer het opnieuw."
     },
     "logs": {
       "title": "Activiteitenlogs",
@@ -1231,6 +1255,7 @@
     "hoursAgo": "{{count}}u geleden",
     "daysAgo": "{{count}}d geleden",
     "yesterday": "Gisteren",
+    "today": "Vandaag",
     "translate": "Vertalen",
     "showOriginal": "Origineel tonen",
     "translating": "Bezig met vertalen…",

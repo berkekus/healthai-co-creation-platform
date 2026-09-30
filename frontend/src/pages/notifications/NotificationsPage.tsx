@@ -4,6 +4,8 @@ import { Bell, Calendar, Check, FileText, Filter, MessageSquare, Shield, Star, U
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 import { useNotificationStore } from '../../store/notificationStore'
+import { useSlowRequestHint } from '../../hooks/useSlowRequestHint'
+import { SkeletonCircle, SkeletonLine } from '../../components/ui/Skeleton'
 import type { Notification, NotificationType } from '../../types/common.types'
 import { getNotificationContent } from '../../utils/notificationContent'
 import { timeAgo } from '../../utils/timeAgo'
@@ -32,7 +34,7 @@ function getIconStyle(type: NotificationType): { Icon: typeof Bell; bg: string; 
 export default function NotificationsPage() {
   const { t } = useTranslation()
   const { user } = useAuthStore()
-  const { getByUser, fetchByUser, markRead, markAllRead } = useNotificationStore()
+  const { getByUser, fetchByUser, markRead, markAllRead, listStatus } = useNotificationStore()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
   const [filterOpen, setFilterOpen] = useState(false)
@@ -58,6 +60,15 @@ export default function NotificationsPage() {
   }, [user?.id, fetchByUser])
 
   const all = user ? getByUser(user.id) : []
+
+  // Without these, a slow or failed fetch looked exactly like "you have no notifications".
+  const showSkeleton = (listStatus === 'idle' || listStatus === 'loading') && all.length === 0
+  const showLoadError = listStatus === 'error' && all.length === 0
+  const showRefreshError = listStatus === 'error' && all.length > 0
+  const isSlow = useSlowRequestHint(listStatus === 'loading')
+  const retry = () => { if (user) fetchByUser(user.id) }
+  // Until the list has loaded, a "0" per filter would be a guess, and so would disabling it.
+  const countsKnown = !showSkeleton && !showLoadError
 
   const filtered =
     activeTab === 'all'      ? all :
@@ -106,32 +117,35 @@ export default function NotificationsPage() {
             {tabs.map(t => {
               const active = activeTab === t.key
               const count  = counts[t.key]
+              const unavailable = countsKnown && count === 0 && t.key !== 'all'
               return (
                 <button
                   key={t.key}
                   onClick={() => setActiveTab(t.key)}
-                  disabled={count === 0 && t.key !== 'all'}
+                  disabled={unavailable}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                     active
                       ? 'bg-[#E8F4F7] text-[#1B7A88]'
-                      : count === 0 && t.key !== 'all'
+                      : unavailable
                         ? 'text-[#C5CAD6] cursor-not-allowed'
                         : 'text-[#6F6878] hover:bg-[#EEF0F3] hover:text-[#36213E]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className={active ? 'text-[#1B7A88]' : count === 0 && t.key !== 'all' ? 'text-[#C5CAD6]' : 'text-[#6F6878]'}>
+                    <span className={active ? 'text-[#1B7A88]' : unavailable ? 'text-[#C5CAD6]' : 'text-[#6F6878]'}>
                       {t.icon}
                     </span>
                     {t.label}
                   </div>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    active ? 'bg-[#1B7A88]/10 text-[#1B7A88]'
-                    : count === 0 ? 'text-[#C5CAD6]'
-                    : 'bg-[#EEF0F3] text-[#6F6878]'
-                  }`}>
-                    {count}
-                  </span>
+                  {countsKnown && (
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      active ? 'bg-[#1B7A88]/10 text-[#1B7A88]'
+                      : count === 0 ? 'text-[#C5CAD6]'
+                      : 'bg-[#EEF0F3] text-[#6F6878]'
+                    }`}>
+                      {count}
+                    </span>
+                  )}
                 </button>
               )
             })}
@@ -160,7 +174,9 @@ export default function NotificationsPage() {
             <div>
               <h1 className="text-xl font-black text-[#36213E]">{activeLabel}</h1>
               <p className="text-sm text-[#6F6878] mt-0.5">
-                {filtered.length === 0
+                {showSkeleton ? t('common.loading')
+                  : showLoadError ? null
+                  : filtered.length === 0
                   ? t('notificationsPage.allCaughtUp')
                   : t('notificationsPage.count', { count: filtered.length })}
               </p>
@@ -198,7 +214,7 @@ export default function NotificationsPage() {
                   >
                     {tabs.map(tab => {
                       const count = counts[tab.key]
-                      const unavailable = count === 0 && tab.key !== 'all'
+                      const unavailable = countsKnown && count === 0 && tab.key !== 'all'
                       return (
                         <button
                           key={tab.key}
@@ -217,7 +233,7 @@ export default function NotificationsPage() {
                             <span aria-hidden="true">{tab.icon}</span>
                             {tab.label}
                           </span>
-                          <span className="text-xs font-bold">{count}</span>
+                          {countsKnown && <span className="text-xs font-bold">{count}</span>}
                         </button>
                       )
                     })}
@@ -227,9 +243,42 @@ export default function NotificationsPage() {
             </div>
           </div>
 
+          {showRefreshError && (
+            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F3D6D9] bg-[#FBF1F2] px-7 py-3 text-sm font-semibold text-[#9B3440]">
+              <span>{t('notificationsPage.refreshError')}</span>
+              <button type="button" onClick={retry} className="font-black underline underline-offset-2 hover:text-[#36213E]">
+                {t('notificationsPage.retry')}
+              </button>
+            </div>
+          )}
+
           {/* Notification rows */}
           <div className="divide-y divide-[#F3F4F6]">
-            {filtered.length === 0 ? (
+            {showSkeleton ? (
+              <div role="status" aria-label={t('common.loading')}>
+                {[0, 1, 2, 3].map(i => (
+                  <div key={i} className="flex items-start gap-4 px-7 py-4">
+                    <SkeletonCircle size={40} />
+                    <div className="flex flex-1 flex-col gap-2 pt-1">
+                      <SkeletonLine width="45%" />
+                      <SkeletonLine width="80%" />
+                    </div>
+                  </div>
+                ))}
+                {isSlow && <p className="px-7 pb-5 text-sm font-semibold text-[#6F6878]">{t('authPage.wakingServer')}</p>}
+              </div>
+            ) : showLoadError ? (
+              <div role="alert" className="py-16 text-center">
+                <p className="text-sm font-semibold text-[#9B3440]">{t('notificationsPage.loadError')}</p>
+                <button
+                  type="button"
+                  onClick={retry}
+                  className="mt-4 inline-flex items-center rounded-xl bg-[#36213E] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-black"
+                >
+                  {t('notificationsPage.retry')}
+                </button>
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="py-16 text-center">
                 <div className="w-12 h-12 rounded-full bg-[#EEF0F3] flex items-center justify-center mx-auto mb-3">
                   <Bell size={20} className="text-[#D5DAE0]" />
@@ -245,7 +294,7 @@ export default function NotificationsPage() {
                     type="button"
                     key={n.id}
                     onClick={() => handleClick(n)}
-                    className={`flex w-full cursor-pointer items-start gap-4 px-7 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8AC6D0]/70 focus-visible:ring-inset ${
+                    className={`flex w-full cursor-pointer items-start gap-4 px-7 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-focus focus-visible:ring-inset ${
                       n.isRead ? 'hover:bg-[#F3F4F6]' : 'bg-[#F3F4F6] hover:bg-[#E8F4F7]'
                     }`}
                   >

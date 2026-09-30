@@ -5,6 +5,7 @@ import i18n from '../i18n'
 import Navbar from '../components/layout/Navbar'
 import { useAuthStore } from '../store/authStore'
 import { useNotificationStore } from '../store/notificationStore'
+import { useConversationStore } from '../store/conversationStore'
 
 vi.mock('../lib/api', () => ({ default: { get: vi.fn(), post: vi.fn(), patch: vi.fn() } }))
 vi.mock('../lib/socket', () => ({ connectSocket: vi.fn(), disconnectSocket: vi.fn(), getSocket: vi.fn() }))
@@ -46,5 +47,13 @@ describe('Navbar', () => {
   it('announces unread notifications in the interface language', () => {
     renderNavbar()
     expect(screen.getByRole('button', { name: 'Bildirimler (2 okunmamış)' })).toBeInTheDocument()
+  })
+
+  it('links to messages from the header with the unread count', () => {
+    useConversationStore.setState({ unreadCount: 3 })
+    renderNavbar()
+    const link = screen.getByRole('link', { name: 'Mesajlar (3 okunmamış)' })
+    expect(link).toHaveAttribute('href', '/messages')
+    expect(link).toHaveTextContent('3')
   })
 })

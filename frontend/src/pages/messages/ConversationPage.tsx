@@ -154,7 +154,7 @@ export default function ConversationPage() {
             </div>
             <div className="min-w-0">
               <p className="font-headline font-black text-base text-[#2d1838] truncate">{partner.name}</p>
-              <p className="text-xs text-[#9f9aaa] font-semibold">{t(`common.role.${partner.role}`, { defaultValue: partner.role })}</p>
+              <p className="text-xs text-[#6b7280] font-semibold">{t(`common.role.${partner.role}`, { defaultValue: partner.role })}</p>
             </div>
           </div>
         ) : (
@@ -162,7 +162,7 @@ export default function ConversationPage() {
         )}
 
         {conv && (
-          <p className="text-xs font-black uppercase tracking-[0.12em] text-[#9f9aaa] hidden sm:block truncate max-w-[200px]">
+          <p className="text-xs font-black uppercase tracking-[0.12em] text-[#6b7280] hidden sm:block truncate max-w-[200px]">
             {conv.postTitle}
           </p>
         )}
@@ -173,7 +173,7 @@ export default function ConversationPage() {
             onClick={() => setConfirmDelete(true)}
             title={t('chat.delete')}
             aria-label={t('chat.delete')}
-            className="w-9 h-9 rounded-full border border-[#e8e8ee] flex items-center justify-center text-[#c5c0cc] hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
+            className="w-9 h-9 rounded-full border border-[#e8e8ee] flex items-center justify-center text-[#6b7280] hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
           >
             <Trash2 size={15} />
           </button>
@@ -233,7 +233,7 @@ export default function ConversationPage() {
             {error
               ? <p className="text-xs text-red-600 font-semibold">{error}</p>
               : <span />}
-            <span className="text-xs text-[#b5b0be] font-semibold">
+            <span className="text-xs text-[#6b7280] font-semibold">
               {t('chat.updated', { when: lastUpdatedLabel })}
             </span>
           </div>
@@ -246,7 +246,7 @@ export default function ConversationPage() {
               rows={1}
               placeholder={t('chat.placeholder')}
               aria-label={t('chat.placeholder')}
-              className="flex-1 resize-none rounded-[16px] border border-[#e8e8ee] bg-[#f8f7fa] px-4 py-3 text-sm font-body text-[#2d1838] placeholder:text-[#b5b0be] outline-none focus:border-[#55c7df] focus:ring-2 focus:ring-[#55c7df]/20 transition-all max-h-[160px] overflow-y-auto"
+              className="flex-1 resize-none rounded-[16px] border border-[#e8e8ee] bg-[#f8f7fa] px-4 py-3 text-sm font-body text-[#2d1838] placeholder:text-[#6F6878] outline-none focus:border-hai-focus focus:ring-2 focus:ring-[#55c7df]/20 transition-all max-h-[160px] overflow-y-auto"
               onInput={e => {
                 const field = e.currentTarget
                 field.style.height = 'auto'
@@ -294,7 +294,7 @@ function MessageBubble({
   return (
     <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} ${optimistic ? 'opacity-60' : ''}`}>
       {showName && !isMine && (
-        <span className="text-xs font-bold text-[#9f9aaa] mb-1 px-1">{msg.senderName}</span>
+        <span className="text-xs font-bold text-[#6b7280] mb-1 px-1">{msg.senderName}</span>
       )}
       <div
         className={`max-w-[70%] px-4 py-3 rounded-[18px] text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm ${
@@ -305,7 +305,7 @@ function MessageBubble({
       >
         {msg.content}
       </div>
-      <span className="text-xs text-[#b5b0be] mt-1 px-1">
+      <span className="text-xs text-[#6b7280] mt-1 px-1">
         {optimistic ? t('meetingRequest.sending') : time}
       </span>
     </div>

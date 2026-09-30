@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   BarChart2, Calendar, CheckCircle, ChevronRight, Clock,
@@ -7,17 +7,29 @@ import {
   Users, X, Search, ChevronDown,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { uiLocale } from '../../utils/formatDate'
 import type { TFunction } from 'i18next'
 import { usePostStore } from '../../store/postStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import { useMeetingStore } from '../../store/meetingStore'
 import api from '../../lib/api'
+import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import type { ActivityLog } from '../../types/common.types'
 import type { User } from '../../types/auth.types'
 import { ROUTES } from '../../constants/routes'
 
 type AdminView = 'overview' | 'users' | 'posts' | 'logs' | 'verification'
-const USERS_PER_PAGE = 20
+const USERS_PAGE_SIZES = [20, 50, 100] as const
+const USERS_PAGE_SIZE_KEY = 'admin_usersPerPage'
+
+function readUsersPageSize(): number {
+  try {
+    const saved = Number(localStorage.getItem(USERS_PAGE_SIZE_KEY))
+    return (USERS_PAGE_SIZES as readonly number[]).includes(saved) ? saved : USERS_PAGE_SIZES[0]
+  } catch {
+    return USERS_PAGE_SIZES[0]
+  }
+}
 
 function roleLabel(t: TFunction, role: string) {
   return t(`common.role.${role}`, { defaultValue: role })
@@ -58,7 +70,9 @@ function timeAgo(iso: string, t: TFunction) {
   return t('common.daysAgo', { count: Math.floor(h / 24) })
 }
 
-// ── HOVER-EXPAND SIDEBAR ──────────────────────────────────
+// ── SIDEBAR ───────────────────────────────────────────────
+// Always expanded on lg+. Between md and lg it collapses to icons and expands on
+// hover or keyboard focus, so labels never depend on a mouse.
 function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: AdminView) => void }) {
   const { t } = useTranslation()
   const mainViews = new Set<AdminView>(['overview', 'users', 'posts', 'logs', 'verification'])
@@ -76,7 +90,7 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
   ]
 
   return (
-    <aside className="group/sb flex flex-col bg-white border-r border-[#eaecf0] shrink-0 overflow-x-hidden w-[56px] hover:w-[220px] transition-all duration-200">
+    <aside className="group/sb flex flex-col bg-white border-r border-[#eaecf0] shrink-0 overflow-x-hidden w-[56px] hover:w-[220px] focus-within:w-[220px] lg:w-[220px] transition-all duration-200">
       <nav className="flex-1 py-3 flex flex-col gap-0.5 px-2 overflow-y-auto overflow-x-hidden">
         {navItems.map(item => {
           const isActive = item.id === view
@@ -87,7 +101,7 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
               <Link key={item.id} to={item.route}
                 className="flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[#6b7280] hover:bg-[#f5f5ff] hover:text-[#4f46e5] transition-colors">
                 <span className="shrink-0">{item.icon}</span>
-                <span className="text-sm font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75">{item.label}</span>
+                <span className="text-sm font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75">{item.label}</span>
               </Link>
             )
           }
@@ -102,9 +116,9 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
                 : 'text-[#6b7280] hover:bg-[#f5f5ff] hover:text-[#4f46e5]'
               }`}>
               <span className="shrink-0">{item.icon}</span>
-              <span className="text-sm font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 flex-1">{item.label}</span>
+              <span className="text-sm font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75 flex-1">{item.label}</span>
               {item.soon && (
-                <span className="text-xs font-black uppercase tracking-[0.12em] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 bg-[#f0f0ff] text-[#a8a4d4] rounded-full px-2 py-0.5">
+                <span className="text-xs font-black uppercase tracking-[0.12em] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75 bg-[#f0f0ff] text-[#a8a4d4] rounded-full px-2 py-0.5">
                   {t('admin.sidebar.soon')}
                 </span>
               )}
@@ -117,18 +131,18 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
       <div className="m-2 p-3 bg-[#f8f8ff] rounded-xl border border-[#eeeeff] overflow-hidden">
         <div className="flex items-center gap-2 mb-1">
           <Headphones size={16} strokeWidth={1.8} className="text-[#4f46e5] shrink-0" />
-          <span className="text-xs font-black text-[#18203a] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75">{t('admin.sidebar.needHelp')}</span>
+          <span className="text-xs font-black text-[#18203a] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75">{t('admin.sidebar.needHelp')}</span>
         </div>
         <svg viewBox="0 0 80 24" className="w-full opacity-40 mb-2">
           <path d="M0,18 C10,14 15,20 25,12 C35,4 40,16 50,10 C60,4 70,14 80,8"
             fill="none" stroke="#4f46e5" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
-        <p className="text-xs text-[#9ca3af] leading-relaxed whitespace-nowrap overflow-hidden opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 mb-2">
+        <p className="w-[180px] text-xs text-[#6b7280] leading-relaxed opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75 mb-2">
           {t('admin.sidebar.supportBlurb')}
         </p>
         <a
           href="mailto:support@healthai.edu"
-          className="flex items-center gap-1 text-xs font-bold text-[#4f46e5] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 hover:underline"
+          className="flex items-center gap-1 text-xs font-bold text-[#4f46e5] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75 hover:underline"
         >
           {t('admin.sidebar.contactSupport')} <ChevronRight size={12} />
         </a>
@@ -151,9 +165,9 @@ function StatCard({ label, value, icon, iconBg, iconColor, change, up, vsLast7 }
         <div className="text-4xl font-black text-[#18203a] leading-none">{value}</div>
       </div>
       <div className="text-sm text-[#6b7280] font-semibold mb-1.5">{label}</div>
-      <div className={`text-xs font-semibold ${up === true ? 'text-[#22c55e]' : up === false ? 'text-[#ef4444]' : 'text-[#9ca3af]'}`}>
+      <div className={`text-xs font-semibold ${up === true ? 'text-[#22c55e]' : up === false ? 'text-[#ef4444]' : 'text-[#6b7280]'}`}>
         {up === true ? '↑' : up === false ? '↓' : '—'} {change}
-        <span className="text-[#b0b7c3] font-normal ml-1">{vsLast7}</span>
+        <span className="text-[#6b7280] font-normal ml-1">{vsLast7}</span>
       </div>
     </div>
   )
@@ -165,7 +179,7 @@ function UserGrowthChart({ users, days }: { users: User[]; days: number }) {
   const pts = Array.from({ length: days }, (_, i) => {
     const d = new Date(today)
     d.setDate(d.getDate() - (days - 1 - i))
-    const label = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
+    const label = d.toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' })
     const total = users.filter(u => u.createdAt && new Date(u.createdAt) <= d).length
     return { label, total }
   })
@@ -258,11 +272,11 @@ function VerificationQueueTab() {
     <div className="p-3 sm:p-6">
       <div className="mb-5">
         <h1 className="text-xl font-black text-[#18203a]">{t('admin.verification.title')}</h1>
-        <p className="text-sm text-[#9ca3af] mt-0.5">{loading ? '…' : pending.length} {t('admin.verification.pending')}</p>
+        <p className="text-sm text-[#6b7280] mt-0.5">{loading ? '…' : pending.length} {t('admin.verification.pending')}</p>
       </div>
       <div className="bg-white rounded-2xl border border-[#eaecf0] overflow-hidden">
         {loading ? (
-          <div className="px-6 py-12 text-center text-sm text-[#9ca3af]">{t('admin.verification.loading')}</div>
+          <div className="px-6 py-12 text-center text-sm text-[#6b7280]">{t('admin.verification.loading')}</div>
         ) : pending.length === 0 ? (
           <div className="px-6 py-12 text-center">
             <CheckCircle size={32} className="mx-auto text-[#22c55e] mb-3" />
@@ -272,10 +286,10 @@ function VerificationQueueTab() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#f3f4f6] bg-[#f9fafb]">
-                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">{t('admin.verification.columns.user')}</th>
-                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">{t('admin.verification.columns.role')}</th>
-                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">{t('admin.verification.columns.institution')}</th>
-                <th className="px-6 py-3 text-left text-xs font-black text-[#9ca3af] uppercase tracking-wide">{t('admin.verification.columns.registered')}</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-[#6b7280] uppercase tracking-wide">{t('admin.verification.columns.user')}</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-[#6b7280] uppercase tracking-wide">{t('admin.verification.columns.role')}</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-[#6b7280] uppercase tracking-wide">{t('admin.verification.columns.institution')}</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-[#6b7280] uppercase tracking-wide">{t('admin.verification.columns.registered')}</th>
                 <th className="px-6 py-3" />
               </tr>
             </thead>
@@ -284,7 +298,7 @@ function VerificationQueueTab() {
                 <tr key={u.id} className="border-b border-[#f3f4f6] hover:bg-[#f9fafb] transition-colors">
                   <td className="px-6 py-3.5">
                     <div className="font-semibold text-[#18203a]">{u.name}</div>
-                    <div className="text-xs text-[#9ca3af]">{u.email}</div>
+                    <div className="text-xs text-[#6b7280]">{u.email}</div>
                   </td>
                   <td className="px-6 py-3.5">
                     <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${u.role === 'healthcare_professional' ? 'bg-[#dbeafe] text-[#2563eb]' : 'bg-[#d1fae5] text-[#059669]'}`}>
@@ -292,7 +306,7 @@ function VerificationQueueTab() {
                     </span>
                   </td>
                   <td className="px-6 py-3.5 text-[#6b7280] max-w-[180px] truncate">{u.institution}</td>
-                  <td className="px-6 py-3.5 text-[#9ca3af]">{new Date(u.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                  <td className="px-6 py-3.5 text-[#6b7280]">{new Date(u.createdAt).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                   <td className="px-6 py-3.5 text-right">
                     <button
                       onClick={() => handleVerify(u.id)}
@@ -346,7 +360,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
   const recentLogs = logs.slice(0, 4)
 
   const today = new Date()
-  const dateRange = `${new Date(today.getTime() - (dateRangeDays - 1) * 86400000).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} – ${today.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}`
+  const dateRange = `${new Date(today.getTime() - (dateRangeDays - 1) * 86400000).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' })} – ${today.toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short', year: 'numeric' })}`
   const RANGE_OPTIONS = [7, 14, 30, 90]
   const CHART_OPTIONS = [7, 14, 30]
 
@@ -370,16 +384,16 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-black text-[#18203a]">{t('admin.welcome')}</h1>
-          <p className="text-sm text-[#9ca3af] mt-0.5">{t('admin.subtitle')}</p>
+          <p className="text-sm text-[#6b7280] mt-0.5">{t('admin.subtitle')}</p>
         </div>
         <div className="relative">
           <button
             onClick={() => setShowDateMenu(v => !v)}
             className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-[#eaecf0] text-sm font-semibold text-[#374151] hover:border-[#4f46e5] transition-colors"
           >
-            <Calendar size={14} className="text-[#9ca3af]" />
+            <Calendar size={14} className="text-[#6b7280]" />
             {dateRange}
-            <ChevronDown size={13} className="text-[#9ca3af]" />
+            <ChevronDown size={13} className="text-[#6b7280]" />
           </button>
           {showDateMenu && (
             <div className="absolute right-0 top-10 z-20 bg-white rounded-xl border border-[#eaecf0] shadow-lg overflow-hidden min-w-[130px]">
@@ -452,7 +466,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
               <thead>
                 <tr className="border-b border-[#f3f4f6]">
                   {[t('admin.verification.columns.user'), t('admin.verification.columns.role'), t('admin.verification.columns.institution'), t('admin.posts.columns.status'), t('admin.posts.columns.created'), t('admin.posts.columns.actions')].map(h => (
-                    <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-[#9ca3af] px-6 py-3 bg-[#fafafa]">{h}</th>
+                    <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-[#6b7280] px-6 py-3 bg-[#fafafa]">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -466,7 +480,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                           <div className="w-9 h-9 rounded-full bg-[#e0e7ff] flex items-center justify-center text-xs font-black text-[#4f46e5] shrink-0">{initials}</div>
                           <div className="min-w-0">
                             <div className="text-sm font-bold text-[#18203a] truncate">{u.name}</div>
-                            <div className="text-xs text-[#9ca3af] truncate">{u.email}</div>
+                            <div className="text-xs text-[#6b7280] truncate">{u.email}</div>
                           </div>
                         </div>
                       </td>
@@ -482,13 +496,13 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                           {u.isSuspended ? t('admin.users.suspended') : t('admin.users.active')}
                         </span>
                       </td>
-                      <td className="px-6 py-3.5 text-sm text-[#9ca3af]">
-                        {new Date(u.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      <td className="px-6 py-3.5 text-sm text-[#6b7280]">
+                        {new Date(u.createdAt).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short', year: 'numeric' })}
                       </td>
                       <td className="px-6 py-3.5">
                         <button
                           onClick={() => onNavigate('users')}
-                          className="p-1.5 rounded-lg hover:bg-[#f3f4f6] text-[#9ca3af] hover:text-[#4f46e5] transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-[#f3f4f6] text-[#6b7280] hover:text-[#4f46e5] transition-colors"
                           title={t('admin.manageUser')}
                         >
                           <span className="text-lg leading-none">⋯</span>
@@ -499,7 +513,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                 })}
               </tbody>
             </table>
-            <div className="px-6 py-3.5 border-t border-[#f3f4f6] flex items-center justify-between text-xs text-[#9ca3af]">
+            <div className="px-6 py-3.5 border-t border-[#f3f4f6] flex items-center justify-between text-xs text-[#6b7280]">
               <span>
                 {t('admin.showingUsersRange', { from: Math.min((overviewPage - 1) * PAGE_SIZE + 1, totalUsers), to: Math.min(overviewPage * PAGE_SIZE, totalUsers), total: totalUsers })}
               </span>
@@ -566,7 +580,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                       <div key={domain}>
                         <div className="flex justify-between text-xs mb-0.5">
                           <span className="font-semibold text-[#374151] truncate max-w-[160px]">{domain}</span>
-                          <span className="text-[#9ca3af] font-bold ml-2">{count}</span>
+                          <span className="text-[#6b7280] font-bold ml-2">{count}</span>
                         </div>
                         <div className="h-1.5 bg-[#f0f1f3] rounded-full overflow-hidden">
                           <div className="h-full bg-[#4f46e5] rounded-full" style={{ width: `${pct}%` }} />
@@ -602,7 +616,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
               </div>
               <MiniSparkline />
             </div>
-            <p className="text-xs text-[#9ca3af] mt-1.5">{t('admin.lastChecked')}</p>
+            <p className="text-xs text-[#6b7280] mt-1.5">{t('admin.lastChecked')}</p>
           </div>
 
           <div className="border-t border-[#f3f4f6]" />
@@ -623,13 +637,13 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-xs font-semibold text-[#374151] leading-snug capitalize">{log.action.replace(/_/g, ' ')}</div>
-                      <div className="text-xs text-[#9ca3af] truncate">{log.userEmail}</div>
+                      <div className="text-xs text-[#6b7280] truncate">{log.userEmail}</div>
                     </div>
-                    <span className="text-xs text-[#b0b7c3] whitespace-nowrap shrink-0">{timeAgo(log.timestamp, t)}</span>
+                    <span className="text-xs text-[#6b7280] whitespace-nowrap shrink-0">{timeAgo(log.timestamp, t)}</span>
                   </div>
                 )
               }) : (
-                <p className="text-sm text-[#b0b7c3]">{t('admin.noRecentActivity')}</p>
+                <p className="text-sm text-[#6b7280]">{t('admin.noRecentActivity')}</p>
               )}
             </div>
           </div>
@@ -647,11 +661,22 @@ export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([])
   const [userQuery, setUserQuery] = useState('')
   const [usersPage, setUsersPage] = useState(1)
+  // Frequent moderators pick how many rows they see; remembered in this browser.
+  const [usersPerPage, setUsersPerPage] = useState(readUsersPageSize)
+  const userSearchRef = useRef<HTMLInputElement>(null)
   const [logs, setLogs] = useState<ActivityLog[]>([])
   const [logsLoading, setLogsLoading] = useState(false)
   const [logAction, setLogAction] = useState('')
   const [logResult, setLogResult] = useState('')
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null)
+
+  const [postToRemove, setPostToRemove] = useState<{ id: string; title: string; authorId: string } | null>(null)
+  const [removeBusy, setRemoveBusy] = useState(false)
+  const [removeError, setRemoveError] = useState<string | null>(null)
+  const [userToDelete, setUserToDelete] = useState<{ id: string; name: string } | null>(null)
+  const [deleteUserBusy, setDeleteUserBusy] = useState(false)
+  const [deleteUserError, setDeleteUserError] = useState<string | null>(null)
+  const [suspendError, setSuspendError] = useState<string | null>(null)
 
   const { posts, fetchPosts, remove: removePost } = usePostStore()
   const { push } = useNotificationStore()
@@ -694,39 +719,75 @@ export default function AdminPage() {
 
   useEffect(() => { setUsersPage(1) }, [userQuery])
 
-  const usersTotalPages = Math.max(1, Math.ceil(filteredUsers.length / USERS_PER_PAGE))
+  const usersTotalPages = Math.max(1, Math.ceil(filteredUsers.length / usersPerPage))
   const usersCurrentPage = Math.min(usersPage, usersTotalPages)
   const paginatedUsers = filteredUsers.slice(
-    (usersCurrentPage - 1) * USERS_PER_PAGE,
-    usersCurrentPage * USERS_PER_PAGE,
+    (usersCurrentPage - 1) * usersPerPage,
+    usersCurrentPage * usersPerPage,
   )
+
+  const changeUsersPerPage = (size: number) => {
+    setUsersPerPage(size)
+    setUsersPage(1)
+    try { localStorage.setItem(USERS_PAGE_SIZE_KEY, String(size)) } catch { /* private mode: keep it for this visit */ }
+  }
+
+  // "/" jumps to the user search, as in GitHub or Gmail — unless the admin is already typing somewhere.
+  useEffect(() => {
+    if (view !== 'users') return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return
+      const target = e.target as HTMLElement | null
+      if (target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return
+      e.preventDefault()
+      userSearchRef.current?.focus()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [view])
 
   const handleSuspend = async (userId: string) => {
     const target = users.find(u => u.id === userId)
     if (!target) return
     const next = !target.isSuspended
+    setSuspendError(null)
     try {
       await api.patch(`/auth/users/${userId}/suspend`, { isSuspended: next })
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, isSuspended: next } : u))
       if (next) push({ userId, type: 'post_closed', title: t('admin.users.suspendedNotifTitle'), body: t('admin.users.suspendedNotifBody'), isRead: false })
     } catch (err: unknown) {
-      alert((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.suspendError'))
+      setSuspendError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.suspendError'))
     }
   }
 
-  const handleDeleteUser = async (userId: string, userName: string) => {
-    if (!window.confirm(t('admin.users.deleteConfirm', { name: userName }))) return
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return
+    setDeleteUserBusy(true)
+    setDeleteUserError(null)
     try {
-      await api.delete(`/auth/users/${userId}`)
-      setUsers(prev => prev.filter(u => u.id !== userId))
+      await api.delete(`/auth/users/${userToDelete.id}`)
+      setUsers(prev => prev.filter(u => u.id !== userToDelete.id))
+      setUserToDelete(null)
     } catch (err: unknown) {
-      alert((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.deleteError'))
+      setDeleteUserError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.deleteError'))
+    } finally {
+      setDeleteUserBusy(false)
     }
   }
 
-  const handleRemovePost = async (postId: string, ownerId: string) => {
-    await removePost(postId)
-    push({ userId: ownerId, type: 'post_closed', title: t('admin.posts.removedNotifTitle'), body: t('admin.posts.removedNotifBody'), isRead: false, linkTo: '/posts' })
+  const handleRemovePost = async () => {
+    if (!postToRemove) return
+    setRemoveBusy(true)
+    setRemoveError(null)
+    try {
+      await removePost(postToRemove.id)
+      push({ userId: postToRemove.authorId, type: 'post_closed', title: t('admin.posts.removedNotifTitle'), body: t('admin.posts.removedNotifBody'), isRead: false, linkTo: '/posts' })
+      setPostToRemove(null)
+    } catch (err: unknown) {
+      setRemoveError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.posts.removeError'))
+    } finally {
+      setRemoveBusy(false)
+    }
   }
 
   const totalNonAdmin = users.filter(u => u.role !== 'admin').length
@@ -789,25 +850,36 @@ export default function AdminPage() {
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h1 className="text-xl font-black text-[#18203a]">{t('admin.users.title')}</h1>
-                <p className="text-sm text-[#9ca3af]">{t('admin.users.registeredCount', { count: totalNonAdmin })}</p>
+                <p className="text-sm text-[#6b7280]">{t('admin.users.registeredCount', { count: totalNonAdmin })}</p>
               </div>
             </div>
+            {suspendError && (
+              <div role="alert" className="mb-4 flex items-start justify-between gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm font-semibold text-[#b91c1c]">
+                <span>{suspendError}</span>
+                <button type="button" onClick={() => setSuspendError(null)} aria-label={t('common.close')} className="shrink-0 text-[#b91c1c] hover:text-[#7f1d1d]">
+                  <X size={16} />
+                </button>
+              </div>
+            )}
             <div className="bg-white rounded-2xl border border-[#eaecf0] overflow-hidden">
               <div className="px-6 py-4 border-b border-[#f3f4f6] flex items-center gap-3 flex-wrap">
                 <div className="relative flex-1 min-w-[220px]">
-                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
-                  <input type="search" value={userQuery} onChange={e => setUserQuery(e.target.value)}
+                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6b7280]" />
+                  <input ref={userSearchRef} type="search" value={userQuery} onChange={e => setUserQuery(e.target.value)}
                     placeholder={t('admin.users.searchPlaceholder')}
-                    className="w-full bg-[#f8f9fb] border border-[#eaecf0] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#374151] outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 transition-colors" />
+                    aria-label={t('admin.users.searchPlaceholder')}
+                    aria-keyshortcuts="/"
+                    className="w-full bg-[#f8f9fb] border border-[#eaecf0] rounded-xl pl-10 pr-10 py-2.5 text-sm text-[#374151] outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 transition-colors" />
+                  <kbd aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-[#d1d5db] bg-white px-1.5 font-mono text-xs text-[#6b7280]">/</kbd>
                 </div>
-                <span className="text-xs text-[#9ca3af] font-semibold">{t('admin.users.shownCount', { shown: filteredUsers.length, total: totalNonAdmin })}</span>
+                <span className="text-xs text-[#6b7280] font-semibold">{t('admin.users.shownCount', { shown: filteredUsers.length, total: totalNonAdmin })}</span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[820px]">
                   <thead>
                     <tr className="border-b border-[#f3f4f6]">
                       {[t('admin.users.columns.user'), t('admin.users.columns.role'), t('admin.users.columns.institution'), t('admin.users.columns.status'), t('admin.users.columns.lastActive'), t('admin.users.columns.actions')].map(h => (
-                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-[#9ca3af] px-6 py-3 bg-[#fafafa]">{h}</th>
+                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-[#6b7280] px-6 py-3 bg-[#fafafa]">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -821,7 +893,7 @@ export default function AdminPage() {
                               <div className="w-9 h-9 rounded-full bg-[#e0e7ff] flex items-center justify-center text-xs font-black text-[#4f46e5] shrink-0">{initials}</div>
                               <div className="min-w-0">
                                 <div className="text-sm font-bold text-[#18203a] truncate">{u.name}</div>
-                                <div className="text-xs text-[#9ca3af] truncate">{u.email}</div>
+                                <div className="text-xs text-[#6b7280] truncate">{u.email}</div>
                               </div>
                             </div>
                           </td>
@@ -837,8 +909,8 @@ export default function AdminPage() {
                               {u.isSuspended ? t('admin.users.suspended') : t('admin.users.active')}
                             </span>
                           </td>
-                          <td className="px-6 py-3.5 text-xs text-[#9ca3af]">
-                            {new Date(u.lastActive).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                          <td className="px-6 py-3.5 text-xs text-[#6b7280]">
+                            {new Date(u.lastActive).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' })}
                           </td>
                           <td className="px-6 py-3.5">
                             <div className="flex items-center gap-2">
@@ -849,7 +921,7 @@ export default function AdminPage() {
                                 {u.isSuspended ? <UserCheck size={13} /> : <UserMinus size={13} />}
                                 {u.isSuspended ? t('admin.users.reinstate') : t('admin.users.suspend')}
                               </button>
-                              <button onClick={() => handleDeleteUser(u.id, u.name)}
+                              <button onClick={() => { setDeleteUserError(null); setUserToDelete({ id: u.id, name: u.name }) }}
                                 className="p-1.5 rounded-lg border border-[#fee2e2] text-[#dc2626] hover:bg-[#fee2e2] transition-colors" title={t('admin.users.delete')}>
                                 <Trash2 size={14} />
                               </button>
@@ -861,40 +933,57 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
-              {usersTotalPages > 1 && (
-                <div className="flex items-center justify-between border-t border-[#f3f4f6] px-6 py-3">
-                  <span className="text-xs text-[#9ca3af] font-semibold">
-                    {t('admin.users.pageRange', { from: (usersCurrentPage - 1) * USERS_PER_PAGE + 1, to: Math.min(filteredUsers.length, usersCurrentPage * USERS_PER_PAGE), total: filteredUsers.length })}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => setUsersPage(p => Math.max(1, p - 1))}
-                      disabled={usersCurrentPage === 1}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#eaecf0] text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      <ChevronDown size={14} className="rotate-90" />
-                    </button>
-                    {Array.from({ length: usersTotalPages }, (_, i) => i + 1).map(p => (
-                      <button
-                        key={p}
-                        onClick={() => setUsersPage(p)}
-                        className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-xs font-black transition ${
-                          p === usersCurrentPage
-                            ? 'bg-[#4f46e5] text-white'
-                            : 'border border-[#eaecf0] text-[#374151] hover:border-[#4f46e5] hover:text-[#4f46e5]'
-                        }`}
+              {filteredUsers.length > USERS_PAGE_SIZES[0] && (
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#f3f4f6] px-6 py-3">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-xs text-[#6b7280] font-semibold">
+                      {t('admin.users.pageRange', { from: (usersCurrentPage - 1) * usersPerPage + 1, to: Math.min(filteredUsers.length, usersCurrentPage * usersPerPage), total: filteredUsers.length })}
+                    </span>
+                    <label className="flex items-center gap-2 text-xs font-semibold text-[#6b7280]">
+                      {t('admin.users.perPage')}
+                      <select
+                        value={usersPerPage}
+                        onChange={e => changeUsersPerPage(Number(e.target.value))}
+                        className="rounded-lg border border-[#eaecf0] bg-white px-2 py-1 text-xs font-bold text-[#374151] outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20"
                       >
-                        {p}
-                      </button>
-                    ))}
-                    <button
-                      onClick={() => setUsersPage(p => Math.min(usersTotalPages, p + 1))}
-                      disabled={usersCurrentPage === usersTotalPages}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#eaecf0] text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      <ChevronDown size={14} className="-rotate-90" />
-                    </button>
+                        {USERS_PAGE_SIZES.map(size => <option key={size} value={size}>{size}</option>)}
+                      </select>
+                    </label>
                   </div>
+                  {usersTotalPages > 1 && (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setUsersPage(p => Math.max(1, p - 1))}
+                        disabled={usersCurrentPage === 1}
+                        aria-label={t('admin.users.previousPage')}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#eaecf0] text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <ChevronDown size={14} className="rotate-90" />
+                      </button>
+                      {Array.from({ length: usersTotalPages }, (_, i) => i + 1).map(p => (
+                        <button
+                          key={p}
+                          onClick={() => setUsersPage(p)}
+                          aria-current={p === usersCurrentPage ? 'page' : undefined}
+                          className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-xs font-black transition ${
+                            p === usersCurrentPage
+                              ? 'bg-[#4f46e5] text-white'
+                              : 'border border-[#eaecf0] text-[#374151] hover:border-[#4f46e5] hover:text-[#4f46e5]'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => setUsersPage(p => Math.min(usersTotalPages, p + 1))}
+                        disabled={usersCurrentPage === usersTotalPages}
+                        aria-label={t('admin.users.nextPage')}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#eaecf0] text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <ChevronDown size={14} className="-rotate-90" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -906,7 +995,7 @@ export default function AdminPage() {
           <div className="p-3 sm:p-6">
             <div className="mb-5">
               <h1 className="text-xl font-black text-[#18203a]">{t('admin.posts.title')}</h1>
-              <p className="text-sm text-[#9ca3af]">{t('admin.posts.totalCount', { count: posts.length })}</p>
+              <p className="text-sm text-[#6b7280]">{t('admin.posts.totalCount', { count: posts.length })}</p>
             </div>
             <div className="bg-white rounded-2xl border border-[#eaecf0] overflow-hidden">
               <div className="overflow-x-auto">
@@ -914,7 +1003,7 @@ export default function AdminPage() {
                   <thead>
                     <tr className="border-b border-[#f3f4f6]">
                       {[t('admin.posts.columns.title'), t('admin.posts.columns.author'), t('admin.posts.columns.domain'), t('admin.posts.columns.status'), t('admin.posts.columns.created'), t('admin.posts.columns.actions')].map(h => (
-                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-[#9ca3af] px-6 py-3 bg-[#fafafa]">{h}</th>
+                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-[#6b7280] px-6 py-3 bg-[#fafafa]">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -933,14 +1022,14 @@ export default function AdminPage() {
                             p.status === 'active'               ? 'bg-[#d1fae5] text-[#059669]'
                             : p.status === 'partner_found'     ? 'bg-[#ede9fe] text-[#7c3aed]'
                             : p.status === 'meeting_scheduled' ? 'bg-[#fef3c7] text-[#d97706]'
-                            : 'bg-[#f3f4f6] text-[#9ca3af]'
+                            : 'bg-[#f3f4f6] text-[#6b7280]'
                           }`}>{t(`posts.status.${p.status}`, { defaultValue: p.status.replace(/_/g, ' ') })}</span>
                         </td>
-                        <td className="px-6 py-3.5 text-xs text-[#9ca3af]">
-                          {new Date(p.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                        <td className="px-6 py-3.5 text-xs text-[#6b7280]">
+                          {new Date(p.createdAt).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' })}
                         </td>
                         <td className="px-6 py-3.5">
-                          <button onClick={() => handleRemovePost(p.id, p.authorId)}
+                          <button onClick={() => { setRemoveError(null); setPostToRemove({ id: p.id, title: p.title, authorId: p.authorId }) }}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#fee2e2] bg-[#fff7f7] text-[#dc2626] text-xs font-bold hover:bg-[#fee2e2] transition-colors">
                             <Trash2 size={13} /> {t('admin.posts.remove')}
                           </button>
@@ -959,7 +1048,7 @@ export default function AdminPage() {
           <div className="p-3 sm:p-6">
             <div className="mb-5">
               <h1 className="text-xl font-black text-[#18203a]">{t('admin.logs.title')}</h1>
-              <p className="text-sm text-[#9ca3af]">{t('admin.logs.subtitle')}</p>
+              <p className="text-sm text-[#6b7280]">{t('admin.logs.subtitle')}</p>
             </div>
             <div className="bg-white rounded-2xl border border-[#eaecf0] overflow-hidden">
               <div className="px-6 py-4 border-b border-[#f3f4f6] flex items-center gap-3 flex-wrap">
@@ -974,11 +1063,11 @@ export default function AdminPage() {
                 </select>
                 {(logAction || logResult) && (
                   <button onClick={() => { setLogAction(''); setLogResult('') }}
-                    className="flex items-center gap-1 text-xs font-bold text-[#9ca3af] hover:text-[#374151] transition-colors">
+                    className="flex items-center gap-1 text-xs font-bold text-[#6b7280] hover:text-[#374151] transition-colors">
                     <X size={13} /> {t('admin.logs.clear')}
                   </button>
                 )}
-                <span className="text-xs text-[#9ca3af] font-semibold">{logsLoading ? t('admin.verification.loading') : t('admin.logs.entryCount', { shown: filteredLogs.length, total: logs.length })}</span>
+                <span className="text-xs text-[#6b7280] font-semibold">{logsLoading ? t('admin.verification.loading') : t('admin.logs.entryCount', { shown: filteredLogs.length, total: logs.length })}</span>
                 <button onClick={() => downloadCSV(filteredLogs)}
                   className="ml-auto flex items-center gap-2 bg-[#18203a] text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition-colors">
                   <Download size={14} /> {t('admin.logs.exportCsv')}
@@ -989,24 +1078,24 @@ export default function AdminPage() {
                   <thead>
                     <tr className="border-b border-[#f3f4f6]">
                       {[t('admin.logs.columns.timestamp'), t('admin.logs.columns.user'), t('admin.logs.columns.role'), t('admin.logs.columns.action'), t('admin.logs.columns.target'), t('admin.logs.columns.result'), t('admin.logs.columns.ip')].map(h => (
-                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-[#9ca3af] px-6 py-3 bg-[#fafafa]">{h}</th>
+                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-[#6b7280] px-6 py-3 bg-[#fafafa]">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {filteredLogs.map(log => (
                       <tr key={log.id} className={`border-b border-[#f9fafb] last:border-b-0 transition-colors ${log.result === 'failure' ? 'bg-red-50/30' : 'hover:bg-[#fafafa]'}`}>
-                        <td className="px-6 py-3 text-xs text-[#9ca3af] whitespace-nowrap font-mono">
-                          {new Date(log.timestamp).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        <td className="px-6 py-3 text-xs text-[#6b7280] whitespace-nowrap font-mono">
+                          {new Date(log.timestamp).toLocaleString(uiLocale(), { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                         </td>
                         <td className="px-6 py-3 text-xs text-[#374151] font-mono whitespace-nowrap">{log.userEmail}</td>
-                        <td className="px-6 py-3 text-xs text-[#9ca3af] uppercase tracking-[0.12em]">{roleLabel(t, log.role)}</td>
+                        <td className="px-6 py-3 text-xs text-[#6b7280] uppercase tracking-[0.12em]">{roleLabel(t, log.role)}</td>
                         <td className="px-6 py-3">
                           <span className={`text-xs font-semibold ${CRITICAL_ACTIONS.has(log.action) ? 'text-[#dc2626] font-bold' : 'text-[#374151]'}`}>
                             {CRITICAL_ACTIONS.has(log.action) && '⚠ '}{log.action}
                           </span>
                         </td>
-                        <td className="px-6 py-3 text-xs text-[#9ca3af] font-mono">
+                        <td className="px-6 py-3 text-xs text-[#6b7280] font-mono">
                           {log.targetEntityId ?? <span className="text-[#d1d5db]">—</span>}
                         </td>
                         <td className="px-6 py-3">
@@ -1017,7 +1106,7 @@ export default function AdminPage() {
                             {log.result === 'success' ? t('admin.logs.success') : t('admin.logs.failure')}
                           </span>
                         </td>
-                        <td className="px-6 py-3 text-xs text-[#9ca3af] font-mono whitespace-nowrap">
+                        <td className="px-6 py-3 text-xs text-[#6b7280] font-mono whitespace-nowrap">
                           {log.ipAddress ?? <span className="text-[#d1d5db]">—</span>}
                         </td>
                       </tr>
@@ -1026,13 +1115,42 @@ export default function AdminPage() {
                 </table>
               </div>
               <div className="px-6 py-3 border-t border-[#f3f4f6] flex items-center gap-2 bg-[#fafafa]">
-                <Shield size={13} className="text-[#9ca3af]" />
-                <span className="text-xs text-[#9ca3af] font-semibold">{t('admin.logs.footerNotice')}</span>
+                <Shield size={13} className="text-[#6b7280]" />
+                <span className="text-xs text-[#6b7280] font-semibold">{t('admin.logs.footerNotice')}</span>
               </div>
             </div>
           </div>
         )}
       </main>
+
+      {postToRemove && (
+        <ConfirmDialog
+          title={t('admin.posts.removeConfirmTitle')}
+          confirmLabel={removeBusy ? t('common.loading') : t('admin.posts.remove')}
+          cancelLabel={t('common.cancel')}
+          onConfirm={handleRemovePost}
+          onCancel={() => setPostToRemove(null)}
+          busy={removeBusy}
+          error={removeError}
+        >
+          <p>{t('admin.posts.removeConfirmBody', { title: postToRemove.title })}</p>
+          <p>{t('admin.posts.removeConfirmUndo')}</p>
+        </ConfirmDialog>
+      )}
+
+      {userToDelete && (
+        <ConfirmDialog
+          title={t('admin.users.deleteConfirmTitle')}
+          confirmLabel={deleteUserBusy ? t('common.loading') : t('admin.users.delete')}
+          cancelLabel={t('common.cancel')}
+          onConfirm={handleDeleteUser}
+          onCancel={() => setUserToDelete(null)}
+          busy={deleteUserBusy}
+          error={deleteUserError}
+        >
+          <p>{t('admin.users.deleteConfirm', { name: userToDelete.name })}</p>
+        </ConfirmDialog>
+      )}
     </div>
   )
 }

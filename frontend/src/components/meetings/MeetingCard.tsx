@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { postDetail } from '../../constants/routes'
 import { downloadICS, googleCalendarUrl, outlookCalendarUrl } from '../../utils/calendarExport'
+import { uiLocale } from '../../utils/formatDate'
 import TranslateButton from '../ui/TranslateButton'
 import { useTranslation } from 'react-i18next'
 
@@ -29,7 +30,7 @@ const STATUS_STYLE: Record<MeetingStatus, Omit<Tone, 'label'>> = {
 
 function formatSlot(slot: TimeSlot) {
   const d = new Date(`${slot.date}T${slot.time}`)
-  const date = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+  const date = d.toLocaleDateString(uiLocale(), { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
   return { date, time: slot.time }
 }
 

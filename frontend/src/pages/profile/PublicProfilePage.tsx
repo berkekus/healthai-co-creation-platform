@@ -85,12 +85,12 @@ export default function PublicProfilePage() {
             <div className="flex flex-wrap gap-4 text-[13px] text-[#6f6a76] font-semibold mb-6">
               {user.institution && (
                 <span className="flex items-center gap-1.5">
-                  <Building2 size={13} className="text-[#9f9aaa]" /> {user.institution}
+                  <Building2 size={13} className="text-[#6b7280]" /> {user.institution}
                 </span>
               )}
               {(user.city || user.country) && (
                 <span className="flex items-center gap-1.5">
-                  <MapPin size={13} className="text-[#9f9aaa]" /> {[user.city, user.country].filter(Boolean).join(', ')}
+                  <MapPin size={13} className="text-[#6b7280]" /> {[user.city, user.country].filter(Boolean).join(', ')}
                 </span>
               )}
             </div>
@@ -101,14 +101,14 @@ export default function PublicProfilePage() {
 
             {hasProfessionalDetails(user) && (
               <div className="mb-6 rounded-2xl border border-[#e8e8ee] px-5 py-4">
-                <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#6f6a76]">{t('professional.title')}</div>
+                <div className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-[#6f6a76]">{t('professional.title')}</div>
                 <ProfessionalDetails user={user} />
               </div>
             )}
 
             {user.expertiseTags && user.expertiseTags.length > 0 && (
               <div>
-                <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-[0.12em] uppercase text-[#9f9aaa] mb-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold tracking-[0.12em] uppercase text-[#6b7280] mb-3">
                   <Tag size={11} /> {t('publicProfile.expertise')}
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -123,7 +123,7 @@ export default function PublicProfilePage() {
 
         {userId && <BadgeList userId={userId} />}
 
-        <p className="mt-5 text-center text-[12.5px] text-[#9f9aaa] font-semibold">
+        <p className="mt-5 text-center text-[12.5px] text-[#6b7280] font-semibold">
           {t('publicProfile.memberSince', {
             date: new Date(user.createdAt).toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' })
           })}

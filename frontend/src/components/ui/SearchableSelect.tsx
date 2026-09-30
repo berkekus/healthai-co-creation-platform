@@ -160,7 +160,7 @@ export default function SearchableSelect({
         <span id={valueId} className="block truncate pr-2">{value || placeholder}</span>
         <span
           aria-hidden="true"
-          className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-lg text-neutral-400 pointer-events-none transition-transform"
+          className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-lg text-neutral-500 pointer-events-none transition-transform"
           style={{ transform: `translateY(-50%) rotate(${open ? '180deg' : '0deg'})` }}
         >
           expand_more
@@ -171,7 +171,7 @@ export default function SearchableSelect({
         <div className="absolute z-50 top-full mt-1.5 w-full bg-white rounded-2xl border border-neutral-200 shadow-[0_16px_48px_-12px_rgba(54,33,62,0.18)] overflow-hidden">
           <div className="p-2 border-b border-neutral-100">
             <div className="relative">
-              <span aria-hidden="true" className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-base text-neutral-400 pointer-events-none">
+              <span aria-hidden="true" className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-base text-neutral-500 pointer-events-none">
                 search
               </span>
               <input
@@ -189,7 +189,7 @@ export default function SearchableSelect({
                   }
                 }}
                 placeholder={labels.search}
-                className="w-full pl-8 pr-3 py-2 text-sm font-body text-hai-plum placeholder:text-neutral-400 bg-hai-offwhite rounded-xl border border-neutral-200 outline-none focus:border-hai-teal focus:ring-2 focus:ring-hai-teal/25"
+                className="w-full pl-8 pr-3 py-2 text-sm font-body text-hai-plum placeholder:text-neutral-500 bg-hai-offwhite rounded-xl border border-neutral-200 outline-none focus:border-hai-focus focus:ring-2 focus:ring-hai-teal/25"
               />
             </div>
           </div>
@@ -199,7 +199,7 @@ export default function SearchableSelect({
             className="max-h-56 overflow-y-auto py-1 overscroll-contain"
           >
             {loading ? (
-              <li className="px-4 py-3 text-sm text-neutral-400 font-body">{labels.loading}</li>
+              <li className="px-4 py-3 text-sm text-neutral-500 font-body">{labels.loading}</li>
             ) : (
               <>
                 {offerCustom && (
@@ -212,7 +212,7 @@ export default function SearchableSelect({
                   </li>
                 )}
                 {filtered.length === 0 && !offerCustom && (
-                  <li className="px-4 py-3 text-sm text-neutral-400 font-body">
+                  <li className="px-4 py-3 text-sm text-neutral-500 font-body">
                     {labels.noResults(query)}
                   </li>
                 )}
@@ -231,7 +231,7 @@ export default function SearchableSelect({
                   </li>
                 ))}
                 {hiddenCount > 0 && (
-                  <li className="px-4 py-2.5 text-xs font-semibold text-neutral-400 font-body">
+                  <li className="px-4 py-2.5 text-xs font-semibold text-neutral-500 font-body">
                     {labels.more(hiddenCount)}
                   </li>
                 )}

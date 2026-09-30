@@ -28,9 +28,27 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import ProposeTimesModal from '../../components/meetings/ProposeTimesModal'
 import { CHAT_OPEN_STATUSES, MEETING_STATUS_STYLE, meetingRole } from '../../utils/meetingStatus'
 import { browserTimeZone, describeSlot } from '../../utils/timeSlots'
+import { SkeletonCircle, SkeletonLine } from '../../components/ui/Skeleton'
 
-type TabId = 'all' | 'incoming' | 'outgoing' | 'pending' | 'confirmed' | 'held' | 'cancelled'
+// Direction and status are independent, so they are two filters combined with AND
+// rather than one row of tabs where a meeting could sit under several at once.
+type DirectionFilter = 'all' | 'incoming' | 'outgoing'
+type StatusFilter = 'all' | 'pending' | 'confirmed' | 'held' | 'closed'
 type SortMode = 'recent' | 'oldest'
+
+function matchesDirection(meeting: Meeting, direction: DirectionFilter, userId: string | undefined) {
+  if (direction === 'incoming') return meeting.ownerId === userId
+  if (direction === 'outgoing') return meeting.requesterId === userId
+  return true
+}
+
+function matchesStatus(meeting: Meeting, status: StatusFilter) {
+  if (status === 'pending') return meeting.status === 'pending' || meeting.status === 'time_proposed'
+  if (status === 'confirmed') return meeting.status === 'confirmed'
+  if (status === 'held') return meeting.status === 'completed'
+  if (status === 'closed') return meeting.status === 'cancelled' || meeting.status === 'declined'
+  return true
+}
 
 /** Posts in these states can still be closed with "Partner Found". */
 const CLOSABLE_POST_STATUSES: PostStatus[] = ['active', 'meeting_scheduled', 'expired']
@@ -38,12 +56,13 @@ const CLOSABLE_POST_STATUSES: PostStatus[] = ['active', 'meeting_scheduled', 'ex
 export default function MeetingsPage() {
   const { t } = useTranslation()
   const { user } = useAuthStore()
-  const { meetings, fetchByUser, accept, confirm, decline, cancel, complete, reschedule } = useMeetingStore()
+  const { meetings, listStatus, fetchByUser, accept, confirm, decline, cancel, complete, reschedule } = useMeetingStore()
   const { fetchConversations } = useConversationStore()
   const navigate = useNavigate()
   const location = useLocation()
   const requestSentTo = (location.state as { requestSentTo?: string } | null)?.requestSentTo
-  const [activeTab, setActiveTab] = useState<TabId>('all')
+  const [direction, setDirection] = useState<DirectionFilter>('all')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [sortMode, setSortMode] = useState<SortMode>('recent')
   const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -62,43 +81,46 @@ export default function MeetingsPage() {
     [meetings, user],
   )
 
-  const counts = useMemo(() => {
-    const incoming = scopedMeetings.filter(meeting => meeting.ownerId === user?.id).length
-    const outgoing = scopedMeetings.filter(meeting => meeting.requesterId === user?.id).length
-    const pending = scopedMeetings.filter(meeting => meeting.status === 'pending' || meeting.status === 'time_proposed').length
-    const confirmed = scopedMeetings.filter(meeting => meeting.status === 'confirmed').length
-    const held = scopedMeetings.filter(meeting => meeting.status === 'completed').length
-    const cancelled = scopedMeetings.filter(meeting => meeting.status === 'cancelled' || meeting.status === 'declined').length
-    return { all: scopedMeetings.length, incoming, outgoing, pending, confirmed, held, cancelled }
-  }, [scopedMeetings, user?.id])
+  // Without these, a slow or failed fetch read as "you have no meetings" with every count at 0.
+  const showSkeleton = (listStatus === 'idle' || listStatus === 'loading') && scopedMeetings.length === 0
+  const showLoadError = listStatus === 'error' && scopedMeetings.length === 0
+  const showRefreshError = listStatus === 'error' && scopedMeetings.length > 0
+  const countsKnown = !showSkeleton && !showLoadError
+  const retry = () => { fetchByUser() }
 
-  const tabs: { id: TabId; label: string; count: number }[] = [
-    { id: 'all',       label: t('meetingsPage.tabs.all'),       count: counts.all },
-    { id: 'incoming',  label: t('meetingsPage.tabs.incoming'),  count: counts.incoming },
-    { id: 'outgoing',  label: t('meetingsPage.tabs.outgoing'),  count: counts.outgoing },
-    { id: 'pending',   label: t('meetingsPage.tabs.pending'),   count: counts.pending },
-    { id: 'confirmed', label: t('meetingsPage.tabs.confirmed'), count: counts.confirmed },
-    { id: 'held',      label: t('meetingsPage.tabs.held'),      count: counts.held },
-    { id: 'cancelled', label: t('meetingsPage.tabs.closed'),    count: counts.cancelled },
-  ]
+  // Each count is the number of cards that option would show, given the other filter.
+  const statusOptions: { id: StatusFilter; label: string; count: number }[] = (
+    [['all', 'all'], ['pending', 'pending'], ['confirmed', 'confirmed'], ['held', 'held'], ['closed', 'closed']] as const
+  ).map(([id, key]) => ({
+    id,
+    label: t(`meetingsPage.tabs.${key}`),
+    count: scopedMeetings.filter(m => matchesDirection(m, direction, user?.id) && matchesStatus(m, id)).length,
+  }))
+
+  const directionOptions: { id: DirectionFilter; label: string; count: number }[] = (
+    ['all', 'incoming', 'outgoing'] as const
+  ).map(id => ({
+    id,
+    label: t(`meetingsPage.tabs.${id}`),
+    count: scopedMeetings.filter(m => matchesStatus(m, statusFilter) && matchesDirection(m, id, user?.id)).length,
+  }))
+
+  // Every state that needs this user's answer is on the owner's side: accept/decline a
+  // pending request, or pick one of the proposed times. That is exactly Received + Pending.
+  const awaitingReply = scopedMeetings.filter(m => matchesDirection(m, 'incoming', user?.id) && matchesStatus(m, 'pending')).length
+  const showingAwaiting = direction === 'incoming' && statusFilter === 'pending'
+
+  const resetFilters = () => { setDirection('all'); setStatusFilter('all') }
 
   const visibleMeetings = useMemo(() => {
     return scopedMeetings
-      .filter(meeting => {
-        if (activeTab === 'incoming') return meeting.ownerId === user?.id
-        if (activeTab === 'outgoing') return meeting.requesterId === user?.id
-        if (activeTab === 'pending') return meeting.status === 'pending' || meeting.status === 'time_proposed'
-        if (activeTab === 'confirmed') return meeting.status === 'confirmed'
-        if (activeTab === 'held') return meeting.status === 'completed'
-        if (activeTab === 'cancelled') return meeting.status === 'cancelled' || meeting.status === 'declined'
-        return true
-      })
+      .filter(meeting => matchesDirection(meeting, direction, user?.id) && matchesStatus(meeting, statusFilter))
       .sort((a, b) => {
         const left = meetingTimestamp(a)
         const right = meetingTimestamp(b)
         return sortMode === 'recent' ? right - left : left - right
       })
-  }, [activeTab, scopedMeetings, sortMode, user?.id])
+  }, [direction, statusFilter, scopedMeetings, sortMode, user?.id])
 
   const runAction = async (id: string, action: () => Promise<void>) => {
     setBusyId(id)
@@ -151,7 +173,7 @@ export default function MeetingsPage() {
       } as CSSProperties}
     >
       <section className="mx-auto w-full max-w-[1640px] px-6 pb-20 pt-[72px] md:px-10 2xl:px-0">
-        <Hero total={counts.all} />
+        <Hero total={countsKnown ? scopedMeetings.length : null} />
 
         {requestSentTo && (
           <div role="status" className="mt-8 flex items-start gap-3 rounded-2xl border border-[#8AC6D0] bg-[#E8F4F7] px-5 py-4 text-sm font-bold text-[var(--primary)]">
@@ -161,9 +183,30 @@ export default function MeetingsPage() {
         )}
 
         <div className="mt-11 flex flex-col gap-8">
-          <div className="flex flex-col gap-3">
-            <FilterTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
-            <p className="text-sm font-semibold text-[var(--muted)]">{t('meetingsPage.tabsHelp')}</p>
+          {awaitingReply > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--accent)] bg-[var(--success-bg)] px-5 py-4">
+              <p className="flex items-center gap-3 text-sm font-black text-[var(--primary)]">
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--primary)]" aria-hidden="true" />
+                {t('meetingsPage.awaitingReply', { count: awaitingReply })}
+              </p>
+              {!showingAwaiting && (
+                <button
+                  type="button"
+                  onClick={() => { setDirection('incoming'); setStatusFilter('pending') }}
+                  className="inline-flex h-10 items-center rounded-full bg-[var(--primary)] px-5 text-sm font-black text-white transition hover:bg-black"
+                >
+                  {t('meetingsPage.awaitingShow')}
+                </button>
+              )}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-5">
+            <FilterGroup label={t('meetingsPage.filterStatus')} options={statusOptions} active={statusFilter} onChange={setStatusFilter} showCounts={countsKnown} />
+            <div className="flex flex-col gap-3">
+              <FilterGroup label={t('meetingsPage.filterDirection')} options={directionOptions} active={direction} onChange={setDirection} showCounts={countsKnown} />
+              <p className="text-sm font-semibold text-[var(--muted)]">{t('meetingsPage.tabsHelp')}</p>
+            </div>
           </div>
 
           {error && (
@@ -172,7 +215,30 @@ export default function MeetingsPage() {
             </div>
           )}
 
+          {showRefreshError && (
+            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F3D6D9] bg-[#FBF1F2] px-5 py-3 text-sm font-bold text-[#9B3440]">
+              <span>{t('meetingsPage.refreshError')}</span>
+              <button type="button" onClick={retry} className="underline underline-offset-2 hover:text-[var(--primary)]">
+                {t('meetingsPage.retry')}
+              </button>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.41fr)]">
+            {showSkeleton ? (
+              <MeetingListSkeleton />
+            ) : showLoadError ? (
+              <div role="alert" className="rounded-[28px] border border-[var(--border)] bg-white px-6 py-16 text-center">
+                <p className="text-sm font-bold text-[#9B3440]">{t('meetingsPage.loadError')}</p>
+                <button
+                  type="button"
+                  onClick={retry}
+                  className="mt-4 inline-flex h-11 items-center rounded-full bg-[var(--primary)] px-5 text-sm font-black text-white transition hover:bg-black"
+                >
+                  {t('meetingsPage.retry')}
+                </button>
+              </div>
+            ) : (
             <MeetingList
               meetings={visibleMeetings}
               userId={user?.id ?? ''}
@@ -188,8 +254,9 @@ export default function MeetingsPage() {
               onOpenChat={openChat}
               onProposeTimes={setProposeFor}
               onPartnerFound={meeting => { setPartnerFoundError(null); setPartnerFoundFor(meeting) }}
-              onViewAll={() => setActiveTab('all')}
+              onViewAll={resetFilters}
             />
+            )}
             <aside>
               <WidgetArea meetings={scopedMeetings} />
             </aside>
@@ -223,14 +290,14 @@ export default function MeetingsPage() {
   )
 }
 
-function Hero({ total }: { total: number }) {
+function Hero({ total }: { total: number | null }) {
   const { t } = useTranslation()
   return (
     <div>
       <div>
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-[var(--primary)] shadow-[0_10px_30px_-24px_rgba(45,24,56,0.5)]">
           <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
-          {t('meetingsPage.totalCount', { count: total })}
+          {total === null ? t('common.loading') : t('meetingsPage.totalCount', { count: total })}
         </div>
 
         <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-[var(--primary)] md:text-8xl">
@@ -245,41 +312,51 @@ function Hero({ total }: { total: number }) {
   )
 }
 
-function FilterTabs({
-  tabs,
-  activeTab,
+function FilterGroup<T extends string>({
+  label,
+  options,
+  active: activeId,
   onChange,
+  showCounts = true,
 }: {
-  tabs: { id: TabId; label: string; count: number }[]
-  activeTab: TabId
-  onChange: (tab: TabId) => void
+  label: string
+  options: { id: T; label: string; count: number }[]
+  active: T
+  onChange: (id: T) => void
+  /** Hidden until the list has loaded, so a pending fetch does not read as "0". */
+  showCounts?: boolean
 }) {
   return (
-    <div className="flex flex-wrap gap-3">
-      {tabs.map(tab => {
-        const active = activeTab === tab.id
-        return (
-          <button
-            key={tab.id}
-            onClick={() => onChange(tab.id)}
-            aria-pressed={active}
-            className={`inline-flex h-12 items-center gap-2.5 rounded-full border px-5 text-sm font-black transition ${
-              active
-                ? 'border-[var(--primary)] bg-[var(--primary)] text-white shadow-[0_12px_28px_-22px_rgba(45,24,56,0.9)]'
-                : 'border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--accent)] hover:bg-white'
-            }`}
-          >
-            {tab.label}
-            <span
-              className={`flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-xs font-black ${
-                active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-[#EEF0F3] text-[var(--muted)]'
+    <div role="group" aria-label={label} className="flex flex-col gap-2">
+      <span className="text-xs font-black uppercase tracking-[0.14em] text-[var(--muted)]" aria-hidden="true">{label}</span>
+      <div className="flex flex-wrap gap-3">
+        {options.map(tab => {
+          const active = activeId === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onChange(tab.id)}
+              aria-pressed={active}
+              className={`inline-flex h-12 items-center gap-2.5 rounded-full border px-5 text-sm font-black transition ${
+                active
+                  ? 'border-[var(--primary)] bg-[var(--primary)] text-white shadow-[0_12px_28px_-22px_rgba(45,24,56,0.9)]'
+                  : 'border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--accent)] hover:bg-white'
               }`}
             >
-              {tab.count}
-            </span>
-          </button>
-        )
-      })}
+              {tab.label}
+              {showCounts && (
+                <span
+                  className={`flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-xs font-black ${
+                    active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-[#EEF0F3] text-[var(--muted)]'
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -313,6 +390,25 @@ interface RowHandlers {
   onOpenChat: (meeting: Meeting) => void
   onProposeTimes: (meeting: Meeting) => void
   onPartnerFound: (meeting: Meeting) => void
+}
+
+function MeetingListSkeleton() {
+  const { t } = useTranslation()
+  return (
+    <section aria-busy="true" className="overflow-hidden rounded-[28px] border border-[var(--border)] bg-white shadow-[0_24px_70px_-54px_rgba(45,24,56,0.5)]">
+      <span className="sr-only">{t('common.loading')}</span>
+      {[0, 1, 2].map(i => (
+        <div key={i} className="flex items-start gap-5 border-b border-[var(--border)] px-7 py-7 last:border-b-0">
+          <SkeletonCircle size={48} />
+          <div className="flex flex-1 flex-col gap-3 pt-1">
+            <SkeletonLine width="55%" height={16} />
+            <SkeletonLine width="30%" />
+            <SkeletonLine width="80%" />
+          </div>
+        </div>
+      ))}
+    </section>
+  )
 }
 
 function MeetingList({
@@ -504,7 +600,7 @@ function MeetingRow({
               aria-label={t(`meetingsPage.reasonPrompt.${confirmMode}`)}
               rows={2}
               maxLength={300}
-              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#9CA3AF] focus:border-[var(--accent-strong)] focus:ring-2 focus:ring-[var(--accent)]/25"
+              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878] focus:border-[var(--accent-strong)] focus:ring-2 focus:ring-[var(--accent)]/25"
             />
             <div className="flex justify-end gap-2">
               <ActionButton disabled={false} onClick={handleAbort} tone="quiet">
@@ -549,9 +645,9 @@ function MeetingRow({
                           <Check size={13} aria-hidden="true" />
                           {view.dateLabel} · {view.timeLabel}
                         </span>
-                        {view.zoneLabel && <span className="text-[11px] font-semibold text-white/80">{view.zoneLabel}</span>}
+                        {view.zoneLabel && <span className="text-xs font-semibold text-white/80">{view.zoneLabel}</span>}
                         {view.local && (
-                          <span className="text-[11px] font-semibold text-[var(--accent)]">
+                          <span className="text-xs font-semibold text-[var(--accent)]">
                             {t('meetingSlots.yourTime', { date: view.local.dateLabel, time: view.local.timeLabel })}
                           </span>
                         )}
@@ -671,7 +767,7 @@ function MeetingSummaryButton({ meetingId, postTitle }: { meetingId: string; pos
         {loading ? t('common.loading') : t('meetings.aiSummary')}
       </button>
 
-      {error && <p className="mt-1 text-[10px] font-semibold text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-xs font-semibold text-red-500">{error}</p>}
 
       {summary && open && (
         <div className="mt-3 rounded-xl border border-[#D5DAE0] bg-[#F8FBFC] p-4 text-xs">
@@ -700,13 +796,13 @@ function MeetingSummaryButton({ meetingId, postTitle }: { meetingId: string; pos
             </div>
           )}
           <div className="mt-3 flex items-center justify-between">
-            <p className="text-[10px] text-[#6B7280]">
+            <p className="text-xs text-[#6B7280]">
               {t('meetings.summaryGenerated')} {new Date(summary.generatedAt).toLocaleDateString(i18n.language)}
             </p>
             <button
               type="button"
               onClick={() => void exportSummaryToPdf({ postTitle, ...summary })}
-              className="inline-flex items-center gap-1 text-[10px] font-black text-[#6B7280] hover:text-hai-teal"
+              className="inline-flex items-center gap-1 text-xs font-black text-[#6B7280] hover:text-hai-teal"
             >
               <span aria-hidden="true" className="material-symbols-outlined text-xs">picture_as_pdf</span>
               {t('meetings.exportPdf')}

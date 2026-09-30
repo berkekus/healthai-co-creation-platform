@@ -14,6 +14,8 @@ export default {
         'hai-offwhite': 'rgb(var(--hai-offwhite))',
         'hai-lime':     'rgb(var(--hai-lime))',
         'hai-cream':    'rgb(var(--hai-cream))',
+        // Keyboard focus indicator — ≥3:1 against light surfaces (WCAG 1.4.11).
+        'hai-focus':    'rgb(var(--focus-ring) / <alpha-value>)',
       },
       /**
        * Typography system — only two live families:

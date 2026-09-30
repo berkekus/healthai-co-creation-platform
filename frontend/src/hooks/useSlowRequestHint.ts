@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNetworkStore } from '../store/networkStore'
 
 /**
  * Reports whether an in-flight request has been running long enough to be worth
@@ -20,6 +21,13 @@ export function useSlowRequestHint(isPending: boolean, delayMs = 3000): boolean 
     const id = setTimeout(() => setIsSlow(true), delayMs)
     return () => clearTimeout(id)
   }, [isPending, delayMs])
+
+  // While this page explains the wait itself, the app-wide notice stays out of the way.
+  useEffect(() => {
+    if (!isSlow) return
+    useNetworkStore.getState().inlineHintShown()
+    return () => useNetworkStore.getState().inlineHintHidden()
+  }, [isSlow])
 
   return isSlow
 }
