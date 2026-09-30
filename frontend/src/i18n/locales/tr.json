@@ -797,6 +797,7 @@
       "signInNow": "Şimdi giriş yap →",
       "errShort": "Şifre en az 8 karakter olmalıdır.",
       "errMatch": "Şifreler eşleşmiyor.",
+      "matchOk": "Şifreler eşleşiyor.",
       "errExpired": "Bağlantı geçersiz veya süresi dolmuş.",
       "requestNew": "Yeni sıfırlama bağlantısı iste →"
     },

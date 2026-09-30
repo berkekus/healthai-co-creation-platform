@@ -797,6 +797,7 @@
       "signInNow": "Iniciar sesión ahora →",
       "errShort": "La contraseña debe tener al menos 8 caracteres.",
       "errMatch": "Las contraseñas no coinciden.",
+      "matchOk": "Las contraseñas coinciden.",
       "errExpired": "El enlace no es válido o ha caducado.",
       "requestNew": "Solicitar un nuevo enlace →"
     },

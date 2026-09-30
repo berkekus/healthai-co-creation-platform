@@ -1,6 +1,7 @@
 import { useState, useEffect, useId, useRef } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Check, X } from 'lucide-react'
 import { ROUTES } from '../../constants/routes'
 import PageWrapper from '../../components/layout/PageWrapper'
 import api from '../../lib/api'
@@ -21,6 +22,8 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [status, setStatus]                   = useState<Status>('idle')
   const [error, setError]                     = useState<string | null>(null)
+  const lengthOk       = newPassword.length >= 8
+  const passwordsMatch = confirmPassword.length > 0 && confirmPassword === newPassword
 
   useEffect(() => {
     if (!token) navigate(ROUTES.FORGOT_PASSWORD, { replace: true })
@@ -99,13 +102,26 @@ export default function ResetPasswordPage() {
             <label htmlFor={newPasswordId} className="block text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2">
               {t('authPage.reset.newLabel')} <span className="text-red-500">*</span>
             </label>
-            <input id={newPasswordId} type="password" value={newPassword} onChange={e => { setNewPassword(e.target.value); setError(null) }} placeholder="••••••••" autoComplete="new-password" required className={inputCls} />
+            <input id={newPasswordId} type="password" value={newPassword} onChange={e => { setNewPassword(e.target.value); setError(null) }} placeholder="••••••••" autoComplete="new-password" required aria-describedby={`${newPasswordId}-rule`} className={inputCls} />
+            {/* The rule is shown up front and ticks off while typing, instead of only after submit. */}
+            <p id={`${newPasswordId}-rule`} className={`mt-2 flex items-center gap-1.5 text-xs font-semibold ${lengthOk ? 'text-hai-teal-dark' : 'text-neutral-500'}`}>
+              {lengthOk ? <Check size={14} aria-hidden="true" /> : <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-current mx-1" />}
+              {t('authPage.reset.errShort')}
+            </p>
           </div>
           <div>
             <label htmlFor={confirmPasswordId} className="block text-xs font-mono tracking-[0.16em] uppercase text-neutral-500 font-bold mb-2">
               {t('authPage.reset.confirmLabel')} <span className="text-red-500">*</span>
             </label>
-            <input id={confirmPasswordId} type="password" value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); setError(null) }} placeholder="••••••••" autoComplete="new-password" required className={inputCls} />
+            <input id={confirmPasswordId} type="password" value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); setError(null) }} placeholder="••••••••" autoComplete="new-password" required aria-describedby={`${confirmPasswordId}-match`} className={inputCls} />
+            <p id={`${confirmPasswordId}-match`} role="status" className={`mt-2 flex min-h-[1rem] items-center gap-1.5 text-xs font-semibold ${passwordsMatch ? 'text-hai-teal-dark' : 'text-red-600'}`}>
+              {confirmPassword && (
+                <>
+                  {passwordsMatch ? <Check size={14} aria-hidden="true" /> : <X size={14} aria-hidden="true" />}
+                  {passwordsMatch ? t('authPage.reset.matchOk') : t('authPage.reset.errMatch')}
+                </>
+              )}
+            </p>
           </div>
 
           <button

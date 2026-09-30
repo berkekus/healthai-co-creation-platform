@@ -797,6 +797,7 @@
       "signInNow": "Nu inloggen →",
       "errShort": "Wachtwoord moet minstens 8 tekens bevatten.",
       "errMatch": "Wachtwoorden komen niet overeen.",
+      "matchOk": "Wachtwoorden komen overeen.",
       "errExpired": "De link is ongeldig of verlopen.",
       "requestNew": "Nieuwe resetlink aanvragen →"
     },
