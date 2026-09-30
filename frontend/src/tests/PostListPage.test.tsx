@@ -68,6 +68,8 @@ describe('PostListPage filters', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Clinician' }))
 
+    expect(screen.getByRole('button', { name: 'Clinician' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Anyone' })).toHaveAttribute('aria-pressed', 'false')
     expect(screen.getByTestId('search')).toHaveTextContent('?by=clinician')
     expect(screen.getByText('Idea by a clinician')).toBeInTheDocument()
     expect(screen.queryByText('Prototype by an engineer')).not.toBeInTheDocument()

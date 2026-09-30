@@ -54,6 +54,9 @@ describe('NotificationsPage', () => {
 
     expect(screen.getByRole('status', { name: 'Loading…' })).toBeInTheDocument()
     expect(screen.queryByText('No notifications here')).not.toBeInTheDocument()
+    // Filters are neither counted as 0 nor disabled before the list has arrived.
+    expect(screen.getAllByRole('button', { name: /^Unread/ })[0]).toBeEnabled()
+    expect(screen.getAllByRole('button', { name: /^Unread/ })[0]).not.toHaveTextContent('0')
   })
 
   it('says the list could not be loaded and lets the user try again', () => {

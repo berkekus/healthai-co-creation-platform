@@ -67,6 +67,8 @@ export default function NotificationsPage() {
   const showRefreshError = listStatus === 'error' && all.length > 0
   const isSlow = useSlowRequestHint(listStatus === 'loading')
   const retry = () => { if (user) fetchByUser(user.id) }
+  // Until the list has loaded, a "0" per filter would be a guess, and so would disabling it.
+  const countsKnown = !showSkeleton && !showLoadError
 
   const filtered =
     activeTab === 'all'      ? all :
@@ -115,32 +117,35 @@ export default function NotificationsPage() {
             {tabs.map(t => {
               const active = activeTab === t.key
               const count  = counts[t.key]
+              const unavailable = countsKnown && count === 0 && t.key !== 'all'
               return (
                 <button
                   key={t.key}
                   onClick={() => setActiveTab(t.key)}
-                  disabled={count === 0 && t.key !== 'all'}
+                  disabled={unavailable}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                     active
                       ? 'bg-[#E8F4F7] text-[#1B7A88]'
-                      : count === 0 && t.key !== 'all'
+                      : unavailable
                         ? 'text-[#C5CAD6] cursor-not-allowed'
                         : 'text-[#6F6878] hover:bg-[#EEF0F3] hover:text-[#36213E]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className={active ? 'text-[#1B7A88]' : count === 0 && t.key !== 'all' ? 'text-[#C5CAD6]' : 'text-[#6F6878]'}>
+                    <span className={active ? 'text-[#1B7A88]' : unavailable ? 'text-[#C5CAD6]' : 'text-[#6F6878]'}>
                       {t.icon}
                     </span>
                     {t.label}
                   </div>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    active ? 'bg-[#1B7A88]/10 text-[#1B7A88]'
-                    : count === 0 ? 'text-[#C5CAD6]'
-                    : 'bg-[#EEF0F3] text-[#6F6878]'
-                  }`}>
-                    {count}
-                  </span>
+                  {countsKnown && (
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      active ? 'bg-[#1B7A88]/10 text-[#1B7A88]'
+                      : count === 0 ? 'text-[#C5CAD6]'
+                      : 'bg-[#EEF0F3] text-[#6F6878]'
+                    }`}>
+                      {count}
+                    </span>
+                  )}
                 </button>
               )
             })}
@@ -209,7 +214,7 @@ export default function NotificationsPage() {
                   >
                     {tabs.map(tab => {
                       const count = counts[tab.key]
-                      const unavailable = count === 0 && tab.key !== 'all'
+                      const unavailable = countsKnown && count === 0 && tab.key !== 'all'
                       return (
                         <button
                           key={tab.key}
@@ -228,7 +233,7 @@ export default function NotificationsPage() {
                             <span aria-hidden="true">{tab.icon}</span>
                             {tab.label}
                           </span>
-                          <span className="text-xs font-bold">{count}</span>
+                          {countsKnown && <span className="text-xs font-bold">{count}</span>}
                         </button>
                       )
                     })}

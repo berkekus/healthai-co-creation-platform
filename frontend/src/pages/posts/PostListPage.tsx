@@ -629,6 +629,7 @@ function SegmentedControl({ active, onChange }: { active: PostedBy; onChange: (v
           <button
             key={item}
             onClick={() => onChange(item)}
+            aria-pressed={active === item}
             title={postedByShortLabel(t, item)}
             className={`rounded-[11px] text-xs font-black transition ${
               active === item
