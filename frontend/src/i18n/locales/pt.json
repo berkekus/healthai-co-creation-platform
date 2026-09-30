@@ -445,6 +445,7 @@
     "saveSearchDefaultName": "Todas as publicações",
     "saveSearchSuccess": "Pesquisa \"{{name}}\" guardada! Será notificado quando forem publicadas novas publicações correspondentes.",
     "saveSearchError": "Não foi possível guardar a pesquisa. Tente novamente.",
+    "deleteError": "Não foi possível eliminar a publicação. Tente novamente.",
     "commitment": {
       "flexible": "Flexível",
       "low": "Consultoria pontual",
@@ -1166,6 +1167,7 @@
       "deleteConfirm": "Eliminar permanentemente \"{{name}}\"? Esta ação não pode ser desfeita.",
       "suspendError": "Não foi possível atualizar o estado de suspensão.",
       "deleteError": "Não foi possível eliminar a conta.",
+      "deleteConfirmTitle": "Eliminar esta conta?",
       "suspendedNotifTitle": "Conta suspensa",
       "suspendedNotifBody": "A sua conta foi suspensa.",
       "pageRange": "{{from}}–{{to}} de {{total}}"

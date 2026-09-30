@@ -657,6 +657,10 @@ export default function AdminPage() {
   const [postToRemove, setPostToRemove] = useState<{ id: string; title: string; authorId: string } | null>(null)
   const [removeBusy, setRemoveBusy] = useState(false)
   const [removeError, setRemoveError] = useState<string | null>(null)
+  const [userToDelete, setUserToDelete] = useState<{ id: string; name: string } | null>(null)
+  const [deleteUserBusy, setDeleteUserBusy] = useState(false)
+  const [deleteUserError, setDeleteUserError] = useState<string | null>(null)
+  const [suspendError, setSuspendError] = useState<string | null>(null)
 
   const { posts, fetchPosts, remove: removePost } = usePostStore()
   const { push } = useNotificationStore()
@@ -710,22 +714,28 @@ export default function AdminPage() {
     const target = users.find(u => u.id === userId)
     if (!target) return
     const next = !target.isSuspended
+    setSuspendError(null)
     try {
       await api.patch(`/auth/users/${userId}/suspend`, { isSuspended: next })
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, isSuspended: next } : u))
       if (next) push({ userId, type: 'post_closed', title: t('admin.users.suspendedNotifTitle'), body: t('admin.users.suspendedNotifBody'), isRead: false })
     } catch (err: unknown) {
-      alert((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.suspendError'))
+      setSuspendError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.suspendError'))
     }
   }
 
-  const handleDeleteUser = async (userId: string, userName: string) => {
-    if (!window.confirm(t('admin.users.deleteConfirm', { name: userName }))) return
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return
+    setDeleteUserBusy(true)
+    setDeleteUserError(null)
     try {
-      await api.delete(`/auth/users/${userId}`)
-      setUsers(prev => prev.filter(u => u.id !== userId))
+      await api.delete(`/auth/users/${userToDelete.id}`)
+      setUsers(prev => prev.filter(u => u.id !== userToDelete.id))
+      setUserToDelete(null)
     } catch (err: unknown) {
-      alert((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.deleteError'))
+      setDeleteUserError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.deleteError'))
+    } finally {
+      setDeleteUserBusy(false)
     }
   }
 
@@ -807,6 +817,14 @@ export default function AdminPage() {
                 <p className="text-sm text-[#9ca3af]">{t('admin.users.registeredCount', { count: totalNonAdmin })}</p>
               </div>
             </div>
+            {suspendError && (
+              <div role="alert" className="mb-4 flex items-start justify-between gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm font-semibold text-[#b91c1c]">
+                <span>{suspendError}</span>
+                <button type="button" onClick={() => setSuspendError(null)} aria-label={t('common.close')} className="shrink-0 text-[#b91c1c] hover:text-[#7f1d1d]">
+                  <X size={16} />
+                </button>
+              </div>
+            )}
             <div className="bg-white rounded-2xl border border-[#eaecf0] overflow-hidden">
               <div className="px-6 py-4 border-b border-[#f3f4f6] flex items-center gap-3 flex-wrap">
                 <div className="relative flex-1 min-w-[220px]">
@@ -864,7 +882,7 @@ export default function AdminPage() {
                                 {u.isSuspended ? <UserCheck size={13} /> : <UserMinus size={13} />}
                                 {u.isSuspended ? t('admin.users.reinstate') : t('admin.users.suspend')}
                               </button>
-                              <button onClick={() => handleDeleteUser(u.id, u.name)}
+                              <button onClick={() => { setDeleteUserError(null); setUserToDelete({ id: u.id, name: u.name }) }}
                                 className="p-1.5 rounded-lg border border-[#fee2e2] text-[#dc2626] hover:bg-[#fee2e2] transition-colors" title={t('admin.users.delete')}>
                                 <Trash2 size={14} />
                               </button>
@@ -1061,6 +1079,20 @@ export default function AdminPage() {
         >
           <p>{t('admin.posts.removeConfirmBody', { title: postToRemove.title })}</p>
           <p>{t('admin.posts.removeConfirmUndo')}</p>
+        </ConfirmDialog>
+      )}
+
+      {userToDelete && (
+        <ConfirmDialog
+          title={t('admin.users.deleteConfirmTitle')}
+          confirmLabel={deleteUserBusy ? t('common.loading') : t('admin.users.delete')}
+          cancelLabel={t('common.cancel')}
+          onConfirm={handleDeleteUser}
+          onCancel={() => setUserToDelete(null)}
+          busy={deleteUserBusy}
+          error={deleteUserError}
+        >
+          <p>{t('admin.users.deleteConfirm', { name: userToDelete.name })}</p>
         </ConfirmDialog>
       )}
     </div>

@@ -445,6 +445,7 @@
     "saveSearchDefaultName": "Tüm ilanlar",
     "saveSearchSuccess": "\"{{name}}\" araması kaydedildi! Yeni eşleşen ilanlar yayınlandığında bilgilendirileceksiniz.",
     "saveSearchError": "Arama kaydedilemedi. Tekrar deneyin.",
+    "deleteError": "İlan silinemedi. Lütfen tekrar deneyin.",
     "commitment": {
       "flexible": "Esnek",
       "low": "Hafif danışmanlık",
@@ -1166,6 +1167,7 @@
       "deleteConfirm": "\"{{name}}\" kalıcı olarak silinsin mi? Bu işlem geri alınamaz.",
       "suspendError": "Askıya alma durumu güncellenemedi.",
       "deleteError": "Hesap silinemedi.",
+      "deleteConfirmTitle": "Bu hesap silinsin mi?",
       "suspendedNotifTitle": "Hesap askıya alındı",
       "suspendedNotifBody": "Hesabınız askıya alındı.",
       "pageRange": "{{from}}–{{to}} / {{total}}"

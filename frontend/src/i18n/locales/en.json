@@ -445,6 +445,7 @@
     "saveSearchDefaultName": "All posts",
     "saveSearchSuccess": "Search \"{{name}}\" saved! You'll be notified when new matching posts are published.",
     "saveSearchError": "Could not save search. Try again.",
+    "deleteError": "The post could not be deleted. Please try again.",
     "commitment": {
       "flexible": "Flexible",
       "low": "Light advisory",
@@ -1166,6 +1167,7 @@
       "deleteConfirm": "Permanently delete \"{{name}}\"? This cannot be undone.",
       "suspendError": "Could not update suspension status.",
       "deleteError": "Could not delete account.",
+      "deleteConfirmTitle": "Delete this account?",
       "suspendedNotifTitle": "Account suspended",
       "suspendedNotifBody": "Your account has been suspended.",
       "pageRange": "{{from}}–{{to}} of {{total}}"

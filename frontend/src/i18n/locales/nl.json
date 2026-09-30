@@ -445,6 +445,7 @@
     "saveSearchDefaultName": "Alle berichten",
     "saveSearchSuccess": "Zoekopdracht \"{{name}}\" opgeslagen! Je krijgt een melding zodra nieuwe overeenkomende berichten worden gepubliceerd.",
     "saveSearchError": "Kan zoekopdracht niet opslaan. Probeer het opnieuw.",
+    "deleteError": "Het bericht kon niet worden verwijderd. Probeer het opnieuw.",
     "commitment": {
       "flexible": "Flexibel",
       "low": "Lichte advisering",
@@ -1166,6 +1167,7 @@
       "deleteConfirm": "\"{{name}}\" permanent verwijderen? Dit kan niet ongedaan worden gemaakt.",
       "suspendError": "Kan schorsingsstatus niet bijwerken.",
       "deleteError": "Kan account niet verwijderen.",
+      "deleteConfirmTitle": "Dit account verwijderen?",
       "suspendedNotifTitle": "Account geschorst",
       "suspendedNotifBody": "Je account is geschorst.",
       "pageRange": "{{from}}–{{to}} van {{total}}"

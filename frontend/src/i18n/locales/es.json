@@ -445,6 +445,7 @@
     "saveSearchDefaultName": "Todas las publicaciones",
     "saveSearchSuccess": "¡Búsqueda \"{{name}}\" guardada! Te avisaremos cuando se publiquen nuevas publicaciones que coincidan.",
     "saveSearchError": "No se pudo guardar la búsqueda. Inténtalo de nuevo.",
+    "deleteError": "No se pudo eliminar la publicación. Inténtalo de nuevo.",
     "commitment": {
       "flexible": "Flexible",
       "low": "Asesoría puntual",
@@ -1166,6 +1167,7 @@
       "deleteConfirm": "¿Eliminar permanentemente a \"{{name}}\"? Esta acción no se puede deshacer.",
       "suspendError": "No se pudo actualizar el estado de suspensión.",
       "deleteError": "No se pudo eliminar la cuenta.",
+      "deleteConfirmTitle": "¿Eliminar esta cuenta?",
       "suspendedNotifTitle": "Cuenta suspendida",
       "suspendedNotifBody": "Tu cuenta ha sido suspendida.",
       "pageRange": "{{from}}–{{to}} de {{total}}"
