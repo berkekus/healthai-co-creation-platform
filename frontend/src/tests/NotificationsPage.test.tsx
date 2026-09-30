@@ -47,4 +47,31 @@ describe('NotificationsPage', () => {
     expect(screen.queryByText('Comment arrived')).not.toBeInTheDocument()
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })
+
+  it('shows a loading state instead of "no notifications" while the first fetch runs', () => {
+    useNotificationStore.setState({ notifications: [], getByUser: () => [], listStatus: 'loading' })
+    render(<MemoryRouter><NotificationsPage /></MemoryRouter>)
+
+    expect(screen.getByRole('status', { name: 'Loading…' })).toBeInTheDocument()
+    expect(screen.queryByText('No notifications here')).not.toBeInTheDocument()
+  })
+
+  it('says the list could not be loaded and lets the user try again', () => {
+    const fetchByUser = vi.fn()
+    useNotificationStore.setState({ notifications: [], getByUser: () => [], listStatus: 'error', fetchByUser })
+    render(<MemoryRouter><NotificationsPage /></MemoryRouter>)
+    fetchByUser.mockClear()
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Notifications could not be loaded.')
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
+    expect(fetchByUser).toHaveBeenCalledWith('ana')
+  })
+
+  it('keeps the old list visible but warns when a refresh fails', () => {
+    useNotificationStore.setState({ listStatus: 'error' })
+    render(<MemoryRouter><NotificationsPage /></MemoryRouter>)
+
+    expect(screen.getByText('Meeting please')).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent('could not be refreshed')
+  })
 })

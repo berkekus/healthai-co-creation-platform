@@ -936,7 +936,10 @@
     "stayInLoop": "Stay in the loop",
     "enableDesc": "Enable browser notifications to never miss important updates.",
     "enableBtn": "Enable Notifications",
-    "noMore": "No more notifications"
+    "noMore": "No more notifications",
+    "loadError": "Notifications could not be loaded.",
+    "refreshError": "Notifications could not be refreshed; this list may be out of date.",
+    "retry": "Try again"
   },
   "notificationContent": {
     "meeting_request": {

@@ -936,7 +936,10 @@
     "stayInLoop": "Blijf op de hoogte",
     "enableDesc": "Schakel browsermeldingen in om nooit belangrijke updates te missen.",
     "enableBtn": "Meldingen inschakelen",
-    "noMore": "Geen meldingen meer"
+    "noMore": "Geen meldingen meer",
+    "loadError": "Meldingen konden niet worden geladen.",
+    "refreshError": "Meldingen konden niet worden vernieuwd; deze lijst is mogelijk verouderd.",
+    "retry": "Opnieuw proberen"
   },
   "notificationContent": {
     "meeting_request": {

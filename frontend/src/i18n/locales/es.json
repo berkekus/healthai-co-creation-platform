@@ -936,7 +936,10 @@
     "stayInLoop": "Mantente al día",
     "enableDesc": "Activa las notificaciones del navegador para no perderte novedades importantes.",
     "enableBtn": "Activar notificaciones",
-    "noMore": "No hay más notificaciones"
+    "noMore": "No hay más notificaciones",
+    "loadError": "No se pudieron cargar las notificaciones.",
+    "refreshError": "No se pudieron actualizar las notificaciones; esta lista puede estar desactualizada.",
+    "retry": "Reintentar"
   },
   "notificationContent": {
     "meeting_request": {

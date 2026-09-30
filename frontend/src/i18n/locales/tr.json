@@ -936,7 +936,10 @@
     "stayInLoop": "Güncel kalın",
     "enableDesc": "Önemli güncellemeleri kaçırmamak için tarayıcı bildirimlerini etkinleştirin.",
     "enableBtn": "Bildirimleri Etkinleştir",
-    "noMore": "Daha fazla bildirim yok"
+    "noMore": "Daha fazla bildirim yok",
+    "loadError": "Bildirimler yüklenemedi.",
+    "refreshError": "Bildirimler güncellenemedi; bu liste eski olabilir.",
+    "retry": "Tekrar dene"
   },
   "notificationContent": {
     "meeting_request": {
