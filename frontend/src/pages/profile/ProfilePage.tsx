@@ -281,7 +281,7 @@ function ChangePasswordCard() {
               placeholder={t('profile.password.current')}
               autoComplete="current-password"
               required
-              className="rounded-xl border border-neutral-200 bg-hai-offwhite px-4 py-2.5 text-sm font-semibold text-hai-plum outline-none transition-all focus:border-hai-teal focus:bg-white"
+              className="rounded-xl border border-neutral-200 bg-hai-offwhite px-4 py-2.5 text-sm font-semibold text-hai-plum outline-none transition-all focus:border-hai-focus focus:bg-white"
             />
             <input
               type="password"
@@ -290,7 +290,7 @@ function ChangePasswordCard() {
               placeholder={t('profile.password.new')}
               autoComplete="new-password"
               required
-              className="rounded-xl border border-neutral-200 bg-hai-offwhite px-4 py-2.5 text-sm font-semibold text-hai-plum outline-none transition-all focus:border-hai-teal focus:bg-white"
+              className="rounded-xl border border-neutral-200 bg-hai-offwhite px-4 py-2.5 text-sm font-semibold text-hai-plum outline-none transition-all focus:border-hai-focus focus:bg-white"
             />
             <input
               type="password"
@@ -299,7 +299,7 @@ function ChangePasswordCard() {
               placeholder={t('profile.password.confirm')}
               autoComplete="new-password"
               required
-              className="rounded-xl border border-neutral-200 bg-hai-offwhite px-4 py-2.5 text-sm font-semibold text-hai-plum outline-none transition-all focus:border-hai-teal focus:bg-white"
+              className="rounded-xl border border-neutral-200 bg-hai-offwhite px-4 py-2.5 text-sm font-semibold text-hai-plum outline-none transition-all focus:border-hai-focus focus:bg-white"
             />
             {error && <div role="alert" className="text-sm font-semibold text-red-600">{error}</div>}
             {success && <div className="text-sm font-semibold text-hai-teal">{t('profile.password.success')}</div>}
@@ -362,7 +362,7 @@ function NotifPrefsSection() {
               onClick={() => toggle(key)}
               aria-pressed={prefs[key]}
               aria-label={t(labelKey)}
-              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-hai-teal/60 focus:ring-offset-2 ${
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-hai-focus focus:ring-offset-2 ${
                 prefs[key] ? 'bg-hai-teal' : 'bg-[#D5DAE0]'
               } ${saving === key ? 'opacity-60' : ''}`}
             >
@@ -465,7 +465,7 @@ function ProfileCompletionCard({ user, onSaved }: { user: User; onSaved?: boolea
           <p className="flex items-center gap-1 text-xs font-black text-hai-plum">
             {t('profile.strength')}
             {remote?.source === 'ai' && (
-              <span className="inline-flex items-center gap-0.5 rounded-full bg-[#E8F4F7] px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-hai-teal">
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-[#E8F4F7] px-1.5 py-0.5 text-xs font-black uppercase tracking-wide text-hai-teal">
                 <span aria-hidden="true" className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: '"FILL" 1' }}>auto_awesome</span>
                 AI
               </span>
@@ -623,7 +623,7 @@ function ConnectedAccounts({ user }: { user: User }) {
               data-provider={provider}
               className={`flex items-center gap-4 rounded-2xl border border-[#D5DAE0] p-5 ${unavailable ? 'bg-[#F7F8FA]' : 'bg-white'}`}
             >
-              <svg className={`h-6 w-6 shrink-0 ${unavailable ? 'text-[#9CA3AF]' : className}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <svg className={`h-6 w-6 shrink-0 ${unavailable ? 'text-[#6b7280]' : className}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d={path} />
               </svg>
               <div className="min-w-0">
@@ -911,8 +911,8 @@ export default function ProfilePage() {
                 />
               ) : (
                 <div className="grid gap-3">
-                  <FieldRow label={t('profile.fields.city')}>{user.city || <span className="text-neutral-400">{t('common.noData')}</span>}</FieldRow>
-                  <FieldRow label={t('profile.fields.country')}>{user.country || <span className="text-neutral-400">{t('common.noData')}</span>}</FieldRow>
+                  <FieldRow label={t('profile.fields.city')}>{user.city || <span className="text-neutral-500">{t('common.noData')}</span>}</FieldRow>
+                  <FieldRow label={t('profile.fields.country')}>{user.country || <span className="text-neutral-500">{t('common.noData')}</span>}</FieldRow>
                   <FieldRow label={t('profile.fields.regionVisibility')}>{t('profile.fields.visibleToMembers')} <span aria-hidden="true" className="material-symbols-outlined ml-1 align-middle text-base">visibility</span></FieldRow>
                 </div>
               )}
@@ -972,7 +972,7 @@ export default function ProfilePage() {
                     {tag}
                     {isEditing && <button type="button" onClick={() => setTags(prev => prev.filter(item => item !== tag))} aria-label={t('profile.removeTag', { tag })} className="text-sm">x</button>}
                   </span>
-                )) : <span className="text-sm font-semibold italic text-neutral-400">{t('common.noData')}</span>}
+                )) : <span className="text-sm font-semibold italic text-neutral-500">{t('common.noData')}</span>}
               </div>
             </Section>
 
@@ -1019,7 +1019,7 @@ export default function ProfilePage() {
                   <div>
                     <div className="mb-2 font-headline text-lg font-bold leading-tight text-hai-plum">{t('profile.data.export')}</div>
                     <p className="mb-4 text-sm leading-relaxed text-neutral-600">{t('profile.data.exportDesc')}</p>
-                    <div className="mb-4 text-xs font-semibold text-neutral-400">{t('profile.data.gdpr20')}</div>
+                    <div className="mb-4 text-xs font-semibold text-neutral-500">{t('profile.data.gdpr20')}</div>
                     <button type="button" onClick={handleExport} className="inline-flex items-center gap-2 rounded-full bg-hai-plum px-5 py-2.5 text-xs font-black text-white hover:bg-black">
                       <span aria-hidden="true" className="material-symbols-outlined text-base">file_download</span>
                       {t('profile.data.exportBtn')}
@@ -1036,7 +1036,7 @@ export default function ProfilePage() {
                   <div>
                     <div className="mb-2 font-headline text-lg font-bold leading-tight text-red-600">{t('profile.data.delete')}</div>
                     <p className="mb-4 text-sm leading-relaxed text-neutral-600">{t('profile.data.deleteDesc')}</p>
-                    <div className="mb-4 text-xs font-semibold text-neutral-400">{t('profile.data.gdpr17')}</div>
+                    <div className="mb-4 text-xs font-semibold text-neutral-500">{t('profile.data.gdpr17')}</div>
                     <button type="button" onClick={() => setShowDelete(true)} className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white px-5 py-2.5 text-xs font-black text-red-600 hover:bg-red-50">
                       <span aria-hidden="true" className="material-symbols-outlined text-base">warning</span>
                       {t('profile.data.deleteBtn')}

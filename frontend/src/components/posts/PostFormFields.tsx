@@ -11,7 +11,7 @@ import DomainPicker from './DomainPicker'
 import api from '../../lib/api'
 
 const baseInput =
-  'h-14 w-full rounded-[10px] border border-[#d7dbe3] bg-white px-4 text-sm font-semibold text-[#2d1838] outline-none transition placeholder:text-[#9a95a1] focus:border-[#66c8e7] focus:ring-4 focus:ring-[#66c8e7]/20'
+  'h-14 w-full rounded-[10px] border border-[#d7dbe3] bg-white px-4 text-sm font-semibold text-[#2d1838] outline-none transition placeholder:text-[#6F6878] focus:border-hai-focus focus:ring-4 focus:ring-[#66c8e7]/20'
 const baseSelect =
   `${baseInput} appearance-none pr-10`
 

@@ -6,7 +6,7 @@ type IconButtonVariant = 'default' | 'soft' | 'outline' | 'ghost' | 'primary' | 
 type IconButtonSize = 'sm' | 'md' | 'lg'
 
 const base =
-  'relative inline-flex shrink-0 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal/45 disabled:pointer-events-none disabled:opacity-45'
+  'relative inline-flex shrink-0 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-focus disabled:pointer-events-none disabled:opacity-45'
 
 const variants: Record<IconButtonVariant, string> = {
   default: 'border border-[#E3E7EC] bg-white text-neutral-700 hover:border-hai-teal hover:bg-hai-mint/40',

@@ -381,7 +381,7 @@ function RecentPostStatusBadge({ status }: { status: Post['status'] }) {
   const item = config[status]
 
   return (
-    <span className={`min-w-[92px] rounded-[9px] px-3 py-2 text-center text-[11px] font-black uppercase leading-3 tracking-[0.04em] ${item.className}`}>
+    <span className={`min-w-[92px] rounded-[9px] px-3 py-2 text-center text-xs font-black uppercase leading-3 tracking-[0.04em] ${item.className}`}>
       {item.label}
     </span>
   )

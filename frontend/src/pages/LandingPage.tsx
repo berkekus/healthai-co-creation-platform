@@ -337,7 +337,7 @@ const PostVisual = () => (
       <div className="h-2 bg-neutral-100 rounded-full w-4/5" />
       <div className="h-2 bg-neutral-100 rounded-full w-3/5" />
       <div className="mt-auto flex items-center justify-between pt-2">
-        <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-400">0 / 0 files</span>
+        <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">0 / 0 files</span>
         <span className="bg-hai-plum text-white text-xs font-bold px-3 py-1.5 rounded-full">Publish →</span>
       </div>
     </div>
@@ -426,7 +426,7 @@ const MeetingsVisual = () => (
               {status.slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-400 font-bold">{status}</div>
+              <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold">{status}</div>
               <div className="font-headline font-bold text-hai-plum text-sm truncate">{title}</div>
             </div>
             <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-hai-plum">{action}</span>
@@ -458,7 +458,7 @@ const NotifyVisual = () => (
         <span className="w-2 h-2 rounded-full bg-hai-teal shrink-0" />
         <div className="min-w-0 flex-1">
           <div className="text-sm font-bold text-hai-plum truncate">{title}</div>
-          <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-400">{time}</div>
+          <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{time}</div>
         </div>
       </div>
     ))}
@@ -951,10 +951,10 @@ export default function LandingPage() {
                           <button
                             key={s.num}
                             onClick={() => goTo(i)}
-                            className={`flex items-center gap-1.5 sm:gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold transition-colors ${i === step ? 'text-hai-plum' : 'text-neutral-400 hover:text-neutral-700'}`}
+                            className={`flex items-center gap-1.5 sm:gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold transition-colors ${i === step ? 'text-hai-plum' : 'text-neutral-500 hover:text-neutral-700'}`}
                             aria-label={t('landing.tour.jumpToStep', { num: s.num, name: t(`landing.tour.steps.${s.key}.name`) })}
                           >
-                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all shrink-0 ${i === step ? 'bg-hai-plum text-white' : i < step ? 'bg-hai-teal text-hai-plum' : 'bg-neutral-100 text-neutral-400'}`}>
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all shrink-0 ${i === step ? 'bg-hai-plum text-white' : i < step ? 'bg-hai-teal text-hai-plum' : 'bg-neutral-100 text-neutral-500'}`}>
                               {i < step ? '✓' : s.num}
                             </span>
                             <span className="hidden sm:inline">{t(`landing.tour.steps.${s.key}.name`)}</span>
@@ -1081,11 +1081,11 @@ export default function LandingPage() {
               <div className="space-y-5">
                 <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-neutral-100 flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow">
                   <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">{t('landing.structured.directoryMatching')}</span>
-                  <Icon name="add" className="text-neutral-400 group-hover:text-neutral-900 transition-colors" />
+                  <Icon name="add" className="text-neutral-500 group-hover:text-neutral-900 transition-colors" />
                 </div>
                 <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-neutral-100 flex items-center justify-between group cursor-pointer hover:shadow-md transition-shadow">
                   <span className="font-body text-lg md:text-xl font-semibold text-neutral-900">{t('landing.structured.institutionalVerification')}</span>
-                  <Icon name="add" className="text-neutral-400 group-hover:text-neutral-900 transition-colors" />
+                  <Icon name="add" className="text-neutral-500 group-hover:text-neutral-900 transition-colors" />
                 </div>
               </div>
 

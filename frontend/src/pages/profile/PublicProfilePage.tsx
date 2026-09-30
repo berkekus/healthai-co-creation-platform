@@ -101,14 +101,14 @@ export default function PublicProfilePage() {
 
             {hasProfessionalDetails(user) && (
               <div className="mb-6 rounded-2xl border border-[#e8e8ee] px-5 py-4">
-                <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#6f6a76]">{t('professional.title')}</div>
+                <div className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-[#6f6a76]">{t('professional.title')}</div>
                 <ProfessionalDetails user={user} />
               </div>
             )}
 
             {user.expertiseTags && user.expertiseTags.length > 0 && (
               <div>
-                <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-[0.12em] uppercase text-[#9f9aaa] mb-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold tracking-[0.12em] uppercase text-[#9f9aaa] mb-3">
                   <Tag size={11} /> {t('publicProfile.expertise')}
                 </div>
                 <div className="flex flex-wrap gap-2">

@@ -160,7 +160,7 @@ export default function FloatingChat() {
                     onKeyDown={handleKeyDown}
                     rows={1}
                     placeholder={t('messagesPage.placeholder')}
-                    className="max-h-[96px] min-h-[44px] flex-1 resize-none rounded-[14px] border border-[#E3E7EC] bg-[#F8FAFC] px-3 py-3 text-sm font-semibold text-[#36213E] outline-none transition focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/20"
+                    className="max-h-[96px] min-h-[44px] flex-1 resize-none rounded-[14px] border border-[#E3E7EC] bg-[#F8FAFC] px-3 py-3 text-sm font-semibold text-[#36213E] outline-none transition focus:border-hai-focus focus:ring-2 focus:ring-[#8AC6D0]/20"
                   />
                   <button
                     type="button"
@@ -226,7 +226,7 @@ export default function FloatingChat() {
       <button
         type="button"
         onClick={() => setOpen(value => !value)}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#36213E] text-white shadow-[0_18px_40px_-18px_rgba(45,24,56,0.85)] transition hover:-translate-y-0.5 hover:bg-[#24162B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8AC6D0]/70 focus-visible:ring-offset-2"
+        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#36213E] text-white shadow-[0_18px_40px_-18px_rgba(45,24,56,0.85)] transition hover:-translate-y-0.5 hover:bg-[#24162B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-focus focus-visible:ring-offset-2"
         aria-label={open ? t('chat.close') : t('chat.open')}
         aria-expanded={open}
       >

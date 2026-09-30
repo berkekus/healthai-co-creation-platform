@@ -504,7 +504,7 @@ function MeetingRow({
               aria-label={t(`meetingsPage.reasonPrompt.${confirmMode}`)}
               rows={2}
               maxLength={300}
-              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#9CA3AF] focus:border-[var(--accent-strong)] focus:ring-2 focus:ring-[var(--accent)]/25"
+              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878] focus:border-[var(--accent-strong)] focus:ring-2 focus:ring-[var(--accent)]/25"
             />
             <div className="flex justify-end gap-2">
               <ActionButton disabled={false} onClick={handleAbort} tone="quiet">
@@ -549,9 +549,9 @@ function MeetingRow({
                           <Check size={13} aria-hidden="true" />
                           {view.dateLabel} · {view.timeLabel}
                         </span>
-                        {view.zoneLabel && <span className="text-[11px] font-semibold text-white/80">{view.zoneLabel}</span>}
+                        {view.zoneLabel && <span className="text-xs font-semibold text-white/80">{view.zoneLabel}</span>}
                         {view.local && (
-                          <span className="text-[11px] font-semibold text-[var(--accent)]">
+                          <span className="text-xs font-semibold text-[var(--accent)]">
                             {t('meetingSlots.yourTime', { date: view.local.dateLabel, time: view.local.timeLabel })}
                           </span>
                         )}
@@ -671,7 +671,7 @@ function MeetingSummaryButton({ meetingId, postTitle }: { meetingId: string; pos
         {loading ? t('common.loading') : t('meetings.aiSummary')}
       </button>
 
-      {error && <p className="mt-1 text-[10px] font-semibold text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-xs font-semibold text-red-500">{error}</p>}
 
       {summary && open && (
         <div className="mt-3 rounded-xl border border-[#D5DAE0] bg-[#F8FBFC] p-4 text-xs">
@@ -700,13 +700,13 @@ function MeetingSummaryButton({ meetingId, postTitle }: { meetingId: string; pos
             </div>
           )}
           <div className="mt-3 flex items-center justify-between">
-            <p className="text-[10px] text-[#6B7280]">
+            <p className="text-xs text-[#6B7280]">
               {t('meetings.summaryGenerated')} {new Date(summary.generatedAt).toLocaleDateString(i18n.language)}
             </p>
             <button
               type="button"
               onClick={() => void exportSummaryToPdf({ postTitle, ...summary })}
-              className="inline-flex items-center gap-1 text-[10px] font-black text-[#6B7280] hover:text-hai-teal"
+              className="inline-flex items-center gap-1 text-xs font-black text-[#6B7280] hover:text-hai-teal"
             >
               <span aria-hidden="true" className="material-symbols-outlined text-xs">picture_as_pdf</span>
               {t('meetings.exportPdf')}

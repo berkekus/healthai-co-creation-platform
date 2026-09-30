@@ -441,7 +441,7 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={t('posts.searchPlaceholder')}
-          className="w-full rounded-full border border-transparent bg-[#EEF0F3] py-5 pl-14 pr-6 text-base font-semibold text-[var(--text)] outline-none transition placeholder:text-[#9CA3AF] hover:border-[var(--border)] hover:bg-white focus:border-[var(--accent)] focus:bg-white"
+          className="w-full rounded-full border border-transparent bg-[#EEF0F3] py-5 pl-14 pr-6 text-base font-semibold text-[var(--text)] outline-none transition placeholder:text-[#6F6878] hover:border-[var(--border)] hover:bg-white focus:border-[var(--accent)] focus:bg-white"
         />
       </div>
 

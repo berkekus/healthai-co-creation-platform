@@ -35,7 +35,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
       <input
         ref={ref}
         className={cx(
-          'h-12 w-full rounded-[14px] border border-[#E3E7EC] bg-white px-4 text-sm font-semibold text-hai-plum outline-none transition placeholder:text-[#6F6878] hover:border-hai-teal focus:border-hai-teal',
+          'h-12 w-full rounded-[14px] border border-[#E3E7EC] bg-white px-4 text-sm font-semibold text-hai-plum outline-none transition placeholder:text-[#6F6878] hover:border-hai-teal focus:border-hai-focus',
           Boolean(leftIcon) && 'pl-12',
           className,
         )}
@@ -58,7 +58,7 @@ export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(funct
       <select
         ref={ref}
         className={cx(
-          'h-[46px] w-full appearance-none rounded-[14px] border border-[#E3E7EC] bg-white px-4 pr-10 text-sm font-black text-hai-plum outline-none transition hover:border-hai-teal focus:border-hai-teal',
+          'h-[46px] w-full appearance-none rounded-[14px] border border-[#E3E7EC] bg-white px-4 pr-10 text-sm font-black text-hai-plum outline-none transition hover:border-hai-teal focus:border-hai-focus',
           className,
         )}
         {...props}

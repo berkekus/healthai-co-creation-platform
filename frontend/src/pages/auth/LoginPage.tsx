@@ -232,10 +232,10 @@ export default function LoginPage() {
                     type="email"
                     placeholder={t('authPage.login.emailPlaceholder')}
                     autoComplete="email"
-                    className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] dark:text-hai-plum placeholder:text-[#c5cad6] bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
+                    className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] dark:text-hai-plum placeholder:text-[#6F6878] bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
                       errors.email
                         ? 'border-red-400 ring-2 ring-red-100'
-                        : 'border-[#D5DAE0] dark:border-[rgb(var(--border-default))] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
+                        : 'border-[#D5DAE0] dark:border-[rgb(var(--border-default))] focus:border-hai-focus focus:ring-2 focus:ring-[#8AC6D0]/15'
                     }`}
                   />
                 </div>
@@ -257,16 +257,16 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder={'\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022'}
                     autoComplete="current-password"
-                    className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] dark:text-hai-plum placeholder:text-[#c5cad6] bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
+                    className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] dark:text-hai-plum placeholder:text-[#6F6878] bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
                       errors.password
                         ? 'border-red-400 ring-2 ring-red-100'
-                        : 'border-[#D5DAE0] dark:border-[rgb(var(--border-default))] focus:border-[#8AC6D0] focus:ring-2 focus:ring-[#8AC6D0]/15'
+                        : 'border-[#D5DAE0] dark:border-[rgb(var(--border-default))] focus:border-hai-focus focus:ring-2 focus:ring-[#8AC6D0]/15'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(p => !p)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] hover:text-[#6a7590] transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7590] hover:text-[#36213E] transition-colors"
                     aria-label={showPassword ? t('authPage.login.hidePassword') : t('authPage.login.showPassword')}
                   >
                     {showPassword ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
@@ -371,7 +371,7 @@ export default function LoginPage() {
                   <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
                 </div>
                 {!captchaToken && (
-                  <p className="mb-2 text-center text-[10px] text-[#c5cad6] font-semibold">
+                  <p className="mb-2 text-center text-xs text-[#c5cad6] font-semibold">
                     Complete the security check above to enable quick login
                   </p>
                 )}

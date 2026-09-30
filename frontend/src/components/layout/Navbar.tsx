@@ -304,7 +304,7 @@ export default function Navbar() {
                   aria-label={t('nav.accountMenu')}
                   aria-haspopup="menu"
                   aria-expanded={profileOpen}
-                  className="w-12 h-12 cursor-pointer rounded-full overflow-hidden bg-hai-mint text-hai-plum font-bold text-xs font-body flex items-center justify-center border border-hai-teal/40 hover:border-hai-plum transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal/70 focus-visible:ring-offset-2"
+                  className="w-12 h-12 cursor-pointer rounded-full overflow-hidden bg-hai-mint text-hai-plum font-bold text-xs font-body flex items-center justify-center border border-hai-teal/40 hover:border-hai-plum transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-focus focus-visible:ring-offset-2"
                 >
                   {resolveAvatar(user.avatarUrl)
                     ? <img src={resolveAvatar(user.avatarUrl)} alt={user.name} className="w-full h-full object-cover" onError={e => { const btn = (e.currentTarget as HTMLImageElement); btn.style.display = 'none'; btn.parentElement!.insertAdjacentText('beforeend', user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()) }} />

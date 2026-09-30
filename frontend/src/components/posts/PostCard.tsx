@@ -41,7 +41,7 @@ export default function PostCard({ post, matchReasons, featured = false }: Props
       tabIndex={0}
       role="link"
       aria-label={t('posts.openPostAriaLabel', { title: post.title })}
-      className={`group bg-white rounded-[1.5rem] p-6 cursor-pointer flex flex-col gap-4 transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal focus-visible:ring-offset-2 font-body ${
+      className={`group bg-white rounded-[1.5rem] p-6 cursor-pointer flex flex-col gap-4 transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-focus focus-visible:ring-offset-2 font-body ${
         featured
           ? 'border-2 border-hai-plum shadow-[0_20px_60px_-25px_rgba(54,33,62,0.35)] hover:shadow-[0_30px_80px_-25px_rgba(54,33,62,0.45)]'
           : 'border border-neutral-200 hover:border-hai-plum hover:shadow-[0_20px_50px_-20px_rgba(54,33,62,0.2)]'

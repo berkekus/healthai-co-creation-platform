@@ -77,7 +77,7 @@ export default function DomainPicker({ value, onChange, error, labelledBy }: Pro
             value={query}
             onChange={event => setQuery(event.target.value)}
             placeholder={t('posts.form.domainSearch')}
-            className="h-11 w-full rounded-t-[10px] bg-transparent pl-9 pr-3 text-sm font-semibold text-[#2d1838] outline-none placeholder:text-[#9a95a1] focus:ring-2 focus:ring-inset focus:ring-[#66c8e7]/40"
+            className="h-11 w-full rounded-t-[10px] bg-transparent pl-9 pr-3 text-sm font-semibold text-[#2d1838] outline-none placeholder:text-[#6F6878] focus:ring-2 focus:ring-inset focus:ring-hai-focus"
           />
         </label>
 
@@ -86,7 +86,7 @@ export default function DomainPicker({ value, onChange, error, labelledBy }: Pro
             <p className="px-1 py-2 text-sm font-semibold text-[#9a95a1]">{t('common.select.noResults', { query })}</p>
           ) : groups.map(group => (
             <fieldset key={group.id} className="mb-3 last:mb-0">
-              <legend className="mb-1.5 px-1 text-[11px] font-black uppercase tracking-[0.14em] text-[#6f6a76]">
+              <legend className="mb-1.5 px-1 text-xs font-black uppercase tracking-[0.14em] text-[#6f6a76]">
                 {t(`posts.form.domainGroups.${group.id}`)}
               </legend>
               <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">

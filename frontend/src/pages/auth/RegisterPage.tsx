@@ -100,10 +100,10 @@ export default function RegisterPage() {
   }
 
   const inputCls = (hasError: boolean) =>
-    `w-full py-3.5 rounded-[14px] border text-sm font-body text-[#18203a] placeholder:text-[#c5cad6] bg-white outline-none transition-all duration-150 ${
+    `w-full py-3.5 rounded-[14px] border text-sm font-body text-[#18203a] placeholder:text-[#6F6878] bg-white outline-none transition-all duration-150 ${
       hasError
         ? 'border-red-400 ring-2 ring-red-100'
-        : 'border-[#dde2ea] focus:border-[#3db8d8] focus:ring-2 focus:ring-[#3db8d8]/15'
+        : 'border-[#dde2ea] focus:border-hai-focus focus:ring-2 focus:ring-[#3db8d8]/15'
     }`
 
   return (
@@ -192,12 +192,12 @@ export default function RegisterPage() {
                     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
                       active ? 'bg-[#1c1230] text-white'
                       : done  ? 'bg-[#3db8d8]/15 text-[#3db8d8]'
-                      : 'bg-[#f4f5f7] text-[#a0a8ba]'
+                      : 'bg-[#f4f5f7] text-[#6b7280]'
                     }`}>
                       <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
                         active ? 'bg-white text-[#1c1230]'
                         : done  ? 'bg-[#3db8d8] text-white'
-                        : 'border border-[#d0d5df] text-[#a0a8ba]'
+                        : 'border border-[#d0d5df] text-[#6b7280]'
                       }`}>
                         {done ? '✓' : i + 1}
                       </span>
@@ -278,7 +278,7 @@ export default function RegisterPage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label htmlFor={fieldId('email')} className="text-sm font-bold text-[#18203a]">{t('authPage.register.emailLabel')} <span className="text-red-500">*</span></label>
-                      <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#a0a8ba]">{t('authPage.register.emailHint')}</span>
+                      <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#6b7280]">{t('authPage.register.emailHint')}</span>
                     </div>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
@@ -299,7 +299,7 @@ export default function RegisterPage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label htmlFor={fieldId('password')} className="text-sm font-bold text-[#18203a]">{t('authPage.register.passwordLabel')} <span className="text-red-500">*</span></label>
-                      <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#a0a8ba]">{t('authPage.register.passwordHint')}</span>
+                      <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#6b7280]">{t('authPage.register.passwordHint')}</span>
                     </div>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
@@ -313,7 +313,7 @@ export default function RegisterPage() {
                         autoComplete="new-password"
                         className={`${inputCls(!!errors.password)} pl-11 pr-12`}
                       />
-                      <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] hover:text-[#6a7590] transition-colors" aria-label={showPassword ? t('authPage.register.hidePassword') : t('authPage.register.showPassword')}>
+                      <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7590] hover:text-[#36213E] transition-colors" aria-label={showPassword ? t('authPage.register.hidePassword') : t('authPage.register.showPassword')}>
                         {showPassword ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
                       </button>
                     </div>
@@ -336,7 +336,7 @@ export default function RegisterPage() {
                         autoComplete="new-password"
                         className={`${inputCls(!!errors.confirm)} pl-11 pr-12`}
                       />
-                      <button type="button" onClick={() => setShowConfirm(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] hover:text-[#6a7590] transition-colors" aria-label={showConfirm ? t('authPage.register.hidePassword') : t('authPage.register.showPassword')}>
+                      <button type="button" onClick={() => setShowConfirm(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7590] hover:text-[#36213E] transition-colors" aria-label={showConfirm ? t('authPage.register.hidePassword') : t('authPage.register.showPassword')}>
                         {showConfirm ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
                       </button>
                     </div>
@@ -461,7 +461,7 @@ export default function RegisterPage() {
                       onChange={e => setGdprAccepted(e.target.checked)}
                       className="peer sr-only"
                     />
-                    <div aria-hidden="true" className={`mt-0.5 w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center flex-shrink-0 transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-[#3db8d8]/60 ${
+                    <div aria-hidden="true" className={`mt-0.5 w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center flex-shrink-0 transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-hai-focus ${
                       gdprAccepted ? 'bg-[#3db8d8] border-[#3db8d8]' : 'bg-white border-[#c8cedd] hover:border-[#3db8d8]'
                     }`}>
                       {gdprAccepted && (
