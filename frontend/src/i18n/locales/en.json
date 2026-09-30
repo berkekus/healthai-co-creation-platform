@@ -1183,7 +1183,11 @@
       },
       "remove": "Remove",
       "removedNotifTitle": "Post removed",
-      "removedNotifBody": "One of your posts was removed by an administrator."
+      "removedNotifBody": "One of your posts was removed by an administrator.",
+      "removeConfirmTitle": "Remove this post?",
+      "removeConfirmBody": "\"{{title}}\" will be removed from the platform and its author will be notified.",
+      "removeConfirmUndo": "This cannot be undone.",
+      "removeError": "The post could not be removed. Please try again."
     },
     "logs": {
       "title": "Activity Logs",

@@ -12,6 +12,7 @@ import { usePostStore } from '../../store/postStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import { useMeetingStore } from '../../store/meetingStore'
 import api from '../../lib/api'
+import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import type { ActivityLog } from '../../types/common.types'
 import type { User } from '../../types/auth.types'
 import { ROUTES } from '../../constants/routes'
@@ -653,6 +654,10 @@ export default function AdminPage() {
   const [logResult, setLogResult] = useState('')
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null)
 
+  const [postToRemove, setPostToRemove] = useState<{ id: string; title: string; authorId: string } | null>(null)
+  const [removeBusy, setRemoveBusy] = useState(false)
+  const [removeError, setRemoveError] = useState<string | null>(null)
+
   const { posts, fetchPosts, remove: removePost } = usePostStore()
   const { push } = useNotificationStore()
   const { meetings, fetchByUser: fetchMeetings } = useMeetingStore()
@@ -724,9 +729,19 @@ export default function AdminPage() {
     }
   }
 
-  const handleRemovePost = async (postId: string, ownerId: string) => {
-    await removePost(postId)
-    push({ userId: ownerId, type: 'post_closed', title: t('admin.posts.removedNotifTitle'), body: t('admin.posts.removedNotifBody'), isRead: false, linkTo: '/posts' })
+  const handleRemovePost = async () => {
+    if (!postToRemove) return
+    setRemoveBusy(true)
+    setRemoveError(null)
+    try {
+      await removePost(postToRemove.id)
+      push({ userId: postToRemove.authorId, type: 'post_closed', title: t('admin.posts.removedNotifTitle'), body: t('admin.posts.removedNotifBody'), isRead: false, linkTo: '/posts' })
+      setPostToRemove(null)
+    } catch (err: unknown) {
+      setRemoveError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.posts.removeError'))
+    } finally {
+      setRemoveBusy(false)
+    }
   }
 
   const totalNonAdmin = users.filter(u => u.role !== 'admin').length
@@ -940,7 +955,7 @@ export default function AdminPage() {
                           {new Date(p.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                         </td>
                         <td className="px-6 py-3.5">
-                          <button onClick={() => handleRemovePost(p.id, p.authorId)}
+                          <button onClick={() => { setRemoveError(null); setPostToRemove({ id: p.id, title: p.title, authorId: p.authorId }) }}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#fee2e2] bg-[#fff7f7] text-[#dc2626] text-xs font-bold hover:bg-[#fee2e2] transition-colors">
                             <Trash2 size={13} /> {t('admin.posts.remove')}
                           </button>
@@ -1033,6 +1048,21 @@ export default function AdminPage() {
           </div>
         )}
       </main>
+
+      {postToRemove && (
+        <ConfirmDialog
+          title={t('admin.posts.removeConfirmTitle')}
+          confirmLabel={removeBusy ? t('common.loading') : t('admin.posts.remove')}
+          cancelLabel={t('common.cancel')}
+          onConfirm={handleRemovePost}
+          onCancel={() => setPostToRemove(null)}
+          busy={removeBusy}
+          error={removeError}
+        >
+          <p>{t('admin.posts.removeConfirmBody', { title: postToRemove.title })}</p>
+          <p>{t('admin.posts.removeConfirmUndo')}</p>
+        </ConfirmDialog>
+      )}
     </div>
   )
 }

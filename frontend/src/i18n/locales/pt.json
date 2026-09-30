@@ -1183,7 +1183,11 @@
       },
       "remove": "Remover",
       "removedNotifTitle": "Publicação removida",
-      "removedNotifBody": "Uma das suas publicações foi removida por um administrador."
+      "removedNotifBody": "Uma das suas publicações foi removida por um administrador.",
+      "removeConfirmTitle": "Remover esta publicação?",
+      "removeConfirmBody": "\"{{title}}\" será removida da plataforma e o autor será notificado.",
+      "removeConfirmUndo": "Esta ação não pode ser desfeita.",
+      "removeError": "Não foi possível remover a publicação. Tente novamente."
     },
     "logs": {
       "title": "Registos de atividade",

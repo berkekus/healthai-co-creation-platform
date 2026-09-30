@@ -1183,7 +1183,11 @@
       },
       "remove": "Eliminar",
       "removedNotifTitle": "Publicación eliminada",
-      "removedNotifBody": "Una de tus publicaciones fue eliminada por un administrador."
+      "removedNotifBody": "Una de tus publicaciones fue eliminada por un administrador.",
+      "removeConfirmTitle": "¿Eliminar esta publicación?",
+      "removeConfirmBody": "\"{{title}}\" se eliminará de la plataforma y se notificará a su autor.",
+      "removeConfirmUndo": "Esta acción no se puede deshacer.",
+      "removeError": "No se pudo eliminar la publicación. Inténtalo de nuevo."
     },
     "logs": {
       "title": "Registros de actividad",

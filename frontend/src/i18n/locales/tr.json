@@ -1183,7 +1183,11 @@
       },
       "remove": "Kaldır",
       "removedNotifTitle": "İlan kaldırıldı",
-      "removedNotifBody": "İlanlarınızdan biri bir yönetici tarafından kaldırıldı."
+      "removedNotifBody": "İlanlarınızdan biri bir yönetici tarafından kaldırıldı.",
+      "removeConfirmTitle": "Bu ilan kaldırılsın mı?",
+      "removeConfirmBody": "\"{{title}}\" platformdan kaldırılacak ve ilan sahibine bildirim gönderilecek.",
+      "removeConfirmUndo": "Bu işlem geri alınamaz.",
+      "removeError": "İlan kaldırılamadı. Lütfen tekrar deneyin."
     },
     "logs": {
       "title": "Aktivite Kayıtları",
