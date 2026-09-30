@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
@@ -9,8 +9,8 @@ type Status = 'idle' | 'verifying' | 'success' | 'error'
 export default function VerifyEmailPage() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
   const { verifyEmail, resendVerification, pendingVerificationEmail, verificationResent } = useAuthStore()
+  const successHeading = useRef<HTMLHeadingElement>(null)
   const token = searchParams.get('token')
 
   const [status, setStatus] = useState<Status>(token ? 'verifying' : 'idle')
@@ -29,14 +29,20 @@ export default function VerifyEmailPage() {
         if (!mounted) return
         const err = useAuthStore.getState().error
         if (err) { setStatus('error'); setErrorMsg(err) }
-        else { setStatus('success'); setTimeout(() => navigate(ROUTES.DASHBOARD), 1800) }
+        // No automatic redirect: the user reads the confirmation and continues when ready.
+        else setStatus('success')
       } catch (e) {
         if (!mounted) return
         setStatus('error'); setErrorMsg((e as Error).message)
       }
     })()
     return () => { mounted = false }
-  }, [token, verifyEmail, navigate])
+  }, [token, verifyEmail])
+
+  // The result replaces the page without user action, so move focus there for screen readers.
+  useEffect(() => {
+    if (status === 'success') successHeading.current?.focus()
+  }, [status])
 
   const handleResend = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -70,7 +76,7 @@ export default function VerifyEmailPage() {
               <path d="M10 18l6 6 10-10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h1 className="font-headline font-black text-4xl text-[#36213E] mb-3">{t('authPage.verify.successTitle')}</h1>
+          <h1 ref={successHeading} tabIndex={-1} className="font-headline font-black text-4xl text-[#36213E] mb-3 outline-none">{t('authPage.verify.successTitle')}</h1>
           <p className="text-sm text-[#6F6878] mb-7 max-w-sm">{t('authPage.verify.successDesc')}</p>
           <Link to={ROUTES.DASHBOARD} className="inline-flex items-center gap-2 bg-[#36213E] text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-black transition-colors">
             {t('authPage.verify.successCta')}

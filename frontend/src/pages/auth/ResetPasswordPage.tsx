@@ -1,4 +1,4 @@
-import { useState, useEffect, useId } from 'react'
+import { useState, useEffect, useId, useRef } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
@@ -26,6 +26,11 @@ export default function ResetPasswordPage() {
     if (!token) navigate(ROUTES.FORGOT_PASSWORD, { replace: true })
   }, [token, navigate])
 
+  const successHeading = useRef<HTMLHeadingElement>(null)
+  useEffect(() => {
+    if (status === 'success') successHeading.current?.focus()
+  }, [status])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -34,8 +39,8 @@ export default function ResetPasswordPage() {
     setStatus('loading')
     try {
       await api.post('/auth/reset-password', { token, newPassword })
+      // No automatic redirect: the user reads the confirmation and signs in when ready.
       setStatus('success')
-      setTimeout(() => navigate(ROUTES.LOGIN), 2500)
     } catch (err) {
       setStatus('error')
       setError(err instanceof Error ? err.message : t('authPage.reset.errExpired'))
@@ -49,7 +54,7 @@ export default function ResetPasswordPage() {
           <div className="w-20 h-20 rounded-3xl bg-hai-mint flex items-center justify-center mb-6 shadow-[0_20px_40px_-20px_rgba(54,33,62,0.3)]">
             <span className="material-symbols-outlined text-hai-plum text-5xl" style={{ fontVariationSettings: '"FILL" 1' }}>lock_reset</span>
           </div>
-          <h1 className="font-headline font-bold text-4xl text-hai-plum mb-3 leading-tight">{t('authPage.reset.successTitle')}</h1>
+          <h1 ref={successHeading} tabIndex={-1} className="font-headline font-bold text-4xl text-hai-plum mb-3 leading-tight outline-none">{t('authPage.reset.successTitle')}</h1>
           <p className="text-sm text-neutral-600 mb-6 max-w-sm leading-relaxed">{t('authPage.reset.successDesc')}</p>
           <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-2 bg-hai-plum text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-black transition-colors">
             {t('authPage.reset.signInNow')}

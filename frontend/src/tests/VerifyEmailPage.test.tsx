@@ -1,6 +1,6 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import '../i18n'
 import api from '../lib/api'
 import VerifyEmailPage from '../pages/auth/VerifyEmailPage'
@@ -43,5 +43,23 @@ describe('VerifyEmailPage', () => {
     render(<MemoryRouter initialEntries={['/verify-email?token=expired']}><VerifyEmailPage /></MemoryRouter>)
 
     expect(await screen.findByRole('heading', { name: 'Verification failed.' })).toBeInTheDocument()
+  })
+
+  it('stays on the confirmation until the user chooses to continue', async () => {
+    vi.mocked(api.post).mockResolvedValue({ data: { success: true, data: { user: { id: 'alice', name: 'Alice' }, token: 'jwt' } } })
+    render(
+      <MemoryRouter initialEntries={['/verify-email?token=ok']}>
+        <Routes>
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/dashboard" element={<p>dashboard page</p>} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    const heading = await screen.findByRole('heading', { name: 'Email verified!' })
+    expect(heading).toHaveFocus()
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    expect(screen.queryByText('dashboard page')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute('href', '/dashboard')
   })
 })
