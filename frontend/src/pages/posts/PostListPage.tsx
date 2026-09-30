@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { HEALTH_DOMAIN_GROUPS, postDomains, postHasDomain } from '../../constants/domains'
@@ -44,6 +44,9 @@ import type { Post, PostAuthorRole, PostStatus, ProjectStage } from '../../types
 
 type PostedBy = 'Anyone' | 'Engineer' | 'Healthcare Professional'
 
+const POSTED_BY_TO_PARAM: Record<PostedBy, string> = { Anyone: '', Engineer: 'engineer', 'Healthcare Professional': 'clinician' }
+const POSTED_BY_FROM_PARAM: Record<string, PostedBy> = { engineer: 'Engineer', clinician: 'Healthcare Professional' }
+
 function postedByShortLabel(t: TFunction, value: PostedBy): string {
   if (value === 'Engineer') return t('posts.postedByOptions.engineer')
   if (value === 'Healthcare Professional') return t('posts.postedByOptions.clinician')
@@ -87,16 +90,39 @@ export default function PostListPage() {
   const { user } = useAuthStore()
   const { posts, fetchPosts, isLoading, remove } = usePostStore()
   const { suggestions, isLoading: isMatching, load: loadSmartSuggestions, reset: resetSmartSuggestions } = useSmartSuggestions()
-  const [searchParams] = useSearchParams()
-  const [search, setSearch] = useState('')
-  const [domain, setDomain] = useState('')
-  const [stage, setStage] = useState('')
-  const [status, setStatus] = useState('')
-  const [postedBy, setPostedBy] = useState<PostedBy>('Anyone')
-  const [location, setLocation] = useState('')
+  // Filters and page live in the URL, so returning from a post, reloading or sharing the
+  // link keeps them. Updates replace the history entry so Back leaves the list, not each keystroke.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const search = searchParams.get('q') ?? ''
+  const domain = searchParams.get('domain') ?? ''
+  const stage = searchParams.get('stage') ?? ''
+  const status = searchParams.get('status') ?? ''
+  const postedBy = POSTED_BY_FROM_PARAM[searchParams.get('by') ?? ''] ?? 'Anyone'
+  const location = searchParams.get('loc') ?? ''
+  const page = Math.max(1, Number(searchParams.get('page')) || 1)
+  // React Router hands the updater the params of the last render, so two updates in one
+  // tick would drop the first; read and write through a ref that always holds the latest.
+  const latestParams = useRef(searchParams)
+  latestParams.current = searchParams
+  const updateParams = (changes: Record<string, string>, keepPage = false) => {
+    const next = new URLSearchParams(latestParams.current)
+    for (const [key, value] of Object.entries(changes)) {
+      if (value) next.set(key, value)
+      else next.delete(key)
+    }
+    if (!keepPage) next.delete('page')
+    latestParams.current = next
+    setSearchParams(next, { replace: true })
+  }
+  const setSearch = (value: string) => updateParams({ q: value })
+  const setDomain = (value: string) => updateParams({ domain: value })
+  const setStage = (value: string) => updateParams({ stage: value })
+  const setStatus = (value: string) => updateParams({ status: value })
+  const setPostedBy = (value: PostedBy) => updateParams({ by: POSTED_BY_TO_PARAM[value] })
+  const setLocation = (value: string) => updateParams({ loc: value })
+  const setPage = (value: number) => updateParams({ page: value > 1 ? String(value) : '' }, true)
   const [sort, setSort] = useState<SortMode>(() => (localStorage.getItem('postList_sort') as SortMode) ?? 'best')
   const [viewMode, setViewMode] = useState<ViewMode>(() => (localStorage.getItem('postList_view') as ViewMode) ?? 'list')
-  const [page, setPage] = useState(1)
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
   const [postToDelete, setPostToDelete] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -155,13 +181,7 @@ export default function PostListPage() {
   }, [domain, location, postedBy, posts, search, sort, stage, status, suggestions, user, t])
 
   const clearFilters = () => {
-    setSearch('')
-    setDomain('')
-    setStage('')
-    setStatus('')
-    setPostedBy('Anyone')
-    setLocation('')
-    setPage(1)
+    updateParams({ q: '', domain: '', stage: '', status: '', by: '', loc: '' })
   }
 
   const openSaveSearch = () => {
@@ -199,10 +219,6 @@ export default function PostListPage() {
       setSaveSearchBusy(false)
     }
   }
-
-  useEffect(() => {
-    setPage(1)
-  }, [domain, location, postedBy, search, sort, stage, status, viewMode])
 
   useEffect(() => {
     setSavedSearchName(null)
@@ -339,8 +355,8 @@ export default function PostListPage() {
               hasActiveFilters={hasActiveFilters}
               sort={sort}
               viewMode={viewMode}
-              onSort={v => { setSort(v); localStorage.setItem('postList_sort', v) }}
-              onViewMode={v => { setViewMode(v); localStorage.setItem('postList_view', v) }}
+              onSort={v => { setSort(v); setPage(1); localStorage.setItem('postList_sort', v) }}
+              onViewMode={v => { setViewMode(v); setPage(1); localStorage.setItem('postList_view', v) }}
               onClear={clearFilters}
               page={currentPage}
               totalPages={totalPages}
