@@ -274,15 +274,6 @@ function HeroPortraitCard({ side }: { side: 'clinician' | 'engineer' }) {
   )
 }
 
-// ── Platform card icon square ───────────────────────────────────────
-function IconSquare({ color, bg, icon }: { color: string; bg: string; icon: string }) {
-  return (
-    <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: bg, color }}>
-      <Icon name={icon} filled />
-    </div>
-  )
-}
-
 // ── Step data & visuals for the interactive user guide ──────────────
 type Step = {
   num: string
@@ -343,8 +334,8 @@ const PostVisual = () => {
       <div className="h-2 bg-neutral-100 rounded-full w-full" />
       <div className="h-2 bg-neutral-100 rounded-full w-4/5" />
       <div className="h-2 bg-neutral-100 rounded-full w-3/5" />
-      <div className="mt-auto flex items-center justify-between pt-2">
-        <span className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{t('landing.tour.visual.files')}</span>
+      {/* No file counter: the platform deliberately takes no uploads. */}
+      <div className="mt-auto flex items-center justify-end pt-2">
         <span className="bg-hai-plum text-white text-xs font-bold px-3 py-1.5 rounded-full">{t('posts.form.publish')} →</span>
       </div>
     </div>
@@ -471,7 +462,7 @@ const NotifyVisual = () => {
     </div>
     {[
       [t('landing.tour.visual.requestAccepted'), t('common.minutesAgo', { count: 2 })],
-      [t('landing.tour.visual.newMatch'), t('landing.tour.visual.today')],
+      [t('landing.tour.visual.newMatch'), t('common.today')],
       [t('landing.tour.visual.exportReady'), t('common.yesterday')],
     ].map(([title, time]) => (
       <div key={title} className="flex items-center gap-3 py-3 border-b border-neutral-100 last:border-0">
@@ -679,21 +670,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Trust badges ribbon */}
-            <div className="hidden flex-wrap items-center justify-center gap-x-8 md:gap-x-10 gap-y-3 mb-14">
-              {([
-                ['language',        '.EU hosted & GDPR-native'],
-                ['history',         'Immutable audit trail'],
-                ['block',           'Zero patient data'],
-                ['account_balance', 'Built for European institutions'],
-              ] as [string, string][]).map(([icon, label]) => (
-                <span key={label} className="landing-muted flex items-center gap-2 text-xs font-mono tracking-[0.12em] uppercase font-bold">
-                  <Icon name={icon} className="landing-muted text-base" filled />
-                  {label}
-                </span>
-              ))}
-            </div>
-
             {/* Giant "Platform" wordmark — on off-white, uses ghost tone */}
             <div className="mt-16 text-center md:mt-24">
               <h2 className="landing-ghost-word text-[4.25rem] sm:text-[6.5rem] md:text-[8.25rem] font-headline font-bold leading-none tracking-normal">
@@ -779,94 +755,6 @@ export default function LandingPage() {
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            <div className="hidden">
-
-              {/* Card 1 — Structured Directory */}
-              <div className="bg-white rounded-3xl p-7 shadow-sm border border-neutral-100 flex flex-col h-full">
-                <div className="flex items-center gap-3 mb-5">
-                  <IconSquare icon="account_tree" color="#006C7A" bg="rgba(138,198,208,0.25)" />
-                  <h3 className="text-xl font-headline font-bold">Structured Directory</h3>
-                </div>
-                <div className="flex-grow flex items-center justify-center mb-5 min-h-[200px] bg-hai-cream rounded-2xl p-4 relative overflow-hidden">
-                  <div className="w-28 h-36 bg-gradient-to-b from-white to-neutral-200 shadow-xl rounded-sm relative">
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-20 h-10 bg-white/95 rounded shadow-md border border-neutral-200" />
-                    <div className="absolute inset-x-3 top-9  h-1.5 bg-neutral-300 rounded-full" />
-                    <div className="absolute inset-x-3 top-12 h-1   bg-neutral-200 rounded-full" />
-                    <div className="absolute inset-x-3 bottom-4 h-1.5 bg-hai-teal rounded-full w-1/2" />
-                  </div>
-                </div>
-                <p className="font-body text-sm text-neutral-600 leading-relaxed">
-                  Every post follows a clinical–engineering grammar: domain, expertise required, project stage, confidentiality level. Engineers publish capability, clinicians publish need — matches become meaningful.
-                </p>
-              </div>
-
-              {/* Card 2 — NDA → Meeting */}
-              <div className="bg-white rounded-3xl p-7 shadow-sm border border-neutral-100 flex flex-col h-full">
-                <div className="flex flex-col mb-5">
-                  <IconSquare icon="shield_lock" color="#5B9E00" bg="rgba(210,255,116,0.35)" />
-                  <h3 className="text-xl font-headline font-bold leading-tight mt-4">NDA-first meetings, logged &amp; immutable.</h3>
-                </div>
-                <div className="grid grid-cols-1 gap-3 mb-5 flex-grow">
-                  <div className="bg-neutral-100 rounded-2xl flex items-center justify-between px-5 py-4 min-h-[72px]">
-                    <span className="text-neutral-900 font-semibold text-sm">One-page NDA</span>
-                    <Icon name="check_circle" filled className="text-hai-teal" />
-                  </div>
-                  <div className="bg-neutral-100 rounded-2xl flex items-center justify-between px-5 py-4 min-h-[72px]">
-                    <span className="text-neutral-900 font-semibold text-sm">Three timeslots</span>
-                    <span className="flex gap-1">
-                      <span className="w-2 h-2 rounded-full bg-hai-teal" />
-                      <span className="w-2 h-2 rounded-full bg-hai-teal" />
-                      <span className="w-2 h-2 rounded-full bg-hai-teal" />
-                    </span>
-                  </div>
-                </div>
-                <p className="font-body text-sm text-neutral-600 leading-relaxed">
-                  Express interest. Accept a one-page NDA inline. Propose three timeslots. The post owner confirms — a meeting is scheduled and the handshake is logged in a 24-month audit trail.
-                </p>
-              </div>
-
-              {/* Card 3 — Matching */}
-              <div className="bg-white rounded-3xl p-7 shadow-sm border border-neutral-100 flex flex-col h-full">
-                <div className="flex items-center gap-3 mb-5">
-                  <IconSquare icon="tune" color="#6FB8C4" bg="rgba(59,130,246,0.18)" />
-                  <h3 className="text-xl font-headline font-bold leading-tight">Intelligent matching across disciplines.</h3>
-                </div>
-                <div className="flex-grow flex flex-col items-center justify-center mb-5 bg-hai-plum rounded-2xl p-6 min-h-[200px] relative overflow-hidden">
-                  <div className="w-full max-w-[200px] bg-hai-cream h-11 rounded-lg mb-2 relative z-10 shadow-lg border border-white/20 flex items-center px-3 text-xs font-mono uppercase tracking-[0.12em]st text-neutral-700">
-                    Cardiology · ICU
-                  </div>
-                  <button className="bg-hai-plum text-hai-mint font-bold py-2 px-7 rounded-full relative z-20 -my-3 shadow-lg border-[3px] border-hai-plum w-max text-sm">
-                    Match
-                  </button>
-                  <div className="w-full max-w-[200px] bg-hai-mint h-11 rounded-lg mt-2 relative z-10 shadow-lg border border-white/20 flex items-center px-3 text-xs font-mono uppercase tracking-[0.12em]st text-hai-plum">
-                    Embedded ML · Berlin
-                  </div>
-                </div>
-                <p className="font-body text-sm text-neutral-600 leading-relaxed">
-                  Filter across <b>20 medical domains</b> and <b>12 engineering specialties</b>. By city. By project stage. By collaboration type. City-based match highlights surface the nearest credible partner.
-                </p>
-              </div>
-
-              {/* Card 4 — GDPR native (dark) */}
-              <div className="bg-black text-white rounded-3xl p-7 shadow-sm border border-neutral-800 flex flex-col h-full relative overflow-hidden">
-                <div className="flex items-start gap-3 mb-5 relative z-10">
-                  <IconSquare icon="public" color="#FFFFFF" bg="rgba(59,130,246,0.9)" />
-                  <h3 className="text-xl font-headline font-bold leading-tight">GDPR-native by design.</h3>
-                </div>
-                <div className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full landing-card-glow z-0" />
-                <div className="flex-grow flex items-center justify-center relative z-10 mb-5 min-h-[200px]">
-                  <div className="relative w-40 h-40">
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400 via-blue-600 to-black shadow-[0_0_60px_rgba(37,99,235,0.6)] border border-blue-400/40" />
-                    <div className="absolute inset-4 rounded-full border border-blue-300/30" />
-                    <div className="absolute inset-8 rounded-full border border-blue-300/20" />
-                  </div>
-                </div>
-                <p className="font-body text-sm text-neutral-300 leading-relaxed relative z-10">
-                  Institutional .edu verification, tamper-resistant audit log, export everything, delete everything. No file uploads. No patient data. <b className="text-white">No exceptions.</b>
-                </p>
               </div>
             </div>
           </section>

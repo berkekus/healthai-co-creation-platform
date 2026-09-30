@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { uiLocale } from '../../utils/formatDate'
 import PageWrapper from '../../components/layout/PageWrapper'
 import FormField, { inputStyle } from '../../components/ui/FormField'
 import CountryCityPicker from '../../components/ui/CountryCityPicker'
@@ -693,7 +694,7 @@ export default function ProfilePage() {
   const savedTags = user.expertiseTags ?? []
   const hasUnsavedChanges = isDirty || tags.length !== savedTags.length || tags.some((tag, index) => tag !== savedTags[index])
   const avatarSrc = avatarPreview ?? resolveAvatar(user.avatarUrl)
-  const memberSince = new Date(user.createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+  const memberSince = new Date(user.createdAt).toLocaleDateString(uiLocale(), { month: 'long', year: 'numeric' })
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

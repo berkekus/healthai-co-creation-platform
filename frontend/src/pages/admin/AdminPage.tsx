@@ -7,6 +7,7 @@ import {
   Users, X, Search, ChevronDown,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { uiLocale } from '../../utils/formatDate'
 import type { TFunction } from 'i18next'
 import { usePostStore } from '../../store/postStore'
 import { useNotificationStore } from '../../store/notificationStore'
@@ -168,7 +169,7 @@ function UserGrowthChart({ users, days }: { users: User[]; days: number }) {
   const pts = Array.from({ length: days }, (_, i) => {
     const d = new Date(today)
     d.setDate(d.getDate() - (days - 1 - i))
-    const label = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
+    const label = d.toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' })
     const total = users.filter(u => u.createdAt && new Date(u.createdAt) <= d).length
     return { label, total }
   })
@@ -295,7 +296,7 @@ function VerificationQueueTab() {
                     </span>
                   </td>
                   <td className="px-6 py-3.5 text-[#6b7280] max-w-[180px] truncate">{u.institution}</td>
-                  <td className="px-6 py-3.5 text-[#6b7280]">{new Date(u.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                  <td className="px-6 py-3.5 text-[#6b7280]">{new Date(u.createdAt).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                   <td className="px-6 py-3.5 text-right">
                     <button
                       onClick={() => handleVerify(u.id)}
@@ -349,7 +350,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
   const recentLogs = logs.slice(0, 4)
 
   const today = new Date()
-  const dateRange = `${new Date(today.getTime() - (dateRangeDays - 1) * 86400000).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} – ${today.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}`
+  const dateRange = `${new Date(today.getTime() - (dateRangeDays - 1) * 86400000).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' })} – ${today.toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short', year: 'numeric' })}`
   const RANGE_OPTIONS = [7, 14, 30, 90]
   const CHART_OPTIONS = [7, 14, 30]
 
@@ -486,7 +487,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                         </span>
                       </td>
                       <td className="px-6 py-3.5 text-sm text-[#6b7280]">
-                        {new Date(u.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {new Date(u.createdAt).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short', year: 'numeric' })}
                       </td>
                       <td className="px-6 py-3.5">
                         <button
@@ -873,7 +874,7 @@ export default function AdminPage() {
                             </span>
                           </td>
                           <td className="px-6 py-3.5 text-xs text-[#6b7280]">
-                            {new Date(u.lastActive).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                            {new Date(u.lastActive).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' })}
                           </td>
                           <td className="px-6 py-3.5">
                             <div className="flex items-center gap-2">
@@ -972,7 +973,7 @@ export default function AdminPage() {
                           }`}>{t(`posts.status.${p.status}`, { defaultValue: p.status.replace(/_/g, ' ') })}</span>
                         </td>
                         <td className="px-6 py-3.5 text-xs text-[#6b7280]">
-                          {new Date(p.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                          {new Date(p.createdAt).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' })}
                         </td>
                         <td className="px-6 py-3.5">
                           <button onClick={() => { setRemoveError(null); setPostToRemove({ id: p.id, title: p.title, authorId: p.authorId }) }}
@@ -1032,7 +1033,7 @@ export default function AdminPage() {
                     {filteredLogs.map(log => (
                       <tr key={log.id} className={`border-b border-[#f9fafb] last:border-b-0 transition-colors ${log.result === 'failure' ? 'bg-red-50/30' : 'hover:bg-[#fafafa]'}`}>
                         <td className="px-6 py-3 text-xs text-[#6b7280] whitespace-nowrap font-mono">
-                          {new Date(log.timestamp).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          {new Date(log.timestamp).toLocaleString(uiLocale(), { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                         </td>
                         <td className="px-6 py-3 text-xs text-[#374151] font-mono whitespace-nowrap">{log.userEmail}</td>
                         <td className="px-6 py-3 text-xs text-[#6b7280] uppercase tracking-[0.12em]">{roleLabel(t, log.role)}</td>

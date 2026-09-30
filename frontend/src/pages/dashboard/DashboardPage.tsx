@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { Activity, ArrowRight, Bookmark, BrainCircuit, CalendarDays, ChevronRight, Eye, FileText, Handshake, HeartPulse, Plus, Search, Sparkles, User } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
+import { uiLocale } from '../../utils/formatDate'
 import api from '../../lib/api'
 import { ROUTES } from '../../constants/routes'
 import { Badge, ButtonLink, Card, IconButton } from '../../components/ui'
@@ -126,14 +128,14 @@ function useRoleLabel() {
   return (role: string) => t(`common.role.${role}`, { defaultValue: role })
 }
 
-function weekRange(locale: string) {
+function weekRange() {
   const now = new Date()
   const day = now.getDay()
   const monday = new Date(now)
   monday.setDate(now.getDate() - ((day + 6) % 7))
   const sunday = new Date(monday)
   sunday.setDate(monday.getDate() + 6)
-  const fmt = (d: Date) => d.toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'en-US', { month: 'short', day: 'numeric' })
+  const fmt = (d: Date) => d.toLocaleDateString(uiLocale(), { month: 'short', day: 'numeric' })
   return `${fmt(monday)} - ${fmt(sunday)}, ${sunday.getFullYear()}`
 }
 
@@ -199,7 +201,7 @@ function WeeklyBlob({
   meetingCount: number
   activeListings: number
 }) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   return (
     <div className="relative xl:h-[455px]">
       <div
@@ -220,7 +222,7 @@ function WeeklyBlob({
       <div className="relative z-10 mx-auto max-w-[790px] px-4 pt-6 xl:pt-[115px]">
         <div className="mb-8 flex items-center justify-between">
           <div className="text-base font-black text-[#36213E]">{t('dashboard.weeklyOverview')}</div>
-          <div className="text-sm font-bold text-[#6F6878]">{weekRange(i18n.language)}</div>
+          <div className="text-sm font-bold text-[#6F6878]">{weekRange()}</div>
         </div>
 
         <div className="grid grid-cols-3 gap-6 xl:gap-16">
@@ -259,7 +261,7 @@ function Metric({
 }
 
 function RecentPosts({ posts }: { posts: Post[] }) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const recentPosts = [...posts]
     .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
     .slice(0, 3)
@@ -277,7 +279,7 @@ function RecentPosts({ posts }: { posts: Post[] }) {
       <div className="flex flex-col gap-3">
         {recentPosts.length > 0 ? (
           recentPosts.map((post, index) => (
-            <RecentPostCard key={post.id} post={post} index={index} timeLabel={formatPostAge(post.updatedAt || post.createdAt, i18n.language)} />
+            <RecentPostCard key={post.id} post={post} index={index} timeLabel={formatPostAge(post.updatedAt || post.createdAt, t)} />
           ))
         ) : (
           <div className="min-h-[82px] rounded-[10px] border border-[#E3E7EC] bg-white px-5 py-5 text-sm font-semibold text-[#6F6878] shadow-[0_14px_34px_-28px_rgba(45,24,56,0.5)]">
@@ -289,19 +291,19 @@ function RecentPosts({ posts }: { posts: Post[] }) {
   )
 }
 
-function formatPostAge(dateValue: string, language: string) {
+// Previously only Turkish and English were spelled out here; every language now uses its own words.
+function formatPostAge(dateValue: string, t: TFunction) {
   const timestamp = new Date(dateValue).getTime()
   if (Number.isNaN(timestamp)) return ''
 
   const diffMs = Date.now() - timestamp
   const diffDays = Math.floor(diffMs / 86400000)
-  const locale = language.startsWith('tr') ? 'tr-TR' : 'en-US'
 
-  if (diffDays <= 0) return language.startsWith('tr') ? 'Bugün' : 'Today'
-  if (diffDays === 1) return language.startsWith('tr') ? 'Dün' : 'Yesterday'
-  if (diffDays < 7) return language.startsWith('tr') ? `${diffDays} gün önce` : `${diffDays} days ago`
+  if (diffDays <= 0) return t('common.today')
+  if (diffDays === 1) return t('common.yesterday')
+  if (diffDays < 7) return t('common.daysAgo', { count: diffDays })
 
-  return new Date(timestamp).toLocaleDateString(locale, { month: 'short', day: 'numeric' })
+  return new Date(timestamp).toLocaleDateString(uiLocale(), { month: 'short', day: 'numeric' })
 }
 
 function getRecentPostVisual(post: Post, index: number) {
@@ -570,13 +572,13 @@ function MeetingAvatar({
   imageSrc: string
   className: string
 }) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const isRequester = meeting.requesterId === userId
   const partner = isRequester ? meeting.ownerName : meeting.requesterName
   const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
   const statusLabel = t(`meetings.status.${meeting.status}`, { defaultValue: meeting.status })
   const dateLabel = slot
-    ? new Date(`${slot.date}T${slot.time}`).toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    ? new Date(`${slot.date}T${slot.time}`).toLocaleDateString(uiLocale(), { month: 'short', day: 'numeric', year: 'numeric' })
     : t('dashboard.slotPending')
 
   const tooltipId = `meeting-tip-${meeting.id}`
