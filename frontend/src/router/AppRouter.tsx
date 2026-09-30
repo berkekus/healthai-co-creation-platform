@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ROUTES } from '../constants/routes'
 import AppLayout from '../components/layout/AppLayout'
+import ErrorBoundary from '../components/ui/ErrorBoundary'
 import LandingShell from '../components/layout/LandingShell'
 import ProtectedRoute from './ProtectedRoute'
 import GuestRoute from './GuestRoute'
@@ -45,47 +46,50 @@ function PageLoader() {
 export default function AppRouter() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
-          {/* Landing — dedicated shell */}
-          <Route element={<LandingShell />}>
-            <Route path={ROUTES.HOME} element={<LandingPage />} />
-          </Route>
-
-          <Route element={<AppLayout />}>
-            {/* Public */}
-            <Route path={ROUTES.LOGIN}            element={<LoginPage />} />
-            <Route path={ROUTES.REGISTER}         element={<GuestRoute><RegisterPage /></GuestRoute>} />
-            <Route path={ROUTES.VERIFY_EMAIL}     element={<VerifyEmailPage />} />
-            <Route path={ROUTES.FORGOT_PASSWORD}  element={<ForgotPasswordPage />} />
-            <Route path={ROUTES.RESET_PASSWORD}   element={<ResetPasswordPage />} />
-            <Route path={ROUTES.ABOUT}        element={<AboutPage />} />
-            <Route path={ROUTES.PRIVACY}      element={<PrivacyPage />} />
-            <Route path={ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
-            <Route path={ROUTES.NOT_FOUND}    element={<NotFoundPage />} />
-
-            {/* Protected — any authenticated user */}
-            <Route path={ROUTES.DASHBOARD}    element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-            <Route path={ROUTES.POSTS}        element={<ProtectedRoute><PostListPage /></ProtectedRoute>} />
-            <Route path={ROUTES.POST_DETAIL}  element={<ProtectedRoute><PostDetailPage /></ProtectedRoute>} />
-            <Route path={ROUTES.POST_CREATE}  element={<ProtectedRoute><PostCreatePage /></ProtectedRoute>} />
-            <Route path={ROUTES.POST_EDIT}    element={<ProtectedRoute><PostEditPage /></ProtectedRoute>} />
-            <Route path={ROUTES.MEETINGS}     element={<ProtectedRoute><MeetingsPage /></ProtectedRoute>} />
-            <Route path={ROUTES.PROFILE}         element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-            <Route path={ROUTES.PUBLIC_PROFILE}  element={<ProtectedRoute><PublicProfilePage /></ProtectedRoute>} />
-            <Route path={ROUTES.NOTIFICATIONS} element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-            <Route path={ROUTES.MESSAGES}      element={<ProtectedRoute><ConversationsPage /></ProtectedRoute>} />
-            <Route path={ROUTES.CONVERSATION}  element={<ProtectedRoute><ConversationPage /></ProtectedRoute>} />
-
-            {/* Admin only */}
-            <Route path={ROUTES.ADMIN} element={
-              <ProtectedRoute allowedRoles={['admin']}><AdminPage /></ProtectedRoute>
-            } />
-
-            <Route path="*" element={<Navigate to={ROUTES.NOT_FOUND} replace />} />
-          </Route>
-        </Routes>
-      </Suspense>
+      {/* Last line of defence: layouts have their own boundary around the page. */}
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* Landing — dedicated shell */}
+            <Route element={<LandingShell />}>
+              <Route path={ROUTES.HOME} element={<LandingPage />} />
+            </Route>
+  
+            <Route element={<AppLayout />}>
+              {/* Public */}
+              <Route path={ROUTES.LOGIN}            element={<LoginPage />} />
+              <Route path={ROUTES.REGISTER}         element={<GuestRoute><RegisterPage /></GuestRoute>} />
+              <Route path={ROUTES.VERIFY_EMAIL}     element={<VerifyEmailPage />} />
+              <Route path={ROUTES.FORGOT_PASSWORD}  element={<ForgotPasswordPage />} />
+              <Route path={ROUTES.RESET_PASSWORD}   element={<ResetPasswordPage />} />
+              <Route path={ROUTES.ABOUT}        element={<AboutPage />} />
+              <Route path={ROUTES.PRIVACY}      element={<PrivacyPage />} />
+              <Route path={ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
+              <Route path={ROUTES.NOT_FOUND}    element={<NotFoundPage />} />
+  
+              {/* Protected — any authenticated user */}
+              <Route path={ROUTES.DASHBOARD}    element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+              <Route path={ROUTES.POSTS}        element={<ProtectedRoute><PostListPage /></ProtectedRoute>} />
+              <Route path={ROUTES.POST_DETAIL}  element={<ProtectedRoute><PostDetailPage /></ProtectedRoute>} />
+              <Route path={ROUTES.POST_CREATE}  element={<ProtectedRoute><PostCreatePage /></ProtectedRoute>} />
+              <Route path={ROUTES.POST_EDIT}    element={<ProtectedRoute><PostEditPage /></ProtectedRoute>} />
+              <Route path={ROUTES.MEETINGS}     element={<ProtectedRoute><MeetingsPage /></ProtectedRoute>} />
+              <Route path={ROUTES.PROFILE}         element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+              <Route path={ROUTES.PUBLIC_PROFILE}  element={<ProtectedRoute><PublicProfilePage /></ProtectedRoute>} />
+              <Route path={ROUTES.NOTIFICATIONS} element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+              <Route path={ROUTES.MESSAGES}      element={<ProtectedRoute><ConversationsPage /></ProtectedRoute>} />
+              <Route path={ROUTES.CONVERSATION}  element={<ProtectedRoute><ConversationPage /></ProtectedRoute>} />
+  
+              {/* Admin only */}
+              <Route path={ROUTES.ADMIN} element={
+                <ProtectedRoute allowedRoles={['admin']}><AdminPage /></ProtectedRoute>
+              } />
+  
+              <Route path="*" element={<Navigate to={ROUTES.NOT_FOUND} replace />} />
+            </Route>
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
     </BrowserRouter>
   )
 }

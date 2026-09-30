@@ -1,6 +1,7 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import SessionTimeoutModal from '../ui/SessionTimeoutModal'
 import CookieConsentBanner from '../ui/CookieConsentBanner'
+import ErrorBoundary from '../ui/ErrorBoundary'
 
 /**
  * Minimal wrapper for the public landing page.
@@ -8,9 +9,12 @@ import CookieConsentBanner from '../ui/CookieConsentBanner'
  * so we only inject the global utilities here.
  */
 export default function LandingShell() {
+  const location = useLocation()
   return (
     <>
-      <Outlet />
+      <ErrorBoundary resetKey={location.pathname}>
+        <Outlet />
+      </ErrorBoundary>
       <SessionTimeoutModal />
       <CookieConsentBanner />
     </>

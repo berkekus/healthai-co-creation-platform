@@ -1054,6 +1054,7 @@
   },
   "errors": {
     "badgePrefix": "Err",
+    "boundary": {"title":"This page ran into a problem","desc":"Something on this page stopped working. Your data is safe. Try again, or use the menu to go somewhere else.","updateDesc":"A new version of HealthAI was published while this tab was open. Reload to continue.","retry":"Try again","reload":"Reload page"},
     "notFound": {
       "code": "404 · Not found",
       "title": "We can't find that page",

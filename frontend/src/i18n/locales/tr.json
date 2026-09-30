@@ -1054,6 +1054,7 @@
   },
   "errors": {
     "badgePrefix": "Hata",
+    "boundary": {"title":"Bu sayfada bir sorun oluştu","desc":"Bu sayfadaki bir bölüm çalışmayı durdurdu. Verileriniz güvende. Tekrar deneyin ya da menüden başka bir sayfaya geçin.","updateDesc":"Bu sekme açıkken HealthAI'nin yeni bir sürümü yayımlandı. Devam etmek için sayfayı yenileyin.","retry":"Tekrar dene","reload":"Sayfayı yenile"},
     "notFound": {
       "code": "404 · Bulunamadı",
       "title": "Bu sayfayı bulamıyoruz",

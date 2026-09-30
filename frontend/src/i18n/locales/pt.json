@@ -1054,6 +1054,7 @@
   },
   "errors": {
     "badgePrefix": "Erro",
+    "boundary": {"title":"Esta página encontrou um problema","desc":"Algo nesta página deixou de funcionar. Os seus dados estão seguros. Tente novamente ou use o menu para ir para outra página.","updateDesc":"Foi publicada uma nova versão da HealthAI enquanto este separador estava aberto. Recarregue para continuar.","retry":"Tentar novamente","reload":"Recarregar página"},
     "notFound": {
       "code": "404 · Não encontrado",
       "title": "Não conseguimos encontrar essa página",

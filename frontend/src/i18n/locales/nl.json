@@ -1054,6 +1054,7 @@
   },
   "errors": {
     "badgePrefix": "Fout",
+    "boundary": {"title":"Er ging iets mis op deze pagina","desc":"Een onderdeel van deze pagina werkt niet meer. Je gegevens zijn veilig. Probeer het opnieuw of ga via het menu naar een andere pagina.","updateDesc":"Er is een nieuwe versie van HealthAI gepubliceerd terwijl dit tabblad open was. Herlaad om verder te gaan.","retry":"Opnieuw proberen","reload":"Pagina herladen"},
     "notFound": {
       "code": "404 · Niet gevonden",
       "title": "We kunnen die pagina niet vinden",
