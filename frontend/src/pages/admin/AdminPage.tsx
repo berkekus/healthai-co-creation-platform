@@ -59,7 +59,9 @@ function timeAgo(iso: string, t: TFunction) {
   return t('common.daysAgo', { count: Math.floor(h / 24) })
 }
 
-// ── HOVER-EXPAND SIDEBAR ──────────────────────────────────
+// ── SIDEBAR ───────────────────────────────────────────────
+// Always expanded on lg+. Between md and lg it collapses to icons and expands on
+// hover or keyboard focus, so labels never depend on a mouse.
 function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: AdminView) => void }) {
   const { t } = useTranslation()
   const mainViews = new Set<AdminView>(['overview', 'users', 'posts', 'logs', 'verification'])
@@ -77,7 +79,7 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
   ]
 
   return (
-    <aside className="group/sb flex flex-col bg-white border-r border-[#eaecf0] shrink-0 overflow-x-hidden w-[56px] hover:w-[220px] transition-all duration-200">
+    <aside className="group/sb flex flex-col bg-white border-r border-[#eaecf0] shrink-0 overflow-x-hidden w-[56px] hover:w-[220px] focus-within:w-[220px] lg:w-[220px] transition-all duration-200">
       <nav className="flex-1 py-3 flex flex-col gap-0.5 px-2 overflow-y-auto overflow-x-hidden">
         {navItems.map(item => {
           const isActive = item.id === view
@@ -88,7 +90,7 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
               <Link key={item.id} to={item.route}
                 className="flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-[#6b7280] hover:bg-[#f5f5ff] hover:text-[#4f46e5] transition-colors">
                 <span className="shrink-0">{item.icon}</span>
-                <span className="text-sm font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75">{item.label}</span>
+                <span className="text-sm font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75">{item.label}</span>
               </Link>
             )
           }
@@ -103,9 +105,9 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
                 : 'text-[#6b7280] hover:bg-[#f5f5ff] hover:text-[#4f46e5]'
               }`}>
               <span className="shrink-0">{item.icon}</span>
-              <span className="text-sm font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 flex-1">{item.label}</span>
+              <span className="text-sm font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75 flex-1">{item.label}</span>
               {item.soon && (
-                <span className="text-xs font-black uppercase tracking-[0.12em] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 bg-[#f0f0ff] text-[#a8a4d4] rounded-full px-2 py-0.5">
+                <span className="text-xs font-black uppercase tracking-[0.12em] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75 bg-[#f0f0ff] text-[#a8a4d4] rounded-full px-2 py-0.5">
                   {t('admin.sidebar.soon')}
                 </span>
               )}
@@ -118,18 +120,18 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
       <div className="m-2 p-3 bg-[#f8f8ff] rounded-xl border border-[#eeeeff] overflow-hidden">
         <div className="flex items-center gap-2 mb-1">
           <Headphones size={16} strokeWidth={1.8} className="text-[#4f46e5] shrink-0" />
-          <span className="text-xs font-black text-[#18203a] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75">{t('admin.sidebar.needHelp')}</span>
+          <span className="text-xs font-black text-[#18203a] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75">{t('admin.sidebar.needHelp')}</span>
         </div>
         <svg viewBox="0 0 80 24" className="w-full opacity-40 mb-2">
           <path d="M0,18 C10,14 15,20 25,12 C35,4 40,16 50,10 C60,4 70,14 80,8"
             fill="none" stroke="#4f46e5" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
-        <p className="text-xs text-[#6b7280] leading-relaxed whitespace-nowrap overflow-hidden opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 mb-2">
+        <p className="w-[180px] text-xs text-[#6b7280] leading-relaxed opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75 mb-2">
           {t('admin.sidebar.supportBlurb')}
         </p>
         <a
           href="mailto:support@healthai.edu"
-          className="flex items-center gap-1 text-xs font-bold text-[#4f46e5] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 transition-opacity duration-150 delay-75 hover:underline"
+          className="flex items-center gap-1 text-xs font-bold text-[#4f46e5] whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75 hover:underline"
         >
           {t('admin.sidebar.contactSupport')} <ChevronRight size={12} />
         </a>
