@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
+import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import '../i18n'
 import api from '../lib/api'
@@ -46,7 +46,7 @@ const actions = {
 const fetchMeetingsFromServer = useMeetingStore.getState().fetchByUser
 
 function renderPage(meetings: Meeting[], state?: unknown, options: { liveFetch?: boolean } = {}) {
-  useMeetingStore.setState({ meetings, fetchByUser: options.liveFetch ? fetchMeetingsFromServer : vi.fn(), ...actions })
+  useMeetingStore.setState({ meetings, listStatus: 'loaded', fetchByUser: options.liveFetch ? fetchMeetingsFromServer : vi.fn(), ...actions })
   return render(
     <MemoryRouter initialEntries={[{ pathname: '/meetings', state }]}>
       <Routes>
@@ -177,6 +177,34 @@ describe('MeetingsPage', () => {
     expect(screen.getByText('Needs my pick')).toBeInTheDocument()
     expect(screen.queryByText('Waiting on them')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Show' })).not.toBeInTheDocument()
+  })
+
+  it('shows loading instead of "no meetings" and zero counts while the first fetch runs', () => {
+    renderPage([])
+    act(() => { useMeetingStore.setState({ listStatus: 'loading' }) })
+
+    expect(screen.queryByText('No meetings match this filter.')).not.toBeInTheDocument()
+    expect(screen.queryByText('0 meetings')).not.toBeInTheDocument()
+    expect(within(screen.getByRole('group', { name: 'Status' })).getByRole('button', { name: 'All' })).toBeInTheDocument()
+  })
+
+  it('says the meetings could not be loaded and retries on request', () => {
+    const fetchByUser = vi.fn()
+    renderPage([])
+    act(() => { useMeetingStore.setState({ listStatus: 'error', fetchByUser }) })
+    fetchByUser.mockClear()
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Meetings could not be loaded.')
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
+    expect(fetchByUser).toHaveBeenCalled()
+  })
+
+  it('keeps the list but warns when a refresh fails', () => {
+    renderPage([meeting('pending', 'owner', { postTitle: 'Still visible' })])
+    act(() => { useMeetingStore.setState({ listStatus: 'error' }) })
+
+    expect(screen.getByText('Still visible')).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent('could not be refreshed')
   })
 
   it('asks before closing the post with Partner Found and then shows it as closed', async () => {

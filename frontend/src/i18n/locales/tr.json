@@ -916,6 +916,9 @@
     "markHeldHelp": "Görüştük — bu işlem ilanı kapatmaz.",
     "goToPost": "İlana git",
     "actionFailed": "İşlem tamamlanamadı. Lütfen tekrar deneyin.",
+    "loadError": "Toplantılar yüklenemedi.",
+    "refreshError": "Toplantılar güncellenemedi; bu liste eski olabilir.",
+    "retry": "Tekrar dene",
     "previousMonth": "Önceki ay",
     "nextMonth": "Sonraki ay"
   },

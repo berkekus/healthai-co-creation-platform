@@ -28,6 +28,7 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import ProposeTimesModal from '../../components/meetings/ProposeTimesModal'
 import { CHAT_OPEN_STATUSES, MEETING_STATUS_STYLE, meetingRole } from '../../utils/meetingStatus'
 import { browserTimeZone, describeSlot } from '../../utils/timeSlots'
+import { SkeletonCircle, SkeletonLine } from '../../components/ui/Skeleton'
 
 // Direction and status are independent, so they are two filters combined with AND
 // rather than one row of tabs where a meeting could sit under several at once.
@@ -55,7 +56,7 @@ const CLOSABLE_POST_STATUSES: PostStatus[] = ['active', 'meeting_scheduled', 'ex
 export default function MeetingsPage() {
   const { t } = useTranslation()
   const { user } = useAuthStore()
-  const { meetings, fetchByUser, accept, confirm, decline, cancel, complete, reschedule } = useMeetingStore()
+  const { meetings, listStatus, fetchByUser, accept, confirm, decline, cancel, complete, reschedule } = useMeetingStore()
   const { fetchConversations } = useConversationStore()
   const navigate = useNavigate()
   const location = useLocation()
@@ -79,6 +80,13 @@ export default function MeetingsPage() {
     () => user ? meetings.filter(meeting => meeting.requesterId === user.id || meeting.ownerId === user.id) : [],
     [meetings, user],
   )
+
+  // Without these, a slow or failed fetch read as "you have no meetings" with every count at 0.
+  const showSkeleton = (listStatus === 'idle' || listStatus === 'loading') && scopedMeetings.length === 0
+  const showLoadError = listStatus === 'error' && scopedMeetings.length === 0
+  const showRefreshError = listStatus === 'error' && scopedMeetings.length > 0
+  const countsKnown = !showSkeleton && !showLoadError
+  const retry = () => { fetchByUser() }
 
   // Each count is the number of cards that option would show, given the other filter.
   const statusOptions: { id: StatusFilter; label: string; count: number }[] = (
@@ -165,7 +173,7 @@ export default function MeetingsPage() {
       } as CSSProperties}
     >
       <section className="mx-auto w-full max-w-[1640px] px-6 pb-20 pt-[72px] md:px-10 2xl:px-0">
-        <Hero total={scopedMeetings.length} />
+        <Hero total={countsKnown ? scopedMeetings.length : null} />
 
         {requestSentTo && (
           <div role="status" className="mt-8 flex items-start gap-3 rounded-2xl border border-[#8AC6D0] bg-[#E8F4F7] px-5 py-4 text-sm font-bold text-[var(--primary)]">
@@ -194,9 +202,9 @@ export default function MeetingsPage() {
           )}
 
           <div className="flex flex-col gap-5">
-            <FilterGroup label={t('meetingsPage.filterStatus')} options={statusOptions} active={statusFilter} onChange={setStatusFilter} />
+            <FilterGroup label={t('meetingsPage.filterStatus')} options={statusOptions} active={statusFilter} onChange={setStatusFilter} showCounts={countsKnown} />
             <div className="flex flex-col gap-3">
-              <FilterGroup label={t('meetingsPage.filterDirection')} options={directionOptions} active={direction} onChange={setDirection} />
+              <FilterGroup label={t('meetingsPage.filterDirection')} options={directionOptions} active={direction} onChange={setDirection} showCounts={countsKnown} />
               <p className="text-sm font-semibold text-[var(--muted)]">{t('meetingsPage.tabsHelp')}</p>
             </div>
           </div>
@@ -207,7 +215,30 @@ export default function MeetingsPage() {
             </div>
           )}
 
+          {showRefreshError && (
+            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F3D6D9] bg-[#FBF1F2] px-5 py-3 text-sm font-bold text-[#9B3440]">
+              <span>{t('meetingsPage.refreshError')}</span>
+              <button type="button" onClick={retry} className="underline underline-offset-2 hover:text-[var(--primary)]">
+                {t('meetingsPage.retry')}
+              </button>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.41fr)]">
+            {showSkeleton ? (
+              <MeetingListSkeleton />
+            ) : showLoadError ? (
+              <div role="alert" className="rounded-[28px] border border-[var(--border)] bg-white px-6 py-16 text-center">
+                <p className="text-sm font-bold text-[#9B3440]">{t('meetingsPage.loadError')}</p>
+                <button
+                  type="button"
+                  onClick={retry}
+                  className="mt-4 inline-flex h-11 items-center rounded-full bg-[var(--primary)] px-5 text-sm font-black text-white transition hover:bg-black"
+                >
+                  {t('meetingsPage.retry')}
+                </button>
+              </div>
+            ) : (
             <MeetingList
               meetings={visibleMeetings}
               userId={user?.id ?? ''}
@@ -225,6 +256,7 @@ export default function MeetingsPage() {
               onPartnerFound={meeting => { setPartnerFoundError(null); setPartnerFoundFor(meeting) }}
               onViewAll={resetFilters}
             />
+            )}
             <aside>
               <WidgetArea meetings={scopedMeetings} />
             </aside>
@@ -258,14 +290,14 @@ export default function MeetingsPage() {
   )
 }
 
-function Hero({ total }: { total: number }) {
+function Hero({ total }: { total: number | null }) {
   const { t } = useTranslation()
   return (
     <div>
       <div>
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-[var(--primary)] shadow-[0_10px_30px_-24px_rgba(45,24,56,0.5)]">
           <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
-          {t('meetingsPage.totalCount', { count: total })}
+          {total === null ? t('common.loading') : t('meetingsPage.totalCount', { count: total })}
         </div>
 
         <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-[var(--primary)] md:text-8xl">
@@ -285,11 +317,14 @@ function FilterGroup<T extends string>({
   options,
   active: activeId,
   onChange,
+  showCounts = true,
 }: {
   label: string
   options: { id: T; label: string; count: number }[]
   active: T
   onChange: (id: T) => void
+  /** Hidden until the list has loaded, so a pending fetch does not read as "0". */
+  showCounts?: boolean
 }) {
   return (
     <div role="group" aria-label={label} className="flex flex-col gap-2">
@@ -309,13 +344,15 @@ function FilterGroup<T extends string>({
               }`}
             >
               {tab.label}
-              <span
-                className={`flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-xs font-black ${
-                  active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-[#EEF0F3] text-[var(--muted)]'
-                }`}
-              >
-                {tab.count}
-              </span>
+              {showCounts && (
+                <span
+                  className={`flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-xs font-black ${
+                    active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-[#EEF0F3] text-[var(--muted)]'
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              )}
             </button>
           )
         })}
@@ -353,6 +390,25 @@ interface RowHandlers {
   onOpenChat: (meeting: Meeting) => void
   onProposeTimes: (meeting: Meeting) => void
   onPartnerFound: (meeting: Meeting) => void
+}
+
+function MeetingListSkeleton() {
+  const { t } = useTranslation()
+  return (
+    <section aria-busy="true" className="overflow-hidden rounded-[28px] border border-[var(--border)] bg-white shadow-[0_24px_70px_-54px_rgba(45,24,56,0.5)]">
+      <span className="sr-only">{t('common.loading')}</span>
+      {[0, 1, 2].map(i => (
+        <div key={i} className="flex items-start gap-5 border-b border-[var(--border)] px-7 py-7 last:border-b-0">
+          <SkeletonCircle size={48} />
+          <div className="flex flex-1 flex-col gap-3 pt-1">
+            <SkeletonLine width="55%" height={16} />
+            <SkeletonLine width="30%" />
+            <SkeletonLine width="80%" />
+          </div>
+        </div>
+      ))}
+    </section>
+  )
 }
 
 function MeetingList({

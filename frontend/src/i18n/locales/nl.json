@@ -916,6 +916,9 @@
     "markHeldHelp": "We hebben afgesproken — dit sluit het bericht niet af.",
     "goToPost": "Naar bericht",
     "actionFailed": "Dat is niet gelukt. Probeer het opnieuw.",
+    "loadError": "Afspraken konden niet worden geladen.",
+    "refreshError": "Afspraken konden niet worden vernieuwd; deze lijst is mogelijk verouderd.",
+    "retry": "Opnieuw proberen",
     "previousMonth": "Vorige maand",
     "nextMonth": "Volgende maand"
   },

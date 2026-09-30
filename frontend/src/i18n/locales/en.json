@@ -916,6 +916,9 @@
     "markHeldHelp": "We have met — this does not close the post.",
     "goToPost": "Go to post",
     "actionFailed": "That did not work. Please try again.",
+    "loadError": "Meetings could not be loaded.",
+    "refreshError": "Meetings could not be refreshed; this list may be out of date.",
+    "retry": "Try again",
     "previousMonth": "Previous month",
     "nextMonth": "Next month"
   },

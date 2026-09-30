@@ -916,6 +916,9 @@
     "markHeldHelp": "Já nos reunimos — isto não encerra a publicação.",
     "goToPost": "Ir para a publicação",
     "actionFailed": "Isso não funcionou. Por favor, tente novamente.",
+    "loadError": "Não foi possível carregar as reuniões.",
+    "refreshError": "Não foi possível atualizar as reuniões; esta lista pode estar desatualizada.",
+    "retry": "Tentar novamente",
     "previousMonth": "Mês anterior",
     "nextMonth": "Mês seguinte"
   },
