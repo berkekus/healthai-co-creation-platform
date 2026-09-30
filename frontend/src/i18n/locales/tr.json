@@ -863,6 +863,11 @@
     "total": "Toplam",
     "overview": "Toplantı özeti",
     "tabsHelp": "Bana gelen: ilanlarınız için başkalarının gönderdiği talepler · Gönderdiğim: sizin başkalarının ilanlarına gönderdiğiniz talepler.",
+    "filterStatus": "Durum",
+    "filterDirection": "Yön",
+    "awaitingReply": "Yanıtınızı bekleyen {{count}} talep var",
+    "awaitingReply_other": "Yanıtınızı bekleyen {{count}} talep var",
+    "awaitingShow": "Göster",
     "requestSent": "Talebiniz {{name}} kişisine gönderildi. Yanıt verdiğinde size bildirim gelecek.",
     "direction": {
       "incoming": "{{name}} kişisinden gelen talep",

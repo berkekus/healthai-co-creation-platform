@@ -863,6 +863,11 @@
     "total": "Totaal",
     "overview": "Overzicht vergaderingen",
     "tabsHelp": "Ontvangen: verzoeken die anderen over jouw berichten stuurden · Verzonden: verzoeken die jij over andermans berichten hebt gestuurd.",
+    "filterStatus": "Status",
+    "filterDirection": "Richting",
+    "awaitingReply": "{{count}} verzoek wacht op je antwoord",
+    "awaitingReply_other": "{{count}} verzoeken wachten op je antwoord",
+    "awaitingShow": "Tonen",
     "requestSent": "Verzoek verzonden naar {{name}}. Je krijgt bericht zodra diegene reageert.",
     "direction": {
       "incoming": "Verzoek van {{name}}",

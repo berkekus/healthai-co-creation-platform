@@ -863,6 +863,11 @@
     "total": "Total",
     "overview": "Meetings overview",
     "tabsHelp": "Received: requests others sent about your posts · Sent: requests you sent about other people's posts.",
+    "filterStatus": "Status",
+    "filterDirection": "Direction",
+    "awaitingReply": "{{count}} request is waiting for your reply",
+    "awaitingReply_other": "{{count}} requests are waiting for your reply",
+    "awaitingShow": "Show",
     "requestSent": "Request sent to {{name}}. You will be notified as soon as they respond.",
     "direction": {
       "incoming": "Request from {{name}}",

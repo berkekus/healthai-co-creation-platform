@@ -863,6 +863,11 @@
     "total": "Total",
     "overview": "Resumo de reuniões",
     "tabsHelp": "Recebidas: pedidos que outros enviaram sobre as suas publicações · Enviadas: pedidos que enviou sobre publicações de outras pessoas.",
+    "filterStatus": "Estado",
+    "filterDirection": "Direção",
+    "awaitingReply": "{{count}} pedido aguarda a sua resposta",
+    "awaitingReply_other": "{{count}} pedidos aguardam a sua resposta",
+    "awaitingShow": "Mostrar",
     "requestSent": "Pedido enviado a {{name}}. Será notificado assim que responder.",
     "direction": {
       "incoming": "Pedido de {{name}}",

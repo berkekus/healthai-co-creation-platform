@@ -29,8 +29,25 @@ import ProposeTimesModal from '../../components/meetings/ProposeTimesModal'
 import { CHAT_OPEN_STATUSES, MEETING_STATUS_STYLE, meetingRole } from '../../utils/meetingStatus'
 import { browserTimeZone, describeSlot } from '../../utils/timeSlots'
 
-type TabId = 'all' | 'incoming' | 'outgoing' | 'pending' | 'confirmed' | 'held' | 'cancelled'
+// Direction and status are independent, so they are two filters combined with AND
+// rather than one row of tabs where a meeting could sit under several at once.
+type DirectionFilter = 'all' | 'incoming' | 'outgoing'
+type StatusFilter = 'all' | 'pending' | 'confirmed' | 'held' | 'closed'
 type SortMode = 'recent' | 'oldest'
+
+function matchesDirection(meeting: Meeting, direction: DirectionFilter, userId: string | undefined) {
+  if (direction === 'incoming') return meeting.ownerId === userId
+  if (direction === 'outgoing') return meeting.requesterId === userId
+  return true
+}
+
+function matchesStatus(meeting: Meeting, status: StatusFilter) {
+  if (status === 'pending') return meeting.status === 'pending' || meeting.status === 'time_proposed'
+  if (status === 'confirmed') return meeting.status === 'confirmed'
+  if (status === 'held') return meeting.status === 'completed'
+  if (status === 'closed') return meeting.status === 'cancelled' || meeting.status === 'declined'
+  return true
+}
 
 /** Posts in these states can still be closed with "Partner Found". */
 const CLOSABLE_POST_STATUSES: PostStatus[] = ['active', 'meeting_scheduled', 'expired']
@@ -43,7 +60,8 @@ export default function MeetingsPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const requestSentTo = (location.state as { requestSentTo?: string } | null)?.requestSentTo
-  const [activeTab, setActiveTab] = useState<TabId>('all')
+  const [direction, setDirection] = useState<DirectionFilter>('all')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [sortMode, setSortMode] = useState<SortMode>('recent')
   const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -62,43 +80,39 @@ export default function MeetingsPage() {
     [meetings, user],
   )
 
-  const counts = useMemo(() => {
-    const incoming = scopedMeetings.filter(meeting => meeting.ownerId === user?.id).length
-    const outgoing = scopedMeetings.filter(meeting => meeting.requesterId === user?.id).length
-    const pending = scopedMeetings.filter(meeting => meeting.status === 'pending' || meeting.status === 'time_proposed').length
-    const confirmed = scopedMeetings.filter(meeting => meeting.status === 'confirmed').length
-    const held = scopedMeetings.filter(meeting => meeting.status === 'completed').length
-    const cancelled = scopedMeetings.filter(meeting => meeting.status === 'cancelled' || meeting.status === 'declined').length
-    return { all: scopedMeetings.length, incoming, outgoing, pending, confirmed, held, cancelled }
-  }, [scopedMeetings, user?.id])
+  // Each count is the number of cards that option would show, given the other filter.
+  const statusOptions: { id: StatusFilter; label: string; count: number }[] = (
+    [['all', 'all'], ['pending', 'pending'], ['confirmed', 'confirmed'], ['held', 'held'], ['closed', 'closed']] as const
+  ).map(([id, key]) => ({
+    id,
+    label: t(`meetingsPage.tabs.${key}`),
+    count: scopedMeetings.filter(m => matchesDirection(m, direction, user?.id) && matchesStatus(m, id)).length,
+  }))
 
-  const tabs: { id: TabId; label: string; count: number }[] = [
-    { id: 'all',       label: t('meetingsPage.tabs.all'),       count: counts.all },
-    { id: 'incoming',  label: t('meetingsPage.tabs.incoming'),  count: counts.incoming },
-    { id: 'outgoing',  label: t('meetingsPage.tabs.outgoing'),  count: counts.outgoing },
-    { id: 'pending',   label: t('meetingsPage.tabs.pending'),   count: counts.pending },
-    { id: 'confirmed', label: t('meetingsPage.tabs.confirmed'), count: counts.confirmed },
-    { id: 'held',      label: t('meetingsPage.tabs.held'),      count: counts.held },
-    { id: 'cancelled', label: t('meetingsPage.tabs.closed'),    count: counts.cancelled },
-  ]
+  const directionOptions: { id: DirectionFilter; label: string; count: number }[] = (
+    ['all', 'incoming', 'outgoing'] as const
+  ).map(id => ({
+    id,
+    label: t(`meetingsPage.tabs.${id}`),
+    count: scopedMeetings.filter(m => matchesStatus(m, statusFilter) && matchesDirection(m, id, user?.id)).length,
+  }))
+
+  // Every state that needs this user's answer is on the owner's side: accept/decline a
+  // pending request, or pick one of the proposed times. That is exactly Received + Pending.
+  const awaitingReply = scopedMeetings.filter(m => matchesDirection(m, 'incoming', user?.id) && matchesStatus(m, 'pending')).length
+  const showingAwaiting = direction === 'incoming' && statusFilter === 'pending'
+
+  const resetFilters = () => { setDirection('all'); setStatusFilter('all') }
 
   const visibleMeetings = useMemo(() => {
     return scopedMeetings
-      .filter(meeting => {
-        if (activeTab === 'incoming') return meeting.ownerId === user?.id
-        if (activeTab === 'outgoing') return meeting.requesterId === user?.id
-        if (activeTab === 'pending') return meeting.status === 'pending' || meeting.status === 'time_proposed'
-        if (activeTab === 'confirmed') return meeting.status === 'confirmed'
-        if (activeTab === 'held') return meeting.status === 'completed'
-        if (activeTab === 'cancelled') return meeting.status === 'cancelled' || meeting.status === 'declined'
-        return true
-      })
+      .filter(meeting => matchesDirection(meeting, direction, user?.id) && matchesStatus(meeting, statusFilter))
       .sort((a, b) => {
         const left = meetingTimestamp(a)
         const right = meetingTimestamp(b)
         return sortMode === 'recent' ? right - left : left - right
       })
-  }, [activeTab, scopedMeetings, sortMode, user?.id])
+  }, [direction, statusFilter, scopedMeetings, sortMode, user?.id])
 
   const runAction = async (id: string, action: () => Promise<void>) => {
     setBusyId(id)
@@ -151,7 +165,7 @@ export default function MeetingsPage() {
       } as CSSProperties}
     >
       <section className="mx-auto w-full max-w-[1640px] px-6 pb-20 pt-[72px] md:px-10 2xl:px-0">
-        <Hero total={counts.all} />
+        <Hero total={scopedMeetings.length} />
 
         {requestSentTo && (
           <div role="status" className="mt-8 flex items-start gap-3 rounded-2xl border border-[#8AC6D0] bg-[#E8F4F7] px-5 py-4 text-sm font-bold text-[var(--primary)]">
@@ -161,9 +175,30 @@ export default function MeetingsPage() {
         )}
 
         <div className="mt-11 flex flex-col gap-8">
-          <div className="flex flex-col gap-3">
-            <FilterTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
-            <p className="text-sm font-semibold text-[var(--muted)]">{t('meetingsPage.tabsHelp')}</p>
+          {awaitingReply > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--accent)] bg-[var(--success-bg)] px-5 py-4">
+              <p className="flex items-center gap-3 text-sm font-black text-[var(--primary)]">
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--primary)]" aria-hidden="true" />
+                {t('meetingsPage.awaitingReply', { count: awaitingReply })}
+              </p>
+              {!showingAwaiting && (
+                <button
+                  type="button"
+                  onClick={() => { setDirection('incoming'); setStatusFilter('pending') }}
+                  className="inline-flex h-10 items-center rounded-full bg-[var(--primary)] px-5 text-sm font-black text-white transition hover:bg-black"
+                >
+                  {t('meetingsPage.awaitingShow')}
+                </button>
+              )}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-5">
+            <FilterGroup label={t('meetingsPage.filterStatus')} options={statusOptions} active={statusFilter} onChange={setStatusFilter} />
+            <div className="flex flex-col gap-3">
+              <FilterGroup label={t('meetingsPage.filterDirection')} options={directionOptions} active={direction} onChange={setDirection} />
+              <p className="text-sm font-semibold text-[var(--muted)]">{t('meetingsPage.tabsHelp')}</p>
+            </div>
           </div>
 
           {error && (
@@ -188,7 +223,7 @@ export default function MeetingsPage() {
               onOpenChat={openChat}
               onProposeTimes={setProposeFor}
               onPartnerFound={meeting => { setPartnerFoundError(null); setPartnerFoundFor(meeting) }}
-              onViewAll={() => setActiveTab('all')}
+              onViewAll={resetFilters}
             />
             <aside>
               <WidgetArea meetings={scopedMeetings} />
@@ -245,41 +280,46 @@ function Hero({ total }: { total: number }) {
   )
 }
 
-function FilterTabs({
-  tabs,
-  activeTab,
+function FilterGroup<T extends string>({
+  label,
+  options,
+  active: activeId,
   onChange,
 }: {
-  tabs: { id: TabId; label: string; count: number }[]
-  activeTab: TabId
-  onChange: (tab: TabId) => void
+  label: string
+  options: { id: T; label: string; count: number }[]
+  active: T
+  onChange: (id: T) => void
 }) {
   return (
-    <div className="flex flex-wrap gap-3">
-      {tabs.map(tab => {
-        const active = activeTab === tab.id
-        return (
-          <button
-            key={tab.id}
-            onClick={() => onChange(tab.id)}
-            aria-pressed={active}
-            className={`inline-flex h-12 items-center gap-2.5 rounded-full border px-5 text-sm font-black transition ${
-              active
-                ? 'border-[var(--primary)] bg-[var(--primary)] text-white shadow-[0_12px_28px_-22px_rgba(45,24,56,0.9)]'
-                : 'border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--accent)] hover:bg-white'
-            }`}
-          >
-            {tab.label}
-            <span
-              className={`flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-xs font-black ${
-                active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-[#EEF0F3] text-[var(--muted)]'
+    <div role="group" aria-label={label} className="flex flex-col gap-2">
+      <span className="text-xs font-black uppercase tracking-[0.14em] text-[var(--muted)]" aria-hidden="true">{label}</span>
+      <div className="flex flex-wrap gap-3">
+        {options.map(tab => {
+          const active = activeId === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onChange(tab.id)}
+              aria-pressed={active}
+              className={`inline-flex h-12 items-center gap-2.5 rounded-full border px-5 text-sm font-black transition ${
+                active
+                  ? 'border-[var(--primary)] bg-[var(--primary)] text-white shadow-[0_12px_28px_-22px_rgba(45,24,56,0.9)]'
+                  : 'border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--accent)] hover:bg-white'
               }`}
             >
-              {tab.count}
-            </span>
-          </button>
-        )
-      })}
+              {tab.label}
+              <span
+                className={`flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-xs font-black ${
+                  active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-[#EEF0F3] text-[var(--muted)]'
+                }`}
+              >
+                {tab.count}
+              </span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }

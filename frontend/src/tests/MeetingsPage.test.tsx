@@ -144,6 +144,41 @@ describe('MeetingsPage', () => {
     expect(screen.queryByText('Held project')).not.toBeInTheDocument()
   })
 
+  it('combines direction and status instead of treating them as one set of tabs', () => {
+    renderPage([
+      meeting('pending', 'owner', { id: 'm-1', postTitle: 'Received and pending' }),
+      meeting('pending', 'requester', { id: 'm-2', postTitle: 'Sent and pending' }),
+      meeting('declined', 'owner', { id: 'm-3', postTitle: 'Received and closed' }),
+    ])
+
+    const status = screen.getByRole('group', { name: 'Status' })
+    const direction = screen.getByRole('group', { name: 'Direction' })
+    fireEvent.click(within(status).getByRole('button', { name: /^pending/i }))
+    fireEvent.click(within(direction).getByRole('button', { name: /^received/i }))
+
+    expect(screen.getByText('Received and pending')).toBeInTheDocument()
+    expect(screen.queryByText('Sent and pending')).not.toBeInTheDocument()
+    expect(screen.queryByText('Received and closed')).not.toBeInTheDocument()
+    // Each count is what that option would show with the other filter applied.
+    expect(within(direction).getByRole('button', { name: /^sent/i })).toHaveTextContent('1')
+  })
+
+  it('offers a shortcut to the requests waiting for the user\'s reply', () => {
+    renderPage([
+      meeting('pending', 'owner', { id: 'm-1', postTitle: 'Needs my answer' }),
+      meeting('time_proposed', 'owner', { id: 'm-2', postTitle: 'Needs my pick' }),
+      meeting('pending', 'requester', { id: 'm-3', postTitle: 'Waiting on them' }),
+    ])
+
+    expect(screen.getByText('2 requests are waiting for your reply')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Show' }))
+
+    expect(screen.getByText('Needs my answer')).toBeInTheDocument()
+    expect(screen.getByText('Needs my pick')).toBeInTheDocument()
+    expect(screen.queryByText('Waiting on them')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Show' })).not.toBeInTheDocument()
+  })
+
   it('asks before closing the post with Partner Found and then shows it as closed', async () => {
     let serverPostStatus: PostStatus = 'active'
     const slot = { date: '2030-03-14', time: '14:00' }

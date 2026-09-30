@@ -863,6 +863,11 @@
     "total": "Total",
     "overview": "Resumen de reuniones",
     "tabsHelp": "Recibidas: solicitudes que otros enviaron sobre tus publicaciones · Enviadas: solicitudes que enviaste sobre publicaciones de otras personas.",
+    "filterStatus": "Estado",
+    "filterDirection": "Dirección",
+    "awaitingReply": "{{count}} solicitud espera tu respuesta",
+    "awaitingReply_other": "{{count}} solicitudes esperan tu respuesta",
+    "awaitingShow": "Mostrar",
     "requestSent": "Solicitud enviada a {{name}}. Te avisaremos en cuanto responda.",
     "direction": {
       "incoming": "Solicitud de {{name}}",
