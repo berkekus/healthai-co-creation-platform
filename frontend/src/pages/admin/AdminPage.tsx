@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   BarChart2, Calendar, CheckCircle, ChevronRight, Clock,
@@ -19,7 +19,17 @@ import type { User } from '../../types/auth.types'
 import { ROUTES } from '../../constants/routes'
 
 type AdminView = 'overview' | 'users' | 'posts' | 'logs' | 'verification'
-const USERS_PER_PAGE = 20
+const USERS_PAGE_SIZES = [20, 50, 100] as const
+const USERS_PAGE_SIZE_KEY = 'admin_usersPerPage'
+
+function readUsersPageSize(): number {
+  try {
+    const saved = Number(localStorage.getItem(USERS_PAGE_SIZE_KEY))
+    return (USERS_PAGE_SIZES as readonly number[]).includes(saved) ? saved : USERS_PAGE_SIZES[0]
+  } catch {
+    return USERS_PAGE_SIZES[0]
+  }
+}
 
 function roleLabel(t: TFunction, role: string) {
   return t(`common.role.${role}`, { defaultValue: role })
@@ -651,6 +661,9 @@ export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([])
   const [userQuery, setUserQuery] = useState('')
   const [usersPage, setUsersPage] = useState(1)
+  // Frequent moderators pick how many rows they see; remembered in this browser.
+  const [usersPerPage, setUsersPerPage] = useState(readUsersPageSize)
+  const userSearchRef = useRef<HTMLInputElement>(null)
   const [logs, setLogs] = useState<ActivityLog[]>([])
   const [logsLoading, setLogsLoading] = useState(false)
   const [logAction, setLogAction] = useState('')
@@ -706,12 +719,32 @@ export default function AdminPage() {
 
   useEffect(() => { setUsersPage(1) }, [userQuery])
 
-  const usersTotalPages = Math.max(1, Math.ceil(filteredUsers.length / USERS_PER_PAGE))
+  const usersTotalPages = Math.max(1, Math.ceil(filteredUsers.length / usersPerPage))
   const usersCurrentPage = Math.min(usersPage, usersTotalPages)
   const paginatedUsers = filteredUsers.slice(
-    (usersCurrentPage - 1) * USERS_PER_PAGE,
-    usersCurrentPage * USERS_PER_PAGE,
+    (usersCurrentPage - 1) * usersPerPage,
+    usersCurrentPage * usersPerPage,
   )
+
+  const changeUsersPerPage = (size: number) => {
+    setUsersPerPage(size)
+    setUsersPage(1)
+    try { localStorage.setItem(USERS_PAGE_SIZE_KEY, String(size)) } catch { /* private mode: keep it for this visit */ }
+  }
+
+  // "/" jumps to the user search, as in GitHub or Gmail — unless the admin is already typing somewhere.
+  useEffect(() => {
+    if (view !== 'users') return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return
+      const target = e.target as HTMLElement | null
+      if (target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return
+      e.preventDefault()
+      userSearchRef.current?.focus()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [view])
 
   const handleSuspend = async (userId: string) => {
     const target = users.find(u => u.id === userId)
@@ -832,9 +865,12 @@ export default function AdminPage() {
               <div className="px-6 py-4 border-b border-[#f3f4f6] flex items-center gap-3 flex-wrap">
                 <div className="relative flex-1 min-w-[220px]">
                   <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6b7280]" />
-                  <input type="search" value={userQuery} onChange={e => setUserQuery(e.target.value)}
+                  <input ref={userSearchRef} type="search" value={userQuery} onChange={e => setUserQuery(e.target.value)}
                     placeholder={t('admin.users.searchPlaceholder')}
-                    className="w-full bg-[#f8f9fb] border border-[#eaecf0] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#374151] outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 transition-colors" />
+                    aria-label={t('admin.users.searchPlaceholder')}
+                    aria-keyshortcuts="/"
+                    className="w-full bg-[#f8f9fb] border border-[#eaecf0] rounded-xl pl-10 pr-10 py-2.5 text-sm text-[#374151] outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 transition-colors" />
+                  <kbd aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-[#d1d5db] bg-white px-1.5 font-mono text-xs text-[#6b7280]">/</kbd>
                 </div>
                 <span className="text-xs text-[#6b7280] font-semibold">{t('admin.users.shownCount', { shown: filteredUsers.length, total: totalNonAdmin })}</span>
               </div>
@@ -897,40 +933,57 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
-              {usersTotalPages > 1 && (
-                <div className="flex items-center justify-between border-t border-[#f3f4f6] px-6 py-3">
-                  <span className="text-xs text-[#6b7280] font-semibold">
-                    {t('admin.users.pageRange', { from: (usersCurrentPage - 1) * USERS_PER_PAGE + 1, to: Math.min(filteredUsers.length, usersCurrentPage * USERS_PER_PAGE), total: filteredUsers.length })}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => setUsersPage(p => Math.max(1, p - 1))}
-                      disabled={usersCurrentPage === 1}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#eaecf0] text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      <ChevronDown size={14} className="rotate-90" />
-                    </button>
-                    {Array.from({ length: usersTotalPages }, (_, i) => i + 1).map(p => (
-                      <button
-                        key={p}
-                        onClick={() => setUsersPage(p)}
-                        className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-xs font-black transition ${
-                          p === usersCurrentPage
-                            ? 'bg-[#4f46e5] text-white'
-                            : 'border border-[#eaecf0] text-[#374151] hover:border-[#4f46e5] hover:text-[#4f46e5]'
-                        }`}
+              {filteredUsers.length > USERS_PAGE_SIZES[0] && (
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#f3f4f6] px-6 py-3">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-xs text-[#6b7280] font-semibold">
+                      {t('admin.users.pageRange', { from: (usersCurrentPage - 1) * usersPerPage + 1, to: Math.min(filteredUsers.length, usersCurrentPage * usersPerPage), total: filteredUsers.length })}
+                    </span>
+                    <label className="flex items-center gap-2 text-xs font-semibold text-[#6b7280]">
+                      {t('admin.users.perPage')}
+                      <select
+                        value={usersPerPage}
+                        onChange={e => changeUsersPerPage(Number(e.target.value))}
+                        className="rounded-lg border border-[#eaecf0] bg-white px-2 py-1 text-xs font-bold text-[#374151] outline-none focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20"
                       >
-                        {p}
-                      </button>
-                    ))}
-                    <button
-                      onClick={() => setUsersPage(p => Math.min(usersTotalPages, p + 1))}
-                      disabled={usersCurrentPage === usersTotalPages}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#eaecf0] text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      <ChevronDown size={14} className="-rotate-90" />
-                    </button>
+                        {USERS_PAGE_SIZES.map(size => <option key={size} value={size}>{size}</option>)}
+                      </select>
+                    </label>
                   </div>
+                  {usersTotalPages > 1 && (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setUsersPage(p => Math.max(1, p - 1))}
+                        disabled={usersCurrentPage === 1}
+                        aria-label={t('admin.users.previousPage')}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#eaecf0] text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <ChevronDown size={14} className="rotate-90" />
+                      </button>
+                      {Array.from({ length: usersTotalPages }, (_, i) => i + 1).map(p => (
+                        <button
+                          key={p}
+                          onClick={() => setUsersPage(p)}
+                          aria-current={p === usersCurrentPage ? 'page' : undefined}
+                          className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-xs font-black transition ${
+                            p === usersCurrentPage
+                              ? 'bg-[#4f46e5] text-white'
+                              : 'border border-[#eaecf0] text-[#374151] hover:border-[#4f46e5] hover:text-[#4f46e5]'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => setUsersPage(p => Math.min(usersTotalPages, p + 1))}
+                        disabled={usersCurrentPage === usersTotalPages}
+                        aria-label={t('admin.users.nextPage')}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#eaecf0] text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <ChevronDown size={14} className="-rotate-90" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

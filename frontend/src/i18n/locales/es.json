@@ -1185,7 +1185,10 @@
       "deleteConfirmTitle": "¿Eliminar esta cuenta?",
       "suspendedNotifTitle": "Cuenta suspendida",
       "suspendedNotifBody": "Tu cuenta ha sido suspendida.",
-      "pageRange": "{{from}}–{{to}} de {{total}}"
+      "pageRange": "{{from}}–{{to}} de {{total}}",
+      "perPage": "Por página",
+      "previousPage": "Página anterior",
+      "nextPage": "Página siguiente"
     },
     "posts": {
       "title": "Publicaciones y anuncios",

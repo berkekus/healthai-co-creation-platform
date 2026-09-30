@@ -1185,7 +1185,10 @@
       "deleteConfirmTitle": "Dit account verwijderen?",
       "suspendedNotifTitle": "Account geschorst",
       "suspendedNotifBody": "Je account is geschorst.",
-      "pageRange": "{{from}}–{{to}} van {{total}}"
+      "pageRange": "{{from}}–{{to}} van {{total}}",
+      "perPage": "Per pagina",
+      "previousPage": "Vorige pagina",
+      "nextPage": "Volgende pagina"
     },
     "posts": {
       "title": "Berichten & vermeldingen",

@@ -1185,7 +1185,10 @@
       "deleteConfirmTitle": "Delete this account?",
       "suspendedNotifTitle": "Account suspended",
       "suspendedNotifBody": "Your account has been suspended.",
-      "pageRange": "{{from}}–{{to}} of {{total}}"
+      "pageRange": "{{from}}–{{to}} of {{total}}",
+      "perPage": "Per page",
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
     },
     "posts": {
       "title": "Posts & Listings",

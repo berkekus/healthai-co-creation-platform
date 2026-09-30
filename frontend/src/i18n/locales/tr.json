@@ -1185,7 +1185,10 @@
       "deleteConfirmTitle": "Bu hesap silinsin mi?",
       "suspendedNotifTitle": "Hesap askıya alındı",
       "suspendedNotifBody": "Hesabınız askıya alındı.",
-      "pageRange": "{{from}}–{{to}} / {{total}}"
+      "pageRange": "{{from}}–{{to}} / {{total}}",
+      "perPage": "Sayfa başına",
+      "previousPage": "Önceki sayfa",
+      "nextPage": "Sonraki sayfa"
     },
     "posts": {
       "title": "İlanlar",
