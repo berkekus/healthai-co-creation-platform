@@ -25,7 +25,7 @@ export function Card({
   return (
     <div
       className={cx(
-        'rounded-[24px] border border-[#E3E7EC] bg-white shadow-[0_20px_60px_-44px_rgba(45,24,56,0.35)]',
+        'rounded-[24px] border border-line bg-white shadow-[0_20px_60px_-44px_rgba(45,24,56,0.35)]',
         interactive && 'transition hover:border-hai-teal hover:shadow-[0_16px_48px_-28px_rgba(45,24,56,0.35)]',
         padding[pad],
         className,

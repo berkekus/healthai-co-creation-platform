@@ -18,7 +18,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
       <div>
         <p className="text-lg font-black text-hai-plum">{title}</p>
         {description && (
-          <p className="mt-2 text-sm font-semibold text-[#6F6878]">
+          <p className="mt-2 text-sm font-semibold text-ink-muted">
             {description}
           </p>
         )}

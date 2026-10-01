@@ -116,13 +116,13 @@ function TagAutocomplete({
         style={inputStyle()}
       />
       {open && suggestions.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-[#D5DAE0] bg-white shadow-[0_8px_24px_-8px_rgba(54,33,62,0.18)]">
+        <div className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-line-strong bg-white shadow-[0_8px_24px_-8px_rgba(54,33,62,0.18)]">
           {suggestions.map(s => (
             <button
               key={s}
               type="button"
               onMouseDown={() => add(s)}
-              className="w-full px-4 py-2.5 text-left text-sm font-semibold text-hai-plum hover:bg-[#E8F4F7]"
+              className="w-full px-4 py-2.5 text-left text-sm font-semibold text-hai-plum hover:bg-hai-teal-soft"
             >
               {s}
             </button>
@@ -147,13 +147,13 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section id={id} className="border-b border-[#D5DAE0] py-9 last:border-b-0">
+    <section id={id} className="border-b border-line-strong py-9 last:border-b-0">
       <div className="mb-7 flex items-start justify-between gap-6">
         <div className="flex items-center gap-4">
           <span aria-hidden="true" className="material-symbols-outlined text-xl text-hai-plum">{icon}</span>
           <h2 className="font-headline text-xl font-black leading-tight text-hai-plum">{title}</h2>
         </div>
-        {subtitle && <p className="max-w-[380px] text-right text-sm font-semibold leading-5 text-[#6F6878]">{subtitle}</p>}
+        {subtitle && <p className="max-w-[380px] text-right text-sm font-semibold leading-5 text-ink-muted">{subtitle}</p>}
       </div>
       {children}
     </section>
@@ -163,7 +163,7 @@ function Section({
 function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[180px_minmax(0,1fr)] gap-8 py-2">
-      <div className="text-sm font-semibold text-[#6F6878]">{label}</div>
+      <div className="text-sm font-semibold text-ink-muted">{label}</div>
       <div className="min-w-0 text-base font-black leading-snug text-hai-plum">{children}</div>
     </div>
   )
@@ -268,7 +268,7 @@ function ChangePasswordCard() {
   return (
     <div className="mb-5 rounded-[22px] bg-white/82 p-6 shadow-[0_28px_74px_-60px_rgba(54,33,62,0.36)]">
       <div className="flex items-start gap-5">
-        <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E8F4F7] text-hai-plum">
+        <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-hai-teal-soft text-hai-plum">
           <span aria-hidden="true" className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>password</span>
         </div>
         <div className="min-w-0 flex-1">
@@ -345,17 +345,17 @@ function NotifPrefsSection() {
   }
 
   return (
-    <section className="border-b border-[#D5DAE0] py-9">
+    <section className="border-b border-line-strong py-9">
       <div className="mb-7 flex items-center gap-4">
         <span aria-hidden="true" className="material-symbols-outlined text-xl text-hai-plum">notifications</span>
         <h2 className="font-headline text-xl font-black leading-tight text-hai-plum">{t('profile.notifPrefs')}</h2>
       </div>
       <div className="grid gap-3">
         {NOTIF_KEYS.map(({ key, labelKey, descKey }) => (
-          <div key={key} className="flex items-center justify-between gap-6 rounded-2xl border border-[#D5DAE0] bg-white px-5 py-4">
+          <div key={key} className="flex items-center justify-between gap-6 rounded-2xl border border-line-strong bg-white px-5 py-4">
             <div>
               <p className="text-sm font-black text-hai-plum">{t(labelKey)}</p>
-              <p className="mt-0.5 text-xs font-semibold text-[#6F6878]">{t(descKey)}</p>
+              <p className="mt-0.5 text-xs font-semibold text-ink-muted">{t(descKey)}</p>
             </div>
             <button
               type="button"
@@ -364,7 +364,7 @@ function NotifPrefsSection() {
               aria-pressed={prefs[key]}
               aria-label={t(labelKey)}
               className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-hai-focus focus:ring-offset-2 ${
-                prefs[key] ? 'bg-hai-teal' : 'bg-[#D5DAE0]'
+                prefs[key] ? 'bg-hai-teal' : 'bg-line-strong'
               } ${saving === key ? 'opacity-60' : ''}`}
             >
               <span
@@ -438,7 +438,7 @@ function ProfileCompletionCard({ user, onSaved }: { user: User; onSaved?: boolea
   const activeSuggestions = remoteSuggestions.length > 0 ? remoteSuggestions : items.filter(i => !i.done).map(i => t(i.labelKey))
 
   return (
-    <div className="mt-6 rounded-2xl border border-[#D5DAE0] bg-white p-4">
+    <div className="mt-6 rounded-2xl border border-line-strong bg-white p-4">
       <div className="flex items-center gap-3">
         <div className="relative" style={{ flexShrink: 0 }}>
           <svg width="56" height="56" viewBox="0 0 56 56">
@@ -466,13 +466,13 @@ function ProfileCompletionCard({ user, onSaved }: { user: User; onSaved?: boolea
           <p className="flex items-center gap-1 text-xs font-black text-hai-plum">
             {t('profile.strength')}
             {remote?.source === 'ai' && (
-              <span className="inline-flex items-center gap-0.5 rounded-full bg-[#E8F4F7] px-1.5 py-0.5 text-xs font-black uppercase tracking-wide text-hai-teal">
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-hai-teal-soft px-1.5 py-0.5 text-xs font-black uppercase tracking-wide text-hai-teal">
                 <span aria-hidden="true" className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: '"FILL" 1' }}>auto_awesome</span>
                 AI
               </span>
             )}
           </p>
-          <p className="mt-0.5 text-xs font-semibold text-[#6F6878]">
+          <p className="mt-0.5 text-xs font-semibold text-ink-muted">
             {score === 100 ? t('profile.complete') : score >= 70 ? t('profile.almostThere') : t('profile.keepGoing')}
           </p>
         </div>
@@ -596,7 +596,7 @@ function ConnectedAccounts({ user }: { user: User }) {
   ]
 
   return (
-    <section className="border-b border-[#E3E7EC] py-9">
+    <section className="border-b border-line py-9">
       <div className="mb-5 flex items-center gap-4">
         <span aria-hidden="true" className="material-symbols-outlined text-xl text-hai-plum">link</span>
         <h2 className="font-headline text-xl font-black text-hai-plum">{t('profile.connected.title')}</h2>
@@ -622,14 +622,14 @@ function ConnectedAccounts({ user }: { user: User }) {
             <div
               key={provider}
               data-provider={provider}
-              className={`flex items-center gap-4 rounded-2xl border border-[#D5DAE0] p-5 ${unavailable ? 'bg-[#F7F8FA]' : 'bg-white'}`}
+              className={`flex items-center gap-4 rounded-2xl border border-line-strong p-5 ${unavailable ? 'bg-[#F7F8FA]' : 'bg-white'}`}
             >
-              <svg className={`h-6 w-6 shrink-0 ${unavailable ? 'text-[#6b7280]' : className}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <svg className={`h-6 w-6 shrink-0 ${unavailable ? 'text-ink-muted-gray' : className}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d={path} />
               </svg>
               <div className="min-w-0">
                 <p className="text-sm font-black text-hai-plum">{PROVIDER_LABEL[provider]}</p>
-                <p className="truncate text-xs font-semibold text-[#6B7280]">
+                <p className="truncate text-xs font-semibold text-ink-muted-gray">
                   {connectedAs ?? (unavailable ? t('profile.connected.unavailable') : t('profile.connected.connectHint', { provider: PROVIDER_LABEL[provider] }))}
                 </p>
               </div>
@@ -639,7 +639,7 @@ function ConnectedAccounts({ user }: { user: User }) {
                 disabled={busy !== null || (!connectedAs && (available === null || unavailable))}
                 className={`ml-auto shrink-0 rounded-full px-4 py-2 text-xs font-black transition disabled:cursor-not-allowed disabled:opacity-50 ${
                   connectedAs
-                    ? 'border border-[#D5DAE0] text-[#6F6878] hover:border-red-300 hover:text-red-600'
+                    ? 'border border-line-strong text-ink-muted hover:border-red-300 hover:text-red-600'
                     : 'bg-hai-plum text-white hover:bg-black'
                 }`}
               >
@@ -781,12 +781,12 @@ export default function ProfilePage() {
             </button>
             <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarChange} />
             <h2 className="mt-5 text-lg font-black leading-tight text-hai-plum">{user.name}</h2>
-            <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[#6F6878]">
+            <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-ink-muted">
               <span aria-hidden="true" className="material-symbols-outlined text-base">{ROLE_ICON[user.role] ?? 'person'}</span>
               {t(`common.role.${user.role}`)}
             </p>
             {user.isVerified && (
-              <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#E8F4F7] px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-hai-plum">
+              <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-hai-teal-soft px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-hai-plum">
                 <span aria-hidden="true" className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>verified</span>
                 {t('common.verified')}
               </span>
@@ -805,7 +805,7 @@ export default function ProfilePage() {
               ['star', t('profile.expertise'), '#expertise'],
               ['lock', t('profile.privacy'), '#data-account'],
             ] as [string, string, string][]).map(([icon, label, href], index) => (
-              <a key={label + index} href={href} className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-[#E8F4F7] ${index === 0 ? 'bg-[#E8F4F7] text-[#6FB8C4]' : ''}`}>
+              <a key={label + index} href={href} className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-hai-teal-soft ${index === 0 ? 'bg-hai-teal-soft text-[#6FB8C4]' : ''}`}>
                 <span aria-hidden="true" className="material-symbols-outlined text-lg">{icon}</span>
                 {label}
               </a>
@@ -814,8 +814,8 @@ export default function ProfilePage() {
 
           <div className="profile-help-card rounded-2xl bg-[#EEF0F3] p-4">
             <div className="text-xs font-black text-hai-plum">{t('profile.help.title')}</div>
-            <p className="mt-3 text-xs font-semibold leading-5 text-[#6F6878]">{t('profile.help.desc')}</p>
-            <button className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-[#D5DAE0] bg-white text-xs font-black text-hai-plum">
+            <p className="mt-3 text-xs font-semibold leading-5 text-ink-muted">{t('profile.help.desc')}</p>
+            <button className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-line-strong bg-white text-xs font-black text-hai-plum">
               <span aria-hidden="true" className="material-symbols-outlined text-base">support_agent</span>
               {t('profile.help.contact')}
             </button>
@@ -828,7 +828,7 @@ export default function ProfilePage() {
               <h1 className="font-headline text-5xl font-black leading-none tracking-normal text-hai-plum">
                 {t('profile.title')}<span className="text-hai-teal">.</span>
               </h1>
-              <p className="mt-5 text-base font-semibold text-[#6F6878]">{t('profile.subtitle')}</p>
+              <p className="mt-5 text-base font-semibold text-ink-muted">{t('profile.subtitle')}</p>
             </div>
             {!isEditing ? (
               <button onClick={() => setIsEditing(true)} className="mt-1 inline-flex items-center gap-2 rounded-full bg-hai-plum px-7 py-3 text-sm font-black text-white shadow-[0_18px_36px_-22px_rgba(54,33,62,0.7)]">
@@ -837,7 +837,7 @@ export default function ProfilePage() {
               </button>
             ) : (
               <div className="flex gap-2">
-                <button type="button" onClick={handleCancel} className="rounded-full border border-[#D5DAE0] bg-white px-5 py-3 text-sm font-black text-hai-plum">{t('profile.cancel')}</button>
+                <button type="button" onClick={handleCancel} className="rounded-full border border-line-strong bg-white px-5 py-3 text-sm font-black text-hai-plum">{t('profile.cancel')}</button>
                 <button form="profile-form" type="submit" className="rounded-full bg-hai-plum px-6 py-3 text-sm font-black text-white">{t('profile.save')}</button>
               </div>
             )}
@@ -845,17 +845,17 @@ export default function ProfilePage() {
 
           {saved && <div className="mt-7 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 px-5 py-4 text-sm font-bold text-hai-plum">{t('profile.saved')}</div>}
 
-          <div className="mt-10 flex items-center justify-between gap-6 rounded-[22px] bg-[#E8F4F7] px-7 py-8">
+          <div className="mt-10 flex items-center justify-between gap-6 rounded-[22px] bg-hai-teal-soft px-7 py-8">
             <div className="flex items-center gap-5">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#D7EEF2] text-[#6FB8C4]">
                 <span aria-hidden="true" className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: '"FILL" 1' }}>verified_user</span>
               </div>
               <div>
                 <h2 className="text-lg font-black text-hai-plum">{t('profile.verifiedRole', { role: t(`common.role.${user.role}`) })}</h2>
-                <p className="mt-2 text-sm font-semibold text-[#6F6878]">{t('profile.verifiedDesc')}</p>
+                <p className="mt-2 text-sm font-semibold text-ink-muted">{t('profile.verifiedDesc')}</p>
               </div>
             </div>
-            <Link to={ROUTES.ABOUT} className="shrink-0 rounded-full border border-[#D5DAE0] px-6 py-3 text-sm font-black text-hai-plum">{t('common.learnMore')}</Link>
+            <Link to={ROUTES.ABOUT} className="shrink-0 rounded-full border border-line-strong px-6 py-3 text-sm font-black text-hai-plum">{t('common.learnMore')}</Link>
           </div>
 
           <form id="profile-form" onSubmit={handleSubmit(onSubmit)} noValidate className="mt-9">
@@ -884,7 +884,7 @@ export default function ProfilePage() {
                           of them widens the whole page on a narrow screen. */}
                       <span className="break-all">{user.email}</span>
                       {INSTITUTIONAL_EMAIL_RE.test(user.email) && (
-                        <span className="shrink-0 rounded-full bg-[#E8F4F7] px-2 py-0.5 text-xs font-black uppercase tracking-[0.12em] text-[#6F6878]">.edu / .gov</span>
+                        <span className="shrink-0 rounded-full bg-hai-teal-soft px-2 py-0.5 text-xs font-black uppercase tracking-[0.12em] text-ink-muted">.edu / .gov</span>
                       )}
                     </span>
                   </FieldRow>
@@ -982,7 +982,7 @@ export default function ProfilePage() {
               <div
                 role="region"
                 aria-label={t('profile.saveBar.label')}
-                className="sticky bottom-4 z-30 mt-2 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#D5DAE0] bg-white/95 px-5 py-3 shadow-[0_18px_48px_-24px_rgba(54,33,62,0.45)] backdrop-blur"
+                className="sticky bottom-4 z-30 mt-2 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line-strong bg-white/95 px-5 py-3 shadow-[0_18px_48px_-24px_rgba(54,33,62,0.45)] backdrop-blur"
               >
                 <span className="text-sm font-bold text-hai-plum">
                   {saveError
@@ -990,7 +990,7 @@ export default function ProfilePage() {
                     : t(hasUnsavedChanges ? 'profile.saveBar.unsaved' : 'profile.saveBar.editing')}
                 </span>
                 <div className="flex gap-2">
-                  <button type="button" onClick={handleCancel} className="rounded-full border border-[#D5DAE0] bg-white px-5 py-2.5 text-sm font-black text-hai-plum">{t('profile.cancel')}</button>
+                  <button type="button" onClick={handleCancel} className="rounded-full border border-line-strong bg-white px-5 py-2.5 text-sm font-black text-hai-plum">{t('profile.cancel')}</button>
                   <button type="submit" className="rounded-full bg-hai-plum px-6 py-2.5 text-sm font-black text-white">{t('profile.save')}</button>
                 </div>
               </div>
@@ -1047,7 +1047,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <p className="mt-6 flex items-start gap-4 rounded-2xl border border-[#D5DAE0] bg-white/36 px-6 py-5 text-xs font-semibold leading-relaxed text-neutral-500">
+            <p className="mt-6 flex items-start gap-4 rounded-2xl border border-line-strong bg-white/36 px-6 py-5 text-xs font-semibold leading-relaxed text-neutral-500">
               <span aria-hidden="true" className="material-symbols-outlined mt-0.5 shrink-0 text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
               {t('profile.data.retentionNote')}
             </p>

@@ -62,7 +62,7 @@ export default function LanguageToggle({ className, compact = false }: LanguageT
         type="button"
         onClick={() => setOpen(value => !value)}
         className={cx(
-          'h-10 rounded-full border border-[#E3E7EC] bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center gap-1.5 text-xs font-black text-hai-plum focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-focus focus-visible:ring-offset-2',
+          'h-10 rounded-full border border-line bg-white hover:bg-hai-mint/40 hover:border-hai-teal transition-colors flex items-center gap-1.5 text-xs font-black text-hai-plum focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-focus focus-visible:ring-offset-2',
           compact ? 'px-2.5' : 'px-3',
           className,
         )}
@@ -84,7 +84,7 @@ export default function LanguageToggle({ className, compact = false }: LanguageT
         <div
           role="listbox"
           aria-label={t('language.options')}
-          className="absolute right-0 top-[calc(100%+8px)] z-[70] w-44 overflow-hidden rounded-2xl border border-[#E3E7EC] bg-white py-1.5 shadow-[0_20px_50px_-22px_rgba(45,24,56,0.35)]"
+          className="absolute right-0 top-[calc(100%+8px)] z-[70] w-44 overflow-hidden rounded-2xl border border-line bg-white py-1.5 shadow-[0_20px_50px_-22px_rgba(45,24,56,0.35)]"
         >
           {LANGUAGE_OPTIONS.map(option => {
             const selected = option.code === currentCode
@@ -103,7 +103,7 @@ export default function LanguageToggle({ className, compact = false }: LanguageT
                     : 'text-neutral-700 hover:bg-neutral-100 hover:text-hai-plum',
                 )}
               >
-                <span className="w-7 rounded-full bg-hai-offwhite px-1.5 py-0.5 text-center text-xs font-black leading-none text-[#1B7A88]">
+                <span className="w-7 rounded-full bg-hai-offwhite px-1.5 py-0.5 text-center text-xs font-black leading-none text-hai-teal-dark">
                   {option.short}
                 </span>
                 <span>{option.label}</span>

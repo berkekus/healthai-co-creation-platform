@@ -338,7 +338,7 @@ export default function PostListPage() {
                 <button
                   type="button"
                   onClick={openSaveSearch}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#D5DAE0] bg-white px-4 py-2 text-xs font-black text-hai-plum hover:bg-hai-mint/30 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-full border border-line-strong bg-white px-4 py-2 text-xs font-black text-hai-plum hover:bg-hai-mint/30 transition-colors"
                 >
                   <Bookmark size={13} />
                   {t('posts.saveSearch')}
@@ -386,7 +386,7 @@ export default function PostListPage() {
             onChange={e => setSaveSearchName(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && saveSearchName.trim() && !saveSearchBusy) saveCurrentSearch() }}
             maxLength={80}
-            className="w-full rounded-xl border border-[#D5DAE0] bg-white px-4 py-2.5 text-sm text-hai-plum outline-none focus:border-hai-plum"
+            className="w-full rounded-xl border border-line-strong bg-white px-4 py-2.5 text-sm text-hai-plum outline-none focus:border-hai-plum"
           />
         </ConfirmDialog>
       )}
@@ -431,7 +431,7 @@ function PageHeader({ search, onSearch, mineOnly }: { search: string; onSearch: 
             {mineOnly ? t('posts.heroDescMine') : t('posts.heroDescAll')}
           </p>
           {mineOnly && (
-            <Link to={ROUTES.POSTS} className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#8AC6D0] transition hover:text-[#36213E]">
+            <Link to={ROUTES.POSTS} className="mt-5 inline-flex items-center gap-2 text-sm font-black text-hai-teal transition hover:text-hai-plum">
               {t('posts.viewFullDirectory')}
               <ChevronRight size={15} />
             </Link>
@@ -449,7 +449,7 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
   return (
     <div className="flex items-center gap-4 max-sm:flex-col max-sm:items-stretch">
       <div className="relative min-w-0 flex-1">
-        <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-[#6F6878]">
+        <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-ink-muted">
           <Search size={22} />
         </span>
         <input
@@ -457,7 +457,7 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={t('posts.searchPlaceholder')}
-          className="w-full rounded-full border border-transparent bg-[#EEF0F3] py-5 pl-14 pr-6 text-base font-semibold text-[var(--text)] outline-none transition placeholder:text-[#6F6878] hover:border-[var(--border)] hover:bg-white focus:border-[var(--accent)] focus:bg-white"
+          className="w-full rounded-full border border-transparent bg-[#EEF0F3] py-5 pl-14 pr-6 text-base font-semibold text-[var(--text)] outline-none transition placeholder:text-ink-muted hover:border-[var(--border)] hover:bg-white focus:border-[var(--accent)] focus:bg-white"
         />
       </div>
 
@@ -863,12 +863,12 @@ function PostRow({
   const { t } = useTranslation()
   return (
     <article
-      className={`post-row block transition hover:bg-[#F3F4F6] ${compact ? 'post-row-compact' : ''} ${isLast ? '' : 'border-b border-[var(--border)]'}`}
+      className={`post-row block transition hover:bg-hai-offwhite ${compact ? 'post-row-compact' : ''} ${isLast ? '' : 'border-b border-[var(--border)]'}`}
       style={{ minHeight: compact ? 220 : 246, padding: '32px 28px' }}
     >
       <div style={{ paddingTop: compact ? 0 : 54 }}>
         <div
-          className="flex shrink-0 items-center justify-center rounded-full bg-[#E8F4F7] text-xs font-black tracking-[0.12em] text-[var(--primary)]"
+          className="flex shrink-0 items-center justify-center rounded-full bg-hai-teal-soft text-xs font-black tracking-[0.12em] text-[var(--primary)]"
           style={{ width: 42, height: 42 }}
         >
           {post.initials}
@@ -878,12 +878,12 @@ function PostRow({
       <div className="min-w-0 pt-1">
         {post.matchScore > 0 && (
           <div className="mb-4 flex flex-wrap items-center gap-3">
-            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] ${post.hasAI ? 'bg-[#36213E] text-white' : 'bg-[#D8EFF2] text-[#36213E]'}`}>
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] ${post.hasAI ? 'bg-hai-plum text-white' : 'bg-[#D8EFF2] text-hai-plum'}`}>
               <Sparkles size={14} />
               {post.hasAI ? t('posts.aiMatch') : t('posts.profileMatch')} · {post.matchScore}%
             </div>
             {post.aiReason && (
-              <div className="rounded-full bg-[#E8F4F7] px-4 py-2 text-xs font-black text-[#36213E]">
+              <div className="rounded-full bg-hai-teal-soft px-4 py-2 text-xs font-black text-hai-plum">
                 {post.aiReason}
               </div>
             )}
@@ -891,7 +891,7 @@ function PostRow({
         )}
 
         <Link to={postDetail(post.id)} className="group block">
-          <h2 className="truncate font-headline text-2xl font-black leading-tight text-[var(--primary)] transition group-hover:text-[#8AC6D0]">{post.title}</h2>
+          <h2 className="truncate font-headline text-2xl font-black leading-tight text-[var(--primary)] transition group-hover:text-hai-teal">{post.title}</h2>
           <p className="mt-4 max-w-[900px] break-words text-base font-semibold leading-6 text-[var(--muted)]">{post.description}</p>
         </Link>
 
@@ -903,7 +903,7 @@ function PostRow({
           </span>
           {post.daysLeft && (
             <>
-              <span className="text-[#D5DAE0]">|</span>
+              <span className="text-line-strong">|</span>
               <span className="uppercase tracking-[0.12em]">{post.daysLeft}</span>
             </>
           )}
@@ -952,7 +952,7 @@ function Tag({ label, lang }: { label: string; lang?: string }) {
         primary
           ? 'bg-[var(--primary)]'
           : cyan
-            ? 'bg-[#E8F4F7] text-[var(--tag-text)]'
+            ? 'bg-hai-teal-soft text-[var(--tag-text)]'
             : 'bg-[var(--tag-bg)] text-[var(--tag-text)]'
       }
     >

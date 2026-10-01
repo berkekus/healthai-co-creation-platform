@@ -21,6 +21,21 @@
   /* Focus indicator: hai-teal is only 1.9:1 on white, so light mode uses the darker teal (5:1). */
   --focus-ring:   27 122 136;
 
+  /* Named app colours (Tailwind: ink-*, line-*, hai-teal-soft, admin-accent). Each keeps the exact
+     hex the components used before; near-identical pairs (ink / ink-alt, the three muted greys,
+     the three borders) are candidates to merge in a later, visible step. */
+  --color-ink:            45 24 56;    /* #2D1838 primary text */
+  --color-ink-alt:        24 32 58;    /* #18203A primary text (admin, register) */
+  --color-ink-gray:       55 65 81;    /* #374151 body text (admin) */
+  --color-ink-muted:      111 104 120; /* #6F6878 secondary text */
+  --color-ink-muted-alt:  111 106 118; /* #6F6A76 secondary text (post forms, messages) */
+  --color-ink-muted-gray: 107 114 128; /* #6B7280 secondary text (admin, comments) */
+  --color-line:           227 231 236; /* #E3E7EC borders */
+  --color-line-strong:    213 218 224; /* #D5DAE0 input borders */
+  --color-line-gray:      234 236 240; /* #EAECF0 borders (admin) */
+  --color-teal-soft:      232 244 247; /* #E8F4F7 light teal surface */
+  --color-admin-accent:   79 70 229;   /* #4F46E5 admin indigo */
+
   /* Semantic surface / text / border tokens (used by dark-mode page overrides) */
   --surface-base:   247 248 250;
   --surface-card:   255 255 255;

@@ -11,7 +11,7 @@ export const MEETING_STATUS_STYLE: Record<MeetingStatus, { className: string; ic
   pending:       { className: 'bg-[#FFF4D6] text-[#7A4B00]', icon: Hourglass },
   time_proposed: { className: 'bg-[#E4ECFF] text-[#1E3A8A]', icon: CalendarClock },
   confirmed:     { className: 'bg-[#DCF5E6] text-[#14532D]', icon: CalendarCheck },
-  completed:     { className: 'bg-[#36213E] text-white', icon: CheckCheck },
+  completed:     { className: 'bg-hai-plum text-white', icon: CheckCheck },
   declined:      { className: 'bg-[#FDE8E8] text-[#9B1C1C]', icon: XCircle },
   cancelled:     { className: 'bg-[#EEF0F3] text-[#4B5563]', icon: Ban },
 }
