@@ -44,7 +44,7 @@ export default function ConfirmDialog({
             type="button"
             onClick={onCancel}
             disabled={busy}
-            className="h-10 rounded-full border border-[#D5DAE0] bg-white px-5 text-sm font-black text-hai-plum transition hover:border-hai-teal disabled:opacity-50"
+            className="h-10 rounded-full border border-line-strong bg-white px-5 text-sm font-black text-hai-plum transition hover:border-hai-teal disabled:opacity-50"
           >
             {cancelLabel}
           </button>

@@ -9,7 +9,7 @@ export function FieldLabel({
 }: LabelHTMLAttributes<HTMLLabelElement>) {
   return (
     <label
-      className={cx('mb-3 block text-xs font-headline font-black uppercase tracking-[0.16em] text-[#6F6878]', className)}
+      className={cx('mb-3 block text-xs font-headline font-black uppercase tracking-[0.16em] text-ink-muted', className)}
       {...props}
     >
       {children}
@@ -28,14 +28,14 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
   return (
     <div className="relative">
       {leftIcon && (
-        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#6F6878]">
+        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted">
           {leftIcon}
         </span>
       )}
       <input
         ref={ref}
         className={cx(
-          'h-12 w-full rounded-[14px] border border-[#E3E7EC] bg-white px-4 text-sm font-semibold text-hai-plum outline-none transition placeholder:text-[#6F6878] hover:border-hai-teal focus:border-hai-focus',
+          'h-12 w-full rounded-[14px] border border-line bg-white px-4 text-sm font-semibold text-hai-plum outline-none transition placeholder:text-ink-muted hover:border-hai-teal focus:border-hai-focus',
           Boolean(leftIcon) && 'pl-12',
           className,
         )}
@@ -58,7 +58,7 @@ export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(funct
       <select
         ref={ref}
         className={cx(
-          'h-[46px] w-full appearance-none rounded-[14px] border border-[#E3E7EC] bg-white px-4 pr-10 text-sm font-black text-hai-plum outline-none transition hover:border-hai-teal focus:border-hai-focus',
+          'h-[46px] w-full appearance-none rounded-[14px] border border-line bg-white px-4 pr-10 text-sm font-black text-hai-plum outline-none transition hover:border-hai-teal focus:border-hai-focus',
           className,
         )}
         {...props}

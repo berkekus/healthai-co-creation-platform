@@ -27,19 +27,19 @@ function NotifIcon({ type }: { type: NotificationType }) {
     case 'meeting_declined':
     case 'meeting_cancelled':
     case 'meeting_completed':
-      return <span className={`${base} bg-[#E8F4F7]`}><Calendar size={15} className="text-[#8AC6D0]" /></span>
+      return <span className={`${base} bg-hai-teal-soft`}><Calendar size={15} className="text-hai-teal" /></span>
     case 'post_closed':
     case 'post_status_changed':
-      return <span className={`${base} bg-[#E8F4F7]`}><FileText size={15} className="text-[#6FB8C4]" /></span>
+      return <span className={`${base} bg-hai-teal-soft`}><FileText size={15} className="text-[#6FB8C4]" /></span>
     case 'partner_found':
-      return <span className={`${base} bg-[#E8F4F7]`}><Users size={15} className="text-[#8AC6D0]" /></span>
+      return <span className={`${base} bg-hai-teal-soft`}><Users size={15} className="text-hai-teal" /></span>
     case 'interest_received':
-      return <span className={`${base} bg-[#E8F4F7]`}><Star size={15} className="text-[#8AC6D0]" /></span>
+      return <span className={`${base} bg-hai-teal-soft`}><Star size={15} className="text-hai-teal" /></span>
     case 'new_message':
     case 'new_comment':
-      return <span className={`${base} bg-[#E8F4F7]`}><MessageSquare size={15} className="text-[#8AC6D0]" /></span>
+      return <span className={`${base} bg-hai-teal-soft`}><MessageSquare size={15} className="text-hai-teal" /></span>
     default:
-      return <span className={`${base} bg-[#EEF0F3]`}><Bell size={15} className="text-[#6F6878]" /></span>
+      return <span className={`${base} bg-[#EEF0F3]`}><Bell size={15} className="text-ink-muted" /></span>
   }
 }
 
@@ -58,14 +58,14 @@ function NotifDropdown({
 }) {
   const { t } = useTranslation()
   return (
-    <div className="absolute right-0 top-[calc(100%+10px)] z-[60] w-[340px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-[#E3E7EC] bg-white shadow-[0_20px_60px_-20px_rgba(45,24,56,0.22)] overflow-hidden">
+    <div className="absolute right-0 top-[calc(100%+10px)] z-[60] w-[340px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-line bg-white shadow-[0_20px_60px_-20px_rgba(45,24,56,0.22)] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#E3E7EC]">
-        <span className="text-sm font-black text-[#36213E]">{t('notif.title')}</span>
+      <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+        <span className="text-sm font-black text-hai-plum">{t('notif.title')}</span>
         {unread > 0 && (
           <button
             onClick={onMarkAllRead}
-            className="cursor-pointer text-xs font-bold text-[#1B7A88] hover:text-[#36213E] transition-colors"
+            className="cursor-pointer text-xs font-bold text-hai-teal-dark hover:text-hai-plum transition-colors"
           >
             {t('notif.markAllRead')}
           </button>
@@ -76,9 +76,9 @@ function NotifDropdown({
       {items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF0F3]">
-            <Bell size={18} className="text-[#6F6878]" />
+            <Bell size={18} className="text-ink-muted" />
           </span>
-          <p className="text-sm font-semibold text-[#6F6878]">{t('notif.empty')}</p>
+          <p className="text-sm font-semibold text-ink-muted">{t('notif.empty')}</p>
         </div>
       ) : (
         <ul>
@@ -87,18 +87,18 @@ function NotifDropdown({
             return <li key={n.id}>
               <button
                 onClick={() => onNavigate(n.linkTo)}
-                className="flex w-full cursor-pointer items-start gap-3 px-5 py-3.5 text-left transition-colors hover:bg-[#F3F4F6]"
+                className="flex w-full cursor-pointer items-start gap-3 px-5 py-3.5 text-left transition-colors hover:bg-hai-offwhite"
               >
                 <NotifIcon type={n.type} />
                 <div className="min-w-0 flex-1">
-                  <p className={`text-sm leading-snug ${n.isRead ? 'font-semibold text-[#6F6878]' : 'font-black text-[#36213E]'}`}>
+                  <p className={`text-sm leading-snug ${n.isRead ? 'font-semibold text-ink-muted' : 'font-black text-hai-plum'}`}>
                     {content.title}
                   </p>
-                  <p className="mt-0.5 truncate text-xs font-semibold text-[#6F6878]">{content.body}</p>
+                  <p className="mt-0.5 truncate text-xs font-semibold text-ink-muted">{content.body}</p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2 pt-0.5">
-                  <span className="whitespace-nowrap text-xs font-semibold text-[#6F6878]">{timeAgo(n.createdAt, t)}</span>
-                  {!n.isRead && <span className="h-2 w-2 rounded-full bg-[#8AC6D0]" />}
+                  <span className="whitespace-nowrap text-xs font-semibold text-ink-muted">{timeAgo(n.createdAt, t)}</span>
+                  {!n.isRead && <span className="h-2 w-2 rounded-full bg-hai-teal" />}
                 </div>
               </button>
             </li>
@@ -107,10 +107,10 @@ function NotifDropdown({
       )}
 
       {/* Footer */}
-      <div className="border-t border-[#E3E7EC] px-5 py-3.5">
+      <div className="border-t border-line px-5 py-3.5">
         <button
           onClick={onViewAll}
-          className="flex cursor-pointer items-center gap-1.5 text-sm font-bold text-[#1B7A88] hover:text-[#36213E] transition-colors"
+          className="flex cursor-pointer items-center gap-1.5 text-sm font-bold text-hai-teal-dark hover:text-hai-plum transition-colors"
         >
           {t('notif.viewAll')}
           <span className="text-base leading-none">→</span>
@@ -203,7 +203,7 @@ export default function Navbar() {
       : location.pathname === to || location.pathname.startsWith(to + '/')
 
   return (
-    <header className="sticky top-0 z-50 h-[76px] bg-white/90 backdrop-blur-md border-b border-[#E3E7EC] font-body">
+    <header className="sticky top-0 z-50 h-[76px] bg-white/90 backdrop-blur-md border-b border-line font-body">
       <div className="max-w-[1640px] mx-auto h-full px-4 sm:px-6 md:px-10 2xl:px-0 flex items-center justify-between gap-4 sm:gap-8">
 
         {/* Brand — Erasmus+ funding mark sits left of the HealthAI lockup.

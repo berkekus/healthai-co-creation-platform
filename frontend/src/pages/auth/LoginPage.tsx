@@ -167,10 +167,10 @@ export default function LoginPage() {
           <div className="w-full max-w-[380px]">
 
             {/* Heading */}
-            <h1 className="font-headline font-black text-4xl sm:text-5xl leading-tight tracking-normal text-[#36213E] dark:text-hai-plum mb-2">
-              {t('authPage.login.heading')}<span className="text-[#8AC6D0]">.</span>
+            <h1 className="font-headline font-black text-4xl sm:text-5xl leading-tight tracking-normal text-hai-plum dark:text-hai-plum mb-2">
+              {t('authPage.login.heading')}<span className="text-hai-teal">.</span>
             </h1>
-            <p className="text-sm text-[#6F6878] dark:text-[rgb(var(--text-secondary))] mb-8 font-body">
+            <p className="text-sm text-ink-muted dark:text-[rgb(var(--text-secondary))] mb-8 font-body">
               {t('authPage.login.sub')}
             </p>
 
@@ -205,7 +205,7 @@ export default function LoginPage() {
                   {error}
                   {error.toLowerCase().includes('not verified') && (
                     <div className="mt-1.5">
-                      <Link to={ROUTES.VERIFY_EMAIL} className="text-[#36213E] font-bold hover:underline text-xs">
+                      <Link to={ROUTES.VERIFY_EMAIL} className="text-hai-plum font-bold hover:underline text-xs">
                         {t('authPage.login.resendVerification')}
                       </Link>
                     </div>
@@ -219,7 +219,7 @@ export default function LoginPage() {
 
               {/* Email */}
               <div>
-                <label htmlFor={emailId} className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
+                <label htmlFor={emailId} className="block text-sm font-bold text-hai-plum dark:text-hai-plum mb-2">
                   {t('authPage.login.emailLabel')}
                 </label>
                 <div className="relative">
@@ -232,10 +232,10 @@ export default function LoginPage() {
                     type="email"
                     placeholder={t('authPage.login.emailPlaceholder')}
                     autoComplete="email"
-                    className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] dark:text-hai-plum placeholder:text-[#6F6878] bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
+                    className={`w-full pl-11 pr-4 py-3.5 rounded-[14px] border text-sm font-body text-hai-plum dark:text-hai-plum placeholder:text-ink-muted bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
                       errors.email
                         ? 'border-red-400 ring-2 ring-red-100'
-                        : 'border-[#D5DAE0] dark:border-[rgb(var(--border-default))] focus:border-hai-focus focus:ring-2 focus:ring-[#8AC6D0]/15'
+                        : 'border-line-strong dark:border-[rgb(var(--border-default))] focus:border-hai-focus focus:ring-2 focus:ring-hai-teal/15'
                     }`}
                   />
                 </div>
@@ -244,7 +244,7 @@ export default function LoginPage() {
 
               {/* Password */}
               <div>
-                <label htmlFor={passwordId} className="block text-sm font-bold text-[#36213E] dark:text-hai-plum mb-2">
+                <label htmlFor={passwordId} className="block text-sm font-bold text-hai-plum dark:text-hai-plum mb-2">
                   {t('authPage.login.passwordLabel')}
                 </label>
                 <div className="relative">
@@ -257,16 +257,16 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder={'\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022'}
                     autoComplete="current-password"
-                    className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-sm font-body text-[#36213E] dark:text-hai-plum placeholder:text-[#6F6878] bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
+                    className={`w-full pl-11 pr-12 py-3.5 rounded-[14px] border text-sm font-body text-hai-plum dark:text-hai-plum placeholder:text-ink-muted bg-white dark:bg-[rgb(var(--surface-blob))] outline-none transition-all duration-150 ${
                       errors.password
                         ? 'border-red-400 ring-2 ring-red-100'
-                        : 'border-[#D5DAE0] dark:border-[rgb(var(--border-default))] focus:border-hai-focus focus:ring-2 focus:ring-[#8AC6D0]/15'
+                        : 'border-line-strong dark:border-[rgb(var(--border-default))] focus:border-hai-focus focus:ring-2 focus:ring-hai-teal/15'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(p => !p)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7590] hover:text-[#36213E] transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7590] hover:text-hai-plum transition-colors"
                     aria-label={showPassword ? t('authPage.login.hidePassword') : t('authPage.login.showPassword')}
                   >
                     {showPassword ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
@@ -282,7 +282,7 @@ export default function LoginPage() {
                   className="flex items-center gap-2.5 cursor-pointer select-none"
                 >
                   <div className={`relative w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center transition-all ${
-                    rememberMe ? 'bg-[#8AC6D0] border-[#8AC6D0]' : 'bg-white border-[#c8cedd] hover:border-[#8AC6D0]'
+                    rememberMe ? 'bg-hai-teal border-hai-teal' : 'bg-white border-[#c8cedd] hover:border-hai-teal'
                   }`}>
                     <input
                       id="rememberMe"
@@ -301,7 +301,7 @@ export default function LoginPage() {
                 </label>
                 <Link
                   to={ROUTES.FORGOT_PASSWORD}
-                  className="text-sm font-semibold text-[#1B7A88] hover:text-[#36213E] transition-colors"
+                  className="text-sm font-semibold text-hai-teal-dark hover:text-hai-plum transition-colors"
                 >
                   {t('authPage.login.forgotPassword')}
                 </Link>
@@ -355,9 +355,9 @@ export default function LoginPage() {
             </form>
 
             {/* Footer */}
-            <p className="mt-7 text-center text-sm text-[#6b7280] dark:text-[rgb(var(--text-secondary))] font-body">
+            <p className="mt-7 text-center text-sm text-ink-muted-gray dark:text-[rgb(var(--text-secondary))] font-body">
               {t('authPage.login.noAccount')}{' '}
-              <Link to={ROUTES.REGISTER} className="font-black text-[#36213E] dark:text-hai-plum hover:text-[#8AC6D0] transition-colors">
+              <Link to={ROUTES.REGISTER} className="font-black text-hai-plum dark:text-hai-plum hover:text-hai-teal transition-colors">
                 {t('authPage.login.createAccount')}
               </Link>
             </p>
@@ -382,7 +382,7 @@ export default function LoginPage() {
                       type="button"
                       onClick={() => quickLogin(email, password)}
                       disabled={isLoading || captchaBlocks(captchaToken)}
-                      className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-[#D5DAE0] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                      className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-line-strong hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                     >
                       <div
                         className="w-7 h-7 rounded-full flex items-center justify-center"

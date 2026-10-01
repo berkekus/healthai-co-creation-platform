@@ -9,9 +9,9 @@ const base =
   'relative inline-flex shrink-0 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-focus disabled:pointer-events-none disabled:opacity-45'
 
 const variants: Record<IconButtonVariant, string> = {
-  default: 'border border-[#E3E7EC] bg-white text-neutral-700 hover:border-hai-teal hover:bg-hai-mint/40',
+  default: 'border border-line bg-white text-neutral-700 hover:border-hai-teal hover:bg-hai-mint/40',
   soft: 'border border-hai-teal/30 bg-hai-mint/45 text-hai-plum hover:bg-hai-mint/70',
-  outline: 'border border-[#E3E7EC] bg-white text-hai-plum hover:border-hai-teal hover:bg-hai-mint/35',
+  outline: 'border border-line bg-white text-hai-plum hover:border-hai-teal hover:bg-hai-mint/35',
   ghost: 'bg-transparent text-neutral-700 hover:bg-black/5 hover:text-neutral-900',
   primary: 'bg-hai-plum text-white hover:bg-[#24162B]',
   danger: 'bg-red-50 text-red-600 hover:bg-red-100',

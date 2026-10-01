@@ -142,19 +142,19 @@ export default function ConversationPage() {
       <div className="sticky top-[76px] z-10 bg-white border-b border-[#e8e8ee] px-6 md:px-10 py-4 flex items-center gap-4">
         <button
           onClick={() => navigate('/messages')}
-          className="w-9 h-9 rounded-full border border-[#e8e8ee] flex items-center justify-center text-[#6f6a76] hover:bg-[#f5f6f8] transition-colors shrink-0"
+          className="w-9 h-9 rounded-full border border-[#e8e8ee] flex items-center justify-center text-ink-muted-alt hover:bg-[#f5f6f8] transition-colors shrink-0"
         >
           <ArrowLeft size={16} />
         </button>
 
         {partner ? (
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-[#2d1838] text-[#8fdff0] font-black text-xs flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-ink text-[#8fdff0] font-black text-xs flex items-center justify-center shrink-0">
               {partner.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="font-headline font-black text-base text-[#2d1838] truncate">{partner.name}</p>
-              <p className="text-xs text-[#6b7280] font-semibold">{t(`common.role.${partner.role}`, { defaultValue: partner.role })}</p>
+              <p className="font-headline font-black text-base text-ink truncate">{partner.name}</p>
+              <p className="text-xs text-ink-muted-gray font-semibold">{t(`common.role.${partner.role}`, { defaultValue: partner.role })}</p>
             </div>
           </div>
         ) : (
@@ -162,7 +162,7 @@ export default function ConversationPage() {
         )}
 
         {conv && (
-          <p className="text-xs font-black uppercase tracking-[0.12em] text-[#6b7280] hidden sm:block truncate max-w-[200px]">
+          <p className="text-xs font-black uppercase tracking-[0.12em] text-ink-muted-gray hidden sm:block truncate max-w-[200px]">
             {conv.postTitle}
           </p>
         )}
@@ -173,13 +173,13 @@ export default function ConversationPage() {
             onClick={() => setConfirmDelete(true)}
             title={t('chat.delete')}
             aria-label={t('chat.delete')}
-            className="w-9 h-9 rounded-full border border-[#e8e8ee] flex items-center justify-center text-[#6b7280] hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
+            className="w-9 h-9 rounded-full border border-[#e8e8ee] flex items-center justify-center text-ink-muted-gray hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
           >
             <Trash2 size={15} />
           </button>
         ) : (
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-bold text-[#6f6a76] hidden sm:inline">{t('chat.deleteConfirm')}</span>
+            <span className="text-xs font-bold text-ink-muted-alt hidden sm:inline">{t('chat.deleteConfirm')}</span>
             <button
               onClick={handleDelete}
               disabled={deleting}
@@ -189,7 +189,7 @@ export default function ConversationPage() {
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
-              className="h-8 px-3 rounded-full border border-[#e8e8ee] text-xs font-bold text-[#6f6a76] hover:bg-[#f5f6f8] transition-colors"
+              className="h-8 px-3 rounded-full border border-[#e8e8ee] text-xs font-bold text-ink-muted-alt hover:bg-[#f5f6f8] transition-colors"
             >
               {t('common.cancel')}
             </button>
@@ -197,17 +197,17 @@ export default function ConversationPage() {
         )}
       </div>
 
-      <p className="mx-auto w-full max-w-[860px] px-6 pt-4 text-xs font-semibold text-[#6f6a76] md:px-10">
+      <p className="mx-auto w-full max-w-[860px] px-6 pt-4 text-xs font-semibold text-ink-muted-alt md:px-10">
         {t('chat.meetingHint')}{' '}
-        <Link to={ROUTES.MEETINGS} className="font-black text-[#2d1838] underline">{t('chat.meetingsLink')}</Link>
+        <Link to={ROUTES.MEETINGS} className="font-black text-ink underline">{t('chat.meetingsLink')}</Link>
       </p>
 
       {/* Message thread */}
       <div className="flex-1 overflow-y-auto px-6 md:px-10 py-8 mx-auto w-full max-w-[860px]">
         {allMsgs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <p className="font-headline text-lg font-black text-[#2d1838]">{t('chat.emptyTitle')}</p>
-            <p className="mt-2 text-sm text-[#6f6a76]">{t('chat.emptyDesc')}</p>
+            <p className="font-headline text-lg font-black text-ink">{t('chat.emptyTitle')}</p>
+            <p className="mt-2 text-sm text-ink-muted-alt">{t('chat.emptyDesc')}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -233,7 +233,7 @@ export default function ConversationPage() {
             {error
               ? <p className="text-xs text-red-600 font-semibold">{error}</p>
               : <span />}
-            <span className="text-xs text-[#6b7280] font-semibold">
+            <span className="text-xs text-ink-muted-gray font-semibold">
               {t('chat.updated', { when: lastUpdatedLabel })}
             </span>
           </div>
@@ -246,7 +246,7 @@ export default function ConversationPage() {
               rows={1}
               placeholder={t('chat.placeholder')}
               aria-label={t('chat.placeholder')}
-              className="flex-1 resize-none rounded-[16px] border border-[#e8e8ee] bg-[#f8f7fa] px-4 py-3 text-sm font-body text-[#2d1838] placeholder:text-[#6F6878] outline-none focus:border-hai-focus focus:ring-2 focus:ring-[#55c7df]/20 transition-all max-h-[160px] overflow-y-auto"
+              className="flex-1 resize-none rounded-[16px] border border-[#e8e8ee] bg-[#f8f7fa] px-4 py-3 text-sm font-body text-ink placeholder:text-ink-muted outline-none focus:border-hai-focus focus:ring-2 focus:ring-[#55c7df]/20 transition-all max-h-[160px] overflow-y-auto"
               onInput={e => {
                 const field = e.currentTarget
                 field.style.height = 'auto'
@@ -256,7 +256,7 @@ export default function ConversationPage() {
             <button
               onClick={handleSend}
               disabled={!text.trim() || sending}
-              className="w-12 h-12 rounded-full bg-[#2d1838] text-white flex items-center justify-center hover:bg-[#1b1022] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_8px_20px_-10px_rgba(45,24,56,0.7)] shrink-0"
+              className="w-12 h-12 rounded-full bg-ink text-white flex items-center justify-center hover:bg-[#1b1022] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_8px_20px_-10px_rgba(45,24,56,0.7)] shrink-0"
               aria-label={t('chat.send')}
             >
               {sending
@@ -294,18 +294,18 @@ function MessageBubble({
   return (
     <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} ${optimistic ? 'opacity-60' : ''}`}>
       {showName && !isMine && (
-        <span className="text-xs font-bold text-[#6b7280] mb-1 px-1">{msg.senderName}</span>
+        <span className="text-xs font-bold text-ink-muted-gray mb-1 px-1">{msg.senderName}</span>
       )}
       <div
         className={`max-w-[70%] px-4 py-3 rounded-[18px] text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm ${
           isMine
             ? 'bg-[#dff8ff] text-[#1a2535] border border-[#8fdff0] rounded-br-[4px]'
-            : 'bg-white text-[#2d1838] border border-[#e8e8ee] rounded-bl-[4px]'
+            : 'bg-white text-ink border border-[#e8e8ee] rounded-bl-[4px]'
         }`}
       >
         {msg.content}
       </div>
-      <span className="text-xs text-[#6b7280] mt-1 px-1">
+      <span className="text-xs text-ink-muted-gray mt-1 px-1">
         {optimistic ? t('meetingRequest.sending') : time}
       </span>
     </div>

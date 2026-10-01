@@ -11,7 +11,7 @@ import DomainPicker from './DomainPicker'
 import api from '../../lib/api'
 
 const baseInput =
-  'h-14 w-full rounded-[10px] border border-[#d7dbe3] bg-white px-4 text-sm font-semibold text-[#2d1838] outline-none transition placeholder:text-[#6F6878] focus:border-hai-focus focus:ring-4 focus:ring-[#66c8e7]/20'
+  'h-14 w-full rounded-[10px] border border-[#d7dbe3] bg-white px-4 text-sm font-semibold text-ink outline-none transition placeholder:text-ink-muted focus:border-hai-focus focus:ring-4 focus:ring-[#66c8e7]/20'
 const baseSelect =
   `${baseInput} appearance-none pr-10`
 
@@ -126,19 +126,19 @@ export default function PostFormFields({ register, control, setValue, errors, mi
             />
           </Field>
           <div className="flex flex-col items-start gap-3 lg:pt-7">
-            <span className="text-sm font-semibold leading-5 text-[#6f6a76]">{t('posts.form.minChars')}</span>
+            <span className="text-sm font-semibold leading-5 text-ink-muted-alt">{t('posts.form.minChars')}</span>
             <button
               type="button"
               disabled={aiLoading || !aiHasText}
               onClick={handleAIAssist}
               aria-describedby={aiHasText ? undefined : aiHintId}
-              className="inline-flex items-center gap-2 rounded-full bg-[#36213E] px-4 py-2 text-xs font-black text-white hover:bg-black disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full bg-hai-plum px-4 py-2 text-xs font-black text-white hover:bg-black disabled:opacity-50 transition-colors"
             >
               <Sparkles size={13} />
               {aiLoading ? t('posts.form.improving') : t('posts.form.aiAssist')}
             </button>
             {!aiHasText && (
-              <span id={aiHintId} className="text-xs font-semibold leading-5 text-[#6f6a76]">
+              <span id={aiHintId} className="text-xs font-semibold leading-5 text-ink-muted-alt">
                 {t('posts.form.aiNeedsText')}
               </span>
             )}
@@ -152,41 +152,41 @@ export default function PostFormFields({ register, control, setValue, errors, mi
         {aiResult && (
           <div className="mt-4 rounded-[14px] border border-[#cdeefa] bg-[#eefaff] p-5">
             <div className="mb-3 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-black text-[#2d1838]">
+              <div className="flex items-center gap-2 text-sm font-black text-ink">
                 <Sparkles size={14} />
                 {t('posts.form.aiSuggestions')}
               </div>
-              <button type="button" onClick={() => setAiResult(null)} aria-label={t('common.close')} className="text-[#6b7280] hover:text-[#2d1838] transition-colors">✕</button>
+              <button type="button" onClick={() => setAiResult(null)} aria-label={t('common.close')} className="text-ink-muted-gray hover:text-ink transition-colors">✕</button>
             </div>
             {aiResult.improvedTitle && (
               <div className="mb-2">
-                <span className="text-xs font-black uppercase tracking-wide text-[#6f6a76]">{t('posts.form.suggestionTitle')}</span>
-                <p className="mt-1 text-sm font-semibold text-[#2d1838]">{aiResult.improvedTitle}</p>
+                <span className="text-xs font-black uppercase tracking-wide text-ink-muted-alt">{t('posts.form.suggestionTitle')}</span>
+                <p className="mt-1 text-sm font-semibold text-ink">{aiResult.improvedTitle}</p>
               </div>
             )}
             {aiResult.improvedDescription && (
               <div className="mb-2">
-                <span className="text-xs font-black uppercase tracking-wide text-[#6f6a76]">{t('posts.form.suggestionDescription')}</span>
-                <p className="mt-1 text-sm font-semibold text-[#2d1838]">{aiResult.improvedDescription}</p>
+                <span className="text-xs font-black uppercase tracking-wide text-ink-muted-alt">{t('posts.form.suggestionDescription')}</span>
+                <p className="mt-1 text-sm font-semibold text-ink">{aiResult.improvedDescription}</p>
               </div>
             )}
             {aiResult.suggestedExpertise && aiResult.suggestedExpertise.length > 0 && (
               <div className="mb-2">
-                <span className="text-xs font-black uppercase tracking-wide text-[#6f6a76]">{t('posts.form.suggestionExpertise')}</span>
+                <span className="text-xs font-black uppercase tracking-wide text-ink-muted-alt">{t('posts.form.suggestionExpertise')}</span>
                 <div className="mt-1 flex flex-wrap gap-1.5">
                   {aiResult.suggestedExpertise.map(tag => (
-                    <span key={tag} className="rounded-full bg-[#36213E]/10 px-2.5 py-0.5 text-xs font-bold text-[#36213E]">{tag}</span>
+                    <span key={tag} className="rounded-full bg-hai-plum/10 px-2.5 py-0.5 text-xs font-bold text-hai-plum">{tag}</span>
                   ))}
                 </div>
               </div>
             )}
             {aiResult.tip && (
-              <div className="mb-3 text-xs font-semibold italic text-[#6f6a76]">{aiResult.tip}</div>
+              <div className="mb-3 text-xs font-semibold italic text-ink-muted-alt">{aiResult.tip}</div>
             )}
             <button
               type="button"
               onClick={applyAISuggestions}
-              className="rounded-full bg-[#36213E] px-5 py-2 text-xs font-black text-white hover:bg-black transition-colors"
+              className="rounded-full bg-hai-plum px-5 py-2 text-xs font-black text-white hover:bg-black transition-colors"
             >
               {t('posts.form.applyAll')}
             </button>
@@ -239,12 +239,12 @@ export default function PostFormFields({ register, control, setValue, errors, mi
                 className="group relative flex cursor-pointer items-center gap-4 rounded-[10px] border border-[#d7dbe3] bg-white p-4 transition has-[:checked]:border-[#66c8e7] has-[:checked]:bg-[#f2fbff]"
               >
                 <input {...register('confidentiality')} type="radio" value={option.value} className="peer sr-only" />
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eefaff] text-[#2d1838]">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eefaff] text-ink">
                   <Lock size={18} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-black text-[#2d1838]">{option.title}</span>
-                  <span className="mt-1 block text-xs font-semibold leading-5 text-[#6f6a76]">{option.desc}</span>
+                  <span className="block text-sm font-black text-ink">{option.title}</span>
+                  <span className="mt-1 block text-xs font-semibold leading-5 text-ink-muted-alt">{option.desc}</span>
                 </span>
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[#cfd3dc] transition group-has-[:checked]:border-[#66c8e7] group-has-[:checked]:bg-[#66c8e7]">
                   <svg className="hidden group-has-[:checked]:block" width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
@@ -279,18 +279,18 @@ export default function PostFormFields({ register, control, setValue, errors, mi
         <Field label={t('posts.form.expiry')} error={errors.expiryDate?.message} required htmlFor={fieldId('expiry')}>
           <div className="relative">
             <input id={fieldId('expiry')} {...register('expiryDate')} type="date" min={minDateStr} className={`${baseInput} pr-12`} />
-            <CalendarDays size={18} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#2d1838]" />
+            <CalendarDays size={18} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-ink" />
           </div>
         </Field>
       </FormSection>
 
       <FormSection number="5" title={t('posts.form.sections.reviewTitle')} subtitle={t('posts.form.sections.reviewSubtitle')}>
         <div className="flex gap-4 rounded-[10px] border border-[#cdeefa] bg-[#eefaff] p-5">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d8f5ff] text-[#2d1838]">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d8f5ff] text-ink">
             <ShieldCheck size={20} />
           </span>
           <div>
-            <div className="text-sm font-black text-[#2d1838]">{t('posts.form.gdprNoticeTitle')}</div>
+            <div className="text-sm font-black text-ink">{t('posts.form.gdprNoticeTitle')}</div>
             <p className="mt-1 text-sm font-semibold leading-5 text-[#4f4a58]">
               {t('posts.detail.gdprNotice')}
               <br />
@@ -311,8 +311,8 @@ function FormSection({ number, title, subtitle, children }: { number: string; ti
           {number}
         </span>
         <div>
-          <h2 className="text-xl font-black leading-tight text-[#2d1838]">{title}</h2>
-          <p className="mt-1 text-sm font-semibold text-[#6f6a76]">{subtitle}</p>
+          <h2 className="text-xl font-black leading-tight text-ink">{title}</h2>
+          <p className="mt-1 text-sm font-semibold text-ink-muted-alt">{subtitle}</p>
         </div>
       </header>
       <div className="space-y-6">{children}</div>
@@ -331,7 +331,7 @@ interface FieldLabelProps {
 }
 
 function FieldLabel({ label, error, required, htmlFor, labelId }: FieldLabelProps) {
-  const className = `mb-2 block text-xs font-black ${error ? 'text-red-600' : 'text-[#2d1838]'}`
+  const className = `mb-2 block text-xs font-black ${error ? 'text-red-600' : 'text-ink'}`
   const content = <>{label} {required && <span className="text-red-600">*</span>}</>
   return htmlFor
     ? <label htmlFor={htmlFor} className={className}>{content}</label>
@@ -353,7 +353,7 @@ function Field({ children, ...labelProps }: FieldLabelProps & { children: ReactN
 function OptionHelp({ children }: { children: ReactNode }) {
   if (!children) return null
   return (
-    <span aria-live="polite" className="mt-2 block text-xs font-semibold leading-5 text-[#6f6a76]">
+    <span aria-live="polite" className="mt-2 block text-xs font-semibold leading-5 text-ink-muted-alt">
       {children}
     </span>
   )
@@ -361,7 +361,7 @@ function OptionHelp({ children }: { children: ReactNode }) {
 
 function Hint({ children }: { children: ReactNode }) {
   return (
-    <div className="flex items-center text-sm font-semibold leading-5 text-[#6f6a76] lg:pt-7">
+    <div className="flex items-center text-sm font-semibold leading-5 text-ink-muted-alt lg:pt-7">
       {children}
     </div>
   )
@@ -372,7 +372,7 @@ function SelectShell({ children }: { children: ReactNode }) {
     <div className="relative">
       {children}
       <svg
-        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6f6a76]"
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted-alt"
         width="16" height="16" viewBox="0 0 16 16" fill="none"
         aria-hidden="true"
       >

@@ -6,7 +6,7 @@ import FundingNotice from './FundingNotice'
 export default function Footer() {
   const { t } = useTranslation()
   return (
-    <footer className="bg-[#2d1838] text-[#dff8ff] font-body">
+    <footer className="bg-ink text-[#dff8ff] font-body">
       <div className="max-w-[1640px] mx-auto px-6 md:px-10 2xl:px-0 py-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex items-center gap-3">
           <div className="bg-white/10 border border-white/15 p-1.5 rounded-lg">

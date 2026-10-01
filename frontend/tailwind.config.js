@@ -16,6 +16,22 @@ export default {
         'hai-cream':    'rgb(var(--hai-cream))',
         // Keyboard focus indicator — ≥3:1 against light surfaces (WCAG 1.4.11).
         'hai-focus':    'rgb(var(--focus-ring) / <alpha-value>)',
+        'hai-teal-soft': 'rgb(var(--color-teal-soft) / <alpha-value>)',
+        // Named app colours; values and roles are documented next to the variables in globals.css.
+        ink: {
+          DEFAULT:      'rgb(var(--color-ink) / <alpha-value>)',
+          alt:          'rgb(var(--color-ink-alt) / <alpha-value>)',
+          gray:         'rgb(var(--color-ink-gray) / <alpha-value>)',
+          muted:        'rgb(var(--color-ink-muted) / <alpha-value>)',
+          'muted-alt':  'rgb(var(--color-ink-muted-alt) / <alpha-value>)',
+          'muted-gray': 'rgb(var(--color-ink-muted-gray) / <alpha-value>)',
+        },
+        line: {
+          DEFAULT: 'rgb(var(--color-line) / <alpha-value>)',
+          strong:  'rgb(var(--color-line-strong) / <alpha-value>)',
+          gray:    'rgb(var(--color-line-gray) / <alpha-value>)',
+        },
+        'admin-accent': 'rgb(var(--color-admin-accent) / <alpha-value>)',
       },
       /**
        * Typography system — only two live families:

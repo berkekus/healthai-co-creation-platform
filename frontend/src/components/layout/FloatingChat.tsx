@@ -91,33 +91,33 @@ export default function FloatingChat() {
   return (
     <div className="fixed bottom-6 right-6 z-[80] flex flex-col items-end gap-3">
       {open && (
-        <section className="w-[calc(100vw-2rem)] max-w-[380px] overflow-hidden rounded-[24px] border border-[#E3E7EC] bg-white shadow-[0_28px_90px_-34px_rgba(45,24,56,0.48)]">
-          <header className="flex min-h-[68px] items-center justify-between gap-3 border-b border-[#E3E7EC] px-4 py-3">
+        <section className="w-[calc(100vw-2rem)] max-w-[380px] overflow-hidden rounded-[24px] border border-line bg-white shadow-[0_28px_90px_-34px_rgba(45,24,56,0.48)]">
+          <header className="flex min-h-[68px] items-center justify-between gap-3 border-b border-line px-4 py-3">
             {selected ? (
               <div className="flex min-w-0 items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setSelectedId(null)}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E3E7EC] text-[#6F6878] transition hover:bg-[#F3F4F6]"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line text-ink-muted transition hover:bg-hai-offwhite"
                   aria-label={t('chat.backToConversations')}
                 >
                   <ArrowLeft size={16} />
                 </button>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#36213E] text-xs font-black text-[#B8F3FF]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-[#B8F3FF]">
                   {initials(partner?.name)}
                 </div>
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-black text-[#36213E]">{partner?.name ?? t('messagesPage.title')}</div>
-                  <div className="truncate text-xs font-semibold text-[#6F6878]">{selected.postTitle}</div>
+                  <div className="truncate text-sm font-black text-hai-plum">{partner?.name ?? t('messagesPage.title')}</div>
+                  <div className="truncate text-xs font-semibold text-ink-muted">{selected.postTitle}</div>
                 </div>
               </div>
             ) : (
               <div>
-                <div className="flex items-center gap-2 text-sm font-black text-[#36213E]">
+                <div className="flex items-center gap-2 text-sm font-black text-hai-plum">
                   <MessageSquare size={16} />
                   {t('messagesPage.title')}
                 </div>
-                <div className="mt-0.5 text-xs font-semibold text-[#6F6878]">
+                <div className="mt-0.5 text-xs font-semibold text-ink-muted">
                   {t('messagesPage.count', { count: conversations.length })}
                 </div>
               </div>
@@ -126,7 +126,7 @@ export default function FloatingChat() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#6F6878] transition hover:bg-[#F3F4F6] hover:text-[#36213E]"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-muted transition hover:bg-hai-offwhite hover:text-hai-plum"
               aria-label={t('chat.close')}
             >
               <X size={16} />
@@ -139,8 +139,8 @@ export default function FloatingChat() {
                 {selectedMessages.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center text-center">
                     <MessageSquare size={34} className="text-[#C5C0CC]" />
-                    <p className="mt-3 text-sm font-black text-[#36213E]">{t('messagesPage.noMessages')}</p>
-                    <p className="mt-1 text-xs font-semibold text-[#6F6878]">{t('messagesPage.startConv')}</p>
+                    <p className="mt-3 text-sm font-black text-hai-plum">{t('messagesPage.noMessages')}</p>
+                    <p className="mt-1 text-xs font-semibold text-ink-muted">{t('messagesPage.startConv')}</p>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2.5">
@@ -152,7 +152,7 @@ export default function FloatingChat() {
                 )}
               </div>
 
-              <div className="border-t border-[#E3E7EC] bg-white p-3">
+              <div className="border-t border-line bg-white p-3">
                 <div className="flex items-end gap-2">
                   <textarea
                     value={text}
@@ -160,13 +160,13 @@ export default function FloatingChat() {
                     onKeyDown={handleKeyDown}
                     rows={1}
                     placeholder={t('messagesPage.placeholder')}
-                    className="max-h-[96px] min-h-[44px] flex-1 resize-none rounded-[14px] border border-[#E3E7EC] bg-[#F8FAFC] px-3 py-3 text-sm font-semibold text-[#36213E] outline-none transition focus:border-hai-focus focus:ring-2 focus:ring-[#8AC6D0]/20"
+                    className="max-h-[96px] min-h-[44px] flex-1 resize-none rounded-[14px] border border-line bg-[#F8FAFC] px-3 py-3 text-sm font-semibold text-hai-plum outline-none transition focus:border-hai-focus focus:ring-2 focus:ring-hai-teal/20"
                   />
                   <button
                     type="button"
                     onClick={handleSend}
                     disabled={!text.trim() || sending}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#36213E] text-white shadow-[0_12px_24px_-16px_rgba(45,24,56,0.7)] transition hover:bg-[#24162B] disabled:cursor-not-allowed disabled:opacity-45"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-hai-plum text-white shadow-[0_12px_24px_-16px_rgba(45,24,56,0.7)] transition hover:bg-[#24162B] disabled:cursor-not-allowed disabled:opacity-45"
                     aria-label={t('chat.send')}
                   >
                     {sending ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <Send size={16} />}
@@ -178,13 +178,13 @@ export default function FloatingChat() {
             <div className="max-h-[390px] overflow-y-auto">
               {isLoading && conversations.length === 0 ? (
                 <div className="flex h-40 items-center justify-center">
-                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#36213E]/20 border-t-[#36213E]" />
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-hai-plum/20 border-t-hai-plum" />
                 </div>
               ) : conversations.length === 0 ? (
                 <div className="px-6 py-12 text-center">
                   <MessageSquare size={36} className="mx-auto text-[#C5C0CC]" />
-                  <p className="mt-3 text-sm font-black text-[#36213E]">{t('messagesPage.empty')}</p>
-                  <p className="mt-2 text-xs font-semibold text-[#6F6878]">{t('messagesPage.emptyDesc')}</p>
+                  <p className="mt-3 text-sm font-black text-hai-plum">{t('messagesPage.empty')}</p>
+                  <p className="mt-2 text-xs font-semibold text-ink-muted">{t('messagesPage.emptyDesc')}</p>
                 </div>
               ) : (
                 conversations.map(conv => {
@@ -194,27 +194,27 @@ export default function FloatingChat() {
                       key={conv.id}
                       type="button"
                       onClick={() => handleOpenConversation(conv)}
-                      className="flex w-full items-center gap-3 border-b border-[#E3E7EC] px-4 py-3 text-left transition last:border-0 hover:bg-[#F8FAFC]"
+                      className="flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left transition last:border-0 hover:bg-[#F8FAFC]"
                     >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#36213E] text-xs font-black text-[#B8F3FF]">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-[#B8F3FF]">
                         {initials(itemPartner?.name)}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-3">
-                          <span className="truncate text-sm font-black text-[#36213E]">{itemPartner?.name ?? t('messagesPage.unknownPartner')}</span>
-                          <span className="shrink-0 text-xs font-semibold text-[#6b7280]">{timeAgo(conv.lastMessageAt, t)}</span>
+                          <span className="truncate text-sm font-black text-hai-plum">{itemPartner?.name ?? t('messagesPage.unknownPartner')}</span>
+                          <span className="shrink-0 text-xs font-semibold text-ink-muted-gray">{timeAgo(conv.lastMessageAt, t)}</span>
                         </div>
-                        <p className="mt-0.5 truncate text-xs font-semibold text-[#6F6878]">{conv.postTitle}</p>
+                        <p className="mt-0.5 truncate text-xs font-semibold text-ink-muted">{conv.postTitle}</p>
                         {conv.lastMessagePreview && (
-                          <p className="mt-0.5 truncate text-xs text-[#6b7280]">{conv.lastMessagePreview}</p>
+                          <p className="mt-0.5 truncate text-xs text-ink-muted-gray">{conv.lastMessagePreview}</p>
                         )}
                       </div>
                     </button>
                   )
                 })
               )}
-              <div className="border-t border-[#E3E7EC] px-4 py-3">
-                <Link to={ROUTES.MESSAGES} onClick={() => setOpen(false)} className="text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
+              <div className="border-t border-line px-4 py-3">
+                <Link to={ROUTES.MESSAGES} onClick={() => setOpen(false)} className="text-sm font-black text-hai-teal-dark transition hover:text-hai-plum">
                   {t('common.viewAll')}
                 </Link>
               </div>
@@ -226,13 +226,13 @@ export default function FloatingChat() {
       <button
         type="button"
         onClick={() => setOpen(value => !value)}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#36213E] text-white shadow-[0_18px_40px_-18px_rgba(45,24,56,0.85)] transition hover:-translate-y-0.5 hover:bg-[#24162B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-focus focus-visible:ring-offset-2"
+        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-hai-plum text-white shadow-[0_18px_40px_-18px_rgba(45,24,56,0.85)] transition hover:-translate-y-0.5 hover:bg-[#24162B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hai-focus focus-visible:ring-offset-2"
         aria-label={open ? t('chat.close') : t('chat.open')}
         aria-expanded={open}
       >
         {open ? <X size={20} /> : <MessageSquare size={21} />}
         {unreadCount > 0 && !open && (
-          <span className="absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-[#8AC6D0] px-1.5 font-mono text-xs font-black text-[#36213E]">
+          <span className="absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-hai-teal px-1.5 font-mono text-xs font-black text-hai-plum">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -247,8 +247,8 @@ function CompactMessage({ message, isMine }: { message: Message; isMine: boolean
       <div
         className={`max-w-[78%] rounded-[18px] px-3.5 py-2.5 text-sm font-semibold leading-relaxed shadow-sm ${
           isMine
-            ? 'rounded-br-[5px] border border-[#8AC6D0] bg-[#DFF8FF] text-[#172033]'
-            : 'rounded-bl-[5px] border border-[#E3E7EC] bg-white text-[#36213E]'
+            ? 'rounded-br-[5px] border border-hai-teal bg-[#DFF8FF] text-[#172033]'
+            : 'rounded-bl-[5px] border border-line bg-white text-hai-plum'
         }`}
       >
         {message.content}

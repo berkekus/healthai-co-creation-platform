@@ -7,8 +7,8 @@ type BadgeSize = 'sm' | 'md'
 const variants: Record<BadgeVariant, string> = {
   primary: 'bg-hai-plum text-white',
   soft: 'bg-hai-mint/55 text-hai-plum',
-  neutral: 'bg-[#EEF0F3] text-[#6F6878]',
-  outline: 'border border-[#E3E7EC] bg-white text-[#6F6878]',
+  neutral: 'bg-[#EEF0F3] text-ink-muted',
+  outline: 'border border-line bg-white text-ink-muted',
   success: 'bg-emerald-50 text-emerald-700',
   warning: 'bg-amber-50 text-amber-700',
   danger: 'bg-red-50 text-red-700',

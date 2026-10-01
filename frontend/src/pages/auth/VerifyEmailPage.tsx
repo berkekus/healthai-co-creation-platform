@@ -58,9 +58,9 @@ export default function VerifyEmailPage() {
     return (
       <PageShell>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <div className="w-14 h-14 rounded-full border-4 border-[#c4c4e0] border-t-[#36213E] animate-spin mb-6" />
-          <h1 className="font-headline font-black text-3xl text-[#36213E] mb-2">{t('authPage.verify.verifying')}</h1>
-          <p className="text-sm text-[#6F6878]">{t('authPage.verify.verifyingWait')}</p>
+          <div className="w-14 h-14 rounded-full border-4 border-[#c4c4e0] border-t-hai-plum animate-spin mb-6" />
+          <h1 className="font-headline font-black text-3xl text-hai-plum mb-2">{t('authPage.verify.verifying')}</h1>
+          <p className="text-sm text-ink-muted">{t('authPage.verify.verifyingWait')}</p>
         </div>
       </PageShell>
     )
@@ -76,9 +76,9 @@ export default function VerifyEmailPage() {
               <path d="M10 18l6 6 10-10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h1 ref={successHeading} tabIndex={-1} className="font-headline font-black text-4xl text-[#36213E] mb-3 outline-none">{t('authPage.verify.successTitle')}</h1>
-          <p className="text-sm text-[#6F6878] mb-7 max-w-sm">{t('authPage.verify.successDesc')}</p>
-          <Link to={ROUTES.DASHBOARD} className="inline-flex items-center gap-2 bg-[#36213E] text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-black transition-colors">
+          <h1 ref={successHeading} tabIndex={-1} className="font-headline font-black text-4xl text-hai-plum mb-3 outline-none">{t('authPage.verify.successTitle')}</h1>
+          <p className="text-sm text-ink-muted mb-7 max-w-sm">{t('authPage.verify.successDesc')}</p>
+          <Link to={ROUTES.DASHBOARD} className="inline-flex items-center gap-2 bg-hai-plum text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-black transition-colors">
             {t('authPage.verify.successCta')}
           </Link>
         </div>
@@ -97,12 +97,12 @@ export default function VerifyEmailPage() {
               <path d="M14 8v7M14 19v1" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" />
             </svg>
           </div>
-          <h1 className="font-headline font-black text-4xl leading-tight text-[#36213E] mb-3">
+          <h1 className="font-headline font-black text-4xl leading-tight text-hai-plum mb-3">
             {t('authPage.verify.failTitle')}
           </h1>
-          <p className="text-base text-[#6F6878] mb-8">{errorMsg ?? t('authPage.verify.failDesc')}</p>
+          <p className="text-base text-ink-muted mb-8">{errorMsg ?? t('authPage.verify.failDesc')}</p>
           <ResendForm email={resendEmail} onChange={setResendEmail} onSubmit={handleResend} loading={resending} sent={resendSent} error={resendError} />
-          <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-1.5 text-[#1B7A88] font-bold text-sm hover:text-[#36213E] transition-colors mt-6">
+          <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-1.5 text-hai-teal-dark font-bold text-sm hover:text-hai-plum transition-colors mt-6">
             {t('authPage.verify.alreadyVerified')}
           </Link>
         </div>
@@ -120,39 +120,39 @@ export default function VerifyEmailPage() {
 
           {/* Mail icon with check */}
           <div className="relative w-[68px] h-[68px] mt-8 mb-8">
-            <div className="w-[68px] h-[68px] rounded-full bg-[#E8F4F7] flex items-center justify-center">
+            <div className="w-[68px] h-[68px] rounded-full bg-hai-teal-soft flex items-center justify-center">
               <svg width="30" height="26" viewBox="0 0 30 26" fill="none">
                 <rect x="1" y="1" width="28" height="24" rx="3" stroke="#6F6878" strokeWidth="1.8" />
                 <path d="M1 5l14 10L29 5" stroke="#6F6878" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
             </div>
-            <div className="absolute -bottom-1 -right-1 w-[22px] h-[22px] rounded-full bg-[#8AC6D0] border-2 border-white flex items-center justify-center">
+            <div className="absolute -bottom-1 -right-1 w-[22px] h-[22px] rounded-full bg-hai-teal border-2 border-white flex items-center justify-center">
               <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                 <path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
           </div>
 
-          <h1 className="font-headline font-black text-5xl md:text-6xl leading-tight tracking-normal text-[#36213E] mb-5">
-            {t('authPage.verify.checkTitle')}<span className="text-[#8AC6D0]">.</span>
+          <h1 className="font-headline font-black text-5xl md:text-6xl leading-tight tracking-normal text-hai-plum mb-5">
+            {t('authPage.verify.checkTitle')}<span className="text-hai-teal">.</span>
           </h1>
 
-          <p className="text-base text-[#6F6878] leading-relaxed mb-1">
+          <p className="text-base text-ink-muted leading-relaxed mb-1">
             {t('authPage.verify.checkDesc', { email: '' })}
           </p>
           {pendingVerificationEmail && (
-            <span className="inline-block bg-white border border-[#D5DAE0] rounded-lg px-3 py-1.5 text-sm font-mono text-[#36213E] font-semibold mb-4">
+            <span className="inline-block bg-white border border-line-strong rounded-lg px-3 py-1.5 text-sm font-mono text-hai-plum font-semibold mb-4">
               {pendingVerificationEmail}
             </span>
           )}
-          <p className="text-base text-[#6F6878] leading-relaxed mb-8">{t('authPage.verify.checkSub')}</p>
+          <p className="text-base text-ink-muted leading-relaxed mb-8">{t('authPage.verify.checkSub')}</p>
 
           {verificationResent && (
-            <div role="status" className="mb-6 max-w-[460px] rounded-[18px] border border-[#8AC6D0] bg-[#E8F4F7] p-4 text-sm leading-relaxed text-[#36213E]">
+            <div role="status" className="mb-6 max-w-[460px] rounded-[18px] border border-hai-teal bg-hai-teal-soft p-4 text-sm leading-relaxed text-hai-plum">
               <p className="font-semibold">{t('authPage.verify.pendingNotice')}</p>
               <p className="mt-1">
                 {t('authPage.verify.pendingForgot')}{' '}
-                <Link to={ROUTES.FORGOT_PASSWORD} className="font-bold text-[#1B7A88] underline">{t('authPage.verify.pendingResetLink')}</Link>
+                <Link to={ROUTES.FORGOT_PASSWORD} className="font-bold text-hai-teal-dark underline">{t('authPage.verify.pendingResetLink')}</Link>
               </p>
             </div>
           )}
@@ -168,7 +168,7 @@ export default function VerifyEmailPage() {
 
           <Link
             to={ROUTES.LOGIN}
-            className="inline-flex items-center gap-1.5 text-[#1B7A88] font-bold text-sm hover:text-[#36213E] transition-colors mt-6"
+            className="inline-flex items-center gap-1.5 text-hai-teal-dark font-bold text-sm hover:text-hai-plum transition-colors mt-6"
           >
             {t('authPage.verify.alreadyVerified')}
           </Link>
@@ -185,7 +185,7 @@ export default function VerifyEmailPage() {
 
 function PageShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#F3F4F6] font-body px-8 pt-14 pb-20">
+    <div className="min-h-screen bg-hai-offwhite font-body px-8 pt-14 pb-20">
       {children}
     </div>
   )
@@ -195,9 +195,9 @@ function StepBadge() {
   const { t } = useTranslation()
   return (
     <div className="inline-flex items-center gap-2 bg-white border border-neutral-200 rounded-full px-4 py-1.5">
-      <span className="w-2 h-2 rounded-full bg-[#8AC6D0]" />
-      <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#6F6878]">03</span>
-      <span className="text-xs font-bold tracking-[0.16em] uppercase text-[#36213E]">{t('auth.verify.title')}</span>
+      <span className="w-2 h-2 rounded-full bg-hai-teal" />
+      <span className="text-xs font-bold tracking-[0.16em] uppercase text-ink-muted">03</span>
+      <span className="text-xs font-bold tracking-[0.16em] uppercase text-hai-plum">{t('auth.verify.title')}</span>
     </div>
   )
 }
@@ -208,10 +208,10 @@ function ResendForm({ email, onChange, onSubmit, loading, sent, error }: {
   const { t } = useTranslation()
   return (
     <form onSubmit={onSubmit} className="bg-white rounded-[18px] border border-neutral-200 p-5 max-w-[460px]">
-      <span className="block text-xs font-bold tracking-[0.16em] uppercase text-[#6F6878] mb-3">{t('authPage.verify.didntGet')}</span>
-      <input type="email" value={email} onChange={e => onChange(e.target.value)} placeholder={t('authPage.verify.emailPlaceholder')} required className="w-full bg-[#F3F4F6] border border-[#E3E7EC] rounded-xl px-4 py-3 text-sm font-mono text-[#36213E] outline-none focus:border-hai-focus focus:bg-white focus:ring-2 focus:ring-[#8AC6D0]/20 transition-all mb-3" />
+      <span className="block text-xs font-bold tracking-[0.16em] uppercase text-ink-muted mb-3">{t('authPage.verify.didntGet')}</span>
+      <input type="email" value={email} onChange={e => onChange(e.target.value)} placeholder={t('authPage.verify.emailPlaceholder')} required className="w-full bg-hai-offwhite border border-line rounded-xl px-4 py-3 text-sm font-mono text-hai-plum outline-none focus:border-hai-focus focus:bg-white focus:ring-2 focus:ring-hai-teal/20 transition-all mb-3" />
       <div className="flex items-center gap-3 flex-wrap">
-        <button type="submit" disabled={loading || !email.trim()} className="inline-flex items-center gap-2.5 bg-[#36213E] text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+        <button type="submit" disabled={loading || !email.trim()} className="inline-flex items-center gap-2.5 bg-hai-plum text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M1 7h12M7 1l6 6-6 6" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
           {loading ? t('common.loading') : t('authPage.verify.resend')}
         </button>

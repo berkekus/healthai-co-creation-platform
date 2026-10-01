@@ -176,7 +176,7 @@ export default function MeetingsPage() {
         <Hero total={countsKnown ? scopedMeetings.length : null} />
 
         {requestSentTo && (
-          <div role="status" className="mt-8 flex items-start gap-3 rounded-2xl border border-[#8AC6D0] bg-[#E8F4F7] px-5 py-4 text-sm font-bold text-[var(--primary)]">
+          <div role="status" className="mt-8 flex items-start gap-3 rounded-2xl border border-hai-teal bg-hai-teal-soft px-5 py-4 text-sm font-bold text-[var(--primary)]">
             <Check size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
             <span>{t('meetingsPage.requestSent', { name: requestSentTo })}</span>
           </div>
@@ -515,7 +515,7 @@ function MeetingRow({
 
   return (
     <article
-      className={`grid min-h-[128px] grid-cols-[52px_minmax(0,1fr)_minmax(160px,0.2fr)_minmax(220px,0.24fr)] items-center gap-5 px-7 py-5 transition hover:bg-[#F3F4F6] max-lg:grid-cols-[46px_minmax(0,1fr)] ${
+      className={`grid min-h-[128px] grid-cols-[52px_minmax(0,1fr)_minmax(160px,0.2fr)_minmax(220px,0.24fr)] items-center gap-5 px-7 py-5 transition hover:bg-hai-offwhite max-lg:grid-cols-[46px_minmax(0,1fr)] ${
         isLast ? '' : 'border-b border-[var(--border)]'
       }`}
     >
@@ -542,7 +542,7 @@ function MeetingRow({
           {t(`meetingsPage.direction.${isOwner ? 'incoming' : 'outgoing'}`, { name: partner })}
           {partnerEmail && (
             <>
-              <span className="px-1.5 text-[#D5DAE0]">•</span> {partnerEmail}
+              <span className="px-1.5 text-line-strong">•</span> {partnerEmail}
             </>
           )}
         </p>
@@ -600,7 +600,7 @@ function MeetingRow({
               aria-label={t(`meetingsPage.reasonPrompt.${confirmMode}`)}
               rows={2}
               maxLength={300}
-              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-[#6F6878] focus:border-[var(--accent-strong)] focus:ring-2 focus:ring-[var(--accent)]/25"
+              className="w-full resize-none rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--text)] outline-none placeholder:text-ink-muted focus:border-[var(--accent-strong)] focus:ring-2 focus:ring-[var(--accent)]/25"
             />
             <div className="flex justify-end gap-2">
               <ActionButton disabled={false} onClick={handleAbort} tone="quiet">
@@ -759,7 +759,7 @@ function MeetingSummaryButton({ meetingId, postTitle }: { meetingId: string; pos
         type="button"
         onClick={summary ? () => setOpen(o => !o) : generate}
         disabled={loading}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-[#E8F4F7] px-3 py-1.5 text-xs font-black text-hai-teal transition hover:bg-hai-teal hover:text-white disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-hai-teal-soft px-3 py-1.5 text-xs font-black text-hai-teal transition hover:bg-hai-teal hover:text-white disabled:opacity-50"
       >
         <span aria-hidden="true" className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>
           auto_awesome
@@ -770,12 +770,12 @@ function MeetingSummaryButton({ meetingId, postTitle }: { meetingId: string; pos
       {error && <p className="mt-1 text-xs font-semibold text-red-500">{error}</p>}
 
       {summary && open && (
-        <div className="mt-3 rounded-xl border border-[#D5DAE0] bg-[#F8FBFC] p-4 text-xs">
+        <div className="mt-3 rounded-xl border border-line-strong bg-[#F8FBFC] p-4 text-xs">
           {summary.topics.length > 0 && (
             <div className="mb-3">
               <p className="mb-1.5 font-black uppercase tracking-wide text-hai-plum">{t('meetings.summaryTopics')}</p>
               <ul className="space-y-1">
-                {summary.topics.map((topic, i) => <li key={i} className="flex gap-2 font-semibold text-[#374151]"><span className="text-hai-teal">•</span>{topic}</li>)}
+                {summary.topics.map((topic, i) => <li key={i} className="flex gap-2 font-semibold text-ink-gray"><span className="text-hai-teal">•</span>{topic}</li>)}
               </ul>
             </div>
           )}
@@ -783,7 +783,7 @@ function MeetingSummaryButton({ meetingId, postTitle }: { meetingId: string; pos
             <div className="mb-3">
               <p className="mb-1.5 font-black uppercase tracking-wide text-hai-plum">{t('meetings.summaryNextSteps')}</p>
               <ul className="space-y-1">
-                {summary.nextSteps.map((s, i) => <li key={i} className="flex gap-2 font-semibold text-[#374151]"><span className="text-green-600">→</span>{s}</li>)}
+                {summary.nextSteps.map((s, i) => <li key={i} className="flex gap-2 font-semibold text-ink-gray"><span className="text-green-600">→</span>{s}</li>)}
               </ul>
             </div>
           )}
@@ -791,18 +791,18 @@ function MeetingSummaryButton({ meetingId, postTitle }: { meetingId: string; pos
             <div>
               <p className="mb-1.5 font-black uppercase tracking-wide text-hai-plum">{t('meetings.summaryOpenQuestions')}</p>
               <ul className="space-y-1">
-                {summary.openQuestions.map((q, i) => <li key={i} className="flex gap-2 font-semibold text-[#374151]"><span className="text-amber-600">?</span>{q}</li>)}
+                {summary.openQuestions.map((q, i) => <li key={i} className="flex gap-2 font-semibold text-ink-gray"><span className="text-amber-600">?</span>{q}</li>)}
               </ul>
             </div>
           )}
           <div className="mt-3 flex items-center justify-between">
-            <p className="text-xs text-[#6B7280]">
+            <p className="text-xs text-ink-muted-gray">
               {t('meetings.summaryGenerated')} {new Date(summary.generatedAt).toLocaleDateString(i18n.language)}
             </p>
             <button
               type="button"
               onClick={() => void exportSummaryToPdf({ postTitle, ...summary })}
-              className="inline-flex items-center gap-1 text-xs font-black text-[#6B7280] hover:text-hai-teal"
+              className="inline-flex items-center gap-1 text-xs font-black text-ink-muted-gray hover:text-hai-teal"
             >
               <span aria-hidden="true" className="material-symbols-outlined text-xs">picture_as_pdf</span>
               {t('meetings.exportPdf')}
@@ -830,7 +830,7 @@ function ActionButton({
   const cls = {
     primary: 'bg-[var(--primary)] text-white hover:bg-[#24162B]',
     quiet:   'border border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--primary)]',
-    chat:    'bg-[#E8F4F7] text-[var(--primary)] border border-[var(--accent)] hover:bg-[var(--success-bg)]',
+    chat:    'bg-hai-teal-soft text-[var(--primary)] border border-[var(--accent)] hover:bg-[var(--success-bg)]',
   }[tone]
 
   return (
@@ -925,7 +925,7 @@ function CalendarPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
 
       <div className="grid grid-cols-7 gap-y-2">
         {weekdayInitials(i18n.language).map((day, index) => (
-          <div key={`${day}-${index}`} className="text-center text-xs font-black uppercase text-[#6F6878]">
+          <div key={`${day}-${index}`} className="text-center text-xs font-black uppercase text-ink-muted">
             {day}
           </div>
         ))}

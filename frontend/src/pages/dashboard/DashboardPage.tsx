@@ -36,7 +36,7 @@ export default function DashboardPage() {
   const isNewUser = posts.length === 0 && myMeetings.length === 0
 
   return (
-    <main className="min-h-screen bg-[#F3F4F6] text-[#36213E]">
+    <main className="min-h-screen bg-hai-offwhite text-hai-plum">
       <div className="mx-auto w-full max-w-[1640px] px-4 pb-24 pt-[94px] sm:px-8">
         <section className="grid grid-cols-1 items-start gap-10 xl:grid-cols-[420px_minmax(0,1fr)] xl:gap-28">
           <WelcomePanel user={user} />
@@ -89,28 +89,28 @@ function OnboardingPanel() {
   return (
     <section className="mt-10">
       <div className="mb-8 flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#36213E] text-[#E8F4F7]">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-hai-plum text-hai-teal-soft">
           <Sparkles size={17} />
         </div>
-        <h3 className="text-base font-black text-[#36213E]">{t('dashboard.getStarted')}</h3>
+        <h3 className="text-base font-black text-hai-plum">{t('dashboard.getStarted')}</h3>
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-7">
         {steps.map((step, i) => (
           <Card key={i} padding="lg">
             <div
-              className="mb-6 flex h-[50px] w-[50px] items-center justify-center rounded-[14px] text-[#36213E]"
+              className="mb-6 flex h-[50px] w-[50px] items-center justify-center rounded-[14px] text-hai-plum"
               style={{ backgroundColor: step.bg }}
             >
               {step.icon}
             </div>
-            <div className="mb-2 text-lg font-black text-[#36213E]">{step.title}</div>
-            <p className="mb-7 text-sm font-semibold leading-6 text-[#6F6878]">{step.body}</p>
+            <div className="mb-2 text-lg font-black text-hai-plum">{step.title}</div>
+            <p className="mb-7 text-sm font-semibold leading-6 text-ink-muted">{step.body}</p>
             <ButtonLink
               to={step.to}
               variant="ghost"
               size="sm"
-              className="-ml-4 text-[#1B7A88] hover:text-[#36213E]"
+              className="-ml-4 text-hai-teal-dark hover:text-hai-plum"
               icon={<ArrowRight size={14} />}
               iconPosition="right"
             >
@@ -155,24 +155,24 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
   const firstName = firstNameOf(user?.name)
   return (
     <div className="pt-6">
-      <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#36213E] sm:text-6xl">
+      <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-hai-plum sm:text-6xl">
         {t('dashboard.welcomeBack')}
       </h1>
-      <h2 className="font-headline text-4xl font-black leading-tight tracking-normal text-[#1B7A88] sm:text-6xl">
-        {firstName}<span className="text-[#36213E]">.</span>
+      <h2 className="font-headline text-4xl font-black leading-tight tracking-normal text-hai-teal-dark sm:text-6xl">
+        {firstName}<span className="text-hai-plum">.</span>
       </h2>
 
-      <p className="mt-5 text-base font-semibold text-[#6F6878]">
-        {t('dashboard.signedInAs')} <span className="font-black text-[#36213E]">{roleLabel(user?.role ?? '')}</span>
+      <p className="mt-5 text-base font-semibold text-ink-muted">
+        {t('dashboard.signedInAs')} <span className="font-black text-hai-plum">{roleLabel(user?.role ?? '')}</span>
         {user?.institution && (
           <>
             <span className="px-1.5">·</span>
-            <span className="font-black text-[#36213E]">{user.institution}</span>
+            <span className="font-black text-hai-plum">{user.institution}</span>
           </>
         )}
       </p>
 
-      <div className="mt-10 border-l-2 border-[#b7c1ca] py-1 pl-6 text-lg font-semibold leading-8 text-[#6F6878]">
+      <div className="mt-10 border-l-2 border-[#b7c1ca] py-1 pl-6 text-lg font-semibold leading-8 text-ink-muted">
         {t('dashboard.tagline')}
       </div>
 
@@ -205,7 +205,7 @@ function WeeklyBlob({
   return (
     <div className="relative xl:h-[455px]">
       <div
-        className="absolute left-[-86px] right-[-42px] top-[-28px] hidden h-[505px] bg-[#E8F4F7]/75 xl:block"
+        className="absolute left-[-86px] right-[-42px] top-[-28px] hidden h-[505px] bg-hai-teal-soft/75 xl:block"
         style={{
           borderRadius: '46% 54% 41% 59% / 44% 39% 61% 56%',
           transform: 'rotate(1.2deg)',
@@ -221,8 +221,8 @@ function WeeklyBlob({
 
       <div className="relative z-10 mx-auto max-w-[790px] px-4 pt-6 xl:pt-[115px]">
         <div className="mb-8 flex items-center justify-between">
-          <div className="text-base font-black text-[#36213E]">{t('dashboard.weeklyOverview')}</div>
-          <div className="text-sm font-bold text-[#6F6878]">{weekRange()}</div>
+          <div className="text-base font-black text-hai-plum">{t('dashboard.weeklyOverview')}</div>
+          <div className="text-sm font-bold text-ink-muted">{weekRange()}</div>
         </div>
 
         <div className="grid grid-cols-3 gap-6 xl:gap-16">
@@ -250,12 +250,12 @@ function Metric({
 }) {
   return (
     <div>
-      <div className="mb-7 flex h-[50px] w-[50px] items-center justify-center rounded-[14px] text-[#36213E]" style={{ backgroundColor: iconBg }}>
+      <div className="mb-7 flex h-[50px] w-[50px] items-center justify-center rounded-[14px] text-hai-plum" style={{ backgroundColor: iconBg }}>
         {icon}
       </div>
-      <div className="font-headline text-5xl font-black leading-none text-[#36213E]">{value}</div>
-      <div className="mt-3 text-lg font-semibold text-[#6F6878]">{label}</div>
-      <div className="mt-3 text-sm font-semibold text-[#6F6878]">{sub}</div>
+      <div className="font-headline text-5xl font-black leading-none text-hai-plum">{value}</div>
+      <div className="mt-3 text-lg font-semibold text-ink-muted">{label}</div>
+      <div className="mt-3 text-sm font-semibold text-ink-muted">{sub}</div>
     </div>
   )
 }
@@ -269,8 +269,8 @@ function RecentPosts({ posts }: { posts: Post[] }) {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-base font-black text-[#36213E]">{t('dashboard.recentPosts')}</h3>
-        <Link to={`${ROUTES.POSTS}?mine=true`} className="flex items-center gap-3 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
+        <h3 className="text-base font-black text-hai-plum">{t('dashboard.recentPosts')}</h3>
+        <Link to={`${ROUTES.POSTS}?mine=true`} className="flex items-center gap-3 text-sm font-black text-hai-teal-dark transition hover:text-hai-plum">
           {t('common.viewAll')}
           <ArrowRight size={16} />
         </Link>
@@ -282,7 +282,7 @@ function RecentPosts({ posts }: { posts: Post[] }) {
             <RecentPostCard key={post.id} post={post} index={index} timeLabel={formatPostAge(post.updatedAt || post.createdAt, t)} />
           ))
         ) : (
-          <div className="min-h-[82px] rounded-[10px] border border-[#E3E7EC] bg-white px-5 py-5 text-sm font-semibold text-[#6F6878] shadow-[0_14px_34px_-28px_rgba(45,24,56,0.5)]">
+          <div className="min-h-[82px] rounded-[10px] border border-line bg-white px-5 py-5 text-sm font-semibold text-ink-muted shadow-[0_14px_34px_-28px_rgba(45,24,56,0.5)]">
             {t('dashboard.noPostsYet')}.
           </div>
         )}
@@ -325,7 +325,7 @@ function RecentPostCard({ post, index, timeLabel }: { post: Post; index: number;
   return (
     <Link
       to={`/posts/${post.id}`}
-      className="group relative grid min-h-[82px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 overflow-hidden rounded-[10px] border border-[#E3E7EC] bg-white px-5 py-3.5 shadow-[0_16px_36px_-30px_rgba(45,24,56,0.55)] transition hover:-translate-y-0.5 hover:border-[#8AC6D0] hover:shadow-[0_22px_44px_-30px_rgba(45,24,56,0.62)]"
+      className="group relative grid min-h-[82px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 overflow-hidden rounded-[10px] border border-line bg-white px-5 py-3.5 shadow-[0_16px_36px_-30px_rgba(45,24,56,0.55)] transition hover:-translate-y-0.5 hover:border-hai-teal hover:shadow-[0_22px_44px_-30px_rgba(45,24,56,0.62)]"
     >
       <span className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: visual.accent }} />
       <span
@@ -350,7 +350,7 @@ function RecentPostCard({ post, index, timeLabel }: { post: Post; index: number;
 
       <div className="flex items-center gap-4">
         <RecentPostStatusBadge status={post.status} />
-        <ChevronRight size={19} className="text-[#687294] transition group-hover:translate-x-0.5 group-hover:text-[#1B7A88]" />
+        <ChevronRight size={19} className="text-[#687294] transition group-hover:translate-x-0.5 group-hover:text-hai-teal-dark" />
       </div>
     </Link>
   )
@@ -425,15 +425,15 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
     <section className="mt-14">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#36213E] text-[#E8F4F7]">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-hai-plum text-hai-teal-soft">
             <Bookmark size={16} fill="white" />
           </div>
-          <h3 className="text-base font-black text-[#36213E]">{t('dashboard.savedPosts')}</h3>
-          <span className="rounded-full bg-[#e8f4f7] px-2.5 py-0.5 text-xs font-black text-[#36213E]">
+          <h3 className="text-base font-black text-hai-plum">{t('dashboard.savedPosts')}</h3>
+          <span className="rounded-full bg-hai-teal-soft px-2.5 py-0.5 text-xs font-black text-hai-plum">
             {savedPosts.length}
           </span>
         </div>
-        <Link to={ROUTES.POSTS} className="flex items-center gap-2 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
+        <Link to={ROUTES.POSTS} className="flex items-center gap-2 text-sm font-black text-hai-teal-dark transition hover:text-hai-plum">
           {t('dashboard.browseAll')} <ArrowRight size={14} />
         </Link>
       </div>
@@ -447,15 +447,15 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
               icon={<Bookmark size={15} fill="#8AC6D0" />}
               variant="ghost"
               size="sm"
-              className="absolute right-3 top-3 text-[#1B7A88] opacity-0 group-hover:opacity-100 hover:text-[#36213E]"
+              className="absolute right-3 top-3 text-hai-teal-dark opacity-0 group-hover:opacity-100 hover:text-hai-plum"
             />
             <Link to={`/posts/${post.id}`} className="block">
-              <div className="mb-2 line-clamp-2 text-[14.5px] font-black text-[#36213E] leading-snug pr-6">
+              <div className="mb-2 line-clamp-2 text-[14.5px] font-black text-hai-plum leading-snug pr-6">
                 {post.title}
               </div>
-              <div className="text-[12.5px] font-semibold text-[#6F6878] mb-3">{postDomains(post).join(' · ')}</div>
+              <div className="text-[12.5px] font-semibold text-ink-muted mb-3">{postDomains(post).join(' · ')}</div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-[#6b7280]">{post.authorName}</span>
+                <span className="text-xs font-semibold text-ink-muted-gray">{post.authorName}</span>
                 <StatusPill status={post.status} />
               </div>
             </Link>
@@ -469,7 +469,7 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
 function StatusPill({ status }: { status: Post['status'] }) {
   const { t } = useTranslation()
   return (
-    <Badge variant="primary" size="sm" className="mt-1 px-4 py-1.5 text-center text-[#E8F4F7]">
+    <Badge variant="primary" size="sm" className="mt-1 px-4 py-1.5 text-center text-hai-teal-soft">
       {t(`dashboard.status.${status}`, { defaultValue: status })}
     </Badge>
   )
@@ -483,8 +483,8 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-base font-black text-[#36213E]">{t('dashboard.upcomingMeetings')}</h3>
-        <Link to={ROUTES.MEETINGS} className="flex items-center gap-6 text-sm font-black text-[#1B7A88] transition hover:text-[#36213E]">
+        <h3 className="text-base font-black text-hai-plum">{t('dashboard.upcomingMeetings')}</h3>
+        <Link to={ROUTES.MEETINGS} className="flex items-center gap-6 text-sm font-black text-hai-teal-dark transition hover:text-hai-plum">
           {t('common.viewAll')}
           <ArrowRight size={16} />
         </Link>
@@ -493,7 +493,7 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
       {/* Mobile: simple list */}
       <div className="mt-4 xl:hidden">
         {visibleMeetings.length === 0 ? (
-          <p className="text-sm font-semibold text-[#6F6878]">{t('dashboard.noPendingMeetings')}</p>
+          <p className="text-sm font-semibold text-ink-muted">{t('dashboard.noPendingMeetings')}</p>
         ) : (
           <div className="flex flex-col gap-3">
             {visibleMeetings.map(meeting => {
@@ -501,13 +501,13 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
               const partner = isRequester ? meeting.ownerName : meeting.requesterName
               const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
               return (
-                <Link key={meeting.id} to={ROUTES.MEETINGS} className="flex items-center gap-4 rounded-2xl border border-[#E3E7EC] bg-white px-4 py-3 transition hover:border-[#8AC6D0]">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#36213E] text-xs font-black tracking-normal text-[#8AC6D0]">
+                <Link key={meeting.id} to={ROUTES.MEETINGS} className="flex items-center gap-4 rounded-2xl border border-line bg-white px-4 py-3 transition hover:border-hai-teal">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black tracking-normal text-hai-teal">
                     {partner.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-black text-[#36213E]">{partner}</div>
-                    <div className="truncate text-xs font-semibold text-[#6F6878]">
+                    <div className="truncate text-sm font-black text-hai-plum">{partner}</div>
+                    <div className="truncate text-xs font-semibold text-ink-muted">
                       {slot ? `${slot.date} · ${slot.time}` : t('dashboard.slotPending')} · {meeting.status}
                     </div>
                   </div>
@@ -520,11 +520,11 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
 
       {/* Desktop: orbit widget */}
       <div className="relative mx-auto hidden h-[360px] w-[520px] xl:block">
-        <div className="absolute left-[88px] top-[34px] h-[330px] w-[330px] rounded-full border border-[#E3E7EC]" />
-        <div className="absolute left-[128px] top-[74px] h-[250px] w-[250px] rounded-full border border-[#E3E7EC]" />
-        <div className="absolute left-[168px] top-[114px] h-[170px] w-[170px] rounded-full border border-[#E3E7EC]" />
-        <div className="absolute left-[206px] top-[152px] flex h-[94px] w-[94px] items-center justify-center rounded-full bg-[#E8F4F7]">
-          <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-[#D7EEF2] text-[#36213E]">
+        <div className="absolute left-[88px] top-[34px] h-[330px] w-[330px] rounded-full border border-line" />
+        <div className="absolute left-[128px] top-[74px] h-[250px] w-[250px] rounded-full border border-line" />
+        <div className="absolute left-[168px] top-[114px] h-[170px] w-[170px] rounded-full border border-line" />
+        <div className="absolute left-[206px] top-[152px] flex h-[94px] w-[94px] items-center justify-center rounded-full bg-hai-teal-soft">
+          <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-[#D7EEF2] text-hai-plum">
             <CalendarDays size={23} strokeWidth={2.4} />
           </div>
         </div>
@@ -542,15 +542,15 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
         <div className="absolute left-[200px] top-[248px] w-[120px] text-center">
           {visibleMeetings.length === 0 ? (
             <>
-              <div className="text-lg font-black text-[#36213E]">{t('dashboard.allCaughtUp')}</div>
-              <div className="mt-2 text-base font-semibold leading-6 text-[#6F6878]">
+              <div className="text-lg font-black text-hai-plum">{t('dashboard.allCaughtUp')}</div>
+              <div className="mt-2 text-base font-semibold leading-6 text-ink-muted">
                 {t('dashboard.noPendingMeetings')}
               </div>
             </>
           ) : (
             <>
-              <div className="text-lg font-black text-[#36213E]">{visibleMeetings.length} {t('dashboard.upcoming')}</div>
-              <div className="mt-2 text-base font-semibold leading-6 text-[#6F6878]">
+              <div className="text-lg font-black text-hai-plum">{visibleMeetings.length} {t('dashboard.upcoming')}</div>
+              <div className="mt-2 text-base font-semibold leading-6 text-ink-muted">
                 {t('dashboard.hoverProfiles')}
               </div>
             </>
@@ -597,15 +597,15 @@ function MeetingAvatar({
         id={tooltipId}
         role="tooltip"
         aria-label={tooltipContent}
-        className="pointer-events-none absolute left-1/2 top-[62px] z-20 w-[230px] -translate-x-1/2 translate-y-2 rounded-2xl border border-[#E3E7EC] bg-white px-4 py-3 text-left opacity-0 shadow-[0_24px_60px_-28px_rgba(45,24,56,0.45)] transition group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"
+        className="pointer-events-none absolute left-1/2 top-[62px] z-20 w-[230px] -translate-x-1/2 translate-y-2 rounded-2xl border border-line bg-white px-4 py-3 text-left opacity-0 shadow-[0_24px_60px_-28px_rgba(45,24,56,0.45)] transition group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"
       >
-        <div className="truncate text-sm font-black text-[#36213E]">{partner}</div>
-        <div className="mt-1 line-clamp-2 text-xs font-semibold leading-4 text-[#6F6878]">{meeting.postTitle}</div>
-        <div className="mt-3 flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.12em] text-[#6F6878]">
+        <div className="truncate text-sm font-black text-hai-plum">{partner}</div>
+        <div className="mt-1 line-clamp-2 text-xs font-semibold leading-4 text-ink-muted">{meeting.postTitle}</div>
+        <div className="mt-3 flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.12em] text-ink-muted">
           <span>{statusLabel}</span>
           <span>{slot ? slot.time : ''}</span>
         </div>
-        <div className="mt-1 text-xs font-bold text-[#6F6878]">{dateLabel}</div>
+        <div className="mt-1 text-xs font-bold text-ink-muted">{dateLabel}</div>
       </div>
     </div>
   )

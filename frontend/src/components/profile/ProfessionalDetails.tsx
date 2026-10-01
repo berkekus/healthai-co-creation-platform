@@ -19,7 +19,7 @@ export function hasProfessionalDetails(user: Details): boolean {
 export default function ProfessionalDetails({ user, emptyText }: { user: Details; emptyText?: string }) {
   const { t } = useTranslation()
   const rows: { label: string; content: React.ReactNode }[] = []
-  const linkCls = 'break-all font-black text-[#1B7A88] underline decoration-[#8AC6D0] underline-offset-2 hover:text-hai-plum'
+  const linkCls = 'break-all font-black text-hai-teal-dark underline decoration-hai-teal underline-offset-2 hover:text-hai-plum'
 
   if (user.position) rows.push({ label: t('professional.position'), content: user.position })
   if (user.department) rows.push({ label: t('professional.department'), content: user.department })
@@ -45,7 +45,7 @@ export default function ProfessionalDetails({ user, emptyText }: { user: Details
     <dl className="grid gap-3">
       {rows.map(row => (
         <div key={row.label} className="grid grid-cols-1 gap-1 py-1 sm:grid-cols-[180px_minmax(0,1fr)] sm:gap-8">
-          <dt className="text-sm font-semibold text-[#6F6878]">{row.label}</dt>
+          <dt className="text-sm font-semibold text-ink-muted">{row.label}</dt>
           <dd className="min-w-0 text-base font-black leading-snug text-hai-plum">{row.content}</dd>
         </div>
       ))}
