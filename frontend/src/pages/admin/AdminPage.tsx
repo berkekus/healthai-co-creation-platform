@@ -174,12 +174,22 @@ function StatCard({ label, value, icon, iconBg, iconColor, change, up, vsLast7 }
 }
 
 // ── USER GROWTH CHART ─────────────────────────────────────
-function UserGrowthChart({ users, days }: { users: User[]; days: number }) {
+function UserGrowthChart({ users, days, growth }: { users: User[]; days: number; growth?: PlatformStats['userGrowth'] }) {
   const today = new Date()
+  // Same YYYY-MM-DD keys the server grouped by, in the same time zone.
+  const dayKey = growth
+    ? new Intl.DateTimeFormat('en-CA', { timeZone: growth.timezone, year: 'numeric', month: '2-digit', day: '2-digit' })
+    : null
   const pts = Array.from({ length: days }, (_, i) => {
     const d = new Date(today)
     d.setDate(d.getDate() - (days - 1 - i))
     const label = d.toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' })
+    if (growth && dayKey) {
+      const key = dayKey.format(d)
+      const total = growth.totalBefore + growth.daily.reduce((sum, day) => (day.date <= key ? sum + day.count : sum), 0)
+      return { label, total }
+    }
+    // Fallback while stats are unavailable: only as complete as the users list (at most 500).
     const total = users.filter(u => u.createdAt && new Date(u.createdAt) <= d).length
     return { label, total }
   })
@@ -334,6 +344,8 @@ interface PlatformStats {
   meetingCompletionRate: number
   newUsersLast30: number
   newPostsLast30: number
+  /** Sign-ups per day (YYYY-MM-DD in `timezone`) for the last month, plus everyone who joined before it. */
+  userGrowth?: { timezone: string; totalBefore: number; daily: { date: string; count: number }[] }
 }
 
 function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, onNavigate, onExportUsers, navigateTo }: {
@@ -453,7 +465,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                 )}
               </div>
             </div>
-            <UserGrowthChart users={users} days={chartDays} />
+            <UserGrowthChart users={users} days={chartDays} growth={stats?.userGrowth} />
           </div>
 
           {/* Recent Users */}
@@ -686,7 +698,9 @@ export default function AdminPage() {
     api.get<{ success: boolean; data: { users: (User & { _id?: string })[]; total: number } }>('/auth/users', { params: { limit: 500 } })
       .then(({ data }) => setUsers(data.data.users.map(u => ({ ...u, id: u._id ?? u.id }))))
       .catch(() => {})
-    api.get<{ success: boolean; data: PlatformStats }>('/auth/stats')
+    api.get<{ success: boolean; data: PlatformStats }>('/auth/stats', {
+      params: { tz: Intl.DateTimeFormat().resolvedOptions().timeZone },
+    })
       .then(({ data }) => setPlatformStats(data.data))
       .catch(() => {})
   }, [])

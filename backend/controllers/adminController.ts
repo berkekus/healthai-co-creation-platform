@@ -4,7 +4,38 @@ import Post from '../models/Post'
 import Meeting from '../models/Meeting'
 import { asyncHandler } from '../utils/asyncHandler'
 
-export const getPlatformStats = asyncHandler<Request>(async (_req, res) => {
+// The admin chart offers up to 30 days; one extra day covers the start of the oldest local day.
+const GROWTH_WINDOW_DAYS = 31
+
+function validTimeZone(value: unknown): string {
+  if (typeof value !== 'string' || value.length > 64) return 'UTC'
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: value })
+    return value
+  } catch {
+    return 'UTC'
+  }
+}
+
+/**
+ * Sign-ups per calendar day in the viewer's time zone, counted in the database, plus everyone who joined
+ * earlier. The chart's running total is totalBefore + the counts up to each day, so it never depends on
+ * how many users a list endpoint returns.
+ */
+async function userGrowth(timezone: string) {
+  const windowStart = new Date(Date.now() - GROWTH_WINDOW_DAYS * 24 * 60 * 60 * 1000)
+  const [daily, totalBefore] = await Promise.all([
+    User.aggregate<{ _id: string; count: number }>([
+      { $match: { createdAt: { $gte: windowStart } } },
+      { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone } }, count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]),
+    User.countDocuments({ createdAt: { $lt: windowStart } }),
+  ])
+  return { timezone, totalBefore, daily: daily.map(d => ({ date: d._id, count: d.count })) }
+}
+
+export const getPlatformStats = asyncHandler<Request>(async (req, res) => {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
 
   const [
@@ -14,6 +45,7 @@ export const getPlatformStats = asyncHandler<Request>(async (_req, res) => {
     meetingsByStatus,
     newUsersLast30,
     newPostsLast30,
+    growth,
   ] = await Promise.all([
     User.aggregate([
       { $group: { _id: '$role', count: { $sum: 1 } } },
@@ -31,6 +63,7 @@ export const getPlatformStats = asyncHandler<Request>(async (_req, res) => {
     ]),
     User.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
     Post.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
+    userGrowth(validTimeZone(req.query.tz)),
   ])
 
   const totalMeetings = meetingsByStatus.reduce((s: number, m: { count: number }) => s + m.count, 0)
@@ -47,6 +80,7 @@ export const getPlatformStats = asyncHandler<Request>(async (_req, res) => {
       meetingCompletionRate,
       newUsersLast30,
       newPostsLast30,
+      userGrowth: growth,
     },
   })
 })
