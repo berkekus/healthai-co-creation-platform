@@ -153,7 +153,7 @@ export default function NotificationsPage() {
 
           {/* Stay in the loop */}
           <div className="mx-3 mb-4 p-4 bg-hai-teal-soft rounded-xl text-center">
-            <div className="w-12 h-12 rounded-full bg-[#D7EEF2] flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 rounded-full bg-hai-lime flex items-center justify-center mx-auto mb-3">
               <Bell size={20} strokeWidth={1.8} className="text-hai-teal" />
             </div>
             <div className="text-sm font-black text-hai-plum mb-1">{t('notificationsPage.stayInLoop')}</div>

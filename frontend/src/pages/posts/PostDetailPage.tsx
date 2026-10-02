@@ -196,7 +196,7 @@ export default function PostDetailPage() {
         <div className="mb-[22px] flex items-center justify-between gap-2 sm:gap-4">
           <button
             onClick={() => navigate(ROUTES.POSTS)}
-            className="inline-flex shrink-0 items-center gap-2 sm:gap-3 text-sm font-black text-[#26162f] transition hover:text-[#55bde0]"
+            className="inline-flex shrink-0 items-center gap-2 sm:gap-3 text-sm font-black text-[#26162f] transition hover:text-hai-teal-dark"
             aria-label={t('postDetail.backToDirectory')}
           >
             <ArrowLeft size={17} />
@@ -210,7 +210,7 @@ export default function PostDetailPage() {
                 setCopied(true)
                 setTimeout(() => setCopied(false), 2000)
               }}
-              className="inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border border-line-strong bg-white px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              className="inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border border-line-strong bg-white px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-hai-aqua"
               title={copied ? t('postDetail.copied') : t('postDetail.share')}
               aria-label={copied ? t('postDetail.copied') : t('postDetail.share')}
             >
@@ -232,7 +232,7 @@ export default function PostDetailPage() {
                 expiryDate: post.expiryDate,
                 expertiseRequired: post.expertiseRequired,
               })}
-              className="inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border border-line-strong bg-white px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              className="inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border border-line-strong bg-white px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-hai-aqua"
               title={t('postDetail.exportPdf')}
               aria-label={t('postDetail.exportPdf')}
             >
@@ -249,7 +249,7 @@ export default function PostDetailPage() {
               className={`inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition ${
                 saved
                   ? 'border-ink bg-ink text-white'
-                  : 'border-line-strong bg-white hover:border-[#8bddea]'
+                  : 'border-line-strong bg-white hover:border-hai-aqua'
               }`}
               title={saved ? t('postDetail.saved') : t('postDetail.save')}
               aria-label={saved ? t('postDetail.saved') : t('postDetail.save')}
@@ -299,7 +299,7 @@ export default function PostDetailPage() {
                     <>
                       {canPublish && <button onClick={() => publish(post.id)} className="h-[46px] rounded-full bg-hai-plum px-7 text-sm font-black text-white">{t('postDetail.publish')}</button>}
                       {canMarkFound && (
-                        <button onClick={() => { setDialogError(null); setDialog('partnerFound') }} className="h-[46px] rounded-full bg-[#D8EFF2] px-7 text-sm font-black text-hai-plum">
+                        <button onClick={() => { setDialogError(null); setDialog('partnerFound') }} className="h-[46px] rounded-full bg-hai-lime px-7 text-sm font-black text-hai-plum">
                           {t('partnerFound.button')}
                         </button>
                       )}
@@ -345,7 +345,7 @@ export default function PostDetailPage() {
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
               {meta.map(item => (
                 <div key={item.label} className="flex items-start gap-4" title={item.help}>
-                  <span className="mt-1 shrink-0 text-[#6FB8C4]" aria-hidden="true">{item.icon}</span>
+                  <span className="mt-1 shrink-0 text-hai-teal-dark" aria-hidden="true">{item.icon}</span>
                   <span>
                     <span className="block text-xs font-black uppercase tracking-[0.12em] text-ink-muted">{item.label}</span>
                     <span className="mt-2 block break-words text-sm font-black leading-5 text-hai-plum">{item.value}</span>
@@ -414,7 +414,7 @@ export default function PostDetailPage() {
                   [t('postDetail.listingExpiry'), formatDate(post.expiryDate, { day: 'numeric', month: 'short', year: 'numeric' }), <CalendarDays size={18} />],
                 ] as const).map(([label, value, icon]) => (
                   <div key={label} className="flex gap-4">
-                    <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-surface-muted text-[#6FB8C4]" aria-hidden="true">
+                    <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-surface-muted text-hai-teal-dark" aria-hidden="true">
                       {icon}
                     </span>
                     <span>

@@ -42,7 +42,7 @@ export default function PublicProfilePage() {
     return (
       <div className="min-h-screen bg-surface-subtle flex flex-col items-center justify-center gap-4">
         <p className="text-ink font-bold text-[18px]">{t('publicProfile.notFound')}</p>
-        <button onClick={() => navigate(-1)} className="text-[#3db8d8] font-semibold hover:underline">
+        <button onClick={() => navigate(-1)} className="text-hai-teal-dark font-semibold hover:underline">
           {t('publicProfile.goBack')}
         </button>
       </div>
@@ -66,7 +66,7 @@ export default function PublicProfilePage() {
 
           <div className="px-8 pb-8">
             <div className="flex items-end justify-between -mt-10 mb-6">
-              <div className="w-20 h-20 rounded-full border-4 border-white shadow-sm overflow-hidden bg-ink flex items-center justify-center text-[#8fdff0] font-black text-[22px] shrink-0">
+              <div className="w-20 h-20 rounded-full border-4 border-white shadow-sm overflow-hidden bg-ink flex items-center justify-center text-hai-aqua font-black text-[22px] shrink-0">
                 {avatar ? <img src={avatar} alt={user.name} className="w-full h-full object-cover" /> : initials}
               </div>
               <span className={`px-3 py-1 rounded-full text-[12px] font-bold ${user.role === 'healthcare_professional' ? 'bg-role-clinician-soft text-role-clinician' : 'bg-role-engineer-soft text-role-engineer'}`}>
@@ -77,7 +77,7 @@ export default function PublicProfilePage() {
             <h1 className="font-headline font-black text-[26px] text-ink leading-tight mb-1">{user.name}</h1>
 
             {user.isVerified && (
-              <div className="flex items-center gap-1.5 text-[12.5px] text-[#3db8d8] font-semibold mb-4">
+              <div className="flex items-center gap-1.5 text-[12.5px] text-hai-teal-dark font-semibold mb-4">
                 <ShieldCheck size={13} /> {t('publicProfile.verified')}
               </div>
             )}
@@ -113,7 +113,7 @@ export default function PublicProfilePage() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {user.expertiseTags.map(tag => (
-                    <span key={tag} className="px-3 py-1.5 bg-[#f0f8fb] text-[#3db8d8] text-[12.5px] font-semibold rounded-full border border-[#cceef6]">{tag}</span>
+                    <span key={tag} className="px-3 py-1.5 bg-[#f0f8fb] text-hai-teal-dark text-[12.5px] font-semibold rounded-full border border-hai-ice-line">{tag}</span>
                   ))}
                 </div>
               </div>

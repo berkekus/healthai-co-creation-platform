@@ -30,7 +30,7 @@ function NotifIcon({ type }: { type: NotificationType }) {
       return <span className={`${base} bg-hai-teal-soft`}><Calendar size={15} className="text-hai-teal" /></span>
     case 'post_closed':
     case 'post_status_changed':
-      return <span className={`${base} bg-hai-teal-soft`}><FileText size={15} className="text-[#6FB8C4]" /></span>
+      return <span className={`${base} bg-hai-teal-soft`}><FileText size={15} className="text-hai-teal-dark" /></span>
     case 'partner_found':
       return <span className={`${base} bg-hai-teal-soft`}><Users size={15} className="text-hai-teal" /></span>
     case 'interest_received':

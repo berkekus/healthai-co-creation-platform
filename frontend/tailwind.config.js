@@ -20,6 +20,10 @@ export default {
         // Keyboard focus indicator — ≥3:1 against light surfaces (WCAG 1.4.11).
         'hai-focus':    'rgb(var(--focus-ring) / <alpha-value>)',
         'hai-teal-soft': 'rgb(var(--color-teal-soft) / <alpha-value>)',
+        'accent-bright': v('accent-bright'),
+        'hai-ice': v('ice'),
+        'hai-ice-line': v('ice-line'),
+        'hai-aqua': v('aqua'),
         // Named app colours; values and roles are documented next to the variables in globals.css.
         ink: {
           DEFAULT: 'rgb(var(--color-ink) / <alpha-value>)',

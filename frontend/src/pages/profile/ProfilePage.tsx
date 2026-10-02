@@ -805,7 +805,7 @@ export default function ProfilePage() {
               ['star', t('profile.expertise'), '#expertise'],
               ['lock', t('profile.privacy'), '#data-account'],
             ] as [string, string, string][]).map(([icon, label, href], index) => (
-              <a key={label + index} href={href} className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-hai-teal-soft ${index === 0 ? 'bg-hai-teal-soft text-[#6FB8C4]' : ''}`}>
+              <a key={label + index} href={href} className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-hai-teal-soft ${index === 0 ? 'bg-hai-teal-soft text-hai-teal-dark' : ''}`}>
                 <span aria-hidden="true" className="material-symbols-outlined text-lg">{icon}</span>
                 {label}
               </a>
@@ -847,7 +847,7 @@ export default function ProfilePage() {
 
           <div className="mt-10 flex items-center justify-between gap-6 rounded-[22px] bg-hai-teal-soft px-7 py-8">
             <div className="flex items-center gap-5">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#D7EEF2] text-[#6FB8C4]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-hai-lime text-hai-teal-dark">
                 <span aria-hidden="true" className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: '"FILL" 1' }}>verified_user</span>
               </div>
               <div>

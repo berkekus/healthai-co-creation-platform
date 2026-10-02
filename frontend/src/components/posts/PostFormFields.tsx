@@ -150,7 +150,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
           <div role="alert" className="mt-4 rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{aiError}</div>
         )}
         {aiResult && (
-          <div className="mt-4 rounded-[14px] border border-[#cdeefa] bg-[#eefaff] p-5">
+          <div className="mt-4 rounded-[14px] border border-hai-ice-line bg-hai-ice p-5">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-black text-ink">
                 <Sparkles size={14} />
@@ -239,7 +239,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
                 className="group relative flex cursor-pointer items-center gap-4 rounded-[10px] border border-line-strong bg-white p-4 transition has-[:checked]:border-[#66c8e7] has-[:checked]:bg-[#f2fbff]"
               >
                 <input {...register('confidentiality')} type="radio" value={option.value} className="peer sr-only" />
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eefaff] text-ink">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hai-ice text-ink">
                   <Lock size={18} />
                 </span>
                 <span className="min-w-0 flex-1">
@@ -285,7 +285,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
       </FormSection>
 
       <FormSection number="5" title={t('posts.form.sections.reviewTitle')} subtitle={t('posts.form.sections.reviewSubtitle')}>
-        <div className="flex gap-4 rounded-[10px] border border-[#cdeefa] bg-[#eefaff] p-5">
+        <div className="flex gap-4 rounded-[10px] border border-hai-ice-line bg-hai-ice p-5">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d8f5ff] text-ink">
             <ShieldCheck size={20} />
           </span>

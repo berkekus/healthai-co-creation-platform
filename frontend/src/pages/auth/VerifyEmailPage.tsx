@@ -215,7 +215,7 @@ function ResendForm({ email, onChange, onSubmit, loading, sent, error }: {
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M1 7h12M7 1l6 6-6 6" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
           {loading ? t('common.loading') : t('authPage.verify.resend')}
         </button>
-        {sent && <span role="status" className="text-xs text-[#6FB8C4] font-semibold">{t('authPage.verify.sent')}</span>}
+        {sent && <span role="status" className="text-xs text-hai-teal-dark font-semibold">{t('authPage.verify.sent')}</span>}
         {error && <span role="alert" className="text-xs text-red-600 font-semibold">{error}</span>}
       </div>
     </form>

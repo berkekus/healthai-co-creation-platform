@@ -524,7 +524,7 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
         <div className="absolute left-[128px] top-[74px] h-[250px] w-[250px] rounded-full border border-line" />
         <div className="absolute left-[168px] top-[114px] h-[170px] w-[170px] rounded-full border border-line" />
         <div className="absolute left-[206px] top-[152px] flex h-[94px] w-[94px] items-center justify-center rounded-full bg-hai-teal-soft">
-          <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-[#D7EEF2] text-hai-plum">
+          <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-hai-lime text-hai-plum">
             <CalendarDays size={23} strokeWidth={2.4} />
           </div>
         </div>

@@ -103,7 +103,7 @@ export default function FloatingChat() {
                 >
                   <ArrowLeft size={16} />
                 </button>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-[#B8F3FF]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-hai-mint">
                   {initials(partner?.name)}
                 </div>
                 <div className="min-w-0">
@@ -196,7 +196,7 @@ export default function FloatingChat() {
                       onClick={() => handleOpenConversation(conv)}
                       className="flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left transition last:border-0 hover:bg-surface-subtle"
                     >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-[#B8F3FF]">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-hai-mint">
                         {initials(itemPartner?.name)}
                       </div>
                       <div className="min-w-0 flex-1">

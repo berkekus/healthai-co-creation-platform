@@ -52,7 +52,7 @@ export default function PostCreatePage() {
       {/* Progress bar — visible only during submission */}
       {isSubmitting && (
         <div className="fixed inset-x-0 top-0 z-[100] h-[3px] bg-ink/10">
-          <div className="h-full bg-[#55bde0] animate-[progress_1.6s_ease-in-out_infinite]"
+          <div className="h-full bg-accent-bright animate-[progress_1.6s_ease-in-out_infinite]"
             style={{ animation: 'progress 1.6s ease-in-out infinite' }}
           />
           <style>{`@keyframes progress { 0%{width:0%;margin-left:0} 50%{width:70%;margin-left:15%} 100%{width:0%;margin-left:100%} }`}</style>

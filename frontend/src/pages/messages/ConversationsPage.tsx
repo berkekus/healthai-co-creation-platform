@@ -103,7 +103,7 @@ function ConversationRow({ conv, userId, isLast, onClick, onDelete }: {
   return (
     <div className={`flex items-center gap-4 px-6 py-5 hover:bg-surface-subtle transition-colors group ${isLast ? '' : 'border-b border-line'}`}>
       <button onClick={onClick} className="flex items-center gap-4 flex-1 min-w-0 text-left">
-        <div className="w-12 h-12 rounded-full bg-ink text-[#8fdff0] font-black text-sm flex items-center justify-center shrink-0">{initials}</div>
+        <div className="w-12 h-12 rounded-full bg-ink text-hai-aqua font-black text-sm flex items-center justify-center shrink-0">{initials}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-3 mb-1">
             <span className="font-headline font-black text-base text-ink truncate">{partner?.name ?? t('messagesPage.unknownPartner')}</span>

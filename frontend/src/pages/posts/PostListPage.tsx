@@ -878,7 +878,7 @@ function PostRow({
       <div className="min-w-0 pt-1">
         {post.matchScore > 0 && (
           <div className="mb-4 flex flex-wrap items-center gap-3">
-            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] ${post.hasAI ? 'bg-hai-plum text-white' : 'bg-[#D8EFF2] text-hai-plum'}`}>
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] ${post.hasAI ? 'bg-hai-plum text-white' : 'bg-hai-lime text-hai-plum'}`}>
               <Sparkles size={14} />
               {post.hasAI ? t('posts.aiMatch') : t('posts.profileMatch')} · {post.matchScore}%
             </div>

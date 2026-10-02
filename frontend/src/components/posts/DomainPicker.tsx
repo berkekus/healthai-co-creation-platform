@@ -46,7 +46,7 @@ export default function DomainPicker({ value, onChange, error, labelledBy }: Pro
           <span
             key={domain}
             className={`inline-flex items-center gap-1.5 rounded-full py-1.5 pl-3 pr-1.5 text-xs font-black ${
-              index === 0 ? 'bg-ink text-white' : 'bg-[#eefaff] text-ink border border-[#cdeefa]'
+              index === 0 ? 'bg-ink text-white' : 'bg-hai-ice text-ink border border-hai-ice-line'
             }`}
           >
             {domain}
@@ -55,7 +55,7 @@ export default function DomainPicker({ value, onChange, error, labelledBy }: Pro
               onClick={() => toggle(domain)}
               aria-label={t('posts.form.domainRemove', { domain })}
               className={`flex h-5 w-5 items-center justify-center rounded-full transition ${
-                index === 0 ? 'hover:bg-white/20' : 'hover:bg-[#cdeefa]'
+                index === 0 ? 'hover:bg-white/20' : 'hover:bg-hai-ice-line'
               }`}
             >
               <X size={12} aria-hidden="true" />

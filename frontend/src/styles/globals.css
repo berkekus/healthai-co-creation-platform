@@ -31,6 +31,10 @@
   --color-line:         227 231 236; /* #E3E7EC borders and dividers */
   --color-line-strong:  213 218 224; /* #D5DAE0 input borders */
   --color-teal-soft:    232 244 247; /* #E8F4F7 light teal surface */
+  --color-accent-bright: 61 184 216; /* #3DB8D8 bright teal fills, borders, rings (not text: 2.3:1) */
+  --color-ice:          238 250 255; /* #EEFAFF pale cyan panels (post form, domain picker) */
+  --color-ice-line:     205 238 250; /* #CDEEFA borders around ice panels */
+  --color-aqua:         139 221 234; /* #8BDDEA hover borders, light accent on dark */
   --color-admin-accent: 79 70 229;   /* #4F46E5 admin indigo */
 
   /* Badge tones (meeting statuses, post pills): text + soft background pairs, all WCAG AA. */

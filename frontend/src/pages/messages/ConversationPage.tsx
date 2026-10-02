@@ -149,7 +149,7 @@ export default function ConversationPage() {
 
         {partner ? (
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-ink text-[#8fdff0] font-black text-xs flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-ink text-hai-aqua font-black text-xs flex items-center justify-center shrink-0">
               {partner.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
@@ -299,7 +299,7 @@ function MessageBubble({
       <div
         className={`max-w-[70%] px-4 py-3 rounded-[18px] text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm ${
           isMine
-            ? 'bg-[#dff8ff] text-[#1a2535] border border-[#8fdff0] rounded-br-[4px]'
+            ? 'bg-[#dff8ff] text-[#1a2535] border border-hai-aqua rounded-br-[4px]'
             : 'bg-white text-ink border border-line rounded-bl-[4px]'
         }`}
       >

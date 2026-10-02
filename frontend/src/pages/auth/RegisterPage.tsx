@@ -103,7 +103,7 @@ export default function RegisterPage() {
     `w-full py-3.5 rounded-[14px] border text-sm font-body text-ink placeholder:text-ink-muted bg-white outline-none transition-all duration-150 ${
       hasError
         ? 'border-red-400 ring-2 ring-red-100'
-        : 'border-line-strong focus:border-hai-focus focus:ring-2 focus:ring-[#3db8d8]/15'
+        : 'border-line-strong focus:border-hai-focus focus:ring-2 focus:ring-accent-bright/15'
     }`
 
   return (
@@ -166,7 +166,7 @@ export default function RegisterPage() {
             <span className="text-sm text-ink-muted mr-3">{t('authPage.register.alreadyHave')}</span>
             <Link
               to={ROUTES.LOGIN}
-              className="px-4 py-2 rounded-full border border-line-strong text-sm font-bold text-ink hover:border-[#3db8d8] hover:text-[#3db8d8] transition-colors"
+              className="px-4 py-2 rounded-full border border-line-strong text-sm font-bold text-ink hover:border-accent-bright hover:text-hai-teal-dark transition-colors"
             >
               {t('authPage.register.signIn')}
             </Link>
@@ -191,12 +191,12 @@ export default function RegisterPage() {
                   <div key={label} className="flex items-center gap-2 flex-1 last:flex-none">
                     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
                       active ? 'bg-[#1c1230] text-white'
-                      : done  ? 'bg-[#3db8d8]/15 text-[#3db8d8]'
+                      : done  ? 'bg-accent-bright/15 text-hai-teal-dark'
                       : 'bg-[#f4f5f7] text-ink-muted'
                     }`}>
                       <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
                         active ? 'bg-white text-[#1c1230]'
-                        : done  ? 'bg-[#3db8d8] text-white'
+                        : done  ? 'bg-accent-bright text-white'
                         : 'border border-[#d0d5df] text-ink-muted'
                       }`}>
                         {done ? '✓' : i + 1}
@@ -204,7 +204,7 @@ export default function RegisterPage() {
                       <span className="tracking-[0.12em] uppercase">{label}</span>
                     </div>
                     {i < displaySteps.length - 1 && (
-                      <div className={`flex-1 h-px ${done ? 'bg-[#3db8d8]' : 'bg-[#e8ecf0]'}`} />
+                      <div className={`flex-1 h-px ${done ? 'bg-accent-bright' : 'bg-[#e8ecf0]'}`} />
                     )}
                   </div>
                 )
@@ -344,8 +344,8 @@ export default function RegisterPage() {
                   </div>
 
                   {preselectedRole && (
-                    <div className="flex items-center gap-2.5 rounded-[14px] border border-[#3db8d8]/30 bg-[#edf9fc] px-4 py-3">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#3db8d8] text-xs font-black text-white">✓</span>
+                    <div className="flex items-center gap-2.5 rounded-[14px] border border-accent-bright/30 bg-[#edf9fc] px-4 py-3">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-bright text-xs font-black text-white">✓</span>
                       <span className="text-sm font-semibold text-[#1c6278]">
                         {t('authPage.register.registeringAs')} <span className="font-black">{roleLabel}</span>
                       </span>
@@ -382,7 +382,7 @@ export default function RegisterPage() {
                             aria-pressed={selected}
                             onClick={() => setValue('role', value, { shouldValidate: true })}
                             className={`text-left p-5 rounded-[18px] border-2 transition-all ${
-                              selected ? 'border-[#1c1230] bg-[#f6f4ff]' : 'border-line-strong bg-white hover:border-[#3db8d8]'
+                              selected ? 'border-[#1c1230] bg-[#f6f4ff]' : 'border-line-strong bg-white hover:border-accent-bright'
                             }`}
                           >
                             <div className="flex items-center justify-between">
@@ -400,7 +400,7 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="flex gap-3">
-                    <button type="button" onClick={() => setStep(0)} className="flex-1 py-[15px] rounded-full border border-line-strong bg-white text-ink font-bold text-base hover:border-[#3db8d8] transition-colors font-headline">
+                    <button type="button" onClick={() => setStep(0)} className="flex-1 py-[15px] rounded-full border border-line-strong bg-white text-ink font-bold text-base hover:border-accent-bright transition-colors font-headline">
                       {t('authPage.register.backBtn')}
                     </button>
                     <button type="button" onClick={nextStep} className="flex-[2] py-[15px] rounded-full bg-[#1c1230] text-white font-black text-base hover:bg-[#110b1e] transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)] font-headline">
@@ -462,7 +462,7 @@ export default function RegisterPage() {
                       className="peer sr-only"
                     />
                     <div aria-hidden="true" className={`mt-0.5 w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center flex-shrink-0 transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-hai-focus ${
-                      gdprAccepted ? 'bg-[#3db8d8] border-[#3db8d8]' : 'bg-white border-[#c8cedd] hover:border-[#3db8d8]'
+                      gdprAccepted ? 'bg-accent-bright border-accent-bright' : 'bg-white border-[#c8cedd] hover:border-accent-bright'
                     }`}>
                       {gdprAccepted && (
                         <svg width="10" height="7" viewBox="0 0 10 7" fill="none">
@@ -473,7 +473,7 @@ export default function RegisterPage() {
                     <span className="text-sm text-ink-muted leading-relaxed font-body">
                       <Link
                         to={ROUTES.PRIVACY}
-                        className="font-bold text-ink hover:text-[#3db8d8] transition-colors"
+                        className="font-bold text-ink hover:text-hai-teal-dark transition-colors"
                         onClick={e => e.stopPropagation()}
                       >
                         {gdprConsentLink}
@@ -495,7 +495,7 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="flex gap-3 mt-2">
-                    <button type="button" onClick={() => setStep(preselectedRole ? 0 : 1)} className="flex-1 py-[15px] rounded-full border border-line-strong bg-white text-ink font-bold text-base hover:border-[#3db8d8] transition-colors font-headline">
+                    <button type="button" onClick={() => setStep(preselectedRole ? 0 : 1)} className="flex-1 py-[15px] rounded-full border border-line-strong bg-white text-ink font-bold text-base hover:border-accent-bright transition-colors font-headline">
                       {t('authPage.register.backBtn')}
                     </button>
                     <button
