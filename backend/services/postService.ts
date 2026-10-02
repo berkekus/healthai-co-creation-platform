@@ -5,6 +5,7 @@ import SavedSearch from '../models/SavedSearch'
 import { pushNotification } from './notificationService'
 import { makeError } from '../utils/AppError'
 import { MAX_POST_DOMAINS, domainFilterVariants, escapeRegex } from '../constants/domains'
+import { matchScore, type MatchablePost, type MatchViewer } from '../utils/matchScore'
 
 /**
  * A post's domains: one to three distinct, non-empty names. Older clients send
@@ -36,12 +37,24 @@ export interface PostFilters {
   expertise?: string
   city?: string
   country?: string
+  /** Free text matched against city or country (partial, case-insensitive). */
+  location?: string
   projectStage?: string
   status?: string
   search?: string
   authorRole?: string
   /** Giriş yapan kullanıcının kendi post'larını (draft dahil) görmesi için */
   authorId?: string
+}
+
+export type PostSort = 'newest' | 'oldest' | 'expiring' | 'relevance'
+export const POST_SORTS: readonly PostSort[] = ['newest', 'oldest', 'expiring', 'relevance']
+
+// Every sort ends on _id so posts sharing a timestamp keep a stable order across pages.
+const SORT_SPECS: Record<Exclude<PostSort, 'relevance'>, Record<string, 1 | -1>> = {
+  newest:   { createdAt: -1, _id: -1 },
+  oldest:   { createdAt: 1, _id: 1 },
+  expiring: { expiryDate: 1, _id: 1 },
 }
 
 export async function createPost(data: {
@@ -79,8 +92,10 @@ export async function getPostById(id: string, requesterId: string, isAdmin: bool
   return post
 }
 
-export async function listPosts(filters: PostFilters, page = 1, limit = 20) {
+function buildListQuery(filters: PostFilters): FilterQuery<IPost> {
   const query: FilterQuery<IPost> = {}
+  // Domain, location and search each need an $or; collecting them under $and keeps them from overwriting each other.
+  const and: FilterQuery<IPost>[] = []
 
   if (filters.authorId) {
     query.authorId = filters.authorId
@@ -96,20 +111,56 @@ export async function listPosts(filters: PostFilters, page = 1, limit = 20) {
     // Match any of the post's domains, and treat merged legacy names as the
     // canonical one. Names contain regex characters, e.g. "Intensive Care (ICU)".
     const names = domainFilterVariants(filters.domain).map(name => new RegExp(`^${escapeRegex(name)}$`, 'i'))
-    query.$or = [{ domains: { $in: names } }, { domain: { $in: names } }]
+    and.push({ $or: [{ domains: { $in: names } }, { domain: { $in: names } }] })
+  }
+  if (filters.location?.trim()) {
+    const loc = new RegExp(escapeRegex(filters.location.trim()), 'i')
+    and.push({ $or: [{ city: loc }, { country: loc }] })
+  }
+  if (filters.search?.trim()) {
+    // Partial, case-insensitive match (what users had with in-browser filtering). $text only
+    // matches whole words; move to Atlas Search if the collection grows past ~50k posts.
+    const text = new RegExp(escapeRegex(filters.search.trim()), 'i')
+    and.push({ $or: [{ title: text }, { description: text }, { expertiseRequired: text }, { authorName: text }] })
   }
   if (filters.expertise) query.expertiseRequired = { $regex: escapeRegex(filters.expertise), $options: 'i' }
   if (filters.city) query.city = { $regex: `^${escapeRegex(filters.city)}$`, $options: 'i' }
   if (filters.country) query.country = { $regex: `^${escapeRegex(filters.country)}$`, $options: 'i' }
   if (filters.projectStage) query.projectStage = filters.projectStage
   if (filters.authorRole) query.authorRole = filters.authorRole
-  if (filters.search) {
-    query.$text = { $search: filters.search }
+
+  if (and.length) query.$and = and
+  return query
+}
+
+/** Newest N posts matching the filters are scored; older posts are not ranked by relevance. */
+export const RELEVANCE_CANDIDATES = 1000
+
+/** posts are documents, or plain objects with a matchScore when ranked by relevance; the controller only serialises them. */
+export interface PostListResult { posts: unknown[]; total: number; page: number; limit: number; pages: number }
+
+export async function listPosts(
+  filters: PostFilters, page = 1, limit = 20, sort: PostSort = 'newest', viewer?: MatchViewer,
+): Promise<PostListResult> {
+  const query = buildListQuery(filters)
+  const skip = (page - 1) * limit
+  const hasProfile = Boolean(viewer && (viewer.expertiseTags?.length || viewer.city || viewer.country))
+
+  // Two-stage ranking: take a bounded candidate set, score it, then page through the scored list.
+  if (sort === 'relevance' && viewer && hasProfile) {
+    const candidates = await Post.find(query).sort(SORT_SPECS.newest).limit(RELEVANCE_CANDIDATES)
+    const ranked = candidates
+      .map(doc => ({ doc, score: matchScore(doc.toObject() as unknown as MatchablePost, viewer) }))
+      .sort((a, b) => b.score - a.score) // stable: equal scores keep newest-first
+    const total = ranked.length
+    const posts = ranked.slice(skip, skip + limit).map(({ doc, score }) => ({ ...doc.toJSON(), matchScore: score }))
+    return { posts, total, page, limit, pages: Math.ceil(total / limit) }
   }
 
-  const skip = (page - 1) * limit
+  // Without a profile to match against, "best match" means nothing; newest is the honest fallback.
+  const spec = SORT_SPECS[sort === 'relevance' ? 'newest' : sort]
   const [posts, total] = await Promise.all([
-    Post.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    Post.find(query).sort(spec).skip(skip).limit(limit),
     Post.countDocuments(query),
   ])
   return { posts, total, page, limit, pages: Math.ceil(total / limit) }
