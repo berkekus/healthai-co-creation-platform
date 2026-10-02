@@ -30,6 +30,7 @@
   --color-surface-muted:  238 240 243; /* #EEF0F3 chips, hover fills, inactive tabs */
   --color-line:         227 231 236; /* #E3E7EC borders and dividers */
   --color-line-strong:  213 218 224; /* #D5DAE0 input borders */
+  --color-line-control: 135 142 156; /* #878E9C checkbox / radio borders, 3.29:1 on white (WCAG 1.4.11) */
   --color-teal-soft:    232 244 247; /* #E8F4F7 light teal surface */
   --color-accent-bright: 61 184 216; /* #3DB8D8 bright teal fills, borders, rings (not text: 2.3:1) */
   --color-ice:          238 250 255; /* #EEFAFF pale cyan panels (post form, domain picker) */

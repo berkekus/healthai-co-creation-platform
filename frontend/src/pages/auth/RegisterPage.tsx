@@ -196,7 +196,7 @@ export default function RegisterPage() {
                     }`}>
                       <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
                         active ? 'bg-white text-[#1c1230]'
-                        : done  ? 'bg-accent-bright text-white'
+                        : done  ? 'bg-hai-teal-dark text-white'
                         : 'border border-[#d0d5df] text-ink-muted'
                       }`}>
                         {done ? '✓' : i + 1}
@@ -345,7 +345,7 @@ export default function RegisterPage() {
 
                   {preselectedRole && (
                     <div className="flex items-center gap-2.5 rounded-[14px] border border-accent-bright/30 bg-[#edf9fc] px-4 py-3">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-bright text-xs font-black text-white">✓</span>
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-hai-teal-dark text-xs font-black text-white">✓</span>
                       <span className="text-sm font-semibold text-[#1c6278]">
                         {t('authPage.register.registeringAs')} <span className="font-black">{roleLabel}</span>
                       </span>
@@ -462,7 +462,7 @@ export default function RegisterPage() {
                       className="peer sr-only"
                     />
                     <div aria-hidden="true" className={`mt-0.5 w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center flex-shrink-0 transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-hai-focus ${
-                      gdprAccepted ? 'bg-accent-bright border-accent-bright' : 'bg-white border-[#c8cedd] hover:border-accent-bright'
+                      gdprAccepted ? 'bg-hai-teal-dark border-hai-teal-dark' : 'bg-white border-line-control hover:border-hai-teal-dark'
                     }`}>
                       {gdprAccepted && (
                         <svg width="10" height="7" viewBox="0 0 10 7" fill="none">

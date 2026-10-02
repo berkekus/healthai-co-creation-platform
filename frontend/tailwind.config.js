@@ -36,6 +36,7 @@ export default {
         line: {
           DEFAULT: 'rgb(var(--color-line) / <alpha-value>)',
           strong:  'rgb(var(--color-line-strong) / <alpha-value>)',
+          control: v('line-control'),
         },
         'admin-accent': 'rgb(var(--color-admin-accent) / <alpha-value>)',
         // Badge tones, inline errors, admin states and role badges (see globals.css for values).
