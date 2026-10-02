@@ -27,9 +27,9 @@ import { useMeetingStore } from '../../store/meetingStore'
 import ExpressInterestModal from '../../components/meetings/ExpressInterestModal'
 import { postEdit, ROUTES } from '../../constants/routes'
 import { postDomains } from '../../constants/domains'
-import api from '../../lib/api'
+import { usePost } from '../../hooks/usePost'
 import { localDateInputValue } from '../../utils/timeSlots'
-import type { Post, PostStatus } from '../../types/post.types'
+import type { PostStatus } from '../../types/post.types'
 
 const COMMITMENT_KEYS = {
   flexible: 'posts.form.commitmentFlexible',
@@ -49,44 +49,27 @@ export default function PostDetailPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuthStore()
-  const { posts, getById, fetchPosts, publish, markPartnerFound, reopen } = usePostStore()
+  const { publish, markPartnerFound, reopen } = usePostStore()
   const { getByPost, fetchByUser } = useMeetingStore()
   const [showInterest, setShowInterest] = useState(false)
   const [copied, setCopied] = useState(false)
   const [saved, setSaved] = useState(() =>
     id ? localStorage.getItem(`saved_post_${id}`) === 'true' : false
   )
-  const [fetchedPost, setFetchedPost] = useState<Post | undefined>(undefined)
-  const [isFetching, setIsFetching] = useState(false)
-  const [fetchError, setFetchError] = useState(false)
   const [dialog, setDialog] = useState<'partnerFound' | 'reopen' | null>(null)
   const [dialogBusy, setDialogBusy] = useState(false)
   const [dialogError, setDialogError] = useState<string | null>(null)
   const [newExpiry, setNewExpiry] = useState('')
 
-  const storePost = getById(id ?? '')
-  const post = storePost ?? fetchedPost
-
-  useEffect(() => {
-    if (!posts.length) fetchPosts({ limit: 100, filters: {} })
-  }, [fetchPosts, posts.length])
+  // Always loaded from the server, so a link opened directly or after a reload works; edits refresh it.
+  const { data: post, isPending, isError, error, refetch } = usePost(id)
+  const notFound = isError && (error as { status?: number } | null)?.status === 404
+  const fetchError = isError && !notFound
 
   useEffect(() => {
     if (user) fetchByUser()
   }, [fetchByUser, user])
 
-  useEffect(() => {
-    if (storePost || !id) return
-    setIsFetching(true)
-    setFetchError(false)
-    api.get<{ success: boolean; data: Post & { _id?: string } }>(`/posts/${id}`)
-      .then(({ data }) => {
-        const raw = data.data
-        setFetchedPost({ ...raw, id: raw._id ?? raw.id })
-      })
-      .catch(() => setFetchError(true))
-      .finally(() => setIsFetching(false))
-  }, [id, storePost])
 
   // Comment notifications link to /posts/:id#comments; the router does not scroll to hashes itself.
   const postLoaded = Boolean(post)
@@ -111,7 +94,7 @@ export default function PostDetailPage() {
   const canEdit = !!post && isOwner && (post.status === 'draft' || post.status === 'active')
   const expiredWhileClosed = !!post && new Date(post.expiryDate).getTime() <= Date.now()
 
-  if (isFetching && !post) {
+  if (isPending && id) {
     return (
       <main className="min-h-screen bg-surface-subtle px-4 sm:px-8 py-20 text-hai-plum">
         <div className="flex min-h-[40vh] items-center justify-center">
@@ -134,7 +117,7 @@ export default function PostDetailPage() {
           <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
             {fetchError && (
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => { void refetch() }}
                 className="rounded-full border border-hai-plum bg-white px-6 py-3 text-sm font-black text-hai-plum hover:bg-hai-plum hover:text-white transition-colors"
               >
                 {t('postDetail.tryAgain')}

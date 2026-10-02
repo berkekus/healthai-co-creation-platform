@@ -10,7 +10,7 @@ import { ROUTES } from '../../constants/routes'
 import { Badge, ButtonLink, Card, IconButton } from '../../components/ui'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
-import { usePostStore } from '../../store/postStore'
+import { usePostList } from '../../hooks/usePostList'
 import type { Meeting } from '../../types/meeting.types'
 import type { Post } from '../../types/post.types'
 import { postDomains } from '../../constants/domains'
@@ -18,40 +18,41 @@ import { postDomains } from '../../constants/domains'
 export default function DashboardPage() {
   const { user } = useAuthStore()
   const { getByUser, fetchByUser } = useMeetingStore()
-  const { posts, fetchPosts } = usePostStore()
+  // Counts come from the server totals, so they stay right however many posts the user has.
+  const mine = usePostList({ page: 1, limit: 5, mine: true, sort: 'newest' })
+  const activeMine = usePostList({ page: 1, limit: 1, mine: true, status: 'active' })
+  const scheduledMine = usePostList({ page: 1, limit: 1, mine: true, status: 'meeting_scheduled' })
+  const recentPosts = mine.data?.posts ?? []
+  const myPostCount = mine.data?.total ?? 0
 
   useEffect(() => {
     if (user) fetchByUser(user.id)
   }, [fetchByUser, user])
 
-  useEffect(() => {
-    if (user) fetchPosts({ limit: 100, mine: true, filters: {} })
-  }, [fetchPosts, user])
-
   const myMeetings = user ? getByUser(user.id) : []
   const upcomingMeetings = myMeetings.filter(meeting =>
     meeting.status === 'confirmed' || meeting.status === 'pending'
   )
-  const activeListings = posts.filter(post => post.status === 'active' || post.status === 'meeting_scheduled').length
-  const isNewUser = posts.length === 0 && myMeetings.length === 0
+  const activeListings = (activeMine.data?.total ?? 0) + (scheduledMine.data?.total ?? 0)
+  const isNewUser = mine.isSuccess && myPostCount === 0 && myMeetings.length === 0
 
   return (
     <main className="min-h-screen bg-hai-offwhite text-hai-plum">
       <div className="mx-auto w-full max-w-[1640px] px-4 pb-24 pt-[94px] sm:px-8">
         <section className="grid grid-cols-1 items-start gap-10 xl:grid-cols-[420px_minmax(0,1fr)] xl:gap-28">
           <WelcomePanel user={user} />
-          <WeeklyBlob postCount={posts.length} meetingCount={myMeetings.length} activeListings={activeListings} />
+          <WeeklyBlob postCount={myPostCount} meetingCount={myMeetings.length} activeListings={activeListings} />
         </section>
 
         {isNewUser ? (
           <OnboardingPanel />
         ) : (
           <section className="mt-10 grid grid-cols-1 gap-12 xl:grid-cols-[minmax(0,680px)_minmax(0,700px)] xl:gap-28">
-            <RecentPosts posts={posts} />
+            <RecentPosts posts={recentPosts} />
             <UpcomingMeetings meetings={upcomingMeetings} userId={user?.id ?? ''} />
           </section>
         )}
-        <SavedPosts storePosts={posts} />
+        <SavedPosts storePosts={recentPosts} />
       </div>
     </main>
   )

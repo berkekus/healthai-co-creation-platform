@@ -11,15 +11,33 @@ import PostStatusBadge from '../../components/posts/PostStatusBadge'
 import { ROUTES, postDetail } from '../../constants/routes'
 import { postDomains } from '../../constants/domains'
 import { localDateInputValue } from '../../utils/timeSlots'
+import { usePost } from '../../hooks/usePost'
+import type { Post } from '../../types/post.types'
 
+// Loads the post from the server first, so a link opened directly or after a reload works and the
+// form starts from the saved values.
 export default function PostEditPage() {
+  const { id } = useParams<{ id: string }>()
+  const { data: post, isPending } = usePost(id)
+
+  if (isPending && id) {
+    return (
+      <main className="min-h-screen bg-surface-subtle px-4 py-20 text-hai-plum sm:px-8">
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-hai-plum/20 border-t-hai-plum" />
+        </div>
+      </main>
+    )
+  }
+  return <PostEditForm post={post} />
+}
+
+function PostEditForm({ post }: { post: Post | undefined }) {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
-  const { getById, update } = usePostStore()
+  const { update } = usePostStore()
   const { user } = useAuthStore()
   const navigate = useNavigate()
-
-  const post = getById(id ?? '')
 
   const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting } } = useForm<PostCreateFormData>({
     resolver: zodResolver(createPostCreateSchema(t)),

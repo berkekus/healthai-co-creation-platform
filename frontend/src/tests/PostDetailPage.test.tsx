@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
+import { screen, fireEvent, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import i18n from '../i18n'
 import api from '../lib/api'
@@ -9,6 +9,7 @@ import { useMeetingStore } from '../store/meetingStore'
 import { usePostStore } from '../store/postStore'
 import type { Post } from '../types/post.types'
 import type { User } from '../types/auth.types'
+import { renderWithQuery } from './renderWithQuery'
 
 vi.mock('../lib/api', () => ({ default: { get: vi.fn(), post: vi.fn(), delete: vi.fn() } }))
 vi.mock('../lib/socket', () => ({ connectSocket: vi.fn(), disconnectSocket: vi.fn(), getSocket: vi.fn() }))
@@ -51,24 +52,29 @@ function makePost(extra: Partial<Post> = {}): Post {
 const markPartnerFound = vi.fn()
 const reopen = vi.fn()
 
-function renderAs(user: User, post: Post) {
+// The page loads its post from the server (GET /posts/:id); comments come from their own endpoint.
+async function renderAs(user: User, post: Post) {
   useAuthStore.setState({ user, isAuthenticated: true })
-  usePostStore.setState({ posts: [post], fetchPosts: vi.fn(), markPartnerFound, reopen })
+  usePostStore.setState({ markPartnerFound, reopen })
   useMeetingStore.setState({ meetings: [], fetchByUser: vi.fn() })
-  return render(
+  vi.mocked(api.get).mockImplementation(async (url: string) =>
+    url === `/posts/${post.id}`
+      ? { data: { success: true, data: post } }
+      : { data: { success: true, data: { comments: [], total: 0, page: 1, pages: 1 } } })
+  renderWithQuery(
     <MemoryRouter initialEntries={['/posts/post-1']}>
       <Routes>
         <Route path="/posts/:id" element={<PostDetailPage />} />
       </Routes>
     </MemoryRouter>,
   )
+  await screen.findAllByText(post.title)
 }
 
 describe('PostDetailPage', () => {
   beforeEach(() => {
     markPartnerFound.mockReset().mockResolvedValue(undefined)
     reopen.mockReset().mockResolvedValue(undefined)
-    vi.mocked(api.get).mockResolvedValue({ data: { success: true, data: { comments: [], total: 0, page: 1, pages: 1 } } })
   })
 
   afterEach(async () => {
@@ -76,7 +82,7 @@ describe('PostDetailPage', () => {
   })
 
   it('explains what Partner Found does and waits for confirmation', async () => {
-    renderAs(owner, makePost())
+    await renderAs(owner, makePost())
 
     fireEvent.click(screen.getByRole('button', { name: 'Mark partner found' }))
     const dialog = screen.getByRole('dialog')
@@ -88,7 +94,7 @@ describe('PostDetailPage', () => {
   })
 
   it('lets the author reopen a post that was marked Partner Found', async () => {
-    renderAs(owner, makePost({ status: 'partner_found' }))
+    await renderAs(owner, makePost({ status: 'partner_found' }))
 
     fireEvent.click(screen.getByRole('button', { name: 'Reopen post' }))
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Reopen post' }))
@@ -97,7 +103,7 @@ describe('PostDetailPage', () => {
   })
 
   it('asks for a new expiry date before reopening a closed post that has expired', async () => {
-    renderAs(owner, makePost({ status: 'partner_found', expiryDate: '2026-01-01T00:00:00.000Z' }))
+    await renderAs(owner, makePost({ status: 'partner_found', expiryDate: '2026-01-01T00:00:00.000Z' }))
 
     fireEvent.click(screen.getByRole('button', { name: 'Reopen post' }))
     const dialog = screen.getByRole('dialog')
@@ -111,25 +117,25 @@ describe('PostDetailPage', () => {
     expect(reopen.mock.calls[0][1]).toMatch(/^2031-05-01/)
   })
 
-  it('still takes meeting requests while a meeting is scheduled', () => {
-    renderAs(visitor, makePost({ status: 'meeting_scheduled' }))
+  it('still takes meeting requests while a meeting is scheduled', async () => {
+    await renderAs(visitor, makePost({ status: 'meeting_scheduled' }))
     expect(screen.getByRole('button', { name: 'Schedule a meeting' })).toBeInTheDocument()
   })
 
-  it('points visitors of a closed post to the comments, where the author is notified', () => {
-    renderAs(visitor, makePost({ status: 'partner_found' }))
+  it('points visitors of a closed post to the comments, where the author is notified', async () => {
+    await renderAs(visitor, makePost({ status: 'partner_found' }))
     expect(screen.getByText(/the author is notified about comments/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /leave a note for the author/i })).toHaveAttribute('href', '#comments')
   })
 
-  it('shows every domain the idea spans', () => {
-    renderAs(visitor, makePost())
+  it('shows every domain the idea spans', async () => {
+    await renderAs(visitor, makePost())
     expect(screen.getAllByText('Midwifery').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Nursing').length).toBeGreaterThan(0)
   })
 
-  it('marks domain names as English so a Turkish page does not capitalise them as "MİDWİFERY"', () => {
-    renderAs(visitor, makePost())
+  it('marks domain names as English so a Turkish page does not capitalise them as "MİDWİFERY"', async () => {
+    await renderAs(visitor, makePost())
     for (const name of ['Midwifery', 'Nursing']) {
       for (const element of screen.getAllByText(name)) {
         expect(element.closest('[lang]')).toHaveAttribute('lang', 'en')
@@ -137,9 +143,34 @@ describe('PostDetailPage', () => {
     }
   })
 
+  it('says the post was not found when the server answers 404, instead of offering a retry', async () => {
+    useAuthStore.setState({ user: visitor, isAuthenticated: true })
+    useMeetingStore.setState({ meetings: [], fetchByUser: vi.fn() })
+    vi.mocked(api.get).mockRejectedValue(Object.assign(new Error('Post not found'), { status: 404 }))
+    renderWithQuery(
+      <MemoryRouter initialEntries={['/posts/gone']}>
+        <Routes><Route path="/posts/:id" element={<PostDetailPage />} /></Routes>
+      </MemoryRouter>,
+    )
+    expect(await screen.findByText(i18n.t('postDetail.notFoundTitle'))).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: i18n.t('postDetail.tryAgain') })).not.toBeInTheDocument()
+  })
+
+  it('offers a retry when loading fails for another reason', async () => {
+    useAuthStore.setState({ user: visitor, isAuthenticated: true })
+    useMeetingStore.setState({ meetings: [], fetchByUser: vi.fn() })
+    vi.mocked(api.get).mockRejectedValue(Object.assign(new Error('Server error'), { status: 500 }))
+    renderWithQuery(
+      <MemoryRouter initialEntries={['/posts/post-1']}>
+        <Routes><Route path="/posts/:id" element={<PostDetailPage />} /></Routes>
+      </MemoryRouter>,
+    )
+    expect(await screen.findByRole('button', { name: i18n.t('postDetail.tryAgain') })).toBeInTheDocument()
+  })
+
   it('speaks the interface language', async () => {
     await i18n.changeLanguage('tr')
-    renderAs(visitor, makePost())
+    await renderAs(visitor, makePost())
     expect(screen.getByRole('button', { name: 'Toplantı planla' })).toBeInTheDocument()
   })
 })

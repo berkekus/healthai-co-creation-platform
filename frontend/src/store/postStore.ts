@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import type { Post, PostFilters, PostCreateData, PostAuthorRole } from '../types/post.types'
 import api from '../lib/api'
-import { postHasDomain } from '../constants/domains'
+import { queryClient, postKeys } from '../lib/queryClient'
+import { normalisePost } from '../lib/postsApi'
 
 interface PaginationMeta {
   total: number
@@ -10,16 +11,13 @@ interface PaginationMeta {
   pages: number
 }
 
+// Pages read posts through usePostList / usePost (TanStack Query). `posts` and `fetchPosts` remain only
+// for the admin page until it moves to server-side lists as well.
 interface PostState {
   posts: Post[]
-  filters: PostFilters
   pagination: PaginationMeta
   isLoading: boolean
   fetchPosts: (opts?: { page?: number; limit?: number; mine?: boolean; filters?: PostFilters }) => Promise<void>
-  setFilters: (f: Partial<PostFilters>) => void
-  clearFilters: () => void
-  getFiltered: () => Post[]
-  getById: (id: string) => Post | undefined
   create: (data: PostCreateData, authorId: string, authorName: string, authorRole: PostAuthorRole) => Promise<Post>
   update: (id: string, data: Partial<Post>) => Promise<void>
   markPartnerFound: (id: string) => Promise<void>
@@ -30,26 +28,8 @@ interface PostState {
   expressInterest: (id: string) => Promise<void>
 }
 
-function applyFilters(posts: Post[], f: PostFilters): Post[] {
-  return posts.filter(p => {
-    if (f.domain      && !postHasDomain(p, f.domain)) return false
-    if (f.expertise   && !p.expertiseRequired.toLowerCase().includes(f.expertise.toLowerCase())) return false
-    if (f.city        && p.city.toLowerCase() !== f.city.toLowerCase()) return false
-    if (f.country     && p.country.toLowerCase() !== f.country.toLowerCase()) return false
-    if (f.projectStage && p.projectStage !== f.projectStage) return false
-    if (f.status      && p.status !== f.status) return false
-    if (f.authorRole  && p.authorRole !== f.authorRole) return false
-    if (f.search) {
-      const q = f.search.toLowerCase()
-      if (!p.title.toLowerCase().includes(q) && !p.description.toLowerCase().includes(q)) return false
-    }
-    return true
-  })
-}
-
-function normalise(raw: Post & { _id?: string }): Post {
-  return { ...raw, id: raw._id ?? raw.id }
-}
+// Every successful change also marks cached post lists and details stale.
+const invalidatePostQueries = () => { void queryClient.invalidateQueries({ queryKey: postKeys.all }) }
 
 interface PostsResponse {
   posts: Post[]
@@ -59,16 +39,15 @@ interface PostsResponse {
   pages: number
 }
 
-export const usePostStore = create<PostState>()((set, get) => ({
+export const usePostStore = create<PostState>()((set) => ({
   posts: [],
-  filters: {},
   pagination: { total: 0, page: 1, limit: 20, pages: 0 },
   isLoading: false,
 
   fetchPosts: async (opts = {}) => {
     set({ isLoading: true })
     try {
-      const filters = opts.filters ?? get().filters
+      const filters = opts.filters ?? {}
       const page  = opts.page  ?? 1
       const limit = opts.limit ?? 20
       const params = new URLSearchParams()
@@ -86,16 +65,11 @@ export const usePostStore = create<PostState>()((set, get) => ({
 
       const { data } = await api.get<{ success: boolean; data: PostsResponse }>(`/posts?${params}`)
       const { posts, ...meta } = data.data
-      set({ posts: posts.map(normalise), pagination: meta, isLoading: false })
+      set({ posts: posts.map(normalisePost), pagination: meta, isLoading: false })
     } catch {
       set({ isLoading: false })
     }
   },
-
-  setFilters: (f) => set(s => ({ filters: { ...s.filters, ...f } })),
-  clearFilters: () => set({ filters: {} }),
-  getFiltered: () => applyFilters(get().posts, get().filters),
-  getById: (id) => get().posts.find(p => p.id === id),
 
   create: async (data, _authorId, authorName, authorRole) => {
     const { data: res } = await api.post<{ success: boolean; data: Post }>('/posts', {
@@ -103,43 +77,50 @@ export const usePostStore = create<PostState>()((set, get) => ({
       authorName,
       authorRole,
     })
-    const post = normalise(res.data)
+    const post = normalisePost(res.data)
     set(s => ({ posts: [post, ...s.posts] }))
+    invalidatePostQueries()
     return post
   },
 
   update: async (id, data) => {
     const { data: res } = await api.put<{ success: boolean; data: Post }>(`/posts/${id}`, data)
-    const updated = normalise(res.data)
+    const updated = normalisePost(res.data)
     set(s => ({ posts: s.posts.map(p => p.id === id ? updated : p) }))
+    invalidatePostQueries()
   },
 
   markPartnerFound: async (id) => {
     const { data: res } = await api.post<{ success: boolean; data: Post }>(`/posts/${id}/partner-found`)
-    const updated = normalise(res.data)
+    const updated = normalisePost(res.data)
     set(s => ({ posts: s.posts.map(p => p.id === id ? updated : p) }))
+    invalidatePostQueries()
   },
 
   reopen: async (id, expiryDate) => {
     const { data: res } = await api.post<{ success: boolean; data: Post }>(`/posts/${id}/reopen`, expiryDate ? { expiryDate } : undefined)
-    const updated = normalise(res.data)
+    const updated = normalisePost(res.data)
     set(s => ({ posts: s.posts.map(p => p.id === id ? updated : p) }))
+    invalidatePostQueries()
   },
 
   publish: async (id) => {
     const { data: res } = await api.post<{ success: boolean; data: Post }>(`/posts/${id}/publish`)
-    const updated = normalise(res.data)
+    const updated = normalisePost(res.data)
     set(s => ({ posts: s.posts.map(p => p.id === id ? updated : p) }))
+    invalidatePostQueries()
   },
 
   remove: async (id) => {
     await api.delete(`/posts/${id}`)
     set(s => ({ posts: s.posts.filter(p => p.id !== id) }))
+    invalidatePostQueries()
   },
 
   expressInterest: async (id) => {
     const { data: res } = await api.post<{ success: boolean; data: Post }>(`/posts/${id}/interest`)
-    const updated = normalise(res.data)
+    const updated = normalisePost(res.data)
     set(s => ({ posts: s.posts.map(p => p.id === id ? updated : p) }))
+    invalidatePostQueries()
   },
 }))
