@@ -827,7 +827,8 @@ export default function AdminPage() {
         ))}
       </nav>
 
-      <main className="flex-1 overflow-y-auto bg-[#f3f4f8]">
+      {/* pb-24 lets the last rows and the pager scroll clear of the floating chat bubble (bottom-6, 56 px). */}
+      <main className="flex-1 overflow-y-auto bg-[#f3f4f8] pb-24">
 
         {/* ── OVERVIEW ── */}
         {view === 'overview' && (

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { ArrowLeft, MessageSquare, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
@@ -18,6 +18,7 @@ function partnerFor(conv: Conversation, userId?: string) {
 
 export default function FloatingChat() {
   const { t } = useTranslation()
+  const { pathname } = useLocation()
   const { user } = useAuthStore()
   const {
     conversations,
@@ -63,6 +64,9 @@ export default function FloatingChat() {
   }, [selectedMessages.length, selectedId])
 
   if (!user) return null
+  // The messaging screen is the full version of this bubble, and on phones the bubble sat on its send button.
+  // Only the visible part is dropped: the unread polling above keeps the navbar badge current.
+  if (pathname.startsWith(ROUTES.MESSAGES)) return null
 
   const handleOpenConversation = (conv: Conversation) => {
     setSelectedId(conv.id)
