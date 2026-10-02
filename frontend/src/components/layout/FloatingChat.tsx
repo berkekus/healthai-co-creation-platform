@@ -135,7 +135,7 @@ export default function FloatingChat() {
 
           {selected ? (
             <>
-              <div className="h-[310px] overflow-y-auto bg-[#F8FAFC] px-4 py-4">
+              <div className="h-[310px] overflow-y-auto bg-surface-subtle px-4 py-4">
                 {selectedMessages.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center text-center">
                     <MessageSquare size={34} className="text-[#C5C0CC]" />
@@ -160,7 +160,7 @@ export default function FloatingChat() {
                     onKeyDown={handleKeyDown}
                     rows={1}
                     placeholder={t('messagesPage.placeholder')}
-                    className="max-h-[96px] min-h-[44px] flex-1 resize-none rounded-[14px] border border-line bg-[#F8FAFC] px-3 py-3 text-sm font-semibold text-hai-plum outline-none transition focus:border-hai-focus focus:ring-2 focus:ring-hai-teal/20"
+                    className="max-h-[96px] min-h-[44px] flex-1 resize-none rounded-[14px] border border-line bg-surface-subtle px-3 py-3 text-sm font-semibold text-hai-plum outline-none transition focus:border-hai-focus focus:ring-2 focus:ring-hai-teal/20"
                   />
                   <button
                     type="button"
@@ -194,7 +194,7 @@ export default function FloatingChat() {
                       key={conv.id}
                       type="button"
                       onClick={() => handleOpenConversation(conv)}
-                      className="flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left transition last:border-0 hover:bg-[#F8FAFC]"
+                      className="flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left transition last:border-0 hover:bg-surface-subtle"
                     >
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-[#B8F3FF]">
                         {initials(itemPartner?.name)}

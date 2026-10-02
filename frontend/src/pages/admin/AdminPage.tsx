@@ -112,7 +112,7 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
               disabled={isDisabled}
               className={`flex items-center gap-3 px-2.5 py-2.5 rounded-xl transition-colors w-full text-left ${
                 isActive     ? 'bg-[#eeecff] text-admin-accent'
-                : isDisabled ? 'text-[#c8ccd4] cursor-default'
+                : isDisabled ? 'text-ink-faint cursor-default'
                 : 'text-ink-muted hover:bg-[#f5f5ff] hover:text-admin-accent'
               }`}>
               <span className="shrink-0">{item.icon}</span>
@@ -285,7 +285,7 @@ function VerificationQueueTab() {
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-hai-offwhite bg-[#f9fafb]">
+              <tr className="border-b border-hai-offwhite bg-surface-subtle">
                 <th className="px-6 py-3 text-left text-xs font-black text-ink-muted uppercase tracking-wide">{t('admin.verification.columns.user')}</th>
                 <th className="px-6 py-3 text-left text-xs font-black text-ink-muted uppercase tracking-wide">{t('admin.verification.columns.role')}</th>
                 <th className="px-6 py-3 text-left text-xs font-black text-ink-muted uppercase tracking-wide">{t('admin.verification.columns.institution')}</th>
@@ -295,7 +295,7 @@ function VerificationQueueTab() {
             </thead>
             <tbody>
               {pending.map(u => (
-                <tr key={u.id} className="border-b border-hai-offwhite hover:bg-[#f9fafb] transition-colors">
+                <tr key={u.id} className="border-b border-hai-offwhite hover:bg-surface-subtle transition-colors">
                   <td className="px-6 py-3.5">
                     <div className="font-semibold text-ink">{u.name}</div>
                     <div className="text-xs text-ink-muted">{u.email}</div>
@@ -466,7 +466,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
               <thead>
                 <tr className="border-b border-hai-offwhite">
                   {[t('admin.verification.columns.user'), t('admin.verification.columns.role'), t('admin.verification.columns.institution'), t('admin.posts.columns.status'), t('admin.posts.columns.created'), t('admin.posts.columns.actions')].map(h => (
-                    <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted px-6 py-3 bg-[#fafafa]">{h}</th>
+                    <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted px-6 py-3 bg-surface-subtle">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -474,7 +474,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                 {recentUsers.map(u => {
                   const initials = u.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
                   return (
-                    <tr key={u.id} className="border-b border-[#f9fafb] last:border-b-0 hover:bg-[#fafafa] transition-colors">
+                    <tr key={u.id} className="border-b border-surface-subtle last:border-b-0 hover:bg-surface-subtle transition-colors">
                       <td className="px-6 py-3.5">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-[#e0e7ff] flex items-center justify-center text-xs font-black text-admin-accent shrink-0">{initials}</div>
@@ -559,7 +559,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                     </div>
                     <span className="text-sm font-semibold">{a.label}</span>
                   </div>
-                  <ChevronRight size={14} className="text-[#c8ccd4] group-hover:text-admin-accent transition-colors" />
+                  <ChevronRight size={14} className="text-ink-faint group-hover:text-admin-accent transition-colors" />
                 </button>
               ))}
             </div>
@@ -870,7 +870,7 @@ export default function AdminPage() {
                     aria-label={t('admin.users.searchPlaceholder')}
                     aria-keyshortcuts="/"
                     className="w-full bg-[#f8f9fb] border border-line rounded-xl pl-10 pr-10 py-2.5 text-sm text-ink-gray outline-none focus:border-admin-accent focus:ring-2 focus:ring-admin-accent/20 transition-colors" />
-                  <kbd aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-[#d1d5db] bg-white px-1.5 font-mono text-xs text-ink-muted">/</kbd>
+                  <kbd aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-line-strong bg-white px-1.5 font-mono text-xs text-ink-muted">/</kbd>
                 </div>
                 <span className="text-xs text-ink-muted font-semibold">{t('admin.users.shownCount', { shown: filteredUsers.length, total: totalNonAdmin })}</span>
               </div>
@@ -879,7 +879,7 @@ export default function AdminPage() {
                   <thead>
                     <tr className="border-b border-hai-offwhite">
                       {[t('admin.users.columns.user'), t('admin.users.columns.role'), t('admin.users.columns.institution'), t('admin.users.columns.status'), t('admin.users.columns.lastActive'), t('admin.users.columns.actions')].map(h => (
-                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted px-6 py-3 bg-[#fafafa]">{h}</th>
+                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted px-6 py-3 bg-surface-subtle">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -887,7 +887,7 @@ export default function AdminPage() {
                     {paginatedUsers.map(u => {
                       const initials = u.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
                       return (
-                        <tr key={u.id} className={`border-b border-[#f9fafb] last:border-b-0 transition-colors ${u.isSuspended ? 'bg-red-50/30' : 'hover:bg-[#fafafa]'}`}>
+                        <tr key={u.id} className={`border-b border-surface-subtle last:border-b-0 transition-colors ${u.isSuspended ? 'bg-red-50/30' : 'hover:bg-surface-subtle'}`}>
                           <td className="px-6 py-3.5">
                             <div className="flex items-center gap-3">
                               <div className="w-9 h-9 rounded-full bg-[#e0e7ff] flex items-center justify-center text-xs font-black text-admin-accent shrink-0">{initials}</div>
@@ -1003,13 +1003,13 @@ export default function AdminPage() {
                   <thead>
                     <tr className="border-b border-hai-offwhite">
                       {[t('admin.posts.columns.title'), t('admin.posts.columns.author'), t('admin.posts.columns.domain'), t('admin.posts.columns.status'), t('admin.posts.columns.created'), t('admin.posts.columns.actions')].map(h => (
-                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted px-6 py-3 bg-[#fafafa]">{h}</th>
+                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted px-6 py-3 bg-surface-subtle">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {posts.map(p => (
-                      <tr key={p.id} className="border-b border-[#f9fafb] last:border-b-0 hover:bg-[#fafafa] transition-colors">
+                      <tr key={p.id} className="border-b border-surface-subtle last:border-b-0 hover:bg-surface-subtle transition-colors">
                         <td className="px-6 py-3.5 max-w-[280px]">
                           <div className="text-sm font-bold text-ink truncate">{p.title}</div>
                         </td>
@@ -1078,13 +1078,13 @@ export default function AdminPage() {
                   <thead>
                     <tr className="border-b border-hai-offwhite">
                       {[t('admin.logs.columns.timestamp'), t('admin.logs.columns.user'), t('admin.logs.columns.role'), t('admin.logs.columns.action'), t('admin.logs.columns.target'), t('admin.logs.columns.result'), t('admin.logs.columns.ip')].map(h => (
-                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted px-6 py-3 bg-[#fafafa]">{h}</th>
+                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted px-6 py-3 bg-surface-subtle">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {filteredLogs.map(log => (
-                      <tr key={log.id} className={`border-b border-[#f9fafb] last:border-b-0 transition-colors ${log.result === 'failure' ? 'bg-red-50/30' : 'hover:bg-[#fafafa]'}`}>
+                      <tr key={log.id} className={`border-b border-surface-subtle last:border-b-0 transition-colors ${log.result === 'failure' ? 'bg-red-50/30' : 'hover:bg-surface-subtle'}`}>
                         <td className="px-6 py-3 text-xs text-ink-muted whitespace-nowrap font-mono">
                           {new Date(log.timestamp).toLocaleString(uiLocale(), { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                         </td>
@@ -1096,7 +1096,7 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="px-6 py-3 text-xs text-ink-muted font-mono">
-                          {log.targetEntityId ?? <span className="text-[#d1d5db]">—</span>}
+                          {log.targetEntityId ?? <span className="text-ink-faint">—</span>}
                         </td>
                         <td className="px-6 py-3">
                           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${
@@ -1107,14 +1107,14 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="px-6 py-3 text-xs text-ink-muted font-mono whitespace-nowrap">
-                          {log.ipAddress ?? <span className="text-[#d1d5db]">—</span>}
+                          {log.ipAddress ?? <span className="text-ink-faint">—</span>}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <div className="px-6 py-3 border-t border-hai-offwhite flex items-center gap-2 bg-[#fafafa]">
+              <div className="px-6 py-3 border-t border-hai-offwhite flex items-center gap-2 bg-surface-subtle">
                 <Shield size={13} className="text-ink-muted" />
                 <span className="text-xs text-ink-muted font-semibold">{t('admin.logs.footerNotice')}</span>
               </div>

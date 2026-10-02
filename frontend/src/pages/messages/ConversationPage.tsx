@@ -136,13 +136,13 @@ export default function ConversationPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f6f8] flex flex-col">
+    <main className="min-h-screen bg-surface-subtle flex flex-col">
 
       {/* Top bar */}
-      <div className="sticky top-[76px] z-10 bg-white border-b border-[#e8e8ee] px-6 md:px-10 py-4 flex items-center gap-4">
+      <div className="sticky top-[76px] z-10 bg-white border-b border-line px-6 md:px-10 py-4 flex items-center gap-4">
         <button
           onClick={() => navigate('/messages')}
-          className="w-9 h-9 rounded-full border border-[#e8e8ee] flex items-center justify-center text-ink-muted hover:bg-[#f5f6f8] transition-colors shrink-0"
+          className="w-9 h-9 rounded-full border border-line flex items-center justify-center text-ink-muted hover:bg-surface-subtle transition-colors shrink-0"
         >
           <ArrowLeft size={16} />
         </button>
@@ -173,7 +173,7 @@ export default function ConversationPage() {
             onClick={() => setConfirmDelete(true)}
             title={t('chat.delete')}
             aria-label={t('chat.delete')}
-            className="w-9 h-9 rounded-full border border-[#e8e8ee] flex items-center justify-center text-ink-muted hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
+            className="w-9 h-9 rounded-full border border-line flex items-center justify-center text-ink-muted hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
           >
             <Trash2 size={15} />
           </button>
@@ -189,7 +189,7 @@ export default function ConversationPage() {
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
-              className="h-8 px-3 rounded-full border border-[#e8e8ee] text-xs font-bold text-ink-muted hover:bg-[#f5f6f8] transition-colors"
+              className="h-8 px-3 rounded-full border border-line text-xs font-bold text-ink-muted hover:bg-surface-subtle transition-colors"
             >
               {t('common.cancel')}
             </button>
@@ -227,7 +227,7 @@ export default function ConversationPage() {
       </div>
 
       {/* Input area */}
-      <div className="sticky bottom-0 bg-white border-t border-[#e8e8ee] px-6 md:px-10 py-4">
+      <div className="sticky bottom-0 bg-white border-t border-line px-6 md:px-10 py-4">
         <div className="mx-auto w-full max-w-[860px]">
           <div className="mb-2 flex items-center justify-between min-h-[18px]">
             {error
@@ -246,7 +246,7 @@ export default function ConversationPage() {
               rows={1}
               placeholder={t('chat.placeholder')}
               aria-label={t('chat.placeholder')}
-              className="flex-1 resize-none rounded-[16px] border border-[#e8e8ee] bg-[#f8f7fa] px-4 py-3 text-sm font-body text-ink placeholder:text-ink-muted outline-none focus:border-hai-focus focus:ring-2 focus:ring-[#55c7df]/20 transition-all max-h-[160px] overflow-y-auto"
+              className="flex-1 resize-none rounded-[16px] border border-line bg-surface-subtle px-4 py-3 text-sm font-body text-ink placeholder:text-ink-muted outline-none focus:border-hai-focus focus:ring-2 focus:ring-[#55c7df]/20 transition-all max-h-[160px] overflow-y-auto"
               onInput={e => {
                 const field = e.currentTarget
                 field.style.height = 'auto'
@@ -300,7 +300,7 @@ function MessageBubble({
         className={`max-w-[70%] px-4 py-3 rounded-[18px] text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm ${
           isMine
             ? 'bg-[#dff8ff] text-[#1a2535] border border-[#8fdff0] rounded-br-[4px]'
-            : 'bg-white text-ink border border-[#e8e8ee] rounded-bl-[4px]'
+            : 'bg-white text-ink border border-line rounded-bl-[4px]'
         }`}
       >
         {msg.content}

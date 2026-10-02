@@ -25,6 +25,9 @@
   --color-ink:          45 24 56;    /* #2D1838 primary text and headings */
   --color-ink-gray:     55 65 81;    /* #374151 body text (admin) */
   --color-ink-muted:    111 104 120; /* #6F6878 secondary text, 5.35:1 on white */
+  --color-ink-faint:    184 192 204; /* #B8C0CC decorative icons, disabled text, empty-value dashes */
+  --color-surface-subtle: 246 247 249; /* #F6F7F9 off-white panels, table heads, hover rows */
+  --color-surface-muted:  238 240 243; /* #EEF0F3 chips, hover fills, inactive tabs */
   --color-line:         227 231 236; /* #E3E7EC borders and dividers */
   --color-line-strong:  213 218 224; /* #D5DAE0 input borders */
   --color-teal-soft:    232 244 247; /* #E8F4F7 light teal surface */

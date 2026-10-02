@@ -68,8 +68,8 @@ export default function DomainPicker({ value, onChange, error, labelledBy }: Pro
         {t('posts.form.domainHint', { count: value.length, max: MAX_POST_DOMAINS })}
       </p>
 
-      <div className={`rounded-[10px] border bg-white ${error ? 'border-red-400' : 'border-[#d7dbe3]'}`}>
-        <label className="relative block border-b border-[#eef0f3]">
+      <div className={`rounded-[10px] border bg-white ${error ? 'border-red-400' : 'border-line-strong'}`}>
+        <label className="relative block border-b border-surface-muted">
           <span className="sr-only">{t('posts.form.domainSearch')}</span>
           <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
           <input

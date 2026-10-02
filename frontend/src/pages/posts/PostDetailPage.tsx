@@ -113,7 +113,7 @@ export default function PostDetailPage() {
 
   if (isFetching && !post) {
     return (
-      <main className="min-h-screen bg-[#f6f7f9] px-4 sm:px-8 py-20 text-hai-plum">
+      <main className="min-h-screen bg-surface-subtle px-4 sm:px-8 py-20 text-hai-plum">
         <div className="flex min-h-[40vh] items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-hai-plum/20 border-t-hai-plum" />
         </div>
@@ -123,7 +123,7 @@ export default function PostDetailPage() {
 
   if (!post || fetchError) {
     return (
-      <main className="min-h-screen bg-[#f6f7f9] px-4 sm:px-8 py-20 text-hai-plum">
+      <main className="min-h-screen bg-surface-subtle px-4 sm:px-8 py-20 text-hai-plum">
         <div className="mx-auto max-w-[760px] rounded-[18px] bg-white p-12 text-center shadow-[0_24px_80px_-68px_rgba(45,24,56,0.75)]">
           <h1 className="text-3xl font-black">
             {fetchError ? t('postDetail.loadFailedTitle') : t('postDetail.notFoundTitle')}
@@ -191,7 +191,7 @@ export default function PostDetailPage() {
         : null
 
   return (
-    <main className="min-h-screen bg-[#f6f7f9] text-hai-plum">
+    <main className="min-h-screen bg-surface-subtle text-hai-plum">
       <div className="mx-auto w-full max-w-[1120px] px-5 pb-14 pt-[42px] sm:px-8 xl:px-0">
         <div className="mb-[22px] flex items-center justify-between gap-2 sm:gap-4">
           <button
@@ -414,7 +414,7 @@ export default function PostDetailPage() {
                   [t('postDetail.listingExpiry'), formatDate(post.expiryDate, { day: 'numeric', month: 'short', year: 'numeric' }), <CalendarDays size={18} />],
                 ] as const).map(([label, value, icon]) => (
                   <div key={label} className="flex gap-4">
-                    <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-[#EEF0F3] text-[#6FB8C4]" aria-hidden="true">
+                    <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-surface-muted text-[#6FB8C4]" aria-hidden="true">
                       {icon}
                     </span>
                     <span>

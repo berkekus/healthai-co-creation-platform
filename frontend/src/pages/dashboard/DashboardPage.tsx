@@ -350,7 +350,7 @@ function RecentPostCard({ post, index, timeLabel }: { post: Post; index: number;
 
       <div className="flex items-center gap-4">
         <RecentPostStatusBadge status={post.status} />
-        <ChevronRight size={19} className="text-[#687294] transition group-hover:translate-x-0.5 group-hover:text-hai-teal-dark" />
+        <ChevronRight size={19} className="text-ink-muted transition group-hover:translate-x-0.5 group-hover:text-hai-teal-dark" />
       </div>
     </Link>
   )
@@ -361,7 +361,7 @@ function RecentPostStatusBadge({ status }: { status: Post['status'] }) {
   const config: Record<Post['status'], { label: string; className: string }> = {
     draft: {
       label: t('dashboard.status.draft'),
-      className: 'bg-[#EEF0F6] text-[#687294]',
+      className: 'bg-[#EEF0F6] text-ink-muted',
     },
     active: {
       label: t('dashboard.status.open', { defaultValue: 'Open' }),

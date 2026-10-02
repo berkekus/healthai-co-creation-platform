@@ -32,7 +32,7 @@ export default function PublicProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f5f6f8] flex items-center justify-center">
+      <div className="min-h-screen bg-surface-subtle flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-ink/20 border-t-ink rounded-full animate-spin" />
       </div>
     )
@@ -40,7 +40,7 @@ export default function PublicProfilePage() {
 
   if (notFound || !user) {
     return (
-      <div className="min-h-screen bg-[#f5f6f8] flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-surface-subtle flex flex-col items-center justify-center gap-4">
         <p className="text-ink font-bold text-[18px]">{t('publicProfile.notFound')}</p>
         <button onClick={() => navigate(-1)} className="text-[#3db8d8] font-semibold hover:underline">
           {t('publicProfile.goBack')}
@@ -54,14 +54,14 @@ export default function PublicProfilePage() {
   const roleLabel = t(`common.role.${user.role}`, { defaultValue: user.role })
 
   return (
-    <main className="min-h-screen bg-[#f5f6f8]">
+    <main className="min-h-screen bg-surface-subtle">
       <div className="mx-auto w-full max-w-[860px] px-6 pb-20 pt-[56px] md:px-10">
 
         <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[13.5px] font-bold text-ink-muted hover:text-ink transition-colors mb-8">
           <ArrowLeft size={15} strokeWidth={2} /> {t('publicProfile.back')}
         </button>
 
-        <div className="bg-white rounded-[24px] border border-[#e8e8ee] shadow-[0_24px_70px_-54px_rgba(45,24,56,0.3)] overflow-hidden">
+        <div className="bg-white rounded-[24px] border border-line shadow-[0_24px_70px_-54px_rgba(45,24,56,0.3)] overflow-hidden">
           <div className="h-24 bg-gradient-to-r from-[#dff8ff] via-[#c8e8f4] to-[#ddeef8]" />
 
           <div className="px-8 pb-8">
@@ -100,7 +100,7 @@ export default function PublicProfilePage() {
             )}
 
             {hasProfessionalDetails(user) && (
-              <div className="mb-6 rounded-2xl border border-[#e8e8ee] px-5 py-4">
+              <div className="mb-6 rounded-2xl border border-line px-5 py-4">
                 <div className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-ink-muted">{t('professional.title')}</div>
                 <ProfessionalDetails user={user} />
               </div>

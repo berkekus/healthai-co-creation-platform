@@ -47,7 +47,7 @@ export default function PostCreatePage() {
   const minDateStr = localDateInputValue(minDate)
 
   return (
-    <main className="min-h-screen bg-[#f6f7f9] text-ink">
+    <main className="min-h-screen bg-surface-subtle text-ink">
 
       {/* Progress bar — visible only during submission */}
       {isSubmitting && (
@@ -70,7 +70,7 @@ export default function PostCreatePage() {
         </button>
 
         <div className="mb-12">
-          <div className="mb-5 inline-flex rounded-full border border-[#cfd3dc] bg-white px-4 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ink-muted">
+          <div className="mb-5 inline-flex rounded-full border border-line-strong bg-white px-4 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ink-muted">
             {t('createPost.badge')}
           </div>
           <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-ink sm:text-6xl">

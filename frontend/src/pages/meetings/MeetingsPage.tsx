@@ -347,7 +347,7 @@ function FilterGroup<T extends string>({
               {showCounts && (
                 <span
                   className={`flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-xs font-black ${
-                    active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-[#EEF0F3] text-[var(--muted)]'
+                    active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-surface-muted text-[var(--muted)]'
                   }`}
                 >
                   {tab.count}
@@ -911,13 +911,13 @@ function CalendarPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
           {monthCursor.toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' })}
         </h2>
         <div className="flex items-center gap-1.5">
-          <button aria-label={t('meetingsPage.previousMonth')} onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() - 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#EEF0F3]">
+          <button aria-label={t('meetingsPage.previousMonth')} onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() - 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-surface-muted">
             <ChevronLeft size={16} />
           </button>
-          <button aria-label={t('meetingsPage.nextMonth')} onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() + 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#EEF0F3]">
+          <button aria-label={t('meetingsPage.nextMonth')} onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() + 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-surface-muted">
             <ChevronRight size={16} />
           </button>
-          <button aria-label={t('common.close')} onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#EEF0F3]">
+          <button aria-label={t('common.close')} onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-surface-muted">
             <X size={16} />
           </button>
         </div>
@@ -982,7 +982,7 @@ function OverviewPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
             </select>
             <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" />
           </label>
-          <button aria-label={t('common.close')} onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#EEF0F3]">
+          <button aria-label={t('common.close')} onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-surface-muted">
             <X size={16} />
           </button>
         </div>

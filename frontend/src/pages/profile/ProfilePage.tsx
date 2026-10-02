@@ -812,7 +812,7 @@ export default function ProfilePage() {
             ))}
           </nav>
 
-          <div className="profile-help-card rounded-2xl bg-[#EEF0F3] p-4">
+          <div className="profile-help-card rounded-2xl bg-surface-muted p-4">
             <div className="text-xs font-black text-hai-plum">{t('profile.help.title')}</div>
             <p className="mt-3 text-xs font-semibold leading-5 text-ink-muted">{t('profile.help.desc')}</p>
             <button className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-line-strong bg-white text-xs font-black text-hai-plum">
@@ -969,7 +969,7 @@ export default function ProfilePage() {
               )}
               <div className="flex flex-wrap gap-3">
                 {tags.length > 0 ? tags.map(tag => (
-                  <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-[#EEF0F3] px-4 py-1.5 text-xs font-bold text-hai-plum">
+                  <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-surface-muted px-4 py-1.5 text-xs font-bold text-hai-plum">
                     {tag}
                     {isEditing && <button type="button" onClick={() => setTags(prev => prev.filter(item => item !== tag))} aria-label={t('profile.removeTag', { tag })} className="text-sm">x</button>}
                   </span>

@@ -103,7 +103,7 @@ export default function RegisterPage() {
     `w-full py-3.5 rounded-[14px] border text-sm font-body text-ink placeholder:text-ink-muted bg-white outline-none transition-all duration-150 ${
       hasError
         ? 'border-red-400 ring-2 ring-red-100'
-        : 'border-[#dde2ea] focus:border-hai-focus focus:ring-2 focus:ring-[#3db8d8]/15'
+        : 'border-line-strong focus:border-hai-focus focus:ring-2 focus:ring-[#3db8d8]/15'
     }`
 
   return (
@@ -166,7 +166,7 @@ export default function RegisterPage() {
             <span className="text-sm text-ink-muted mr-3">{t('authPage.register.alreadyHave')}</span>
             <Link
               to={ROUTES.LOGIN}
-              className="px-4 py-2 rounded-full border border-[#dde2ea] text-sm font-bold text-ink hover:border-[#3db8d8] hover:text-[#3db8d8] transition-colors"
+              className="px-4 py-2 rounded-full border border-line-strong text-sm font-bold text-ink hover:border-[#3db8d8] hover:text-[#3db8d8] transition-colors"
             >
               {t('authPage.register.signIn')}
             </Link>
@@ -243,7 +243,7 @@ export default function RegisterPage() {
                         {t('authPage.register.firstNameLabel')} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint pointer-events-none">
                           <User size={15} strokeWidth={1.8} />
                         </span>
                         <input
@@ -281,7 +281,7 @@ export default function RegisterPage() {
                       <span className="text-xs font-bold tracking-[0.12em] uppercase text-ink-muted">{t('authPage.register.emailHint')}</span>
                     </div>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint pointer-events-none">
                         <Mail size={15} strokeWidth={1.8} />
                       </span>
                       <input
@@ -302,7 +302,7 @@ export default function RegisterPage() {
                       <span className="text-xs font-bold tracking-[0.12em] uppercase text-ink-muted">{t('authPage.register.passwordHint')}</span>
                     </div>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint pointer-events-none">
                         <Lock size={15} strokeWidth={1.8} />
                       </span>
                       <input
@@ -313,7 +313,7 @@ export default function RegisterPage() {
                         autoComplete="new-password"
                         className={`${inputCls(!!errors.password)} pl-11 pr-12`}
                       />
-                      <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7590] hover:text-hai-plum transition-colors" aria-label={showPassword ? t('authPage.register.hidePassword') : t('authPage.register.showPassword')}>
+                      <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-muted hover:text-hai-plum transition-colors" aria-label={showPassword ? t('authPage.register.hidePassword') : t('authPage.register.showPassword')}>
                         {showPassword ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
                       </button>
                     </div>
@@ -325,7 +325,7 @@ export default function RegisterPage() {
                       {t('authPage.register.confirmLabel')} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint pointer-events-none">
                         <Lock size={15} strokeWidth={1.8} />
                       </span>
                       <input
@@ -336,7 +336,7 @@ export default function RegisterPage() {
                         autoComplete="new-password"
                         className={`${inputCls(!!errors.confirm)} pl-11 pr-12`}
                       />
-                      <button type="button" onClick={() => setShowConfirm(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7590] hover:text-hai-plum transition-colors" aria-label={showConfirm ? t('authPage.register.hidePassword') : t('authPage.register.showPassword')}>
+                      <button type="button" onClick={() => setShowConfirm(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-muted hover:text-hai-plum transition-colors" aria-label={showConfirm ? t('authPage.register.hidePassword') : t('authPage.register.showPassword')}>
                         {showConfirm ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
                       </button>
                     </div>
@@ -382,7 +382,7 @@ export default function RegisterPage() {
                             aria-pressed={selected}
                             onClick={() => setValue('role', value, { shouldValidate: true })}
                             className={`text-left p-5 rounded-[18px] border-2 transition-all ${
-                              selected ? 'border-[#1c1230] bg-[#f6f4ff]' : 'border-[#dde2ea] bg-white hover:border-[#3db8d8]'
+                              selected ? 'border-[#1c1230] bg-[#f6f4ff]' : 'border-line-strong bg-white hover:border-[#3db8d8]'
                             }`}
                           >
                             <div className="flex items-center justify-between">
@@ -400,7 +400,7 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="flex gap-3">
-                    <button type="button" onClick={() => setStep(0)} className="flex-1 py-[15px] rounded-full border border-[#dde2ea] bg-white text-ink font-bold text-base hover:border-[#3db8d8] transition-colors font-headline">
+                    <button type="button" onClick={() => setStep(0)} className="flex-1 py-[15px] rounded-full border border-line-strong bg-white text-ink font-bold text-base hover:border-[#3db8d8] transition-colors font-headline">
                       {t('authPage.register.backBtn')}
                     </button>
                     <button type="button" onClick={nextStep} className="flex-[2] py-[15px] rounded-full bg-[#1c1230] text-white font-black text-base hover:bg-[#110b1e] transition-all shadow-[0_12px_30px_-10px_rgba(28,18,48,0.65)] font-headline">
@@ -419,7 +419,7 @@ export default function RegisterPage() {
                       {t('authPage.register.institutionLabel')} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint pointer-events-none">
                         <Building2 size={15} strokeWidth={1.8} />
                       </span>
                       <input
@@ -470,7 +470,7 @@ export default function RegisterPage() {
                         </svg>
                       )}
                     </div>
-                    <span className="text-sm text-[#6a7590] leading-relaxed font-body">
+                    <span className="text-sm text-ink-muted leading-relaxed font-body">
                       <Link
                         to={ROUTES.PRIVACY}
                         className="font-bold text-ink hover:text-[#3db8d8] transition-colors"
@@ -495,7 +495,7 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="flex gap-3 mt-2">
-                    <button type="button" onClick={() => setStep(preselectedRole ? 0 : 1)} className="flex-1 py-[15px] rounded-full border border-[#dde2ea] bg-white text-ink font-bold text-base hover:border-[#3db8d8] transition-colors font-headline">
+                    <button type="button" onClick={() => setStep(preselectedRole ? 0 : 1)} className="flex-1 py-[15px] rounded-full border border-line-strong bg-white text-ink font-bold text-base hover:border-[#3db8d8] transition-colors font-headline">
                       {t('authPage.register.backBtn')}
                     </button>
                     <button

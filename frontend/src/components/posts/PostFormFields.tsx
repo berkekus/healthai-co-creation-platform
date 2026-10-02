@@ -11,7 +11,7 @@ import DomainPicker from './DomainPicker'
 import api from '../../lib/api'
 
 const baseInput =
-  'h-14 w-full rounded-[10px] border border-[#d7dbe3] bg-white px-4 text-sm font-semibold text-ink outline-none transition placeholder:text-ink-muted focus:border-hai-focus focus:ring-4 focus:ring-[#66c8e7]/20'
+  'h-14 w-full rounded-[10px] border border-line-strong bg-white px-4 text-sm font-semibold text-ink outline-none transition placeholder:text-ink-muted focus:border-hai-focus focus:ring-4 focus:ring-[#66c8e7]/20'
 const baseSelect =
   `${baseInput} appearance-none pr-10`
 
@@ -236,7 +236,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
             ] as const).map(option => (
               <label
                 key={option.value}
-                className="group relative flex cursor-pointer items-center gap-4 rounded-[10px] border border-[#d7dbe3] bg-white p-4 transition has-[:checked]:border-[#66c8e7] has-[:checked]:bg-[#f2fbff]"
+                className="group relative flex cursor-pointer items-center gap-4 rounded-[10px] border border-line-strong bg-white p-4 transition has-[:checked]:border-[#66c8e7] has-[:checked]:bg-[#f2fbff]"
               >
                 <input {...register('confidentiality')} type="radio" value={option.value} className="peer sr-only" />
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eefaff] text-ink">
@@ -246,7 +246,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
                   <span className="block text-sm font-black text-ink">{option.title}</span>
                   <span className="mt-1 block text-xs font-semibold leading-5 text-ink-muted">{option.desc}</span>
                 </span>
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[#cfd3dc] transition group-has-[:checked]:border-[#66c8e7] group-has-[:checked]:bg-[#66c8e7]">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-line-strong transition group-has-[:checked]:border-[#66c8e7] group-has-[:checked]:bg-[#66c8e7]">
                   <svg className="hidden group-has-[:checked]:block" width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
                     <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>

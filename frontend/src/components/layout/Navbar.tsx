@@ -39,7 +39,7 @@ function NotifIcon({ type }: { type: NotificationType }) {
     case 'new_comment':
       return <span className={`${base} bg-hai-teal-soft`}><MessageSquare size={15} className="text-hai-teal" /></span>
     default:
-      return <span className={`${base} bg-[#EEF0F3]`}><Bell size={15} className="text-ink-muted" /></span>
+      return <span className={`${base} bg-surface-muted`}><Bell size={15} className="text-ink-muted" /></span>
   }
 }
 
@@ -75,7 +75,7 @@ function NotifDropdown({
       {/* Items */}
       {items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF0F3]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-muted">
             <Bell size={18} className="text-ink-muted" />
           </span>
           <p className="text-sm font-semibold text-ink-muted">{t('notif.empty')}</p>

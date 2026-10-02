@@ -92,7 +92,7 @@ export default function CommentsSection({ postId }: { postId: string }) {
       {/* Comment form */}
       <form onSubmit={handleSubmit} className="mb-6">
         {replyTo && (
-          <div className="mb-2 flex items-center gap-2 rounded-lg bg-[#F5F5F7] px-3 py-1.5 text-xs font-semibold text-ink-muted">
+          <div className="mb-2 flex items-center gap-2 rounded-lg bg-surface-subtle px-3 py-1.5 text-xs font-semibold text-ink-muted">
             <span aria-hidden="true" className="material-symbols-outlined text-sm">reply</span>
             {t('comments.replyingTo', 'Replying to')} <strong>{replyTo.name}</strong>
             <button type="button" onClick={() => setReplyTo(null)} aria-label={t('comments.cancelReply')} className="ml-auto text-ink-muted hover:text-hai-plum">
@@ -140,7 +140,7 @@ export default function CommentsSection({ postId }: { postId: string }) {
       ) : (
         <ul className="space-y-4">
           {topLevel.map(comment => (
-            <li key={comment.id} className="rounded-xl border border-[#E5E7EB] bg-white p-4">
+            <li key={comment.id} className="rounded-xl border border-line bg-white p-4">
               <div className="flex items-start gap-3">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-hai-mint">
                   {comment.authorName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
@@ -177,7 +177,7 @@ export default function CommentsSection({ postId }: { postId: string }) {
 
               {/* Replies */}
               {replies(comment.id).length > 0 && (
-                <ul className="ml-10 mt-3 space-y-3 border-l-2 border-[#E5E7EB] pl-4">
+                <ul className="ml-10 mt-3 space-y-3 border-l-2 border-line pl-4">
                   {replies(comment.id).map(reply => (
                     <li key={reply.id} className="flex items-start gap-3">
                       <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-hai-teal-soft text-xs font-black text-hai-teal">
@@ -213,7 +213,7 @@ export default function CommentsSection({ postId }: { postId: string }) {
           type="button"
           onClick={() => load(page + 1)}
           disabled={loading}
-          className="mt-4 w-full rounded-xl border border-line-strong py-2 text-sm font-black text-hai-plum hover:bg-[#F5F5F7] disabled:opacity-50"
+          className="mt-4 w-full rounded-xl border border-line-strong py-2 text-sm font-black text-hai-plum hover:bg-surface-subtle disabled:opacity-50"
         >
           {loading ? '…' : t('comments.loadMore', 'Load more comments')}
         </button>

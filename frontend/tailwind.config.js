@@ -25,7 +25,10 @@ export default {
           DEFAULT: 'rgb(var(--color-ink) / <alpha-value>)',
           gray:    'rgb(var(--color-ink-gray) / <alpha-value>)',
           muted:   'rgb(var(--color-ink-muted) / <alpha-value>)',
+          faint:   'rgb(var(--color-ink-faint) / <alpha-value>)',
         },
+        'surface-subtle': v('surface-subtle'),
+        'surface-muted': v('surface-muted'),
         line: {
           DEFAULT: 'rgb(var(--color-line) / <alpha-value>)',
           strong:  'rgb(var(--color-line-strong) / <alpha-value>)',
