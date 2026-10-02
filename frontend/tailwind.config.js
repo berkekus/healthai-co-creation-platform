@@ -1,3 +1,6 @@
+// A colour defined as a space-separated RGB variable in globals.css, usable with opacity modifiers.
+const v = (name) => `rgb(var(--color-${name}) / <alpha-value>)`
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -19,19 +22,46 @@ export default {
         'hai-teal-soft': 'rgb(var(--color-teal-soft) / <alpha-value>)',
         // Named app colours; values and roles are documented next to the variables in globals.css.
         ink: {
-          DEFAULT:      'rgb(var(--color-ink) / <alpha-value>)',
-          alt:          'rgb(var(--color-ink-alt) / <alpha-value>)',
-          gray:         'rgb(var(--color-ink-gray) / <alpha-value>)',
-          muted:        'rgb(var(--color-ink-muted) / <alpha-value>)',
-          'muted-alt':  'rgb(var(--color-ink-muted-alt) / <alpha-value>)',
-          'muted-gray': 'rgb(var(--color-ink-muted-gray) / <alpha-value>)',
+          DEFAULT: 'rgb(var(--color-ink) / <alpha-value>)',
+          gray:    'rgb(var(--color-ink-gray) / <alpha-value>)',
+          muted:   'rgb(var(--color-ink-muted) / <alpha-value>)',
         },
         line: {
           DEFAULT: 'rgb(var(--color-line) / <alpha-value>)',
           strong:  'rgb(var(--color-line-strong) / <alpha-value>)',
-          gray:    'rgb(var(--color-line-gray) / <alpha-value>)',
         },
         'admin-accent': 'rgb(var(--color-admin-accent) / <alpha-value>)',
+        // Badge tones, inline errors, admin states and role badges (see globals.css for values).
+        'tone-amber': v('tone-amber'),
+        'tone-amber-soft': v('tone-amber-soft'),
+        'tone-blue': v('tone-blue'),
+        'tone-blue-soft': v('tone-blue-soft'),
+        'tone-green': v('tone-green'),
+        'tone-green-soft': v('tone-green-soft'),
+        'tone-red': v('tone-red'),
+        'tone-red-soft': v('tone-red-soft'),
+        'tone-gray': v('tone-gray'),
+        'tone-gray-soft': v('tone-gray-soft'),
+        'error': v('error'),
+        'error-soft': v('error-soft'),
+        'error-line': v('error-line'),
+        'success': v('success'),
+        'success-dot': v('success-dot'),
+        'success-soft': v('success-soft'),
+        'success-wash': v('success-wash'),
+        'danger': v('danger'),
+        'danger-strong': v('danger-strong'),
+        'danger-dot': v('danger-dot'),
+        'danger-soft': v('danger-soft'),
+        'danger-line': v('danger-line'),
+        'danger-wash': v('danger-wash'),
+        'danger-tint': v('danger-tint'),
+        'warning': v('warning'),
+        'warning-soft': v('warning-soft'),
+        'role-clinician': v('role-clinician'),
+        'role-clinician-soft': v('role-clinician-soft'),
+        'role-engineer': v('role-engineer'),
+        'role-engineer-soft': v('role-engineer-soft'),
       },
       /**
        * Typography system — only two live families:

@@ -56,14 +56,14 @@ export default function ConversationsPage() {
           <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-ink md:text-7xl">
             {t('messagesPage.title')}
           </h1>
-          <p className="mt-4 max-w-[520px] text-base leading-7 text-ink-muted-alt">{t('messagesPage.desc')}</p>
+          <p className="mt-4 max-w-[520px] text-base leading-7 text-ink-muted">{t('messagesPage.desc')}</p>
         </div>
 
         {conversations.length === 0 ? (
           <div className="rounded-[24px] border border-[#e8e8ee] bg-white p-16 text-center shadow-[0_24px_70px_-54px_rgba(45,24,56,0.4)]">
             <MessageSquare size={40} className="mx-auto text-[#c5c0cc] mb-4" />
             <p className="font-headline text-xl font-black text-ink">{t('messagesPage.empty')}</p>
-            <p className="mt-2 text-sm text-ink-muted-alt">{t('messagesPage.emptyDesc')}</p>
+            <p className="mt-2 text-sm text-ink-muted">{t('messagesPage.emptyDesc')}</p>
           </div>
         ) : (
           <div className="rounded-[24px] border border-[#e8e8ee] bg-white shadow-[0_24px_70px_-54px_rgba(45,24,56,0.4)] overflow-hidden">
@@ -107,15 +107,15 @@ function ConversationRow({ conv, userId, isLast, onClick, onDelete }: {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-3 mb-1">
             <span className="font-headline font-black text-base text-ink truncate">{partner?.name ?? t('messagesPage.unknownPartner')}</span>
-            <span className="flex items-center gap-1 text-xs text-ink-muted-gray font-semibold shrink-0"><Clock size={11} />{timeAgo}</span>
+            <span className="flex items-center gap-1 text-xs text-ink-muted font-semibold shrink-0"><Clock size={11} />{timeAgo}</span>
           </div>
-          <p className="text-sm text-ink-muted-alt font-semibold truncate">{conv.postTitle}</p>
-          {conv.lastMessagePreview && <p className="text-xs text-ink-muted-gray truncate mt-0.5">{conv.lastMessagePreview}</p>}
+          <p className="text-sm text-ink-muted font-semibold truncate">{conv.postTitle}</p>
+          {conv.lastMessagePreview && <p className="text-xs text-ink-muted truncate mt-0.5">{conv.lastMessagePreview}</p>}
         </div>
       </button>
       <div className="shrink-0 flex items-center gap-2">
         {!confirm ? (
-          <button onClick={e => { e.stopPropagation(); setConfirm(true) }} title={t('messagesPage.deleteConv')} className="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted-gray hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
+          <button onClick={e => { e.stopPropagation(); setConfirm(true) }} title={t('messagesPage.deleteConv')} className="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
             <Trash2 size={14} />
           </button>
         ) : (
@@ -123,7 +123,7 @@ function ConversationRow({ conv, userId, isLast, onClick, onDelete }: {
             <button onClick={handleDelete} disabled={deleting} className="h-7 px-2.5 rounded-full bg-red-500 text-white text-xs font-bold hover:bg-red-600 disabled:opacity-50 transition-colors">
               {deleting ? '…' : t('messagesPage.delete')}
             </button>
-            <button onClick={e => { e.stopPropagation(); setConfirm(false) }} className="h-7 px-2.5 rounded-full border border-[#e8e8ee] text-xs font-bold text-ink-muted-alt hover:bg-[#f5f6f8] transition-colors">
+            <button onClick={e => { e.stopPropagation(); setConfirm(false) }} className="h-7 px-2.5 rounded-full border border-[#e8e8ee] text-xs font-bold text-ink-muted hover:bg-[#f5f6f8] transition-colors">
               {t('messagesPage.cancel')}
             </button>
           </>

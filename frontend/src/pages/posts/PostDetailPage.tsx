@@ -491,7 +491,7 @@ export default function PostDetailPage() {
 
 /** `lang` matters for untranslated text: uppercase follows the language's rules ("Midwifery" → "MİDWİFERY" in Turkish). */
 function Pill({ children, tone, lang }: { children: string; tone: 'blue' | 'green' | 'gray'; lang?: string }) {
-  const cls = tone === 'green' ? 'bg-[#DCF5E6] text-[#14532D]' : tone === 'blue' ? 'bg-hai-teal-soft text-[#1B6F7C]' : 'bg-[#EEF0F3] text-[#4B5563]'
+  const cls = tone === 'green' ? 'bg-tone-green-soft text-tone-green' : tone === 'blue' ? 'bg-hai-teal-soft text-[#1B6F7C]' : 'bg-tone-gray-soft text-tone-gray'
   return <span lang={lang} className={`rounded-full px-5 py-2 text-xs font-black uppercase tracking-normal ${cls}`}>{children}</span>
 }
 

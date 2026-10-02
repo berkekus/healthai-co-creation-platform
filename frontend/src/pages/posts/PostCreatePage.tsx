@@ -63,14 +63,14 @@ export default function PostCreatePage() {
         <button
           onClick={() => navigate(ROUTES.POSTS)}
           disabled={isSubmitting}
-          className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-ink-muted-alt transition hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
+          className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-ink-muted transition hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ArrowLeft size={16} />
           {t('createPost.backToDirectory')}
         </button>
 
         <div className="mb-12">
-          <div className="mb-5 inline-flex rounded-full border border-[#cfd3dc] bg-white px-4 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ink-muted-alt">
+          <div className="mb-5 inline-flex rounded-full border border-[#cfd3dc] bg-white px-4 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ink-muted">
             {t('createPost.badge')}
           </div>
           <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-ink sm:text-6xl">

@@ -244,7 +244,7 @@ export default function NotificationsPage() {
           </div>
 
           {showRefreshError && (
-            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F3D6D9] bg-[#FBF1F2] px-7 py-3 text-sm font-semibold text-[#9B3440]">
+            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 border-b border-error-line bg-error-soft px-7 py-3 text-sm font-semibold text-error">
               <span>{t('notificationsPage.refreshError')}</span>
               <button type="button" onClick={retry} className="font-black underline underline-offset-2 hover:text-hai-plum">
                 {t('notificationsPage.retry')}
@@ -269,7 +269,7 @@ export default function NotificationsPage() {
               </div>
             ) : showLoadError ? (
               <div role="alert" className="py-16 text-center">
-                <p className="text-sm font-semibold text-[#9B3440]">{t('notificationsPage.loadError')}</p>
+                <p className="text-sm font-semibold text-error">{t('notificationsPage.loadError')}</p>
                 <button
                   type="button"
                   onClick={retry}

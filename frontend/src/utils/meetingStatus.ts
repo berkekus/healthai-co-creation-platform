@@ -8,12 +8,12 @@ import type { Meeting, MeetingStatus } from '../types/meeting.types'
  * All pairs meet WCAG AA contrast for small bold text.
  */
 export const MEETING_STATUS_STYLE: Record<MeetingStatus, { className: string; icon: LucideIcon }> = {
-  pending:       { className: 'bg-[#FFF4D6] text-[#7A4B00]', icon: Hourglass },
-  time_proposed: { className: 'bg-[#E4ECFF] text-[#1E3A8A]', icon: CalendarClock },
-  confirmed:     { className: 'bg-[#DCF5E6] text-[#14532D]', icon: CalendarCheck },
+  pending:       { className: 'bg-tone-amber-soft text-tone-amber', icon: Hourglass },
+  time_proposed: { className: 'bg-tone-blue-soft text-tone-blue', icon: CalendarClock },
+  confirmed:     { className: 'bg-tone-green-soft text-tone-green', icon: CalendarCheck },
   completed:     { className: 'bg-hai-plum text-white', icon: CheckCheck },
-  declined:      { className: 'bg-[#FDE8E8] text-[#9B1C1C]', icon: XCircle },
-  cancelled:     { className: 'bg-[#EEF0F3] text-[#4B5563]', icon: Ban },
+  declined:      { className: 'bg-tone-red-soft text-tone-red', icon: XCircle },
+  cancelled:     { className: 'bg-tone-gray-soft text-tone-gray', icon: Ban },
 }
 
 /** Statuses in which the two sides can talk in the meeting's chat. */

@@ -624,12 +624,12 @@ function ConnectedAccounts({ user }: { user: User }) {
               data-provider={provider}
               className={`flex items-center gap-4 rounded-2xl border border-line-strong p-5 ${unavailable ? 'bg-[#F7F8FA]' : 'bg-white'}`}
             >
-              <svg className={`h-6 w-6 shrink-0 ${unavailable ? 'text-ink-muted-gray' : className}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <svg className={`h-6 w-6 shrink-0 ${unavailable ? 'text-ink-muted' : className}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d={path} />
               </svg>
               <div className="min-w-0">
                 <p className="text-sm font-black text-hai-plum">{PROVIDER_LABEL[provider]}</p>
-                <p className="truncate text-xs font-semibold text-ink-muted-gray">
+                <p className="truncate text-xs font-semibold text-ink-muted">
                   {connectedAs ?? (unavailable ? t('profile.connected.unavailable') : t('profile.connected.connectHint', { provider: PROVIDER_LABEL[provider] }))}
                 </p>
               </div>

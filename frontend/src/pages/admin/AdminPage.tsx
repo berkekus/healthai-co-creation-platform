@@ -90,7 +90,7 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
   ]
 
   return (
-    <aside className="group/sb flex flex-col bg-white border-r border-line-gray shrink-0 overflow-x-hidden w-[56px] hover:w-[220px] focus-within:w-[220px] lg:w-[220px] transition-all duration-200">
+    <aside className="group/sb flex flex-col bg-white border-r border-line shrink-0 overflow-x-hidden w-[56px] hover:w-[220px] focus-within:w-[220px] lg:w-[220px] transition-all duration-200">
       <nav className="flex-1 py-3 flex flex-col gap-0.5 px-2 overflow-y-auto overflow-x-hidden">
         {navItems.map(item => {
           const isActive = item.id === view
@@ -99,7 +99,7 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
           if (item.route) {
             return (
               <Link key={item.id} to={item.route}
-                className="flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-ink-muted-gray hover:bg-[#f5f5ff] hover:text-admin-accent transition-colors">
+                className="flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-ink-muted hover:bg-[#f5f5ff] hover:text-admin-accent transition-colors">
                 <span className="shrink-0">{item.icon}</span>
                 <span className="text-sm font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75">{item.label}</span>
               </Link>
@@ -113,7 +113,7 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
               className={`flex items-center gap-3 px-2.5 py-2.5 rounded-xl transition-colors w-full text-left ${
                 isActive     ? 'bg-[#eeecff] text-admin-accent'
                 : isDisabled ? 'text-[#c8ccd4] cursor-default'
-                : 'text-ink-muted-gray hover:bg-[#f5f5ff] hover:text-admin-accent'
+                : 'text-ink-muted hover:bg-[#f5f5ff] hover:text-admin-accent'
               }`}>
               <span className="shrink-0">{item.icon}</span>
               <span className="text-sm font-semibold whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75 flex-1">{item.label}</span>
@@ -131,13 +131,13 @@ function AdminSidebar({ view, onNavigate }: { view: AdminView; onNavigate: (v: A
       <div className="m-2 p-3 bg-[#f8f8ff] rounded-xl border border-[#eeeeff] overflow-hidden">
         <div className="flex items-center gap-2 mb-1">
           <Headphones size={16} strokeWidth={1.8} className="text-admin-accent shrink-0" />
-          <span className="text-xs font-black text-ink-alt whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75">{t('admin.sidebar.needHelp')}</span>
+          <span className="text-xs font-black text-ink whitespace-nowrap opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75">{t('admin.sidebar.needHelp')}</span>
         </div>
         <svg viewBox="0 0 80 24" className="w-full opacity-40 mb-2">
           <path d="M0,18 C10,14 15,20 25,12 C35,4 40,16 50,10 C60,4 70,14 80,8"
             fill="none" stroke="#4f46e5" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
-        <p className="w-[180px] text-xs text-ink-muted-gray leading-relaxed opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75 mb-2">
+        <p className="w-[180px] text-xs text-ink-muted leading-relaxed opacity-0 group-hover/sb:opacity-100 group-focus-within/sb:opacity-100 lg:opacity-100 transition-opacity duration-150 delay-75 mb-2">
           {t('admin.sidebar.supportBlurb')}
         </p>
         <a
@@ -157,17 +157,17 @@ function StatCard({ label, value, icon, iconBg, iconColor, change, up, vsLast7 }
   iconBg: string; iconColor: string; change: string; up: boolean | null; vsLast7: string
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-line-gray p-5">
+    <div className="bg-white rounded-2xl border border-line p-5">
       <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: iconBg }}>
           <span style={{ color: iconColor }}>{icon}</span>
         </div>
-        <div className="text-4xl font-black text-ink-alt leading-none">{value}</div>
+        <div className="text-4xl font-black text-ink leading-none">{value}</div>
       </div>
-      <div className="text-sm text-ink-muted-gray font-semibold mb-1.5">{label}</div>
-      <div className={`text-xs font-semibold ${up === true ? 'text-[#22c55e]' : up === false ? 'text-[#ef4444]' : 'text-ink-muted-gray'}`}>
+      <div className="text-sm text-ink-muted font-semibold mb-1.5">{label}</div>
+      <div className={`text-xs font-semibold ${up === true ? 'text-success-dot' : up === false ? 'text-danger-dot' : 'text-ink-muted'}`}>
         {up === true ? '↑' : up === false ? '↓' : '—'} {change}
-        <span className="text-ink-muted-gray font-normal ml-1">{vsLast7}</span>
+        <span className="text-ink-muted font-normal ml-1">{vsLast7}</span>
       </div>
     </div>
   )
@@ -271,25 +271,25 @@ function VerificationQueueTab() {
   return (
     <div className="p-3 sm:p-6">
       <div className="mb-5">
-        <h1 className="text-xl font-black text-ink-alt">{t('admin.verification.title')}</h1>
-        <p className="text-sm text-ink-muted-gray mt-0.5">{loading ? '…' : pending.length} {t('admin.verification.pending')}</p>
+        <h1 className="text-xl font-black text-ink">{t('admin.verification.title')}</h1>
+        <p className="text-sm text-ink-muted mt-0.5">{loading ? '…' : pending.length} {t('admin.verification.pending')}</p>
       </div>
-      <div className="bg-white rounded-2xl border border-line-gray overflow-hidden">
+      <div className="bg-white rounded-2xl border border-line overflow-hidden">
         {loading ? (
-          <div className="px-6 py-12 text-center text-sm text-ink-muted-gray">{t('admin.verification.loading')}</div>
+          <div className="px-6 py-12 text-center text-sm text-ink-muted">{t('admin.verification.loading')}</div>
         ) : pending.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <CheckCircle size={32} className="mx-auto text-[#22c55e] mb-3" />
+            <CheckCircle size={32} className="mx-auto text-success-dot mb-3" />
             <p className="text-sm font-semibold text-ink-gray">{t('admin.verification.noPending')}</p>
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-hai-offwhite bg-[#f9fafb]">
-                <th className="px-6 py-3 text-left text-xs font-black text-ink-muted-gray uppercase tracking-wide">{t('admin.verification.columns.user')}</th>
-                <th className="px-6 py-3 text-left text-xs font-black text-ink-muted-gray uppercase tracking-wide">{t('admin.verification.columns.role')}</th>
-                <th className="px-6 py-3 text-left text-xs font-black text-ink-muted-gray uppercase tracking-wide">{t('admin.verification.columns.institution')}</th>
-                <th className="px-6 py-3 text-left text-xs font-black text-ink-muted-gray uppercase tracking-wide">{t('admin.verification.columns.registered')}</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-ink-muted uppercase tracking-wide">{t('admin.verification.columns.user')}</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-ink-muted uppercase tracking-wide">{t('admin.verification.columns.role')}</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-ink-muted uppercase tracking-wide">{t('admin.verification.columns.institution')}</th>
+                <th className="px-6 py-3 text-left text-xs font-black text-ink-muted uppercase tracking-wide">{t('admin.verification.columns.registered')}</th>
                 <th className="px-6 py-3" />
               </tr>
             </thead>
@@ -297,20 +297,20 @@ function VerificationQueueTab() {
               {pending.map(u => (
                 <tr key={u.id} className="border-b border-hai-offwhite hover:bg-[#f9fafb] transition-colors">
                   <td className="px-6 py-3.5">
-                    <div className="font-semibold text-ink-alt">{u.name}</div>
-                    <div className="text-xs text-ink-muted-gray">{u.email}</div>
+                    <div className="font-semibold text-ink">{u.name}</div>
+                    <div className="text-xs text-ink-muted">{u.email}</div>
                   </td>
                   <td className="px-6 py-3.5">
-                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${u.role === 'healthcare_professional' ? 'bg-[#dbeafe] text-[#2563eb]' : 'bg-[#d1fae5] text-[#059669]'}`}>
+                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${u.role === 'healthcare_professional' ? 'bg-role-clinician-soft text-role-clinician' : 'bg-role-engineer-soft text-role-engineer'}`}>
                       {roleLabel(t, u.role)}
                     </span>
                   </td>
-                  <td className="px-6 py-3.5 text-ink-muted-gray max-w-[180px] truncate">{u.institution}</td>
-                  <td className="px-6 py-3.5 text-ink-muted-gray">{new Date(u.createdAt).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                  <td className="px-6 py-3.5 text-ink-muted max-w-[180px] truncate">{u.institution}</td>
+                  <td className="px-6 py-3.5 text-ink-muted">{new Date(u.createdAt).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                   <td className="px-6 py-3.5 text-right">
                     <button
                       onClick={() => handleVerify(u.id)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ink-alt text-white text-xs font-bold hover:bg-black transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ink text-white text-xs font-bold hover:bg-black transition-colors"
                     >
                       <UserCheck size={13} />
                       {t('admin.verification.verify')}
@@ -383,20 +383,20 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-black text-ink-alt">{t('admin.welcome')}</h1>
-          <p className="text-sm text-ink-muted-gray mt-0.5">{t('admin.subtitle')}</p>
+          <h1 className="text-xl font-black text-ink">{t('admin.welcome')}</h1>
+          <p className="text-sm text-ink-muted mt-0.5">{t('admin.subtitle')}</p>
         </div>
         <div className="relative">
           <button
             onClick={() => setShowDateMenu(v => !v)}
-            className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-line-gray text-sm font-semibold text-ink-gray hover:border-admin-accent transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-line text-sm font-semibold text-ink-gray hover:border-admin-accent transition-colors"
           >
-            <Calendar size={14} className="text-ink-muted-gray" />
+            <Calendar size={14} className="text-ink-muted" />
             {dateRange}
-            <ChevronDown size={13} className="text-ink-muted-gray" />
+            <ChevronDown size={13} className="text-ink-muted" />
           </button>
           {showDateMenu && (
-            <div className="absolute right-0 top-10 z-20 bg-white rounded-xl border border-line-gray shadow-lg overflow-hidden min-w-[130px]">
+            <div className="absolute right-0 top-10 z-20 bg-white rounded-xl border border-line shadow-lg overflow-hidden min-w-[130px]">
               {RANGE_OPTIONS.map(d => (
                 <button
                   key={d}
@@ -426,18 +426,18 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
         {/* LEFT */}
         <div className="flex-1 min-w-0 space-y-5">
           {/* User Growth card — compact */}
-          <div className="bg-white rounded-2xl border border-line-gray p-5">
+          <div className="bg-white rounded-2xl border border-line p-5">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-base font-black text-ink-alt">{t('admin.userGrowth')}</h3>
+              <h3 className="text-base font-black text-ink">{t('admin.userGrowth')}</h3>
               <div className="relative">
                 <button
                   onClick={() => setShowChartMenu(v => !v)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-line-gray text-xs font-semibold text-ink-muted-gray hover:border-admin-accent transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-line text-xs font-semibold text-ink-muted hover:border-admin-accent transition-colors"
                 >
                   {t('admin.lastNDays', { count: chartDays })} <ChevronDown size={12} />
                 </button>
                 {showChartMenu && (
-                  <div className="absolute right-0 top-9 z-20 bg-white rounded-xl border border-line-gray shadow-lg overflow-hidden min-w-[120px]">
+                  <div className="absolute right-0 top-9 z-20 bg-white rounded-xl border border-line shadow-lg overflow-hidden min-w-[120px]">
                     {CHART_OPTIONS.map(d => (
                       <button
                         key={d}
@@ -457,16 +457,16 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
           </div>
 
           {/* Recent Users */}
-          <div className="bg-white rounded-2xl border border-line-gray overflow-hidden">
+          <div className="bg-white rounded-2xl border border-line overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-hai-offwhite">
-              <h3 className="text-base font-black text-ink-alt">{t('admin.recentUsers')}</h3>
+              <h3 className="text-base font-black text-ink">{t('admin.recentUsers')}</h3>
               <button onClick={() => onNavigate('users')} className="text-sm font-bold text-admin-accent hover:underline">{t('admin.viewAllUsers')}</button>
             </div>
             <table className="w-full">
               <thead>
                 <tr className="border-b border-hai-offwhite">
                   {[t('admin.verification.columns.user'), t('admin.verification.columns.role'), t('admin.verification.columns.institution'), t('admin.posts.columns.status'), t('admin.posts.columns.created'), t('admin.posts.columns.actions')].map(h => (
-                    <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted-gray px-6 py-3 bg-[#fafafa]">{h}</th>
+                    <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted px-6 py-3 bg-[#fafafa]">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -479,30 +479,30 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-[#e0e7ff] flex items-center justify-center text-xs font-black text-admin-accent shrink-0">{initials}</div>
                           <div className="min-w-0">
-                            <div className="text-sm font-bold text-ink-alt truncate">{u.name}</div>
-                            <div className="text-xs text-ink-muted-gray truncate">{u.email}</div>
+                            <div className="text-sm font-bold text-ink truncate">{u.name}</div>
+                            <div className="text-xs text-ink-muted truncate">{u.email}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-3.5">
                         <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${
-                          u.role === 'healthcare_professional' ? 'bg-[#dbeafe] text-[#2563eb]' : 'bg-[#d1fae5] text-[#059669]'
+                          u.role === 'healthcare_professional' ? 'bg-role-clinician-soft text-role-clinician' : 'bg-role-engineer-soft text-role-engineer'
                         }`}>{roleLabel(t, u.role)}</span>
                       </td>
-                      <td className="px-6 py-3.5 text-sm text-ink-muted-gray max-w-[160px] truncate">{u.institution}</td>
+                      <td className="px-6 py-3.5 text-sm text-ink-muted max-w-[160px] truncate">{u.institution}</td>
                       <td className="px-6 py-3.5">
-                        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${u.isSuspended ? 'text-[#ef4444]' : 'text-[#22c55e]'}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${u.isSuspended ? 'bg-[#ef4444]' : 'bg-[#22c55e]'}`} />
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${u.isSuspended ? 'text-danger-dot' : 'text-success-dot'}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${u.isSuspended ? 'bg-danger-dot' : 'bg-success-dot'}`} />
                           {u.isSuspended ? t('admin.users.suspended') : t('admin.users.active')}
                         </span>
                       </td>
-                      <td className="px-6 py-3.5 text-sm text-ink-muted-gray">
+                      <td className="px-6 py-3.5 text-sm text-ink-muted">
                         {new Date(u.createdAt).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short', year: 'numeric' })}
                       </td>
                       <td className="px-6 py-3.5">
                         <button
                           onClick={() => onNavigate('users')}
-                          className="p-1.5 rounded-lg hover:bg-hai-offwhite text-ink-muted-gray hover:text-admin-accent transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-hai-offwhite text-ink-muted hover:text-admin-accent transition-colors"
                           title={t('admin.manageUser')}
                         >
                           <span className="text-lg leading-none">⋯</span>
@@ -513,7 +513,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                 })}
               </tbody>
             </table>
-            <div className="px-6 py-3.5 border-t border-hai-offwhite flex items-center justify-between text-xs text-ink-muted-gray">
+            <div className="px-6 py-3.5 border-t border-hai-offwhite flex items-center justify-between text-xs text-ink-muted">
               <span>
                 {t('admin.showingUsersRange', { from: Math.min((overviewPage - 1) * PAGE_SIZE + 1, totalUsers), to: Math.min(overviewPage * PAGE_SIZE, totalUsers), total: totalUsers })}
               </span>
@@ -521,7 +521,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                 <button
                   onClick={() => setOverviewPage(p => Math.max(1, p - 1))}
                   disabled={overviewPage === 1}
-                  className="w-7 h-7 rounded border border-line-gray flex items-center justify-center text-xs hover:border-admin-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="w-7 h-7 rounded border border-line flex items-center justify-center text-xs hover:border-admin-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >‹</button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                   <button
@@ -529,15 +529,15 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                     onClick={() => setOverviewPage(page)}
                     className={`w-7 h-7 rounded border flex items-center justify-center text-xs transition-colors ${
                       page === overviewPage
-                        ? 'bg-ink-alt text-white border-ink-alt font-bold'
-                        : 'border-line-gray text-ink-gray hover:border-admin-accent'
+                        ? 'bg-ink text-white border-ink font-bold'
+                        : 'border-line text-ink-gray hover:border-admin-accent'
                     }`}
                   >{page}</button>
                 ))}
                 <button
                   onClick={() => setOverviewPage(p => Math.min(totalPages, p + 1))}
                   disabled={overviewPage === totalPages}
-                  className="w-7 h-7 rounded border border-line-gray flex items-center justify-center text-xs hover:border-admin-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="w-7 h-7 rounded border border-line flex items-center justify-center text-xs hover:border-admin-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >›</button>
               </div>
             </div>
@@ -545,10 +545,10 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
         </div>
 
         {/* RIGHT PANEL — single card with dividers */}
-        <div className="w-[272px] shrink-0 bg-white rounded-2xl border border-line-gray overflow-hidden">
+        <div className="w-[272px] shrink-0 bg-white rounded-2xl border border-line overflow-hidden">
           {/* Quick Actions */}
           <div className="px-5 pt-5 pb-4">
-            <h3 className="text-sm font-black text-ink-alt mb-3">{t('admin.quickActions')}</h3>
+            <h3 className="text-sm font-black text-ink mb-3">{t('admin.quickActions')}</h3>
             <div className="space-y-1">
               {quickActions.map(a => (
                 <button key={a.label} onClick={a.onClick}
@@ -571,7 +571,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
           {stats && (
             <>
               <div className="px-5 py-4">
-                <h3 className="text-sm font-black text-ink-alt mb-3">{t('admin.topDomains')}</h3>
+                <h3 className="text-sm font-black text-ink mb-3">{t('admin.topDomains')}</h3>
                 <div className="space-y-2">
                   {stats.postsByDomain.slice(0, 5).map(({ domain, count }) => {
                     const max = stats.postsByDomain[0]?.count ?? 1
@@ -580,7 +580,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                       <div key={domain}>
                         <div className="flex justify-between text-xs mb-0.5">
                           <span className="font-semibold text-ink-gray truncate max-w-[160px]">{domain}</span>
-                          <span className="text-ink-muted-gray font-bold ml-2">{count}</span>
+                          <span className="text-ink-muted font-bold ml-2">{count}</span>
                         </div>
                         <div className="h-1.5 bg-[#f0f1f3] rounded-full overflow-hidden">
                           <div className="h-full bg-admin-accent rounded-full" style={{ width: `${pct}%` }} />
@@ -592,12 +592,12 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
               </div>
               <div className="border-t border-hai-offwhite" />
               <div className="px-5 py-4">
-                <h3 className="text-sm font-black text-ink-alt mb-2.5">{t('admin.usersByRole')}</h3>
+                <h3 className="text-sm font-black text-ink mb-2.5">{t('admin.usersByRole')}</h3>
                 <div className="space-y-1.5">
                   {Object.entries(stats.usersByRole).filter(([r]) => r !== 'admin').map(([role, count]) => (
                     <div key={role} className="flex items-center justify-between text-xs">
                       <span className="font-semibold text-ink-gray">{roleLabel(t, role)}</span>
-                      <span className={`px-2 py-0.5 rounded-full font-bold ${role === 'healthcare_professional' ? 'bg-[#dbeafe] text-[#2563eb]' : 'bg-[#d1fae5] text-[#059669]'}`}>{count}</span>
+                      <span className={`px-2 py-0.5 rounded-full font-bold ${role === 'healthcare_professional' ? 'bg-role-clinician-soft text-role-clinician' : 'bg-role-engineer-soft text-role-engineer'}`}>{count}</span>
                     </div>
                   ))}
                 </div>
@@ -608,15 +608,15 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
 
           {/* System Status */}
           <div className="px-5 py-4">
-            <h3 className="text-sm font-black text-ink-alt mb-2.5">{t('admin.systemStatus')}</h3>
+            <h3 className="text-sm font-black text-ink mb-2.5">{t('admin.systemStatus')}</h3>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CheckCircle size={15} className="text-[#22c55e]" />
-                <span className="text-xs font-semibold text-[#22c55e]">{t('admin.allOperational')}</span>
+                <CheckCircle size={15} className="text-success-dot" />
+                <span className="text-xs font-semibold text-success-dot">{t('admin.allOperational')}</span>
               </div>
               <MiniSparkline />
             </div>
-            <p className="text-xs text-ink-muted-gray mt-1.5">{t('admin.lastChecked')}</p>
+            <p className="text-xs text-ink-muted mt-1.5">{t('admin.lastChecked')}</p>
           </div>
 
           <div className="border-t border-hai-offwhite" />
@@ -624,7 +624,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
           {/* Recent Activity */}
           <div className="px-5 py-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-black text-ink-alt">{t('admin.recentActivity')}</h3>
+              <h3 className="text-sm font-black text-ink">{t('admin.recentActivity')}</h3>
               <button onClick={() => onNavigate('logs')} className="text-xs font-bold text-admin-accent hover:underline">{t('admin.viewAll')}</button>
             </div>
             <div className="space-y-3">
@@ -637,13 +637,13 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-xs font-semibold text-ink-gray leading-snug capitalize">{log.action.replace(/_/g, ' ')}</div>
-                      <div className="text-xs text-ink-muted-gray truncate">{log.userEmail}</div>
+                      <div className="text-xs text-ink-muted truncate">{log.userEmail}</div>
                     </div>
-                    <span className="text-xs text-ink-muted-gray whitespace-nowrap shrink-0">{timeAgo(log.timestamp, t)}</span>
+                    <span className="text-xs text-ink-muted whitespace-nowrap shrink-0">{timeAgo(log.timestamp, t)}</span>
                   </div>
                 )
               }) : (
-                <p className="text-sm text-ink-muted-gray">{t('admin.noRecentActivity')}</p>
+                <p className="text-sm text-ink-muted">{t('admin.noRecentActivity')}</p>
               )}
             </div>
           </div>
@@ -792,7 +792,7 @@ export default function AdminPage() {
 
   const totalNonAdmin = users.filter(u => u.role !== 'admin').length
   const failedLogins = logs.filter(l => l.action === 'login_failed' || l.action === 'register_failed').length
-  const selectCls = 'bg-white border border-line-gray rounded-xl px-3 py-2 text-sm text-ink-gray font-semibold outline-none focus:border-admin-accent focus:ring-2 focus:ring-admin-accent/20 transition-colors cursor-pointer'
+  const selectCls = 'bg-white border border-line rounded-xl px-3 py-2 text-sm text-ink-gray font-semibold outline-none focus:border-admin-accent focus:ring-2 focus:ring-admin-accent/20 transition-colors cursor-pointer'
 
   const mobileNavItems: { id: AdminView; label: string; icon: React.ReactNode }[] = [
     { id: 'overview',     label: t('admin.tabsShort.overview'),     icon: <LayoutDashboard size={18} strokeWidth={1.8} /> },
@@ -810,7 +810,7 @@ export default function AdminPage() {
       </div>
 
       {/* Mobile top tab bar — only visible below md */}
-      <nav className="md:hidden flex items-center gap-0.5 overflow-x-auto bg-white border-b border-line-gray px-2 py-2 shrink-0">
+      <nav className="md:hidden flex items-center gap-0.5 overflow-x-auto bg-white border-b border-line px-2 py-2 shrink-0">
         {mobileNavItems.map(item => (
           <button
             key={item.id}
@@ -818,7 +818,7 @@ export default function AdminPage() {
             className={`flex flex-col items-center gap-1 min-w-[60px] px-3 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
               view === item.id
                 ? 'bg-[#eeecff] text-admin-accent'
-                : 'text-ink-muted-gray hover:bg-[#f5f5ff] hover:text-admin-accent'
+                : 'text-ink-muted hover:bg-[#f5f5ff] hover:text-admin-accent'
             }`}
           >
             {item.icon}
@@ -849,37 +849,37 @@ export default function AdminPage() {
           <div className="p-3 sm:p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h1 className="text-xl font-black text-ink-alt">{t('admin.users.title')}</h1>
-                <p className="text-sm text-ink-muted-gray">{t('admin.users.registeredCount', { count: totalNonAdmin })}</p>
+                <h1 className="text-xl font-black text-ink">{t('admin.users.title')}</h1>
+                <p className="text-sm text-ink-muted">{t('admin.users.registeredCount', { count: totalNonAdmin })}</p>
               </div>
             </div>
             {suspendError && (
-              <div role="alert" className="mb-4 flex items-start justify-between gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm font-semibold text-[#b91c1c]">
+              <div role="alert" className="mb-4 flex items-start justify-between gap-3 rounded-xl border border-danger-line bg-danger-tint px-4 py-3 text-sm font-semibold text-danger-strong">
                 <span>{suspendError}</span>
-                <button type="button" onClick={() => setSuspendError(null)} aria-label={t('common.close')} className="shrink-0 text-[#b91c1c] hover:text-[#7f1d1d]">
+                <button type="button" onClick={() => setSuspendError(null)} aria-label={t('common.close')} className="shrink-0 text-danger-strong hover:text-[#7f1d1d]">
                   <X size={16} />
                 </button>
               </div>
             )}
-            <div className="bg-white rounded-2xl border border-line-gray overflow-hidden">
+            <div className="bg-white rounded-2xl border border-line overflow-hidden">
               <div className="px-6 py-4 border-b border-hai-offwhite flex items-center gap-3 flex-wrap">
                 <div className="relative flex-1 min-w-[220px]">
-                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-muted-gray" />
+                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-muted" />
                   <input ref={userSearchRef} type="search" value={userQuery} onChange={e => setUserQuery(e.target.value)}
                     placeholder={t('admin.users.searchPlaceholder')}
                     aria-label={t('admin.users.searchPlaceholder')}
                     aria-keyshortcuts="/"
-                    className="w-full bg-[#f8f9fb] border border-line-gray rounded-xl pl-10 pr-10 py-2.5 text-sm text-ink-gray outline-none focus:border-admin-accent focus:ring-2 focus:ring-admin-accent/20 transition-colors" />
-                  <kbd aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-[#d1d5db] bg-white px-1.5 font-mono text-xs text-ink-muted-gray">/</kbd>
+                    className="w-full bg-[#f8f9fb] border border-line rounded-xl pl-10 pr-10 py-2.5 text-sm text-ink-gray outline-none focus:border-admin-accent focus:ring-2 focus:ring-admin-accent/20 transition-colors" />
+                  <kbd aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-[#d1d5db] bg-white px-1.5 font-mono text-xs text-ink-muted">/</kbd>
                 </div>
-                <span className="text-xs text-ink-muted-gray font-semibold">{t('admin.users.shownCount', { shown: filteredUsers.length, total: totalNonAdmin })}</span>
+                <span className="text-xs text-ink-muted font-semibold">{t('admin.users.shownCount', { shown: filteredUsers.length, total: totalNonAdmin })}</span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[820px]">
                   <thead>
                     <tr className="border-b border-hai-offwhite">
                       {[t('admin.users.columns.user'), t('admin.users.columns.role'), t('admin.users.columns.institution'), t('admin.users.columns.status'), t('admin.users.columns.lastActive'), t('admin.users.columns.actions')].map(h => (
-                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted-gray px-6 py-3 bg-[#fafafa]">{h}</th>
+                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted px-6 py-3 bg-[#fafafa]">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -892,37 +892,37 @@ export default function AdminPage() {
                             <div className="flex items-center gap-3">
                               <div className="w-9 h-9 rounded-full bg-[#e0e7ff] flex items-center justify-center text-xs font-black text-admin-accent shrink-0">{initials}</div>
                               <div className="min-w-0">
-                                <div className="text-sm font-bold text-ink-alt truncate">{u.name}</div>
-                                <div className="text-xs text-ink-muted-gray truncate">{u.email}</div>
+                                <div className="text-sm font-bold text-ink truncate">{u.name}</div>
+                                <div className="text-xs text-ink-muted truncate">{u.email}</div>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-3.5">
                             <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${
-                              u.role === 'healthcare_professional' ? 'bg-[#dbeafe] text-[#2563eb]' : 'bg-[#d1fae5] text-[#059669]'
+                              u.role === 'healthcare_professional' ? 'bg-role-clinician-soft text-role-clinician' : 'bg-role-engineer-soft text-role-engineer'
                             }`}>{roleLabel(t, u.role)}</span>
                           </td>
-                          <td className="px-6 py-3.5 text-sm text-ink-muted-gray max-w-[180px] truncate">{u.institution}</td>
+                          <td className="px-6 py-3.5 text-sm text-ink-muted max-w-[180px] truncate">{u.institution}</td>
                           <td className="px-6 py-3.5">
-                            <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${u.isSuspended ? 'text-[#ef4444]' : 'text-[#22c55e]'}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${u.isSuspended ? 'bg-[#ef4444]' : 'bg-[#22c55e]'}`} />
+                            <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${u.isSuspended ? 'text-danger-dot' : 'text-success-dot'}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${u.isSuspended ? 'bg-danger-dot' : 'bg-success-dot'}`} />
                               {u.isSuspended ? t('admin.users.suspended') : t('admin.users.active')}
                             </span>
                           </td>
-                          <td className="px-6 py-3.5 text-xs text-ink-muted-gray">
+                          <td className="px-6 py-3.5 text-xs text-ink-muted">
                             {new Date(u.lastActive).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' })}
                           </td>
                           <td className="px-6 py-3.5">
                             <div className="flex items-center gap-2">
                               <button onClick={() => handleSuspend(u.id)} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
-                                u.isSuspended ? 'border-[#d1fae5] bg-[#f0fdf4] text-[#059669] hover:bg-[#d1fae5]'
-                                : 'border-[#fee2e2] bg-[#fff7f7] text-[#dc2626] hover:bg-[#fee2e2]'
+                                u.isSuspended ? 'border-success-soft bg-success-wash text-success hover:bg-success-soft'
+                                : 'border-danger-soft bg-danger-wash text-danger hover:bg-danger-soft'
                               }`}>
                                 {u.isSuspended ? <UserCheck size={13} /> : <UserMinus size={13} />}
                                 {u.isSuspended ? t('admin.users.reinstate') : t('admin.users.suspend')}
                               </button>
                               <button onClick={() => { setDeleteUserError(null); setUserToDelete({ id: u.id, name: u.name }) }}
-                                className="p-1.5 rounded-lg border border-[#fee2e2] text-[#dc2626] hover:bg-[#fee2e2] transition-colors" title={t('admin.users.delete')}>
+                                className="p-1.5 rounded-lg border border-danger-soft text-danger hover:bg-danger-soft transition-colors" title={t('admin.users.delete')}>
                                 <Trash2 size={14} />
                               </button>
                             </div>
@@ -936,15 +936,15 @@ export default function AdminPage() {
               {filteredUsers.length > USERS_PAGE_SIZES[0] && (
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hai-offwhite px-6 py-3">
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="text-xs text-ink-muted-gray font-semibold">
+                    <span className="text-xs text-ink-muted font-semibold">
                       {t('admin.users.pageRange', { from: (usersCurrentPage - 1) * usersPerPage + 1, to: Math.min(filteredUsers.length, usersCurrentPage * usersPerPage), total: filteredUsers.length })}
                     </span>
-                    <label className="flex items-center gap-2 text-xs font-semibold text-ink-muted-gray">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-ink-muted">
                       {t('admin.users.perPage')}
                       <select
                         value={usersPerPage}
                         onChange={e => changeUsersPerPage(Number(e.target.value))}
-                        className="rounded-lg border border-line-gray bg-white px-2 py-1 text-xs font-bold text-ink-gray outline-none focus:border-admin-accent focus:ring-2 focus:ring-admin-accent/20"
+                        className="rounded-lg border border-line bg-white px-2 py-1 text-xs font-bold text-ink-gray outline-none focus:border-admin-accent focus:ring-2 focus:ring-admin-accent/20"
                       >
                         {USERS_PAGE_SIZES.map(size => <option key={size} value={size}>{size}</option>)}
                       </select>
@@ -956,7 +956,7 @@ export default function AdminPage() {
                         onClick={() => setUsersPage(p => Math.max(1, p - 1))}
                         disabled={usersCurrentPage === 1}
                         aria-label={t('admin.users.previousPage')}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-line-gray text-ink-gray transition hover:border-admin-accent hover:text-admin-accent disabled:cursor-not-allowed disabled:opacity-40"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-gray transition hover:border-admin-accent hover:text-admin-accent disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <ChevronDown size={14} className="rotate-90" />
                       </button>
@@ -968,7 +968,7 @@ export default function AdminPage() {
                           className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-xs font-black transition ${
                             p === usersCurrentPage
                               ? 'bg-admin-accent text-white'
-                              : 'border border-line-gray text-ink-gray hover:border-admin-accent hover:text-admin-accent'
+                              : 'border border-line text-ink-gray hover:border-admin-accent hover:text-admin-accent'
                           }`}
                         >
                           {p}
@@ -978,7 +978,7 @@ export default function AdminPage() {
                         onClick={() => setUsersPage(p => Math.min(usersTotalPages, p + 1))}
                         disabled={usersCurrentPage === usersTotalPages}
                         aria-label={t('admin.users.nextPage')}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-line-gray text-ink-gray transition hover:border-admin-accent hover:text-admin-accent disabled:cursor-not-allowed disabled:opacity-40"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-gray transition hover:border-admin-accent hover:text-admin-accent disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <ChevronDown size={14} className="-rotate-90" />
                       </button>
@@ -994,16 +994,16 @@ export default function AdminPage() {
         {view === 'posts' && (
           <div className="p-3 sm:p-6">
             <div className="mb-5">
-              <h1 className="text-xl font-black text-ink-alt">{t('admin.posts.title')}</h1>
-              <p className="text-sm text-ink-muted-gray">{t('admin.posts.totalCount', { count: posts.length })}</p>
+              <h1 className="text-xl font-black text-ink">{t('admin.posts.title')}</h1>
+              <p className="text-sm text-ink-muted">{t('admin.posts.totalCount', { count: posts.length })}</p>
             </div>
-            <div className="bg-white rounded-2xl border border-line-gray overflow-hidden">
+            <div className="bg-white rounded-2xl border border-line overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[820px]">
                   <thead>
                     <tr className="border-b border-hai-offwhite">
                       {[t('admin.posts.columns.title'), t('admin.posts.columns.author'), t('admin.posts.columns.domain'), t('admin.posts.columns.status'), t('admin.posts.columns.created'), t('admin.posts.columns.actions')].map(h => (
-                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted-gray px-6 py-3 bg-[#fafafa]">{h}</th>
+                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted px-6 py-3 bg-[#fafafa]">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -1011,26 +1011,26 @@ export default function AdminPage() {
                     {posts.map(p => (
                       <tr key={p.id} className="border-b border-[#f9fafb] last:border-b-0 hover:bg-[#fafafa] transition-colors">
                         <td className="px-6 py-3.5 max-w-[280px]">
-                          <div className="text-sm font-bold text-ink-alt truncate">{p.title}</div>
+                          <div className="text-sm font-bold text-ink truncate">{p.title}</div>
                         </td>
-                        <td className="px-6 py-3.5 text-sm text-ink-muted-gray">{p.authorName}</td>
+                        <td className="px-6 py-3.5 text-sm text-ink-muted">{p.authorName}</td>
                         <td className="px-6 py-3.5">
                           <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-bold bg-[#eef3ff] text-admin-accent">{p.domain}</span>
                         </td>
                         <td className="px-6 py-3.5">
                           <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${
-                            p.status === 'active'               ? 'bg-[#d1fae5] text-[#059669]'
+                            p.status === 'active'               ? 'bg-success-soft text-success'
                             : p.status === 'partner_found'     ? 'bg-[#ede9fe] text-[#7c3aed]'
-                            : p.status === 'meeting_scheduled' ? 'bg-[#fef3c7] text-[#d97706]'
-                            : 'bg-hai-offwhite text-ink-muted-gray'
+                            : p.status === 'meeting_scheduled' ? 'bg-warning-soft text-warning'
+                            : 'bg-hai-offwhite text-ink-muted'
                           }`}>{t(`posts.status.${p.status}`, { defaultValue: p.status.replace(/_/g, ' ') })}</span>
                         </td>
-                        <td className="px-6 py-3.5 text-xs text-ink-muted-gray">
+                        <td className="px-6 py-3.5 text-xs text-ink-muted">
                           {new Date(p.createdAt).toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' })}
                         </td>
                         <td className="px-6 py-3.5">
                           <button onClick={() => { setRemoveError(null); setPostToRemove({ id: p.id, title: p.title, authorId: p.authorId }) }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#fee2e2] bg-[#fff7f7] text-[#dc2626] text-xs font-bold hover:bg-[#fee2e2] transition-colors">
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-danger-soft bg-danger-wash text-danger text-xs font-bold hover:bg-danger-soft transition-colors">
                             <Trash2 size={13} /> {t('admin.posts.remove')}
                           </button>
                         </td>
@@ -1047,10 +1047,10 @@ export default function AdminPage() {
         {view === 'logs' && (
           <div className="p-3 sm:p-6">
             <div className="mb-5">
-              <h1 className="text-xl font-black text-ink-alt">{t('admin.logs.title')}</h1>
-              <p className="text-sm text-ink-muted-gray">{t('admin.logs.subtitle')}</p>
+              <h1 className="text-xl font-black text-ink">{t('admin.logs.title')}</h1>
+              <p className="text-sm text-ink-muted">{t('admin.logs.subtitle')}</p>
             </div>
-            <div className="bg-white rounded-2xl border border-line-gray overflow-hidden">
+            <div className="bg-white rounded-2xl border border-line overflow-hidden">
               <div className="px-6 py-4 border-b border-hai-offwhite flex items-center gap-3 flex-wrap">
                 <select value={logAction} onChange={e => setLogAction(e.target.value)} className={selectCls}>
                   <option value="">{t('admin.logs.allActions')}</option>
@@ -1063,13 +1063,13 @@ export default function AdminPage() {
                 </select>
                 {(logAction || logResult) && (
                   <button onClick={() => { setLogAction(''); setLogResult('') }}
-                    className="flex items-center gap-1 text-xs font-bold text-ink-muted-gray hover:text-ink-gray transition-colors">
+                    className="flex items-center gap-1 text-xs font-bold text-ink-muted hover:text-ink-gray transition-colors">
                     <X size={13} /> {t('admin.logs.clear')}
                   </button>
                 )}
-                <span className="text-xs text-ink-muted-gray font-semibold">{logsLoading ? t('admin.verification.loading') : t('admin.logs.entryCount', { shown: filteredLogs.length, total: logs.length })}</span>
+                <span className="text-xs text-ink-muted font-semibold">{logsLoading ? t('admin.verification.loading') : t('admin.logs.entryCount', { shown: filteredLogs.length, total: logs.length })}</span>
                 <button onClick={() => downloadCSV(filteredLogs)}
-                  className="ml-auto flex items-center gap-2 bg-ink-alt text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition-colors">
+                  className="ml-auto flex items-center gap-2 bg-ink text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition-colors">
                   <Download size={14} /> {t('admin.logs.exportCsv')}
                 </button>
               </div>
@@ -1078,35 +1078,35 @@ export default function AdminPage() {
                   <thead>
                     <tr className="border-b border-hai-offwhite">
                       {[t('admin.logs.columns.timestamp'), t('admin.logs.columns.user'), t('admin.logs.columns.role'), t('admin.logs.columns.action'), t('admin.logs.columns.target'), t('admin.logs.columns.result'), t('admin.logs.columns.ip')].map(h => (
-                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted-gray px-6 py-3 bg-[#fafafa]">{h}</th>
+                        <th key={h} className="text-left text-xs font-bold tracking-[0.12em] uppercase text-ink-muted px-6 py-3 bg-[#fafafa]">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {filteredLogs.map(log => (
                       <tr key={log.id} className={`border-b border-[#f9fafb] last:border-b-0 transition-colors ${log.result === 'failure' ? 'bg-red-50/30' : 'hover:bg-[#fafafa]'}`}>
-                        <td className="px-6 py-3 text-xs text-ink-muted-gray whitespace-nowrap font-mono">
+                        <td className="px-6 py-3 text-xs text-ink-muted whitespace-nowrap font-mono">
                           {new Date(log.timestamp).toLocaleString(uiLocale(), { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                         </td>
                         <td className="px-6 py-3 text-xs text-ink-gray font-mono whitespace-nowrap">{log.userEmail}</td>
-                        <td className="px-6 py-3 text-xs text-ink-muted-gray uppercase tracking-[0.12em]">{roleLabel(t, log.role)}</td>
+                        <td className="px-6 py-3 text-xs text-ink-muted uppercase tracking-[0.12em]">{roleLabel(t, log.role)}</td>
                         <td className="px-6 py-3">
-                          <span className={`text-xs font-semibold ${CRITICAL_ACTIONS.has(log.action) ? 'text-[#dc2626] font-bold' : 'text-ink-gray'}`}>
+                          <span className={`text-xs font-semibold ${CRITICAL_ACTIONS.has(log.action) ? 'text-danger font-bold' : 'text-ink-gray'}`}>
                             {CRITICAL_ACTIONS.has(log.action) && '⚠ '}{log.action}
                           </span>
                         </td>
-                        <td className="px-6 py-3 text-xs text-ink-muted-gray font-mono">
+                        <td className="px-6 py-3 text-xs text-ink-muted font-mono">
                           {log.targetEntityId ?? <span className="text-[#d1d5db]">—</span>}
                         </td>
                         <td className="px-6 py-3">
                           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${
-                            log.result === 'success' ? 'bg-[#d1fae5] text-[#059669]' : 'bg-[#fee2e2] text-[#dc2626]'
+                            log.result === 'success' ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'
                           }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${log.result === 'success' ? 'bg-[#22c55e]' : 'bg-[#ef4444]'}`} />
+                            <span className={`w-1.5 h-1.5 rounded-full ${log.result === 'success' ? 'bg-success-dot' : 'bg-danger-dot'}`} />
                             {log.result === 'success' ? t('admin.logs.success') : t('admin.logs.failure')}
                           </span>
                         </td>
-                        <td className="px-6 py-3 text-xs text-ink-muted-gray font-mono whitespace-nowrap">
+                        <td className="px-6 py-3 text-xs text-ink-muted font-mono whitespace-nowrap">
                           {log.ipAddress ?? <span className="text-[#d1d5db]">—</span>}
                         </td>
                       </tr>
@@ -1115,8 +1115,8 @@ export default function AdminPage() {
                 </table>
               </div>
               <div className="px-6 py-3 border-t border-hai-offwhite flex items-center gap-2 bg-[#fafafa]">
-                <Shield size={13} className="text-ink-muted-gray" />
-                <span className="text-xs text-ink-muted-gray font-semibold">{t('admin.logs.footerNotice')}</span>
+                <Shield size={13} className="text-ink-muted" />
+                <span className="text-xs text-ink-muted font-semibold">{t('admin.logs.footerNotice')}</span>
               </div>
             </div>
           </div>

@@ -57,7 +57,7 @@ export default function PublicProfilePage() {
     <main className="min-h-screen bg-[#f5f6f8]">
       <div className="mx-auto w-full max-w-[860px] px-6 pb-20 pt-[56px] md:px-10">
 
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[13.5px] font-bold text-ink-muted-alt hover:text-ink transition-colors mb-8">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[13.5px] font-bold text-ink-muted hover:text-ink transition-colors mb-8">
           <ArrowLeft size={15} strokeWidth={2} /> {t('publicProfile.back')}
         </button>
 
@@ -69,7 +69,7 @@ export default function PublicProfilePage() {
               <div className="w-20 h-20 rounded-full border-4 border-white shadow-sm overflow-hidden bg-ink flex items-center justify-center text-[#8fdff0] font-black text-[22px] shrink-0">
                 {avatar ? <img src={avatar} alt={user.name} className="w-full h-full object-cover" /> : initials}
               </div>
-              <span className={`px-3 py-1 rounded-full text-[12px] font-bold ${user.role === 'healthcare_professional' ? 'bg-[#dbeafe] text-[#2563eb]' : 'bg-[#d1fae5] text-[#059669]'}`}>
+              <span className={`px-3 py-1 rounded-full text-[12px] font-bold ${user.role === 'healthcare_professional' ? 'bg-role-clinician-soft text-role-clinician' : 'bg-role-engineer-soft text-role-engineer'}`}>
                 {roleLabel}
               </span>
             </div>
@@ -82,15 +82,15 @@ export default function PublicProfilePage() {
               </div>
             )}
 
-            <div className="flex flex-wrap gap-4 text-[13px] text-ink-muted-alt font-semibold mb-6">
+            <div className="flex flex-wrap gap-4 text-[13px] text-ink-muted font-semibold mb-6">
               {user.institution && (
                 <span className="flex items-center gap-1.5">
-                  <Building2 size={13} className="text-ink-muted-gray" /> {user.institution}
+                  <Building2 size={13} className="text-ink-muted" /> {user.institution}
                 </span>
               )}
               {(user.city || user.country) && (
                 <span className="flex items-center gap-1.5">
-                  <MapPin size={13} className="text-ink-muted-gray" /> {[user.city, user.country].filter(Boolean).join(', ')}
+                  <MapPin size={13} className="text-ink-muted" /> {[user.city, user.country].filter(Boolean).join(', ')}
                 </span>
               )}
             </div>
@@ -101,14 +101,14 @@ export default function PublicProfilePage() {
 
             {hasProfessionalDetails(user) && (
               <div className="mb-6 rounded-2xl border border-[#e8e8ee] px-5 py-4">
-                <div className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-ink-muted-alt">{t('professional.title')}</div>
+                <div className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-ink-muted">{t('professional.title')}</div>
                 <ProfessionalDetails user={user} />
               </div>
             )}
 
             {user.expertiseTags && user.expertiseTags.length > 0 && (
               <div>
-                <div className="flex items-center gap-1.5 text-xs font-bold tracking-[0.12em] uppercase text-ink-muted-gray mb-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold tracking-[0.12em] uppercase text-ink-muted mb-3">
                   <Tag size={11} /> {t('publicProfile.expertise')}
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -123,7 +123,7 @@ export default function PublicProfilePage() {
 
         {userId && <BadgeList userId={userId} />}
 
-        <p className="mt-5 text-center text-[12.5px] text-ink-muted-gray font-semibold">
+        <p className="mt-5 text-center text-[12.5px] text-ink-muted font-semibold">
           {t('publicProfile.memberSince', {
             date: new Date(user.createdAt).toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' })
           })}
