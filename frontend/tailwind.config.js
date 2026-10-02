@@ -4,6 +4,9 @@ const v = (name) => `rgb(var(--color-${name}) / <alpha-value>)`
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  // The scanner reads the regex /[-:.]/ in utils/calendarExport.ts as an arbitrary-property class and emits
+  // an invalid "-: ." rule (build warning). It is not a class anywhere, so never generate it.
+  blocklist: ['[-:.]'],
   darkMode: 'class',
   theme: {
     extend: {
