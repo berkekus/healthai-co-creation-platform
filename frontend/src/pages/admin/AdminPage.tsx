@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   BarChart2, Calendar, CheckCircle, ChevronRight, Clock,
@@ -13,6 +13,13 @@ import { usePostStore } from '../../store/postStore'
 import { useNotificationStore } from '../../store/notificationStore'
 import { useMeetingStore } from '../../store/meetingStore'
 import api from '../../lib/api'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import type { ReactNode } from 'react'
+import { usePostList } from '../../hooks/usePostList'
+import { useDebouncedValue } from '../../hooks/useDebouncedValue'
+import { fetchAdminUsers, fetchLogs } from '../../lib/adminApi'
+import { queryClient } from '../../lib/queryClient'
+import { LOG_ACTIONS, CRITICAL_LOG_ACTIONS } from '../../constants/logActions'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import type { ActivityLog } from '../../types/common.types'
 import type { User } from '../../types/auth.types'
@@ -21,6 +28,8 @@ import { ROUTES } from '../../constants/routes'
 type AdminView = 'overview' | 'users' | 'posts' | 'logs' | 'verification'
 const USERS_PAGE_SIZES = [20, 50, 100] as const
 const USERS_PAGE_SIZE_KEY = 'admin_usersPerPage'
+const POSTS_PAGE_SIZE = 20
+const LOGS_PAGE_SIZE = 50
 
 function readUsersPageSize(): number {
   try {
@@ -34,8 +43,6 @@ function readUsersPageSize(): number {
 function roleLabel(t: TFunction, role: string) {
   return t(`common.role.${role}`, { defaultValue: role })
 }
-
-const CRITICAL_ACTIONS = new Set(['login_failed', 'register_failed', 'user_suspend', 'post_delete'])
 
 function downloadUsersCSV(users: User[]) {
   const headers = ['name', 'email', 'role', 'institution', 'city', 'country', 'isVerified', 'isSuspended', 'createdAt']
@@ -348,9 +355,77 @@ interface PlatformStats {
   userGrowth?: { timezone: string; totalBefore: number; daily: { date: string; count: number }[] }
 }
 
-function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, onNavigate, onExportUsers, navigateTo }: {
+/**
+ * Keeps a page number valid when the server total shrinks (the last item on the last page was removed, or an
+ * old page number no longer exists): steps back to the last real page instead of showing an empty one.
+ */
+function useClampPage(page: number, setPage: (page: number) => void, total: number | undefined, pageSize: number) {
+  useEffect(() => {
+    if (total === undefined) return
+    const pages = Math.max(1, Math.ceil(total / pageSize))
+    if (page > pages) setPage(pages)
+  }, [page, setPage, total, pageSize])
+}
+
+/** Page numbers with gaps: every page when there are few, otherwise first, last and the neighbours of the current one. */
+function pageItems(current: number, totalPages: number): (number | 'gap')[] {
+  if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1)
+  const items: (number | 'gap')[] = [1]
+  const from = Math.max(2, current - 1)
+  const to = Math.min(totalPages - 1, current + 1)
+  if (from > 2) items.push('gap')
+  for (let p = from; p <= to; p++) items.push(p)
+  if (to < totalPages - 1) items.push('gap')
+  items.push(totalPages)
+  return items
+}
+
+/** Range text, an optional page-size control and page buttons, shared by the server-paged admin lists. */
+function AdminPager({ page, pageSize, total, onPage, children }: {
+  page: number; pageSize: number; total: number; onPage: (page: number) => void; children?: ReactNode
+}) {
+  const { t } = useTranslation()
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const current = Math.min(page, totalPages)
+  const navCls = 'flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-gray transition hover:border-admin-accent hover:text-admin-accent disabled:cursor-not-allowed disabled:opacity-40'
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hai-offwhite px-6 py-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="text-xs text-ink-muted font-semibold">
+          {t('admin.users.pageRange', { from: total === 0 ? 0 : (current - 1) * pageSize + 1, to: Math.min(total, current * pageSize), total })}
+        </span>
+        {children}
+      </div>
+      {totalPages > 1 && (
+        <div className="flex items-center gap-1.5">
+          <button onClick={() => onPage(Math.max(1, current - 1))} disabled={current === 1} aria-label={t('admin.users.previousPage')} className={navCls}>
+            <ChevronDown size={14} className="rotate-90" />
+          </button>
+          {pageItems(current, totalPages).map((item, index) => item === 'gap' ? (
+            <span key={`gap-${index}`} aria-hidden="true" className="px-1 text-xs font-black text-ink-muted">…</span>
+          ) : (
+            <button
+              key={item}
+              onClick={() => onPage(item)}
+              aria-current={item === current ? 'page' : undefined}
+              className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-xs font-black transition ${
+                item === current ? 'bg-admin-accent text-white' : 'border border-line text-ink-gray hover:border-admin-accent hover:text-admin-accent'
+              }`}
+            >
+              {item}
+            </button>
+          ))}
+          <button onClick={() => onPage(Math.min(totalPages, current + 1))} disabled={current === totalPages} aria-label={t('admin.users.nextPage')} className={navCls}>
+            <ChevronDown size={14} className="-rotate-90" />
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function OverviewTab({ users, meetingCount, failedLogins, logs, stats, onNavigate, onExportUsers, navigateTo }: {
   users: User[]
-  posts: { domain: string; status: string; title: string; authorName: string; createdAt: string; id: string; authorId: string }[]
   meetingCount: number; failedLogins: number; logs: ActivityLog[]
   stats: PlatformStats | null
   onNavigate: (v: AdminView) => void
@@ -365,7 +440,11 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
   const [showDateMenu, setShowDateMenu] = useState(false)
   const PAGE_SIZE = 5
   const totalUsers = users.filter(u => u.role !== 'admin').length
-  const activePosts = posts.filter(p => p.status === 'active').length
+  // Platform totals come from /auth/stats; the users list below is only the newest 500, for the recent-members table.
+  const activePosts = stats?.postsByStatus.active ?? 0
+  const memberCount = stats
+    ? Object.entries(stats.usersByRole).filter(([role]) => role !== 'admin').reduce((sum, [, count]) => sum + count, 0)
+    : totalUsers
   const nonAdminUsers = [...users].filter(u => u.role !== 'admin').sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   const totalPages = Math.max(1, Math.ceil(nonAdminUsers.length / PAGE_SIZE))
   const recentUsers = nonAdminUsers.slice((overviewPage - 1) * PAGE_SIZE, overviewPage * PAGE_SIZE)
@@ -427,7 +506,7 @@ function OverviewTab({ users, posts, meetingCount, failedLogins, logs, stats, on
 
       {/* Stats — 4-column grid */}
       <div className="grid grid-cols-4 gap-4">
-        <StatCard label={t('admin.stats.totalUsers')}     value={totalUsers}   icon={<Users size={20} strokeWidth={1.8} />}    iconBg="#ede9fe" iconColor="#7c3aed" change={stats ? `+${stats.newUsersLast30} (30d)` : '…'}  up={true} vsLast7={t('admin.vsLast7Days')} />
+        <StatCard label={t('admin.stats.totalUsers')}     value={memberCount}  icon={<Users size={20} strokeWidth={1.8} />}    iconBg="#ede9fe" iconColor="#7c3aed" change={stats ? `+${stats.newUsersLast30} (30d)` : '…'}  up={true} vsLast7={t('admin.vsLast7Days')} />
         <StatCard label={t('admin.stats.activeListings')} value={activePosts}  icon={<FileText size={20} strokeWidth={1.8} />} iconBg="#dbeafe" iconColor="#2563eb" change={stats ? `+${stats.newPostsLast30} (30d)` : '…'}   up={true} vsLast7={t('admin.vsLast7Days')} />
         <StatCard label={t('admin.stats.meetings')}        value={meetingCount} icon={<Calendar size={20} strokeWidth={1.8} />} iconBg="#fef3c7" iconColor="#d97706" change={stats ? `${stats.meetingCompletionRate}% done` : '…'}  up={true} vsLast7={t('admin.vsLast7Days')} />
         <StatCard label={t('admin.stats.securityEvents')} value={failedLogins} icon={<Shield size={20} strokeWidth={1.8} />}   iconBg="#fee2e2" iconColor="#dc2626" change="last 200 logs"   up={null} vsLast7={t('admin.vsLast7Days')} />
@@ -677,9 +756,10 @@ export default function AdminPage() {
   const [usersPerPage, setUsersPerPage] = useState(readUsersPageSize)
   const userSearchRef = useRef<HTMLInputElement>(null)
   const [logs, setLogs] = useState<ActivityLog[]>([])
-  const [logsLoading, setLogsLoading] = useState(false)
   const [logAction, setLogAction] = useState('')
   const [logResult, setLogResult] = useState('')
+  const [logsPage, setLogsPage] = useState(1)
+  const [postsPage, setPostsPage] = useState(1)
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null)
 
   const [postToRemove, setPostToRemove] = useState<{ id: string; title: string; authorId: string } | null>(null)
@@ -690,7 +770,7 @@ export default function AdminPage() {
   const [deleteUserError, setDeleteUserError] = useState<string | null>(null)
   const [suspendError, setSuspendError] = useState<string | null>(null)
 
-  const { posts, fetchPosts, remove: removePost } = usePostStore()
+  const { remove: removePost } = usePostStore()
   const { push } = useNotificationStore()
   const { meetings, fetchByUser: fetchMeetings } = useMeetingStore()
 
@@ -706,39 +786,43 @@ export default function AdminPage() {
   }, [])
 
   useEffect(() => { fetchMeetings() }, [fetchMeetings])
-  useEffect(() => { fetchPosts({ limit: 200 }) }, [fetchPosts])
 
-  useEffect(() => { fetchPosts({ limit: 100 }) }, [fetchPosts])
-
+  // Overview summary only (failed sign-ins and recent activity in the last 200 entries); the Logs tab pages on the server.
   useEffect(() => {
-    if (view !== 'logs' && view !== 'overview') return
-    setLogsLoading(true)
+    if (view !== 'overview') return
     api.get<{ success: boolean; data: { logs: (ActivityLog & { _id?: string })[]; total: number } }>('/logs', { params: { limit: 200 } })
       .then(({ data }) => setLogs(data.data.logs.map(l => ({ ...l, id: l._id ?? l.id }))))
       .catch(() => {})
-      .finally(() => setLogsLoading(false))
   }, [view])
 
-  const uniqueActions = useMemo(() => [...new Set(logs.map(l => l.action))].sort(), [logs])
-  const filteredLogs = useMemo(() => logs.filter(l =>
-    (!logAction || l.action === logAction) && (!logResult || l.result === logResult)
-  ), [logs, logAction, logResult])
+  const logsQuery = useQuery({
+    queryKey: ['admin', 'logs', { page: logsPage, action: logAction, result: logResult }],
+    queryFn: ({ signal }) => fetchLogs({ page: logsPage, limit: LOGS_PAGE_SIZE, action: logAction, result: logResult }, signal),
+    placeholderData: keepPreviousData,
+    enabled: view === 'logs',
+  })
+  const pageLogs = logsQuery.data?.logs ?? []
+  const logsTotal = logsQuery.data?.total ?? 0
+  useEffect(() => { setLogsPage(1) }, [logAction, logResult])
 
-  const filteredUsers = useMemo(() => {
-    const q = userQuery.trim().toLowerCase()
-    return users.filter(u => u.role !== 'admin' && (
-      !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.institution.toLowerCase().includes(q)
-    ))
-  }, [users, userQuery])
+  // Users are searched and paged on the server; typing is debounced so one request goes out per pause.
+  const userSearch = useDebouncedValue(userQuery.trim(), 300)
+  const usersQuery = useQuery({
+    queryKey: ['admin', 'users', { page: usersPage, limit: usersPerPage, search: userSearch }],
+    queryFn: ({ signal }) => fetchAdminUsers({ page: usersPage, limit: usersPerPage, search: userSearch }, signal),
+    placeholderData: keepPreviousData,
+    enabled: view === 'users',
+  })
+  const pageUsers = usersQuery.data?.users ?? []
+  const usersTotal = usersQuery.data?.total ?? 0
+  useEffect(() => { setUsersPage(1) }, [userSearch])
 
-  useEffect(() => { setUsersPage(1) }, [userQuery])
+  const adminPosts = usePostList({ page: postsPage, limit: POSTS_PAGE_SIZE, sort: 'newest' })
+  const adminPostsTotal = adminPosts.data?.total ?? 0
 
-  const usersTotalPages = Math.max(1, Math.ceil(filteredUsers.length / usersPerPage))
-  const usersCurrentPage = Math.min(usersPage, usersTotalPages)
-  const paginatedUsers = filteredUsers.slice(
-    (usersCurrentPage - 1) * usersPerPage,
-    usersCurrentPage * usersPerPage,
-  )
+  useClampPage(postsPage, setPostsPage, adminPosts.data?.total, POSTS_PAGE_SIZE)
+  useClampPage(usersPage, setUsersPage, usersQuery.data?.total, usersPerPage)
+  useClampPage(logsPage, setLogsPage, logsQuery.data?.total, LOGS_PAGE_SIZE)
 
   const changeUsersPerPage = (size: number) => {
     setUsersPerPage(size)
@@ -761,13 +845,14 @@ export default function AdminPage() {
   }, [view])
 
   const handleSuspend = async (userId: string) => {
-    const target = users.find(u => u.id === userId)
+    const target = pageUsers.find(u => u.id === userId) ?? users.find(u => u.id === userId)
     if (!target) return
     const next = !target.isSuspended
     setSuspendError(null)
     try {
       await api.patch(`/auth/users/${userId}/suspend`, { isSuspended: next })
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, isSuspended: next } : u))
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
       if (next) push({ userId, type: 'post_closed', title: t('admin.users.suspendedNotifTitle'), body: t('admin.users.suspendedNotifBody'), isRead: false })
     } catch (err: unknown) {
       setSuspendError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.suspendError'))
@@ -781,6 +866,7 @@ export default function AdminPage() {
     try {
       await api.delete(`/auth/users/${userToDelete.id}`)
       setUsers(prev => prev.filter(u => u.id !== userToDelete.id))
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
       setUserToDelete(null)
     } catch (err: unknown) {
       setDeleteUserError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? t('admin.users.deleteError'))
@@ -804,7 +890,9 @@ export default function AdminPage() {
     }
   }
 
-  const totalNonAdmin = users.filter(u => u.role !== 'admin').length
+  const memberCount = platformStats
+    ? Object.entries(platformStats.usersByRole).filter(([role]) => role !== 'admin').reduce((sum, [, count]) => sum + count, 0)
+    : users.filter(u => u.role !== 'admin').length
   const failedLogins = logs.filter(l => l.action === 'login_failed' || l.action === 'register_failed').length
   const selectCls = 'bg-white border border-line rounded-xl px-3 py-2 text-sm text-ink-gray font-semibold outline-none focus:border-admin-accent focus:ring-2 focus:ring-admin-accent/20 transition-colors cursor-pointer'
 
@@ -847,7 +935,7 @@ export default function AdminPage() {
         {/* ── OVERVIEW ── */}
         {view === 'overview' && (
           <OverviewTab
-            users={users} posts={posts} meetingCount={meetings.length}
+            users={users} meetingCount={meetings.length}
             failedLogins={failedLogins} logs={logs} stats={platformStats}
             onNavigate={setView} onExportUsers={() => downloadUsersCSV(users)}
             navigateTo={navigate}
@@ -865,7 +953,7 @@ export default function AdminPage() {
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h1 className="text-xl font-black text-ink">{t('admin.users.title')}</h1>
-                <p className="text-sm text-ink-muted">{t('admin.users.registeredCount', { count: totalNonAdmin })}</p>
+                <p className="text-sm text-ink-muted">{t('admin.users.registeredCount', { count: memberCount })}</p>
               </div>
             </div>
             {suspendError && (
@@ -887,7 +975,7 @@ export default function AdminPage() {
                     className="w-full bg-[#f8f9fb] border border-line rounded-xl pl-10 pr-10 py-2.5 text-sm text-ink-gray outline-none focus:border-admin-accent focus:ring-2 focus:ring-admin-accent/20 transition-colors" />
                   <kbd aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-line-strong bg-white px-1.5 font-mono text-xs text-ink-muted">/</kbd>
                 </div>
-                <span className="text-xs text-ink-muted font-semibold">{t('admin.users.shownCount', { shown: filteredUsers.length, total: totalNonAdmin })}</span>
+                <span className="text-xs text-ink-muted font-semibold">{t('admin.users.shownCount', { shown: usersTotal, total: memberCount })}</span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[820px]">
@@ -899,7 +987,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedUsers.map(u => {
+                    {pageUsers.map(u => {
                       const initials = u.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
                       return (
                         <tr key={u.id} className={`border-b border-surface-subtle last:border-b-0 transition-colors ${u.isSuspended ? 'bg-red-50/30' : 'hover:bg-surface-subtle'}`}>
@@ -948,58 +1036,19 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
-              {filteredUsers.length > USERS_PAGE_SIZES[0] && (
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hai-offwhite px-6 py-3">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="text-xs text-ink-muted font-semibold">
-                      {t('admin.users.pageRange', { from: (usersCurrentPage - 1) * usersPerPage + 1, to: Math.min(filteredUsers.length, usersCurrentPage * usersPerPage), total: filteredUsers.length })}
-                    </span>
-                    <label className="flex items-center gap-2 text-xs font-semibold text-ink-muted">
-                      {t('admin.users.perPage')}
-                      <select
-                        value={usersPerPage}
-                        onChange={e => changeUsersPerPage(Number(e.target.value))}
-                        className="rounded-lg border border-line bg-white px-2 py-1 text-xs font-bold text-ink-gray outline-none focus:border-admin-accent focus:ring-2 focus:ring-admin-accent/20"
-                      >
-                        {USERS_PAGE_SIZES.map(size => <option key={size} value={size}>{size}</option>)}
-                      </select>
-                    </label>
-                  </div>
-                  {usersTotalPages > 1 && (
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => setUsersPage(p => Math.max(1, p - 1))}
-                        disabled={usersCurrentPage === 1}
-                        aria-label={t('admin.users.previousPage')}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-gray transition hover:border-admin-accent hover:text-admin-accent disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        <ChevronDown size={14} className="rotate-90" />
-                      </button>
-                      {Array.from({ length: usersTotalPages }, (_, i) => i + 1).map(p => (
-                        <button
-                          key={p}
-                          onClick={() => setUsersPage(p)}
-                          aria-current={p === usersCurrentPage ? 'page' : undefined}
-                          className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-xs font-black transition ${
-                            p === usersCurrentPage
-                              ? 'bg-admin-accent text-white'
-                              : 'border border-line text-ink-gray hover:border-admin-accent hover:text-admin-accent'
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      ))}
-                      <button
-                        onClick={() => setUsersPage(p => Math.min(usersTotalPages, p + 1))}
-                        disabled={usersCurrentPage === usersTotalPages}
-                        aria-label={t('admin.users.nextPage')}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-gray transition hover:border-admin-accent hover:text-admin-accent disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        <ChevronDown size={14} className="-rotate-90" />
-                      </button>
-                    </div>
-                  )}
-                </div>
+              {usersTotal > USERS_PAGE_SIZES[0] && (
+                <AdminPager page={usersPage} pageSize={usersPerPage} total={usersTotal} onPage={setUsersPage}>
+                  <label className="flex items-center gap-2 text-xs font-semibold text-ink-muted">
+                    {t('admin.users.perPage')}
+                    <select
+                      value={usersPerPage}
+                      onChange={e => changeUsersPerPage(Number(e.target.value))}
+                      className="rounded-lg border border-line bg-white px-2 py-1 text-xs font-bold text-ink-gray outline-none focus:border-admin-accent focus:ring-2 focus:ring-admin-accent/20"
+                    >
+                      {USERS_PAGE_SIZES.map(size => <option key={size} value={size}>{size}</option>)}
+                    </select>
+                  </label>
+                </AdminPager>
               )}
             </div>
           </div>
@@ -1010,7 +1059,7 @@ export default function AdminPage() {
           <div className="p-3 sm:p-6">
             <div className="mb-5">
               <h1 className="text-xl font-black text-ink">{t('admin.posts.title')}</h1>
-              <p className="text-sm text-ink-muted">{t('admin.posts.totalCount', { count: posts.length })}</p>
+              <p className="text-sm text-ink-muted">{t('admin.posts.totalCount', { count: adminPostsTotal })}</p>
             </div>
             <div className="bg-white rounded-2xl border border-line overflow-hidden">
               <div className="overflow-x-auto">
@@ -1023,7 +1072,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {posts.map(p => (
+                    {(adminPosts.data?.posts ?? []).map(p => (
                       <tr key={p.id} className="border-b border-surface-subtle last:border-b-0 hover:bg-surface-subtle transition-colors">
                         <td className="px-6 py-3.5 max-w-[280px]">
                           <div className="text-sm font-bold text-ink truncate">{p.title}</div>
@@ -1054,6 +1103,7 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
+              <AdminPager page={postsPage} pageSize={POSTS_PAGE_SIZE} total={adminPostsTotal} onPage={setPostsPage} />
             </div>
           </div>
         )}
@@ -1069,7 +1119,7 @@ export default function AdminPage() {
               <div className="px-6 py-4 border-b border-hai-offwhite flex items-center gap-3 flex-wrap">
                 <select value={logAction} onChange={e => setLogAction(e.target.value)} className={selectCls}>
                   <option value="">{t('admin.logs.allActions')}</option>
-                  {uniqueActions.map(a => <option key={a} value={a}>{a}</option>)}
+                  {LOG_ACTIONS.map(a => <option key={a} value={a}>{a}</option>)}
                 </select>
                 <select value={logResult} onChange={e => setLogResult(e.target.value)} className={selectCls}>
                   <option value="">{t('admin.logs.allResults')}</option>
@@ -1082,8 +1132,8 @@ export default function AdminPage() {
                     <X size={13} /> {t('admin.logs.clear')}
                   </button>
                 )}
-                <span className="text-xs text-ink-muted font-semibold">{logsLoading ? t('admin.verification.loading') : t('admin.logs.entryCount', { shown: filteredLogs.length, total: logs.length })}</span>
-                <button onClick={() => downloadCSV(filteredLogs)}
+                <span className="text-xs text-ink-muted font-semibold">{logsQuery.isPending ? t('admin.verification.loading') : t('admin.logs.entryCount', { shown: pageLogs.length, total: logsTotal })}</span>
+                <button onClick={() => downloadCSV(pageLogs)}
                   className="ml-auto flex items-center gap-2 bg-ink text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition-colors">
                   <Download size={14} /> {t('admin.logs.exportCsv')}
                 </button>
@@ -1098,7 +1148,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredLogs.map(log => (
+                    {pageLogs.map(log => (
                       <tr key={log.id} className={`border-b border-surface-subtle last:border-b-0 transition-colors ${log.result === 'failure' ? 'bg-red-50/30' : 'hover:bg-surface-subtle'}`}>
                         <td className="px-6 py-3 text-xs text-ink-muted whitespace-nowrap font-mono">
                           {new Date(log.timestamp).toLocaleString(uiLocale(), { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
@@ -1106,8 +1156,8 @@ export default function AdminPage() {
                         <td className="px-6 py-3 text-xs text-ink-gray font-mono whitespace-nowrap">{log.userEmail}</td>
                         <td className="px-6 py-3 text-xs text-ink-muted uppercase tracking-[0.12em]">{roleLabel(t, log.role)}</td>
                         <td className="px-6 py-3">
-                          <span className={`text-xs font-semibold ${CRITICAL_ACTIONS.has(log.action) ? 'text-danger font-bold' : 'text-ink-gray'}`}>
-                            {CRITICAL_ACTIONS.has(log.action) && '⚠ '}{log.action}
+                          <span className={`text-xs font-semibold ${CRITICAL_LOG_ACTIONS.has(log.action) ? 'text-danger font-bold' : 'text-ink-gray'}`}>
+                            {CRITICAL_LOG_ACTIONS.has(log.action) && '⚠ '}{log.action}
                           </span>
                         </td>
                         <td className="px-6 py-3 text-xs text-ink-muted font-mono">
@@ -1129,6 +1179,7 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
+              <AdminPager page={logsPage} pageSize={LOGS_PAGE_SIZE} total={logsTotal} onPage={setLogsPage} />
               <div className="px-6 py-3 border-t border-hai-offwhite flex items-center gap-2 bg-surface-subtle">
                 <Shield size={13} className="text-ink-muted" />
                 <span className="text-xs text-ink-muted font-semibold">{t('admin.logs.footerNotice')}</span>

@@ -1,12 +1,12 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import '../i18n'
 import api from '../lib/api'
 import AdminPage from '../pages/admin/AdminPage'
 import { useAuthStore } from '../store/authStore'
-import { usePostStore } from '../store/postStore'
 import { useMeetingStore } from '../store/meetingStore'
+import { renderWithQuery } from './renderWithQuery'
 
 vi.mock('../lib/api', () => ({ default: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() } }))
 vi.mock('../lib/socket', () => ({ connectSocket: vi.fn(), disconnectSocket: vi.fn(), getSocket: vi.fn() }))
@@ -36,17 +36,16 @@ describe('admin user growth chart', () => {
       return { data: { success: true, data: null } }
     })
     useAuthStore.setState({ user: { ...listedUsers[0], id: 'admin', role: 'admin' } as never, isAuthenticated: true })
-    usePostStore.setState({ posts: [], fetchPosts: vi.fn() })
     useMeetingStore.setState({ meetings: [], fetchByUser: vi.fn() })
   })
 
   it('asks the server for growth in the viewer’s time zone', async () => {
-    render(<MemoryRouter><AdminPage /></MemoryRouter>)
+    renderWithQuery(<MemoryRouter><AdminPage /></MemoryRouter>)
     await waitFor(() => expect(api.get).toHaveBeenCalledWith('/auth/stats', { params: { tz: timeZone } }))
   })
 
   it('draws the running total from the server, not from the users the list happened to return', async () => {
-    render(<MemoryRouter><AdminPage /></MemoryRouter>)
+    renderWithQuery(<MemoryRouter><AdminPage /></MemoryRouter>)
     // The chart's top axis label is today's total: 1,200 earlier sign-ups + 5 today.
     expect(await screen.findByText('1205')).toBeInTheDocument()
   })

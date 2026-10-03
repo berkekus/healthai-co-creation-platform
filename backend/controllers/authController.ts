@@ -164,8 +164,9 @@ export const getAllUsers = asyncHandler<Request>(async (req, res) => {
   const role       = typeof req.query.role       === 'string' ? req.query.role       : undefined
   const search     = typeof req.query.search     === 'string' ? req.query.search     : undefined
   const isVerified = typeof req.query.isVerified === 'string' ? req.query.isVerified : undefined
+  const excludeAdmins = req.query.excludeAdmins === 'true'
 
-  const result = await authService.getAllUsers({ role, search, isVerified, page, limit })
+  const result = await authService.getAllUsers({ role, search, isVerified, excludeAdmins, page, limit })
   res.json({ success: true, data: result })
 })
 
