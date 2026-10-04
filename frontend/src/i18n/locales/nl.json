@@ -1209,6 +1209,11 @@
       "removeConfirmUndo": "Dit kan niet ongedaan worden gemaakt.",
       "removeError": "Het bericht kon niet worden verwijderd. Probeer het opnieuw."
     },
+    "export": {
+      "running": "Exporteren…",
+      "failed": "Exporteren mislukt. Probeer het opnieuw.",
+      "capped": "Alleen de nieuwste {{count}} items zijn geëxporteerd."
+    },
     "logs": {
       "title": "Activiteitenlogs",
       "subtitle": "Onvervalsbaar · Bewaartermijn 24 maanden",
@@ -1219,9 +1224,6 @@
       "clear": "Wissen",
       "entryCount": "{{shown}} van {{total}} vermeldingen",
       "exportCsv": "CSV exporteren",
-      "exporting": "Exporteren…",
-      "exportFailed": "Exporteren mislukt. Probeer het opnieuw.",
-      "exportCapped": "Alleen de nieuwste {{count}} items zijn geëxporteerd.",
       "columns": {
         "timestamp": "Tijdstempel",
         "user": "Gebruiker",

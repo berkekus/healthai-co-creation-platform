@@ -30,9 +30,11 @@ const USERS_PAGE_SIZES = [20, 50, 100] as const
 const USERS_PAGE_SIZE_KEY = 'admin_usersPerPage'
 const POSTS_PAGE_SIZE = 20
 const LOGS_PAGE_SIZE = 50
-// Export fetches every filtered entry in the server's largest pages, up to a ceiling that keeps the download bounded.
+// CSV exports fetch every matching row in the server's largest pages, up to a ceiling that keeps the download bounded.
 const LOG_EXPORT_PAGE_SIZE = 200
-const LOG_EXPORT_MAX = 5000
+const USER_EXPORT_PAGE_SIZE = 500
+const EXPORT_MAX = 5000
+type ExportState = 'idle' | 'running' | 'failed' | 'capped'
 
 function readUsersPageSize(): number {
   try {
@@ -63,6 +65,25 @@ function downloadUsersCSV(users: User[]) {
 function csvCell(value: unknown) {
   const text = String(value ?? '')
   return `"${(/^[=+\-@\t\r]/.test(text) ? `'${text}` : text).replace(/"/g, '""')}"`
+}
+
+/**
+ * Every row a paged list holds, newest first, up to EXPORT_MAX. Rows are keyed by id: anything added while the
+ * export runs pushes older rows onto the next page, which would otherwise repeat them.
+ */
+async function fetchAllPages<T extends { id: string }>(
+  fetchPage: (page: number, limit: number) => Promise<{ rows: T[]; total: number }>,
+  pageSize: number,
+) {
+  const byId = new Map<string, T>()
+  let total = 0
+  for (let page = 1; byId.size < EXPORT_MAX; page++) {
+    const res = await fetchPage(page, pageSize)
+    total = res.total
+    res.rows.forEach(row => byId.set(row.id, row))
+    if (res.rows.length < pageSize || page * pageSize >= total) break
+  }
+  return { rows: [...byId.values()].slice(0, EXPORT_MAX), capped: total > EXPORT_MAX }
 }
 
 function downloadCSV(logs: ActivityLog[]) {
@@ -431,12 +452,13 @@ function AdminPager({ page, pageSize, total, onPage, children }: {
   )
 }
 
-function OverviewTab({ users, meetingCount, failedLogins, logs, stats, onNavigate, onExportUsers, navigateTo }: {
+function OverviewTab({ users, meetingCount, failedLogins, logs, stats, onNavigate, onExportUsers, exportState, navigateTo }: {
   users: User[]
   meetingCount: number; failedLogins: number; logs: ActivityLog[]
   stats: PlatformStats | null
   onNavigate: (v: AdminView) => void
   onExportUsers: () => void
+  exportState: ExportState
   navigateTo: (path: string) => void
 }) {
   const { t } = useTranslation()
@@ -469,11 +491,11 @@ function OverviewTab({ users, meetingCount, failedLogins, logs, stats, onNavigat
     return { bg: '#ede9fe', emoji: '⚙️' }
   }
 
-  const quickActions: { label: string; icon: React.ReactNode; onClick: () => void }[] = [
+  const quickActions: { label: string; icon: React.ReactNode; onClick: () => void; busy?: boolean }[] = [
     { label: t('admin.quickActionsList.addUser'),       icon: <UserPlus size={16} strokeWidth={1.8} />,  onClick: () => onNavigate('users') },
     { label: t('admin.quickActionsList.createListing'), icon: <Plus size={16} strokeWidth={1.8} />,      onClick: () => onNavigate('posts') },
     { label: t('admin.quickActionsList.scheduleMeeting'), icon: <Calendar size={16} strokeWidth={1.8} />,  onClick: () => navigateTo(ROUTES.MEETINGS) },
-    { label: t('admin.quickActionsList.exportUsers'),   icon: <Download size={16} strokeWidth={1.8} />,  onClick: onExportUsers },
+    { label: exportState === 'running' ? t('admin.export.running') : t('admin.quickActionsList.exportUsers'), icon: <Download size={16} strokeWidth={1.8} />, onClick: onExportUsers, busy: exportState === 'running' },
   ]
 
   return (
@@ -649,8 +671,8 @@ function OverviewTab({ users, meetingCount, failedLogins, logs, stats, onNavigat
             <h3 className="text-sm font-black text-ink mb-3">{t('admin.quickActions')}</h3>
             <div className="space-y-1">
               {quickActions.map(a => (
-                <button key={a.label} onClick={a.onClick}
-                  className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl hover:bg-[#f5f5ff] text-ink-gray hover:text-admin-accent transition-colors group">
+                <button key={a.label} onClick={a.onClick} disabled={a.busy}
+                  className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl hover:bg-[#f5f5ff] text-ink-gray hover:text-admin-accent transition-colors group disabled:opacity-60 disabled:cursor-wait">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-[#f0f0ff] flex items-center justify-center text-admin-accent group-hover:bg-[#e0e0ff] transition-colors">
                       {a.icon}
@@ -661,6 +683,11 @@ function OverviewTab({ users, meetingCount, failedLogins, logs, stats, onNavigat
                 </button>
               ))}
             </div>
+            {(exportState === 'failed' || exportState === 'capped') && (
+              <p role={exportState === 'failed' ? 'alert' : 'status'} className={`mt-2 px-3 text-xs font-semibold ${exportState === 'failed' ? 'text-error' : 'text-ink-muted'}`}>
+                {exportState === 'failed' ? t('admin.export.failed') : t('admin.export.capped', { count: EXPORT_MAX })}
+              </p>
+            )}
           </div>
 
           <div className="border-t border-hai-offwhite" />
@@ -766,7 +793,8 @@ export default function AdminPage() {
   const [logAction, setLogAction] = useState('')
   const [logResult, setLogResult] = useState('')
   const [logsPage, setLogsPage] = useState(1)
-  const [logExport, setLogExport] = useState<'idle' | 'running' | 'failed' | 'capped'>('idle')
+  const [logExport, setLogExport] = useState<ExportState>('idle')
+  const [userExport, setUserExport] = useState<ExportState>('idle')
   const [postsPage, setPostsPage] = useState(1)
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null)
 
@@ -816,19 +844,29 @@ export default function AdminPage() {
   const exportLogs = async () => {
     setLogExport('running')
     try {
-      // Keyed by id: entries logged while the export runs push older ones onto the next page, which would repeat them.
-      const byId = new Map<string, ActivityLog>()
-      let total = 0
-      for (let page = 1; byId.size < LOG_EXPORT_MAX; page++) {
-        const res = await fetchLogs({ page, limit: LOG_EXPORT_PAGE_SIZE, action: logAction, result: logResult })
-        total = res.total
-        res.logs.forEach(l => byId.set(l.id, l))
-        if (res.logs.length < LOG_EXPORT_PAGE_SIZE || page * LOG_EXPORT_PAGE_SIZE >= total) break
-      }
-      downloadCSV([...byId.values()].slice(0, LOG_EXPORT_MAX))
-      setLogExport(total > LOG_EXPORT_MAX ? 'capped' : 'idle')
+      const { rows, capped } = await fetchAllPages(async (page, limit) => {
+        const res = await fetchLogs({ page, limit, action: logAction, result: logResult })
+        return { rows: res.logs, total: res.total }
+      }, LOG_EXPORT_PAGE_SIZE)
+      downloadCSV(rows)
+      setLogExport(capped ? 'capped' : 'idle')
     } catch {
       setLogExport('failed')
+    }
+  }
+
+  // The overview only loads the newest 500 members; the export pages through all of them.
+  const exportUsers = async () => {
+    setUserExport('running')
+    try {
+      const { rows, capped } = await fetchAllPages(async (page, limit) => {
+        const res = await fetchAdminUsers({ page, limit })
+        return { rows: res.users, total: res.total }
+      }, USER_EXPORT_PAGE_SIZE)
+      downloadUsersCSV(rows)
+      setUserExport(capped ? 'capped' : 'idle')
+    } catch {
+      setUserExport('failed')
     }
   }
 
@@ -964,7 +1002,7 @@ export default function AdminPage() {
           <OverviewTab
             users={users} meetingCount={meetings.length}
             failedLogins={failedLogins} logs={logs} stats={platformStats}
-            onNavigate={setView} onExportUsers={() => downloadUsersCSV(users)}
+            onNavigate={setView} onExportUsers={exportUsers} exportState={userExport}
             navigateTo={navigate}
           />
         )}
@@ -1162,12 +1200,12 @@ export default function AdminPage() {
                 <span className="text-xs text-ink-muted font-semibold">{logsQuery.isPending ? t('admin.verification.loading') : t('admin.logs.entryCount', { shown: pageLogs.length, total: logsTotal })}</span>
                 {(logExport === 'failed' || logExport === 'capped') && (
                   <span role={logExport === 'failed' ? 'alert' : 'status'} className={`ml-auto text-xs font-semibold ${logExport === 'failed' ? 'text-error' : 'text-ink-muted'}`}>
-                    {logExport === 'failed' ? t('admin.logs.exportFailed') : t('admin.logs.exportCapped', { count: LOG_EXPORT_MAX })}
+                    {logExport === 'failed' ? t('admin.export.failed') : t('admin.export.capped', { count: EXPORT_MAX })}
                   </span>
                 )}
                 <button onClick={exportLogs} disabled={logExport === 'running'}
                   className={`${logExport === 'failed' || logExport === 'capped' ? '' : 'ml-auto '}flex items-center gap-2 bg-ink text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition-colors disabled:opacity-60 disabled:cursor-wait`}>
-                  <Download size={14} /> {logExport === 'running' ? t('admin.logs.exporting') : t('admin.logs.exportCsv')}
+                  <Download size={14} /> {logExport === 'running' ? t('admin.export.running') : t('admin.logs.exportCsv')}
                 </button>
               </div>
               <div className="overflow-x-auto">

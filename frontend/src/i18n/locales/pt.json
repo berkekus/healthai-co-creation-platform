@@ -1209,6 +1209,11 @@
       "removeConfirmUndo": "Esta ação não pode ser desfeita.",
       "removeError": "Não foi possível remover a publicação. Tente novamente."
     },
+    "export": {
+      "running": "Exportando…",
+      "failed": "Falha ao exportar. Tente novamente.",
+      "capped": "Apenas os {{count}} registros mais recentes foram exportados."
+    },
     "logs": {
       "title": "Registos de atividade",
       "subtitle": "Inalterável · Retenção de 24 meses",
@@ -1219,9 +1224,6 @@
       "clear": "Limpar",
       "entryCount": "{{shown}} de {{total}} entradas",
       "exportCsv": "Exportar CSV",
-      "exporting": "Exportando…",
-      "exportFailed": "Falha ao exportar. Tente novamente.",
-      "exportCapped": "Apenas os {{count}} registros mais recentes foram exportados.",
       "columns": {
         "timestamp": "Data/hora",
         "user": "Utilizador",

@@ -132,6 +132,36 @@ describe('admin lists use the server', () => {
     click.mockRestore()
   })
 
+  it('exports every member, not just the 500 the overview loads', async () => {
+    const total = 1200
+    vi.mocked(api.get).mockImplementation(async (url: string, config?: Config) => {
+      if (url !== '/auth/users') return { data: { success: true, data: null } }
+      const page = Number(config?.params?.page ?? 1)
+      const limit = Number(config?.params?.limit ?? 20)
+      const users = Array.from({ length: Math.max(0, Math.min(limit, total - (page - 1) * limit)) }, (_, i) => {
+        const n = (page - 1) * limit + i
+        return { _id: `u${n}`, name: `Member ${n}`, email: `m${n}@example.test`, role: 'engineer', createdAt: '2026-09-01T00:00:00.000Z' }
+      })
+      return { data: { success: true, data: { users, total } } }
+    })
+    const blobs: Blob[] = []
+    URL.createObjectURL = vi.fn((blob: Blob) => { blobs.push(blob); return 'blob:users' })
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+
+    renderWithQuery(<MemoryRouter><AdminPage /></MemoryRouter>)
+    fireEvent.click(await screen.findByRole('button', { name: /Export users CSV/ }))
+
+    await waitFor(() => expect(blobs).toHaveLength(1))
+    const csv = await new Promise<string>(resolve => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.readAsText(blobs[0])
+    })
+    expect(csv.split('\n')).toHaveLength(total + 1)
+    expect(calls('/auth/users')).toContainEqual(expect.objectContaining({ page: 3, limit: 500, excludeAdmins: 'true' }))
+    click.mockRestore()
+  })
+
   it('says so when the export stops at the newest 5000 entries', async () => {
     vi.mocked(api.get).mockImplementation(async (url: string, config?: Config) => {
       if (url !== '/logs') return { data: { success: true, data: null } }
