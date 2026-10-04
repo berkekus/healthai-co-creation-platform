@@ -41,12 +41,12 @@ export default function DomainPicker({ value, onChange, error, labelledBy }: Pro
     <div role="group" aria-labelledby={labelledBy} aria-describedby={hintId} className="space-y-3">
       <div className="flex min-h-[40px] flex-wrap items-center gap-2">
         {value.length === 0 ? (
-          <span className="text-sm font-semibold text-ink-muted-gray">{t('posts.form.domainNoneSelected')}</span>
+          <span className="text-sm font-semibold text-ink-muted">{t('posts.form.domainNoneSelected')}</span>
         ) : value.map((domain, index) => (
           <span
             key={domain}
             className={`inline-flex items-center gap-1.5 rounded-full py-1.5 pl-3 pr-1.5 text-xs font-black ${
-              index === 0 ? 'bg-ink text-white' : 'bg-[#eefaff] text-ink border border-[#cdeefa]'
+              index === 0 ? 'bg-ink text-white' : 'bg-hai-ice text-ink border border-hai-ice-line'
             }`}
           >
             {domain}
@@ -55,7 +55,7 @@ export default function DomainPicker({ value, onChange, error, labelledBy }: Pro
               onClick={() => toggle(domain)}
               aria-label={t('posts.form.domainRemove', { domain })}
               className={`flex h-5 w-5 items-center justify-center rounded-full transition ${
-                index === 0 ? 'hover:bg-white/20' : 'hover:bg-[#cdeefa]'
+                index === 0 ? 'hover:bg-white/20' : 'hover:bg-hai-ice-line'
               }`}
             >
               <X size={12} aria-hidden="true" />
@@ -64,14 +64,14 @@ export default function DomainPicker({ value, onChange, error, labelledBy }: Pro
         ))}
       </div>
 
-      <p id={hintId} className="text-xs font-semibold leading-5 text-ink-muted-alt">
+      <p id={hintId} className="text-xs font-semibold leading-5 text-ink-muted">
         {t('posts.form.domainHint', { count: value.length, max: MAX_POST_DOMAINS })}
       </p>
 
-      <div className={`rounded-[10px] border bg-white ${error ? 'border-red-400' : 'border-[#d7dbe3]'}`}>
-        <label className="relative block border-b border-[#eef0f3]">
+      <div className={`rounded-[10px] border bg-white ${error ? 'border-red-400' : 'border-line-strong'}`}>
+        <label className="relative block border-b border-surface-muted">
           <span className="sr-only">{t('posts.form.domainSearch')}</span>
-          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted-gray" aria-hidden="true" />
+          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
           <input
             type="search"
             value={query}
@@ -83,10 +83,10 @@ export default function DomainPicker({ value, onChange, error, labelledBy }: Pro
 
         <div className="max-h-64 overflow-y-auto overscroll-contain p-3">
           {groups.length === 0 ? (
-            <p className="px-1 py-2 text-sm font-semibold text-ink-muted-gray">{t('common.select.noResults', { query })}</p>
+            <p className="px-1 py-2 text-sm font-semibold text-ink-muted">{t('common.select.noResults', { query })}</p>
           ) : groups.map(group => (
             <fieldset key={group.id} className="mb-3 last:mb-0">
-              <legend className="mb-1.5 px-1 text-xs font-black uppercase tracking-[0.14em] text-ink-muted-alt">
+              <legend className="mb-1.5 px-1 text-xs font-black uppercase tracking-[0.14em] text-ink-muted">
                 {t(`posts.form.domainGroups.${group.id}`)}
               </legend>
               <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">

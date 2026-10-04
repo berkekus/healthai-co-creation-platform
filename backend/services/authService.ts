@@ -11,6 +11,7 @@ import { pushNotification } from './notificationService'
 import { deleteAvatarFile } from '../middleware/uploadMiddleware'
 import { makeError } from '../utils/AppError'
 import { normalizeProfessionalFields } from '../utils/profileFields'
+import { escapeRegex } from '../constants/domains'
 import logger from '../src/logger'
 
 const SALT_ROUNDS = 12
@@ -228,20 +229,22 @@ export async function getAllUsers(opts: {
   role?: string
   search?: string
   isVerified?: string
+  /** The admin Users tab lists members only. */
+  excludeAdmins?: boolean
   page?: number
   limit?: number
 }) {
-  const { role, search, isVerified, page = 1, limit = 20 } = opts
+  const { role, search, isVerified, excludeAdmins, page = 1, limit = 20 } = opts
   const query: Record<string, unknown> = {}
 
   if (role) query.role = role
+  else if (excludeAdmins) query.role = { $ne: 'admin' }
   if (isVerified === 'false') query.isVerified = false
   if (isVerified === 'true') query.isVerified = true
-  if (search) {
-    query.$or = [
-      { name:  { $regex: search, $options: 'i' } },
-      { email: { $regex: search, $options: 'i' } },
-    ]
+  if (search?.trim()) {
+    // Literal, case-insensitive text: the input never runs as a regex.
+    const text = new RegExp(escapeRegex(search.trim()), 'i')
+    query.$or = [{ name: text }, { email: text }, { institution: text }]
   }
 
   const skip = (page - 1) * limit

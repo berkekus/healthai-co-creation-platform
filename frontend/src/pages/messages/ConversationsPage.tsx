@@ -39,34 +39,34 @@ export default function ConversationsPage() {
 
   if (isLoading && conversations.length === 0) {
     return (
-      <div className="min-h-screen bg-[#f5f6f8] flex items-center justify-center">
+      <div className="min-h-screen bg-surface-subtle flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-ink/20 border-t-ink rounded-full animate-spin" />
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f6f8]">
+    <main className="min-h-screen bg-surface-subtle">
       <section className="mx-auto w-full max-w-[860px] px-6 pb-20 pt-[72px] md:px-10">
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#e8e8ee] bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-ink shadow-[0_10px_30px_-24px_rgba(45,24,56,0.5)]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-ink shadow-[0_10px_30px_-24px_rgba(45,24,56,0.5)]">
             <MessageSquare size={12} />
             {t('messagesPage.count', { count: conversations.length })}
           </div>
           <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-ink md:text-7xl">
             {t('messagesPage.title')}
           </h1>
-          <p className="mt-4 max-w-[520px] text-base leading-7 text-ink-muted-alt">{t('messagesPage.desc')}</p>
+          <p className="mt-4 max-w-[520px] text-base leading-7 text-ink-muted">{t('messagesPage.desc')}</p>
         </div>
 
         {conversations.length === 0 ? (
-          <div className="rounded-[24px] border border-[#e8e8ee] bg-white p-16 text-center shadow-[0_24px_70px_-54px_rgba(45,24,56,0.4)]">
+          <div className="rounded-[24px] border border-line bg-white p-16 text-center shadow-[0_24px_70px_-54px_rgba(45,24,56,0.4)]">
             <MessageSquare size={40} className="mx-auto text-[#c5c0cc] mb-4" />
             <p className="font-headline text-xl font-black text-ink">{t('messagesPage.empty')}</p>
-            <p className="mt-2 text-sm text-ink-muted-alt">{t('messagesPage.emptyDesc')}</p>
+            <p className="mt-2 text-sm text-ink-muted">{t('messagesPage.emptyDesc')}</p>
           </div>
         ) : (
-          <div className="rounded-[24px] border border-[#e8e8ee] bg-white shadow-[0_24px_70px_-54px_rgba(45,24,56,0.4)] overflow-hidden">
+          <div className="rounded-[24px] border border-line bg-white shadow-[0_24px_70px_-54px_rgba(45,24,56,0.4)] overflow-hidden">
             {conversations.map((conv, i) => (
               <ConversationRow
                 key={conv.id}
@@ -101,21 +101,21 @@ function ConversationRow({ conv, userId, isLast, onClick, onDelete }: {
   }
 
   return (
-    <div className={`flex items-center gap-4 px-6 py-5 hover:bg-[#f8f7fa] transition-colors group ${isLast ? '' : 'border-b border-[#e8e8ee]'}`}>
+    <div className={`flex items-center gap-4 px-6 py-5 hover:bg-surface-subtle transition-colors group ${isLast ? '' : 'border-b border-line'}`}>
       <button onClick={onClick} className="flex items-center gap-4 flex-1 min-w-0 text-left">
-        <div className="w-12 h-12 rounded-full bg-ink text-[#8fdff0] font-black text-sm flex items-center justify-center shrink-0">{initials}</div>
+        <div className="w-12 h-12 rounded-full bg-ink text-hai-aqua font-black text-sm flex items-center justify-center shrink-0">{initials}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-3 mb-1">
             <span className="font-headline font-black text-base text-ink truncate">{partner?.name ?? t('messagesPage.unknownPartner')}</span>
-            <span className="flex items-center gap-1 text-xs text-ink-muted-gray font-semibold shrink-0"><Clock size={11} />{timeAgo}</span>
+            <span className="flex items-center gap-1 text-xs text-ink-muted font-semibold shrink-0"><Clock size={11} />{timeAgo}</span>
           </div>
-          <p className="text-sm text-ink-muted-alt font-semibold truncate">{conv.postTitle}</p>
-          {conv.lastMessagePreview && <p className="text-xs text-ink-muted-gray truncate mt-0.5">{conv.lastMessagePreview}</p>}
+          <p className="text-sm text-ink-muted font-semibold truncate">{conv.postTitle}</p>
+          {conv.lastMessagePreview && <p className="text-xs text-ink-muted truncate mt-0.5">{conv.lastMessagePreview}</p>}
         </div>
       </button>
       <div className="shrink-0 flex items-center gap-2">
         {!confirm ? (
-          <button onClick={e => { e.stopPropagation(); setConfirm(true) }} title={t('messagesPage.deleteConv')} className="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted-gray hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
+          <button onClick={e => { e.stopPropagation(); setConfirm(true) }} title={t('messagesPage.deleteConv')} className="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
             <Trash2 size={14} />
           </button>
         ) : (
@@ -123,7 +123,7 @@ function ConversationRow({ conv, userId, isLast, onClick, onDelete }: {
             <button onClick={handleDelete} disabled={deleting} className="h-7 px-2.5 rounded-full bg-red-500 text-white text-xs font-bold hover:bg-red-600 disabled:opacity-50 transition-colors">
               {deleting ? '…' : t('messagesPage.delete')}
             </button>
-            <button onClick={e => { e.stopPropagation(); setConfirm(false) }} className="h-7 px-2.5 rounded-full border border-[#e8e8ee] text-xs font-bold text-ink-muted-alt hover:bg-[#f5f6f8] transition-colors">
+            <button onClick={e => { e.stopPropagation(); setConfirm(false) }} className="h-7 px-2.5 rounded-full border border-line text-xs font-bold text-ink-muted hover:bg-surface-subtle transition-colors">
               {t('messagesPage.cancel')}
             </button>
           </>

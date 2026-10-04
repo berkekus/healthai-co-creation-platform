@@ -11,7 +11,7 @@ import DomainPicker from './DomainPicker'
 import api from '../../lib/api'
 
 const baseInput =
-  'h-14 w-full rounded-[10px] border border-[#d7dbe3] bg-white px-4 text-sm font-semibold text-ink outline-none transition placeholder:text-ink-muted focus:border-hai-focus focus:ring-4 focus:ring-[#66c8e7]/20'
+  'h-14 w-full rounded-[10px] border border-line-strong bg-white px-4 text-sm font-semibold text-ink outline-none transition placeholder:text-ink-muted focus:border-hai-focus focus:ring-4 focus:ring-[#66c8e7]/20'
 const baseSelect =
   `${baseInput} appearance-none pr-10`
 
@@ -126,7 +126,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
             />
           </Field>
           <div className="flex flex-col items-start gap-3 lg:pt-7">
-            <span className="text-sm font-semibold leading-5 text-ink-muted-alt">{t('posts.form.minChars')}</span>
+            <span className="text-sm font-semibold leading-5 text-ink-muted">{t('posts.form.minChars')}</span>
             <button
               type="button"
               disabled={aiLoading || !aiHasText}
@@ -138,7 +138,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
               {aiLoading ? t('posts.form.improving') : t('posts.form.aiAssist')}
             </button>
             {!aiHasText && (
-              <span id={aiHintId} className="text-xs font-semibold leading-5 text-ink-muted-alt">
+              <span id={aiHintId} className="text-xs font-semibold leading-5 text-ink-muted">
                 {t('posts.form.aiNeedsText')}
               </span>
             )}
@@ -150,29 +150,29 @@ export default function PostFormFields({ register, control, setValue, errors, mi
           <div role="alert" className="mt-4 rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{aiError}</div>
         )}
         {aiResult && (
-          <div className="mt-4 rounded-[14px] border border-[#cdeefa] bg-[#eefaff] p-5">
+          <div className="mt-4 rounded-[14px] border border-hai-ice-line bg-hai-ice p-5">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-black text-ink">
                 <Sparkles size={14} />
                 {t('posts.form.aiSuggestions')}
               </div>
-              <button type="button" onClick={() => setAiResult(null)} aria-label={t('common.close')} className="text-ink-muted-gray hover:text-ink transition-colors">✕</button>
+              <button type="button" onClick={() => setAiResult(null)} aria-label={t('common.close')} className="text-ink-muted hover:text-ink transition-colors">✕</button>
             </div>
             {aiResult.improvedTitle && (
               <div className="mb-2">
-                <span className="text-xs font-black uppercase tracking-wide text-ink-muted-alt">{t('posts.form.suggestionTitle')}</span>
+                <span className="text-xs font-black uppercase tracking-wide text-ink-muted">{t('posts.form.suggestionTitle')}</span>
                 <p className="mt-1 text-sm font-semibold text-ink">{aiResult.improvedTitle}</p>
               </div>
             )}
             {aiResult.improvedDescription && (
               <div className="mb-2">
-                <span className="text-xs font-black uppercase tracking-wide text-ink-muted-alt">{t('posts.form.suggestionDescription')}</span>
+                <span className="text-xs font-black uppercase tracking-wide text-ink-muted">{t('posts.form.suggestionDescription')}</span>
                 <p className="mt-1 text-sm font-semibold text-ink">{aiResult.improvedDescription}</p>
               </div>
             )}
             {aiResult.suggestedExpertise && aiResult.suggestedExpertise.length > 0 && (
               <div className="mb-2">
-                <span className="text-xs font-black uppercase tracking-wide text-ink-muted-alt">{t('posts.form.suggestionExpertise')}</span>
+                <span className="text-xs font-black uppercase tracking-wide text-ink-muted">{t('posts.form.suggestionExpertise')}</span>
                 <div className="mt-1 flex flex-wrap gap-1.5">
                   {aiResult.suggestedExpertise.map(tag => (
                     <span key={tag} className="rounded-full bg-hai-plum/10 px-2.5 py-0.5 text-xs font-bold text-hai-plum">{tag}</span>
@@ -181,7 +181,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
               </div>
             )}
             {aiResult.tip && (
-              <div className="mb-3 text-xs font-semibold italic text-ink-muted-alt">{aiResult.tip}</div>
+              <div className="mb-3 text-xs font-semibold italic text-ink-muted">{aiResult.tip}</div>
             )}
             <button
               type="button"
@@ -236,17 +236,17 @@ export default function PostFormFields({ register, control, setValue, errors, mi
             ] as const).map(option => (
               <label
                 key={option.value}
-                className="group relative flex cursor-pointer items-center gap-4 rounded-[10px] border border-[#d7dbe3] bg-white p-4 transition has-[:checked]:border-[#66c8e7] has-[:checked]:bg-[#f2fbff]"
+                className="group relative flex cursor-pointer items-center gap-4 rounded-[10px] border border-line-strong bg-white p-4 transition has-[:checked]:border-[#66c8e7] has-[:checked]:bg-[#f2fbff]"
               >
                 <input {...register('confidentiality')} type="radio" value={option.value} className="peer sr-only" />
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eefaff] text-ink">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hai-ice text-ink">
                   <Lock size={18} />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-black text-ink">{option.title}</span>
-                  <span className="mt-1 block text-xs font-semibold leading-5 text-ink-muted-alt">{option.desc}</span>
+                  <span className="mt-1 block text-xs font-semibold leading-5 text-ink-muted">{option.desc}</span>
                 </span>
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[#cfd3dc] transition group-has-[:checked]:border-[#66c8e7] group-has-[:checked]:bg-[#66c8e7]">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-line-strong transition group-has-[:checked]:border-[#66c8e7] group-has-[:checked]:bg-[#66c8e7]">
                   <svg className="hidden group-has-[:checked]:block" width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
                     <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -285,7 +285,7 @@ export default function PostFormFields({ register, control, setValue, errors, mi
       </FormSection>
 
       <FormSection number="5" title={t('posts.form.sections.reviewTitle')} subtitle={t('posts.form.sections.reviewSubtitle')}>
-        <div className="flex gap-4 rounded-[10px] border border-[#cdeefa] bg-[#eefaff] p-5">
+        <div className="flex gap-4 rounded-[10px] border border-hai-ice-line bg-hai-ice p-5">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d8f5ff] text-ink">
             <ShieldCheck size={20} />
           </span>
@@ -312,7 +312,7 @@ function FormSection({ number, title, subtitle, children }: { number: string; ti
         </span>
         <div>
           <h2 className="text-xl font-black leading-tight text-ink">{title}</h2>
-          <p className="mt-1 text-sm font-semibold text-ink-muted-alt">{subtitle}</p>
+          <p className="mt-1 text-sm font-semibold text-ink-muted">{subtitle}</p>
         </div>
       </header>
       <div className="space-y-6">{children}</div>
@@ -353,7 +353,7 @@ function Field({ children, ...labelProps }: FieldLabelProps & { children: ReactN
 function OptionHelp({ children }: { children: ReactNode }) {
   if (!children) return null
   return (
-    <span aria-live="polite" className="mt-2 block text-xs font-semibold leading-5 text-ink-muted-alt">
+    <span aria-live="polite" className="mt-2 block text-xs font-semibold leading-5 text-ink-muted">
       {children}
     </span>
   )
@@ -361,7 +361,7 @@ function OptionHelp({ children }: { children: ReactNode }) {
 
 function Hint({ children }: { children: ReactNode }) {
   return (
-    <div className="flex items-center text-sm font-semibold leading-5 text-ink-muted-alt lg:pt-7">
+    <div className="flex items-center text-sm font-semibold leading-5 text-ink-muted lg:pt-7">
       {children}
     </div>
   )
@@ -372,7 +372,7 @@ function SelectShell({ children }: { children: ReactNode }) {
     <div className="relative">
       {children}
       <svg
-        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted-alt"
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted"
         width="16" height="16" viewBox="0 0 16 16" fill="none"
         aria-hidden="true"
       >

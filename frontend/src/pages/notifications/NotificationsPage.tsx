@@ -127,12 +127,12 @@ export default function NotificationsPage() {
                     active
                       ? 'bg-hai-teal-soft text-hai-teal-dark'
                       : unavailable
-                        ? 'text-[#C5CAD6] cursor-not-allowed'
-                        : 'text-ink-muted hover:bg-[#EEF0F3] hover:text-hai-plum'
+                        ? 'text-ink-faint cursor-not-allowed'
+                        : 'text-ink-muted hover:bg-surface-muted hover:text-hai-plum'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className={active ? 'text-hai-teal-dark' : unavailable ? 'text-[#C5CAD6]' : 'text-ink-muted'}>
+                    <span className={active ? 'text-hai-teal-dark' : unavailable ? 'text-ink-faint' : 'text-ink-muted'}>
                       {t.icon}
                     </span>
                     {t.label}
@@ -140,8 +140,8 @@ export default function NotificationsPage() {
                   {countsKnown && (
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                       active ? 'bg-hai-teal-dark/10 text-hai-teal-dark'
-                      : count === 0 ? 'text-[#C5CAD6]'
-                      : 'bg-[#EEF0F3] text-ink-muted'
+                      : count === 0 ? 'text-ink-faint'
+                      : 'bg-surface-muted text-ink-muted'
                     }`}>
                       {count}
                     </span>
@@ -153,7 +153,7 @@ export default function NotificationsPage() {
 
           {/* Stay in the loop */}
           <div className="mx-3 mb-4 p-4 bg-hai-teal-soft rounded-xl text-center">
-            <div className="w-12 h-12 rounded-full bg-[#D7EEF2] flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 rounded-full bg-hai-lime flex items-center justify-center mx-auto mb-3">
               <Bell size={20} strokeWidth={1.8} className="text-hai-teal" />
             </div>
             <div className="text-sm font-black text-hai-plum mb-1">{t('notificationsPage.stayInLoop')}</div>
@@ -226,7 +226,7 @@ export default function NotificationsPage() {
                           className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
                             activeTab === tab.key
                               ? 'bg-hai-teal-soft text-hai-teal-dark'
-                              : unavailable ? 'cursor-not-allowed text-[#C5CAD6]' : 'text-ink-muted hover:bg-[#EEF0F3] hover:text-hai-plum'
+                              : unavailable ? 'cursor-not-allowed text-ink-faint' : 'text-ink-muted hover:bg-surface-muted hover:text-hai-plum'
                           }`}
                         >
                           <span className="flex items-center gap-2.5">
@@ -244,7 +244,7 @@ export default function NotificationsPage() {
           </div>
 
           {showRefreshError && (
-            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F3D6D9] bg-[#FBF1F2] px-7 py-3 text-sm font-semibold text-[#9B3440]">
+            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 border-b border-error-line bg-error-soft px-7 py-3 text-sm font-semibold text-error">
               <span>{t('notificationsPage.refreshError')}</span>
               <button type="button" onClick={retry} className="font-black underline underline-offset-2 hover:text-hai-plum">
                 {t('notificationsPage.retry')}
@@ -269,7 +269,7 @@ export default function NotificationsPage() {
               </div>
             ) : showLoadError ? (
               <div role="alert" className="py-16 text-center">
-                <p className="text-sm font-semibold text-[#9B3440]">{t('notificationsPage.loadError')}</p>
+                <p className="text-sm font-semibold text-error">{t('notificationsPage.loadError')}</p>
                 <button
                   type="button"
                   onClick={retry}
@@ -280,7 +280,7 @@ export default function NotificationsPage() {
               </div>
             ) : filtered.length === 0 ? (
               <div className="py-16 text-center">
-                <div className="w-12 h-12 rounded-full bg-[#EEF0F3] flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-full bg-surface-muted flex items-center justify-center mx-auto mb-3">
                   <Bell size={20} className="text-line-strong" />
                 </div>
                 <p className="text-sm font-semibold text-ink-muted">{t('notificationsPage.none')}</p>

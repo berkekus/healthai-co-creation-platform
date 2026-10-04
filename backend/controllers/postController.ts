@@ -1,5 +1,6 @@
 import { AuthenticatedRequest } from '../middleware/authMiddleware'
 import * as postService from '../services/postService'
+import { POST_SORTS } from '../services/postService'
 import { LOG } from '../constants/logActions'
 import User from '../models/User'
 import { asyncHandler } from '../utils/asyncHandler'
@@ -50,28 +51,42 @@ export const getPost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
 })
 
 export const listPosts = asyncHandler<AuthenticatedRequest>(async (req, res) => {
-  const { domain, expertise, city, country, projectStage, status, search, authorRole, mine } = req.query
-  const page  = Math.max(1, parseInt(req.query.page  as string) || 1)
-  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20))
+  // qs turns ?status[$exists]=true into an object; only plain strings may reach the query.
+  const text = (value: unknown) => (typeof value === 'string' ? value : undefined)
+  const q = req.query
+  const status = text(q.status)
+  const page  = Math.max(1, parseInt(text(q.page) ?? '') || 1)
+  const limit = Math.min(100, Math.max(1, parseInt(text(q.limit) ?? '') || 20))
+  const sort: postService.PostSort = POST_SORTS.includes(q.sort as postService.PostSort) ? q.sort as postService.PostSort : 'newest'
 
   const isAdmin = req.userRole === 'admin'
-  const isMine = mine === 'true'
-  const forceScopeToOwn = !isAdmin && (status as string) === 'draft'
+  const isMine = text(q.mine) === 'true'
+  const forceScopeToOwn = !isAdmin && status === 'draft'
+
+  const viewerProfile = sort === 'relevance'
+    ? await User.findById(req.userId).select('role city country expertiseTags').lean()
+    : null
+  const viewer = viewerProfile
+    ? { id: req.userId, role: viewerProfile.role, city: viewerProfile.city, country: viewerProfile.country, expertiseTags: viewerProfile.expertiseTags }
+    : undefined
 
   const result = await postService.listPosts(
     {
-      domain: domain as string,
-      expertise: expertise as string,
-      city: city as string,
-      country: country as string,
-      projectStage: projectStage as string,
+      domain: text(q.domain),
+      expertise: text(q.expertise),
+      city: text(q.city),
+      country: text(q.country),
+      location: text(q.location),
+      projectStage: text(q.projectStage),
       authorId: (isMine || forceScopeToOwn) ? req.userId : undefined,
-      status: isMine ? undefined : (status as string),
-      search: search as string,
-      authorRole: authorRole as string,
+      status: isMine ? undefined : status,
+      search: text(q.search),
+      authorRole: text(q.authorRole),
     },
     page,
     limit,
+    sort,
+    viewer,
   )
   res.json({ success: true, data: result })
 })

@@ -111,4 +111,7 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true }
 )
 
+// Admin stats count sign-ups by date range (recent days, and everyone before them).
+UserSchema.index({ createdAt: 1 })
+
 export default model<IUser>('User', UserSchema)

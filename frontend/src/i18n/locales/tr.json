@@ -1209,6 +1209,11 @@
       "removeConfirmUndo": "Bu işlem geri alınamaz.",
       "removeError": "İlan kaldırılamadı. Lütfen tekrar deneyin."
     },
+    "export": {
+      "running": "Dışa aktarılıyor…",
+      "failed": "Dışa aktarma başarısız oldu. Lütfen tekrar deneyin.",
+      "capped": "Yalnızca en yeni {{count}} kayıt dışa aktarıldı."
+    },
     "logs": {
       "title": "Aktivite Kayıtları",
       "subtitle": "Değiştirilemez · 24 ay saklanır",

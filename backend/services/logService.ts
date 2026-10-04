@@ -1,4 +1,7 @@
 import Log from '../models/Log'
+import { escapeRegex } from '../constants/domains'
+
+const LOG_RESULTS = ['success', 'failure']
 
 export async function createLog(data: {
   userId?: string
@@ -24,8 +27,9 @@ export async function getLogs(filters: {
   const query: Record<string, unknown> = {}
 
   if (filters.userId) query.userId = filters.userId
-  if (filters.action) query.action = { $regex: filters.action, $options: 'i' }
-  if (filters.result) query.result = filters.result
+  // Partial, case-insensitive match on the literal text: user input never runs as a regex (ReDoS / invalid pattern).
+  if (filters.action) query.action = { $regex: escapeRegex(filters.action), $options: 'i' }
+  if (filters.result && LOG_RESULTS.includes(filters.result)) query.result = filters.result
   if (filters.from || filters.to) {
     const fromDate = filters.from ? new Date(filters.from) : undefined
     const toDate   = filters.to   ? new Date(filters.to)   : undefined
@@ -37,12 +41,17 @@ export async function getLogs(filters: {
     }
   }
 
-  const limit = Math.min(filters.limit ?? 50, 200)
-  const skip = ((filters.page ?? 1) - 1) * limit
+  const limit = Math.min(positiveInt(filters.limit) ?? 50, 200)
+  const page = positiveInt(filters.page) ?? 1
+  const skip = (page - 1) * limit
   const [total, logs] = await Promise.all([
     Log.countDocuments(query),
     Log.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
   ])
 
-  return { logs, total, page: filters.page ?? 1, limit }
+  return { logs, total, page, limit }
+}
+
+function positiveInt(value: number | undefined) {
+  return value !== undefined && Number.isInteger(value) && value > 0 ? value : undefined
 }

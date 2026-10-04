@@ -94,5 +94,9 @@ PostSchema.index({ domain: 1 })
 PostSchema.index({ domains: 1 })
 PostSchema.index({ country: 1, city: 1 })
 PostSchema.index({ title: 'text', description: 'text', expertiseRequired: 'text' })
+// Listing: the default feed filters on status and sorts by recency or expiry; "mine" sorts by recency.
+PostSchema.index({ status: 1, createdAt: -1, _id: -1 })
+PostSchema.index({ status: 1, expiryDate: 1, _id: 1 })
+PostSchema.index({ authorId: 1, createdAt: -1, _id: -1 })
 
 export default model<IPost>('Post', PostSchema)

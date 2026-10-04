@@ -10,7 +10,7 @@ import { ROUTES } from '../../constants/routes'
 import { Badge, ButtonLink, Card, IconButton } from '../../components/ui'
 import { useAuthStore } from '../../store/authStore'
 import { useMeetingStore } from '../../store/meetingStore'
-import { usePostStore } from '../../store/postStore'
+import { usePostList } from '../../hooks/usePostList'
 import type { Meeting } from '../../types/meeting.types'
 import type { Post } from '../../types/post.types'
 import { postDomains } from '../../constants/domains'
@@ -18,40 +18,41 @@ import { postDomains } from '../../constants/domains'
 export default function DashboardPage() {
   const { user } = useAuthStore()
   const { getByUser, fetchByUser } = useMeetingStore()
-  const { posts, fetchPosts } = usePostStore()
+  // Counts come from the server totals, so they stay right however many posts the user has.
+  const mine = usePostList({ page: 1, limit: 5, mine: true, sort: 'newest' })
+  const activeMine = usePostList({ page: 1, limit: 1, mine: true, status: 'active' })
+  const scheduledMine = usePostList({ page: 1, limit: 1, mine: true, status: 'meeting_scheduled' })
+  const recentPosts = mine.data?.posts ?? []
+  const myPostCount = mine.data?.total ?? 0
 
   useEffect(() => {
     if (user) fetchByUser(user.id)
   }, [fetchByUser, user])
 
-  useEffect(() => {
-    if (user) fetchPosts({ limit: 100, mine: true, filters: {} })
-  }, [fetchPosts, user])
-
   const myMeetings = user ? getByUser(user.id) : []
   const upcomingMeetings = myMeetings.filter(meeting =>
     meeting.status === 'confirmed' || meeting.status === 'pending'
   )
-  const activeListings = posts.filter(post => post.status === 'active' || post.status === 'meeting_scheduled').length
-  const isNewUser = posts.length === 0 && myMeetings.length === 0
+  const activeListings = (activeMine.data?.total ?? 0) + (scheduledMine.data?.total ?? 0)
+  const isNewUser = mine.isSuccess && myPostCount === 0 && myMeetings.length === 0
 
   return (
     <main className="min-h-screen bg-hai-offwhite text-hai-plum">
       <div className="mx-auto w-full max-w-[1640px] px-4 pb-24 pt-[94px] sm:px-8">
         <section className="grid grid-cols-1 items-start gap-10 xl:grid-cols-[420px_minmax(0,1fr)] xl:gap-28">
           <WelcomePanel user={user} />
-          <WeeklyBlob postCount={posts.length} meetingCount={myMeetings.length} activeListings={activeListings} />
+          <WeeklyBlob postCount={myPostCount} meetingCount={myMeetings.length} activeListings={activeListings} />
         </section>
 
         {isNewUser ? (
           <OnboardingPanel />
         ) : (
           <section className="mt-10 grid grid-cols-1 gap-12 xl:grid-cols-[minmax(0,680px)_minmax(0,700px)] xl:gap-28">
-            <RecentPosts posts={posts} />
+            <RecentPosts posts={recentPosts} />
             <UpcomingMeetings meetings={upcomingMeetings} userId={user?.id ?? ''} />
           </section>
         )}
-        <SavedPosts storePosts={posts} />
+        <SavedPosts storePosts={recentPosts} />
       </div>
     </main>
   )
@@ -350,7 +351,7 @@ function RecentPostCard({ post, index, timeLabel }: { post: Post; index: number;
 
       <div className="flex items-center gap-4">
         <RecentPostStatusBadge status={post.status} />
-        <ChevronRight size={19} className="text-[#687294] transition group-hover:translate-x-0.5 group-hover:text-hai-teal-dark" />
+        <ChevronRight size={19} className="text-ink-muted transition group-hover:translate-x-0.5 group-hover:text-hai-teal-dark" />
       </div>
     </Link>
   )
@@ -361,7 +362,7 @@ function RecentPostStatusBadge({ status }: { status: Post['status'] }) {
   const config: Record<Post['status'], { label: string; className: string }> = {
     draft: {
       label: t('dashboard.status.draft'),
-      className: 'bg-[#EEF0F6] text-[#687294]',
+      className: 'bg-[#EEF0F6] text-ink-muted',
     },
     active: {
       label: t('dashboard.status.open', { defaultValue: 'Open' }),
@@ -455,7 +456,7 @@ function SavedPosts({ storePosts }: { storePosts: Post[] }) {
               </div>
               <div className="text-[12.5px] font-semibold text-ink-muted mb-3">{postDomains(post).join(' · ')}</div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-ink-muted-gray">{post.authorName}</span>
+                <span className="text-xs font-semibold text-ink-muted">{post.authorName}</span>
                 <StatusPill status={post.status} />
               </div>
             </Link>
@@ -524,7 +525,7 @@ function UpcomingMeetings({ meetings, userId }: { meetings: Meeting[]; userId: s
         <div className="absolute left-[128px] top-[74px] h-[250px] w-[250px] rounded-full border border-line" />
         <div className="absolute left-[168px] top-[114px] h-[170px] w-[170px] rounded-full border border-line" />
         <div className="absolute left-[206px] top-[152px] flex h-[94px] w-[94px] items-center justify-center rounded-full bg-hai-teal-soft">
-          <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-[#D7EEF2] text-hai-plum">
+          <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-hai-lime text-hai-plum">
             <CalendarDays size={23} strokeWidth={2.4} />
           </div>
         </div>

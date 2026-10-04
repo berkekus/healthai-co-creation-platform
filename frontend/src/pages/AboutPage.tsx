@@ -113,7 +113,7 @@ export default function AboutPage() {
           </p>
         </section>
 
-        <section className="rounded-[1.75rem] border border-[#E4E7EA] bg-[#FAFBFB] p-6 shadow-[0_22px_56px_-38px_rgba(54,33,62,0.2)] md:p-8">
+        <section className="rounded-[1.75rem] border border-line bg-[#FAFBFB] p-6 shadow-[0_22px_56px_-38px_rgba(54,33,62,0.2)] md:p-8">
           <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-[#DCE8EA] bg-[#E8F0F1] text-[#536F76]">
             <span className="material-symbols-outlined" aria-hidden>handshake</span>
           </div>
@@ -126,7 +126,7 @@ export default function AboutPage() {
         </section>
       </div>
 
-      <section className="mt-5 rounded-[1.75rem] border border-[#E4E7EA] bg-[#FCFCFC] p-6 shadow-[0_22px_56px_-38px_rgba(54,33,62,0.2)] md:p-9">
+      <section className="mt-5 rounded-[1.75rem] border border-line bg-[#FCFCFC] p-6 shadow-[0_22px_56px_-38px_rgba(54,33,62,0.2)] md:p-9">
         <div className="mb-6 flex items-start gap-4">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#4A374F] font-mono text-xs font-bold text-[#D5E8EB]">
             01

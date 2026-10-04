@@ -79,3 +79,10 @@ export async function createPost(token: string, overrides: Record<string, unknow
   if (res.status !== 201) throw new Error(`createPost failed: ${JSON.stringify(res.body)}`)
   return res.body.data
 }
+
+export async function createPublishedPost(token: string, overrides: Record<string, unknown> = {}) {
+  const post = await createPost(token, overrides)
+  const res = await api.post(`/api/posts/${post.id ?? post._id}/publish`).set('Authorization', `Bearer ${token}`)
+  if (res.status !== 200) throw new Error(`publish failed: ${JSON.stringify(res.body)}`)
+  return res.body.data
+}

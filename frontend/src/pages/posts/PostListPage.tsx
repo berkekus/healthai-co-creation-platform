@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { HEALTH_DOMAIN_GROUPS, postDomains, postHasDomain } from '../../constants/domains'
+import { HEALTH_DOMAIN_GROUPS, postDomains } from '../../constants/domains'
 import {
   Bookmark,
   ChevronDown,
@@ -39,6 +39,10 @@ import { ROUTES, postDetail } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
 import { usePostStore } from '../../store/postStore'
 import { useSmartSuggestions } from '../../lib/gemini'
+import { usePostList } from '../../hooks/usePostList'
+import { useDebouncedValue } from '../../hooks/useDebouncedValue'
+import type { PostSort } from '../../lib/postsApi'
+import { CITIES, COUNTRIES } from '../../data/locations'
 import { computeMatchReasons, getCombinedMatchScore } from '../../utils/matchPosts'
 import type { Post, PostAuthorRole, PostStatus, ProjectStage } from '../../types/post.types'
 
@@ -53,6 +57,9 @@ function postedByShortLabel(t: TFunction, value: PostedBy): string {
   return t('posts.postedByOptions.anyone')
 }
 type SortMode = 'best' | 'recent' | 'oldest' | 'expiring'
+const SORT_TO_SERVER: Record<SortMode, PostSort> = { best: 'relevance', recent: 'newest', oldest: 'oldest', expiring: 'expiring' }
+// Places offered while typing a location; the list no longer holds every post to collect them from.
+const LOCATION_SUGGESTIONS = [...COUNTRIES, ...CITIES]
 type ViewMode = 'list' | 'grid'
 const POSTS_PER_PAGE = 5
 
@@ -88,7 +95,7 @@ const statusValues: PostStatus[] = ['active', 'meeting_scheduled', 'partner_foun
 export default function PostListPage() {
   const { t } = useTranslation()
   const { user } = useAuthStore()
-  const { posts, fetchPosts, isLoading, remove } = usePostStore()
+  const { remove } = usePostStore()
   const { suggestions, isLoading: isMatching, load: loadSmartSuggestions, reset: resetSmartSuggestions } = useSmartSuggestions()
   // Filters and page live in the URL, so returning from a post, reloading or sharing the
   // link keeps them. Updates replace the history entry so Back leaves the list, not each keystroke.
@@ -133,52 +140,49 @@ export default function PostListPage() {
   const [filterOpen, setFilterOpen] = useState(false)
   const mineOnly = searchParams.get('mine') === 'true'
 
-  useEffect(() => {
-    fetchPosts({ limit: 100, mine: mineOnly, filters: {} })
-  }, [fetchPosts, mineOnly])
+  // The server filters, sorts and pages; typing is debounced so one request goes out when the user pauses.
+  const debouncedSearch = useDebouncedValue(search.trim(), 300)
+  const debouncedLocation = useDebouncedValue(location.trim(), 300)
+  const listQuery = usePostList({
+    page,
+    limit: POSTS_PER_PAGE,
+    mine: mineOnly,
+    search: debouncedSearch,
+    location: debouncedLocation,
+    domain,
+    projectStage: stage,
+    status,
+    authorRole: postedBy === 'Engineer' ? 'engineer' : postedBy === 'Healthcare Professional' ? 'healthcare_professional' : undefined,
+    sort: SORT_TO_SERVER[sort],
+  })
+  const pagePosts = useMemo(() => listQuery.data?.posts ?? [], [listQuery.data])
+  const totalPosts = listQuery.data?.total ?? 0
+  const totalPages = Math.max(1, listQuery.data?.pages ?? 1)
 
+  // A page number from an old link (or after the last post on the last page was deleted) must not leave an empty page.
   useEffect(() => {
-    if (!user || posts.length === 0) {
+    const pages = listQuery.data?.pages ?? 0
+    if (pages > 0 && page > pages) setPage(pages)
+    // setPage writes through a ref to the latest params, so it is safe to leave out.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listQuery.data, page])
+
+  // AI explanations are only requested for the posts on screen.
+  useEffect(() => {
+    if (!user || pagePosts.length === 0) {
       resetSmartSuggestions()
       return
     }
-    loadSmartSuggestions(user, posts)
-  }, [loadSmartSuggestions, posts, resetSmartSuggestions, user])
+    loadSmartSuggestions(user, pagePosts)
+  }, [loadSmartSuggestions, pagePosts, resetSmartSuggestions, user])
 
   const hasActiveFilters = Boolean(search.trim() || domain || stage || status || location.trim() || postedBy !== 'Anyone')
   const activeFilterCount = [domain, stage, status, location.trim(), postedBy !== 'Anyone' ? postedBy : ''].filter(Boolean).length
 
-  const directoryPosts = useMemo(() => {
-    const source = posts.map(post => toDirectoryPost(post, user, t, suggestions.get(post.id)))
-    const query = search.trim().toLowerCase()
-
-    return source
-      .filter(post => {
-        if (query) {
-          const haystack = [post.title, post.description, post.domains.join(' '), post.author, post.tags.join(' ')].join(' ').toLowerCase()
-          if (!haystack.includes(query)) return false
-        }
-        if (domain && !postHasDomain(post, domain)) return false
-        if (stage && post.projectStage !== stage) return false
-        if (status && post.status !== status) return false
-        if (postedBy === 'Engineer' && post.authorRole !== 'engineer') return false
-        if (postedBy === 'Healthcare Professional' && post.authorRole !== 'healthcare_professional') return false
-        if (location.trim()) {
-          const loc = location.trim().toLowerCase()
-          if (!post.city.toLowerCase().includes(loc) && !post.country.toLowerCase().includes(loc)) return false
-        }
-        return true
-      })
-      .sort((a, b) => {
-        if (sort === 'best') {
-          if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        }
-        if (sort === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        if (sort === 'expiring') return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime()
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      })
-  }, [domain, location, postedBy, posts, search, sort, stage, status, suggestions, user, t])
+  const directoryPosts = useMemo(
+    () => pagePosts.map(post => toDirectoryPost(post, user, t, suggestions.get(post.id))),
+    [pagePosts, suggestions, t, user],
+  )
 
   const clearFilters = () => {
     updateParams({ q: '', domain: '', stage: '', status: '', by: '', loc: '' })
@@ -224,13 +228,6 @@ export default function PostListPage() {
     setSavedSearchName(null)
   }, [domain, location, postedBy, search, stage])
 
-  const totalPages = Math.max(1, Math.ceil(directoryPosts.length / POSTS_PER_PAGE))
-  const currentPage = Math.min(page, totalPages)
-  const paginatedPosts = directoryPosts.slice(
-    (currentPage - 1) * POSTS_PER_PAGE,
-    currentPage * POSTS_PER_PAGE,
-  )
-
   const requestDeletePost = (postId: string) => {
     setDeleteError(null)
     setPostToDelete(postId)
@@ -250,15 +247,7 @@ export default function PostListPage() {
     }
   }
 
-  const locationSuggestions = useMemo(() => {
-    const seen = new Set<string>()
-    const result: string[] = []
-    for (const p of posts) {
-      if (p.city && !seen.has(p.city)) { seen.add(p.city); result.push(p.city) }
-      if (p.country && !seen.has(p.country)) { seen.add(p.country); result.push(p.country) }
-    }
-    return result
-  }, [posts])
+  const locationSuggestions = LOCATION_SUGGESTIONS
 
   return (
     <main
@@ -346,19 +335,19 @@ export default function PostListPage() {
               </div>
             )}
             <PostList
-              posts={paginatedPosts}
-              totalPosts={directoryPosts.length}
+              posts={directoryPosts}
+              totalPosts={totalPosts}
               mineOnly={mineOnly}
-              isLoading={isLoading && posts.length === 0}
+              isLoading={listQuery.isPending}
               isMatching={isMatching}
-              aiError={Boolean(user && !isMatching && posts.length > 0 && suggestions.size === 0)}
+              aiError={Boolean(user && !isMatching && pagePosts.length > 0 && suggestions.size === 0)}
               hasActiveFilters={hasActiveFilters}
               sort={sort}
               viewMode={viewMode}
               onSort={v => { setSort(v); setPage(1); localStorage.setItem('postList_sort', v) }}
               onViewMode={v => { setViewMode(v); setPage(1); localStorage.setItem('postList_view', v) }}
               onClear={clearFilters}
-              page={currentPage}
+              page={Math.min(page, totalPages)}
               totalPages={totalPages}
               onPage={setPage}
               onDelete={requestDeletePost}
@@ -401,7 +390,7 @@ export default function PostListPage() {
           busy={deletingPostId !== null}
           error={deleteError}
         >
-          <p className="font-black text-hai-plum">{posts.find(p => p.id === postToDelete)?.title}</p>
+          <p className="font-black text-hai-plum">{pagePosts.find(p => p.id === postToDelete)?.title}</p>
           <p>{t('posts.confirmDelete')}</p>
         </ConfirmDialog>
       )}
@@ -457,7 +446,7 @@ function SearchAndAction({ value, onChange }: { value: string; onChange: (value:
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={t('posts.searchPlaceholder')}
-          className="w-full rounded-full border border-transparent bg-[#EEF0F3] py-5 pl-14 pr-6 text-base font-semibold text-[var(--text)] outline-none transition placeholder:text-ink-muted hover:border-[var(--border)] hover:bg-white focus:border-[var(--accent)] focus:bg-white"
+          className="w-full rounded-full border border-transparent bg-surface-muted py-5 pl-14 pr-6 text-base font-semibold text-[var(--text)] outline-none transition placeholder:text-ink-muted hover:border-[var(--border)] hover:bg-white focus:border-[var(--accent)] focus:bg-white"
         />
       </div>
 
@@ -878,7 +867,7 @@ function PostRow({
       <div className="min-w-0 pt-1">
         {post.matchScore > 0 && (
           <div className="mb-4 flex flex-wrap items-center gap-3">
-            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] ${post.hasAI ? 'bg-hai-plum text-white' : 'bg-[#D8EFF2] text-hai-plum'}`}>
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] ${post.hasAI ? 'bg-hai-plum text-white' : 'bg-hai-lime text-hai-plum'}`}>
               <Sparkles size={14} />
               {post.hasAI ? t('posts.aiMatch') : t('posts.profileMatch')} · {post.matchScore}%
             </div>

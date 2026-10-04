@@ -624,12 +624,12 @@ function ConnectedAccounts({ user }: { user: User }) {
               data-provider={provider}
               className={`flex items-center gap-4 rounded-2xl border border-line-strong p-5 ${unavailable ? 'bg-[#F7F8FA]' : 'bg-white'}`}
             >
-              <svg className={`h-6 w-6 shrink-0 ${unavailable ? 'text-ink-muted-gray' : className}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <svg className={`h-6 w-6 shrink-0 ${unavailable ? 'text-ink-muted' : className}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d={path} />
               </svg>
               <div className="min-w-0">
                 <p className="text-sm font-black text-hai-plum">{PROVIDER_LABEL[provider]}</p>
-                <p className="truncate text-xs font-semibold text-ink-muted-gray">
+                <p className="truncate text-xs font-semibold text-ink-muted">
                   {connectedAs ?? (unavailable ? t('profile.connected.unavailable') : t('profile.connected.connectHint', { provider: PROVIDER_LABEL[provider] }))}
                 </p>
               </div>
@@ -805,14 +805,14 @@ export default function ProfilePage() {
               ['star', t('profile.expertise'), '#expertise'],
               ['lock', t('profile.privacy'), '#data-account'],
             ] as [string, string, string][]).map(([icon, label, href], index) => (
-              <a key={label + index} href={href} className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-hai-teal-soft ${index === 0 ? 'bg-hai-teal-soft text-[#6FB8C4]' : ''}`}>
+              <a key={label + index} href={href} className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-hai-teal-soft ${index === 0 ? 'bg-hai-teal-soft text-hai-teal-dark' : ''}`}>
                 <span aria-hidden="true" className="material-symbols-outlined text-lg">{icon}</span>
                 {label}
               </a>
             ))}
           </nav>
 
-          <div className="profile-help-card rounded-2xl bg-[#EEF0F3] p-4">
+          <div className="profile-help-card rounded-2xl bg-surface-muted p-4">
             <div className="text-xs font-black text-hai-plum">{t('profile.help.title')}</div>
             <p className="mt-3 text-xs font-semibold leading-5 text-ink-muted">{t('profile.help.desc')}</p>
             <button className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-line-strong bg-white text-xs font-black text-hai-plum">
@@ -847,7 +847,7 @@ export default function ProfilePage() {
 
           <div className="mt-10 flex items-center justify-between gap-6 rounded-[22px] bg-hai-teal-soft px-7 py-8">
             <div className="flex items-center gap-5">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#D7EEF2] text-[#6FB8C4]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-hai-lime text-hai-teal-dark">
                 <span aria-hidden="true" className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: '"FILL" 1' }}>verified_user</span>
               </div>
               <div>
@@ -969,7 +969,7 @@ export default function ProfilePage() {
               )}
               <div className="flex flex-wrap gap-3">
                 {tags.length > 0 ? tags.map(tag => (
-                  <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-[#EEF0F3] px-4 py-1.5 text-xs font-bold text-hai-plum">
+                  <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-surface-muted px-4 py-1.5 text-xs font-bold text-hai-plum">
                     {tag}
                     {isEditing && <button type="button" onClick={() => setTags(prev => prev.filter(item => item !== tag))} aria-label={t('profile.removeTag', { tag })} className="text-sm">x</button>}
                   </span>

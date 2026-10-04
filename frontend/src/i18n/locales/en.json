@@ -1209,6 +1209,11 @@
       "removeConfirmUndo": "This cannot be undone.",
       "removeError": "The post could not be removed. Please try again."
     },
+    "export": {
+      "running": "Exporting…",
+      "failed": "Export failed. Please try again.",
+      "capped": "Only the newest {{count}} entries were exported."
+    },
     "logs": {
       "title": "Activity Logs",
       "subtitle": "Tamper-resistant · Retention 24 months",

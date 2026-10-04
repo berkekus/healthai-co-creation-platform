@@ -216,7 +216,7 @@ export default function MeetingsPage() {
           )}
 
           {showRefreshError && (
-            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#F3D6D9] bg-[#FBF1F2] px-5 py-3 text-sm font-bold text-[#9B3440]">
+            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-error-line bg-error-soft px-5 py-3 text-sm font-bold text-error">
               <span>{t('meetingsPage.refreshError')}</span>
               <button type="button" onClick={retry} className="underline underline-offset-2 hover:text-[var(--primary)]">
                 {t('meetingsPage.retry')}
@@ -229,7 +229,7 @@ export default function MeetingsPage() {
               <MeetingListSkeleton />
             ) : showLoadError ? (
               <div role="alert" className="rounded-[28px] border border-[var(--border)] bg-white px-6 py-16 text-center">
-                <p className="text-sm font-bold text-[#9B3440]">{t('meetingsPage.loadError')}</p>
+                <p className="text-sm font-bold text-error">{t('meetingsPage.loadError')}</p>
                 <button
                   type="button"
                   onClick={retry}
@@ -347,7 +347,7 @@ function FilterGroup<T extends string>({
               {showCounts && (
                 <span
                   className={`flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-xs font-black ${
-                    active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-[#EEF0F3] text-[var(--muted)]'
+                    active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'bg-surface-muted text-[var(--muted)]'
                   }`}
                 >
                   {tab.count}
@@ -550,7 +550,7 @@ function MeetingRow({
           {t(hintKey, { name: partner })}
         </p>
         {status === 'declined' && meeting.declineReason && (
-          <p className="mt-2 text-xs font-semibold text-[#9B1C1C]">
+          <p className="mt-2 text-xs font-semibold text-tone-red">
             {t('meetingsPage.reason', { reason: meeting.declineReason })}
           </p>
         )}
@@ -796,13 +796,13 @@ function MeetingSummaryButton({ meetingId, postTitle }: { meetingId: string; pos
             </div>
           )}
           <div className="mt-3 flex items-center justify-between">
-            <p className="text-xs text-ink-muted-gray">
+            <p className="text-xs text-ink-muted">
               {t('meetings.summaryGenerated')} {new Date(summary.generatedAt).toLocaleDateString(i18n.language)}
             </p>
             <button
               type="button"
               onClick={() => void exportSummaryToPdf({ postTitle, ...summary })}
-              className="inline-flex items-center gap-1 text-xs font-black text-ink-muted-gray hover:text-hai-teal"
+              className="inline-flex items-center gap-1 text-xs font-black text-ink-muted hover:text-hai-teal"
             >
               <span aria-hidden="true" className="material-symbols-outlined text-xs">picture_as_pdf</span>
               {t('meetings.exportPdf')}
@@ -911,13 +911,13 @@ function CalendarPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
           {monthCursor.toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' })}
         </h2>
         <div className="flex items-center gap-1.5">
-          <button aria-label={t('meetingsPage.previousMonth')} onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() - 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#EEF0F3]">
+          <button aria-label={t('meetingsPage.previousMonth')} onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() - 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-surface-muted">
             <ChevronLeft size={16} />
           </button>
-          <button aria-label={t('meetingsPage.nextMonth')} onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() + 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#EEF0F3]">
+          <button aria-label={t('meetingsPage.nextMonth')} onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() + 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-surface-muted">
             <ChevronRight size={16} />
           </button>
-          <button aria-label={t('common.close')} onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#EEF0F3]">
+          <button aria-label={t('common.close')} onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-surface-muted">
             <X size={16} />
           </button>
         </div>
@@ -982,7 +982,7 @@ function OverviewPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: ()
             </select>
             <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" />
           </label>
-          <button aria-label={t('common.close')} onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-[#EEF0F3]">
+          <button aria-label={t('common.close')} onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-surface-muted">
             <X size={16} />
           </button>
         </div>

@@ -47,12 +47,12 @@ export default function PostCreatePage() {
   const minDateStr = localDateInputValue(minDate)
 
   return (
-    <main className="min-h-screen bg-[#f6f7f9] text-ink">
+    <main className="min-h-screen bg-surface-subtle text-ink">
 
       {/* Progress bar — visible only during submission */}
       {isSubmitting && (
         <div className="fixed inset-x-0 top-0 z-[100] h-[3px] bg-ink/10">
-          <div className="h-full bg-[#55bde0] animate-[progress_1.6s_ease-in-out_infinite]"
+          <div className="h-full bg-accent-bright animate-[progress_1.6s_ease-in-out_infinite]"
             style={{ animation: 'progress 1.6s ease-in-out infinite' }}
           />
           <style>{`@keyframes progress { 0%{width:0%;margin-left:0} 50%{width:70%;margin-left:15%} 100%{width:0%;margin-left:100%} }`}</style>
@@ -63,14 +63,14 @@ export default function PostCreatePage() {
         <button
           onClick={() => navigate(ROUTES.POSTS)}
           disabled={isSubmitting}
-          className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-ink-muted-alt transition hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
+          className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-ink-muted transition hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ArrowLeft size={16} />
           {t('createPost.backToDirectory')}
         </button>
 
         <div className="mb-12">
-          <div className="mb-5 inline-flex rounded-full border border-[#cfd3dc] bg-white px-4 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ink-muted-alt">
+          <div className="mb-5 inline-flex rounded-full border border-line-strong bg-white px-4 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ink-muted">
             {t('createPost.badge')}
           </div>
           <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-ink sm:text-6xl">

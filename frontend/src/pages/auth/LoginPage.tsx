@@ -223,7 +223,7 @@ export default function LoginPage() {
                   {t('authPage.login.emailLabel')}
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint pointer-events-none">
                     <Mail size={15} strokeWidth={1.8} />
                   </span>
                   <input
@@ -248,7 +248,7 @@ export default function LoginPage() {
                   {t('authPage.login.passwordLabel')}
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b8c0cc] pointer-events-none">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint pointer-events-none">
                     <Lock size={15} strokeWidth={1.8} />
                   </span>
                   <input
@@ -266,7 +266,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(p => !p)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a7590] hover:text-hai-plum transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-muted hover:text-hai-plum transition-colors"
                     aria-label={showPassword ? t('authPage.login.hidePassword') : t('authPage.login.showPassword')}
                   >
                     {showPassword ? <EyeOff size={15} strokeWidth={1.8} /> : <Eye size={15} strokeWidth={1.8} />}
@@ -297,7 +297,7 @@ export default function LoginPage() {
                       </svg>
                     )}
                   </div>
-                  <span className="text-sm text-[#6a7590] dark:text-[rgb(var(--text-secondary))] font-body">{t('authPage.login.rememberMe')}</span>
+                  <span className="text-sm text-ink-muted dark:text-[rgb(var(--text-secondary))] font-body">{t('authPage.login.rememberMe')}</span>
                 </label>
                 <Link
                   to={ROUTES.FORGOT_PASSWORD}
@@ -355,7 +355,7 @@ export default function LoginPage() {
             </form>
 
             {/* Footer */}
-            <p className="mt-7 text-center text-sm text-ink-muted-gray dark:text-[rgb(var(--text-secondary))] font-body">
+            <p className="mt-7 text-center text-sm text-ink-muted dark:text-[rgb(var(--text-secondary))] font-body">
               {t('authPage.login.noAccount')}{' '}
               <Link to={ROUTES.REGISTER} className="font-black text-hai-plum dark:text-hai-plum hover:text-hai-teal transition-colors">
                 {t('authPage.login.createAccount')}
@@ -366,12 +366,12 @@ export default function LoginPage() {
             {import.meta.env.DEV && (
               <div className="mt-8">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
-                  <span className="text-xs font-bold tracking-[0.12em] uppercase text-[#c5cad6] dark:text-[rgb(var(--text-secondary))] font-headline">Dev Access</span>
-                  <div className="flex-1 h-px bg-[#eef0f5] dark:bg-[rgb(var(--border-default))]" />
+                  <div className="flex-1 h-px bg-surface-muted dark:bg-[rgb(var(--border-default))]" />
+                  <span className="text-xs font-bold tracking-[0.12em] uppercase text-ink-faint dark:text-[rgb(var(--text-secondary))] font-headline">Dev Access</span>
+                  <div className="flex-1 h-px bg-surface-muted dark:bg-[rgb(var(--border-default))]" />
                 </div>
                 {!captchaToken && (
-                  <p className="mb-2 text-center text-xs text-[#c5cad6] font-semibold">
+                  <p className="mb-2 text-center text-xs text-ink-faint font-semibold">
                     Complete the security check above to enable quick login
                   </p>
                 )}
@@ -382,7 +382,7 @@ export default function LoginPage() {
                       type="button"
                       onClick={() => quickLogin(email, password)}
                       disabled={isLoading || captchaBlocks(captchaToken)}
-                      className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-[#eef0f5] dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-line-strong hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                      className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-[12px] border border-surface-muted dark:border-[rgb(var(--border-default))] bg-[#fafbfc] dark:bg-[rgb(var(--surface-blob))] hover:bg-white dark:hover:bg-[rgb(var(--surface-card))] hover:border-line-strong hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                     >
                       <div
                         className="w-7 h-7 rounded-full flex items-center justify-center"

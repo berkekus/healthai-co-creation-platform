@@ -92,10 +92,10 @@ export default function CommentsSection({ postId }: { postId: string }) {
       {/* Comment form */}
       <form onSubmit={handleSubmit} className="mb-6">
         {replyTo && (
-          <div className="mb-2 flex items-center gap-2 rounded-lg bg-[#F5F5F7] px-3 py-1.5 text-xs font-semibold text-ink-muted">
+          <div className="mb-2 flex items-center gap-2 rounded-lg bg-surface-subtle px-3 py-1.5 text-xs font-semibold text-ink-muted">
             <span aria-hidden="true" className="material-symbols-outlined text-sm">reply</span>
             {t('comments.replyingTo', 'Replying to')} <strong>{replyTo.name}</strong>
-            <button type="button" onClick={() => setReplyTo(null)} aria-label={t('comments.cancelReply')} className="ml-auto text-ink-muted-gray hover:text-hai-plum">
+            <button type="button" onClick={() => setReplyTo(null)} aria-label={t('comments.cancelReply')} className="ml-auto text-ink-muted hover:text-hai-plum">
               <span aria-hidden="true" className="material-symbols-outlined text-sm">close</span>
             </button>
           </div>
@@ -114,7 +114,7 @@ export default function CommentsSection({ postId }: { postId: string }) {
               className="w-full resize-none rounded-xl border border-line-strong bg-white px-3 py-2 text-sm font-semibold text-hai-plum placeholder:text-ink-muted focus:border-hai-plum focus:outline-none focus:ring-2 focus:ring-hai-plum/20"
             />
             <div className="mt-1.5 flex items-center justify-between">
-              <span className="text-xs text-ink-muted-gray">{content.length}/500</span>
+              <span className="text-xs text-ink-muted">{content.length}/500</span>
               <button
                 type="submit"
                 disabled={submitting || !content.trim()}
@@ -134,13 +134,13 @@ export default function CommentsSection({ postId }: { postId: string }) {
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-hai-plum/20 border-t-hai-plum" />
         </div>
       ) : topLevel.length === 0 ? (
-        <p className="py-6 text-center text-sm font-semibold text-ink-muted-gray">
+        <p className="py-6 text-center text-sm font-semibold text-ink-muted">
           {t('comments.empty', 'No comments yet. Be the first to ask!')}
         </p>
       ) : (
         <ul className="space-y-4">
           {topLevel.map(comment => (
-            <li key={comment.id} className="rounded-xl border border-[#E5E7EB] bg-white p-4">
+            <li key={comment.id} className="rounded-xl border border-line bg-white p-4">
               <div className="flex items-start gap-3">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-hai-mint">
                   {comment.authorName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
@@ -151,14 +151,14 @@ export default function CommentsSection({ postId }: { postId: string }) {
                     <span className="rounded-full bg-hai-teal-soft px-2 py-0.5 text-xs font-black uppercase tracking-wide text-hai-teal">
                       {t(`common.role.${comment.authorRole}`, { defaultValue: comment.authorRole })}
                     </span>
-                    <span className="text-xs text-ink-muted-gray">{timeAgo(comment.createdAt, t)}</span>
+                    <span className="text-xs text-ink-muted">{timeAgo(comment.createdAt, t)}</span>
                   </div>
                   <p className="mt-1 text-sm font-semibold text-ink-gray">{comment.content}</p>
                   <div className="mt-2 flex gap-3">
                     <button
                       type="button"
                       onClick={() => setReplyTo({ id: comment.id, name: comment.authorName })}
-                      className="text-xs font-black text-ink-muted-gray hover:text-hai-teal"
+                      className="text-xs font-black text-ink-muted hover:text-hai-teal"
                     >
                       {t('comments.reply', 'Reply')}
                     </button>
@@ -166,7 +166,7 @@ export default function CommentsSection({ postId }: { postId: string }) {
                       <button
                         type="button"
                         onClick={() => handleDelete(comment.id)}
-                        className="text-xs font-black text-ink-muted-gray hover:text-red-500"
+                        className="text-xs font-black text-ink-muted hover:text-red-500"
                       >
                         {t('common.delete', 'Delete')}
                       </button>
@@ -177,7 +177,7 @@ export default function CommentsSection({ postId }: { postId: string }) {
 
               {/* Replies */}
               {replies(comment.id).length > 0 && (
-                <ul className="ml-10 mt-3 space-y-3 border-l-2 border-[#E5E7EB] pl-4">
+                <ul className="ml-10 mt-3 space-y-3 border-l-2 border-line pl-4">
                   {replies(comment.id).map(reply => (
                     <li key={reply.id} className="flex items-start gap-3">
                       <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-hai-teal-soft text-xs font-black text-hai-teal">
@@ -186,14 +186,14 @@ export default function CommentsSection({ postId }: { postId: string }) {
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-xs font-black text-hai-plum">{reply.authorName}</span>
-                          <span className="text-xs text-ink-muted-gray">{timeAgo(reply.createdAt, t)}</span>
+                          <span className="text-xs text-ink-muted">{timeAgo(reply.createdAt, t)}</span>
                         </div>
                         <p className="mt-0.5 text-xs font-semibold text-ink-gray">{reply.content}</p>
                         {(user?.id === reply.authorId || user?.role === 'admin') && (
                           <button
                             type="button"
                             onClick={() => handleDelete(reply.id)}
-                            className="mt-1 text-xs font-black text-ink-muted-gray hover:text-red-500"
+                            className="mt-1 text-xs font-black text-ink-muted hover:text-red-500"
                           >
                             {t('common.delete', 'Delete')}
                           </button>
@@ -213,7 +213,7 @@ export default function CommentsSection({ postId }: { postId: string }) {
           type="button"
           onClick={() => load(page + 1)}
           disabled={loading}
-          className="mt-4 w-full rounded-xl border border-line-strong py-2 text-sm font-black text-hai-plum hover:bg-[#F5F5F7] disabled:opacity-50"
+          className="mt-4 w-full rounded-xl border border-line-strong py-2 text-sm font-black text-hai-plum hover:bg-surface-subtle disabled:opacity-50"
         >
           {loading ? '…' : t('comments.loadMore', 'Load more comments')}
         </button>

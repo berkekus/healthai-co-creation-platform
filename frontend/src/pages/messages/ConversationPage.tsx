@@ -136,25 +136,25 @@ export default function ConversationPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f6f8] flex flex-col">
+    <main className="min-h-screen bg-surface-subtle flex flex-col">
 
       {/* Top bar */}
-      <div className="sticky top-[76px] z-10 bg-white border-b border-[#e8e8ee] px-6 md:px-10 py-4 flex items-center gap-4">
+      <div className="sticky top-[76px] z-10 bg-white border-b border-line px-6 md:px-10 py-4 flex items-center gap-4">
         <button
           onClick={() => navigate('/messages')}
-          className="w-9 h-9 rounded-full border border-[#e8e8ee] flex items-center justify-center text-ink-muted-alt hover:bg-[#f5f6f8] transition-colors shrink-0"
+          className="w-9 h-9 rounded-full border border-line flex items-center justify-center text-ink-muted hover:bg-surface-subtle transition-colors shrink-0"
         >
           <ArrowLeft size={16} />
         </button>
 
         {partner ? (
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-ink text-[#8fdff0] font-black text-xs flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-ink text-hai-aqua font-black text-xs flex items-center justify-center shrink-0">
               {partner.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
               <p className="font-headline font-black text-base text-ink truncate">{partner.name}</p>
-              <p className="text-xs text-ink-muted-gray font-semibold">{t(`common.role.${partner.role}`, { defaultValue: partner.role })}</p>
+              <p className="text-xs text-ink-muted font-semibold">{t(`common.role.${partner.role}`, { defaultValue: partner.role })}</p>
             </div>
           </div>
         ) : (
@@ -162,7 +162,7 @@ export default function ConversationPage() {
         )}
 
         {conv && (
-          <p className="text-xs font-black uppercase tracking-[0.12em] text-ink-muted-gray hidden sm:block truncate max-w-[200px]">
+          <p className="text-xs font-black uppercase tracking-[0.12em] text-ink-muted hidden sm:block truncate max-w-[200px]">
             {conv.postTitle}
           </p>
         )}
@@ -173,13 +173,13 @@ export default function ConversationPage() {
             onClick={() => setConfirmDelete(true)}
             title={t('chat.delete')}
             aria-label={t('chat.delete')}
-            className="w-9 h-9 rounded-full border border-[#e8e8ee] flex items-center justify-center text-ink-muted-gray hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
+            className="w-9 h-9 rounded-full border border-line flex items-center justify-center text-ink-muted hover:border-red-200 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
           >
             <Trash2 size={15} />
           </button>
         ) : (
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-bold text-ink-muted-alt hidden sm:inline">{t('chat.deleteConfirm')}</span>
+            <span className="text-xs font-bold text-ink-muted hidden sm:inline">{t('chat.deleteConfirm')}</span>
             <button
               onClick={handleDelete}
               disabled={deleting}
@@ -189,7 +189,7 @@ export default function ConversationPage() {
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
-              className="h-8 px-3 rounded-full border border-[#e8e8ee] text-xs font-bold text-ink-muted-alt hover:bg-[#f5f6f8] transition-colors"
+              className="h-8 px-3 rounded-full border border-line text-xs font-bold text-ink-muted hover:bg-surface-subtle transition-colors"
             >
               {t('common.cancel')}
             </button>
@@ -197,7 +197,7 @@ export default function ConversationPage() {
         )}
       </div>
 
-      <p className="mx-auto w-full max-w-[860px] px-6 pt-4 text-xs font-semibold text-ink-muted-alt md:px-10">
+      <p className="mx-auto w-full max-w-[860px] px-6 pt-4 text-xs font-semibold text-ink-muted md:px-10">
         {t('chat.meetingHint')}{' '}
         <Link to={ROUTES.MEETINGS} className="font-black text-ink underline">{t('chat.meetingsLink')}</Link>
       </p>
@@ -207,7 +207,7 @@ export default function ConversationPage() {
         {allMsgs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <p className="font-headline text-lg font-black text-ink">{t('chat.emptyTitle')}</p>
-            <p className="mt-2 text-sm text-ink-muted-alt">{t('chat.emptyDesc')}</p>
+            <p className="mt-2 text-sm text-ink-muted">{t('chat.emptyDesc')}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -227,13 +227,13 @@ export default function ConversationPage() {
       </div>
 
       {/* Input area */}
-      <div className="sticky bottom-0 bg-white border-t border-[#e8e8ee] px-6 md:px-10 py-4">
+      <div className="sticky bottom-0 bg-white border-t border-line px-6 md:px-10 py-4">
         <div className="mx-auto w-full max-w-[860px]">
           <div className="mb-2 flex items-center justify-between min-h-[18px]">
             {error
               ? <p className="text-xs text-red-600 font-semibold">{error}</p>
               : <span />}
-            <span className="text-xs text-ink-muted-gray font-semibold">
+            <span className="text-xs text-ink-muted font-semibold">
               {t('chat.updated', { when: lastUpdatedLabel })}
             </span>
           </div>
@@ -246,7 +246,7 @@ export default function ConversationPage() {
               rows={1}
               placeholder={t('chat.placeholder')}
               aria-label={t('chat.placeholder')}
-              className="flex-1 resize-none rounded-[16px] border border-[#e8e8ee] bg-[#f8f7fa] px-4 py-3 text-sm font-body text-ink placeholder:text-ink-muted outline-none focus:border-hai-focus focus:ring-2 focus:ring-[#55c7df]/20 transition-all max-h-[160px] overflow-y-auto"
+              className="flex-1 resize-none rounded-[16px] border border-line bg-surface-subtle px-4 py-3 text-sm font-body text-ink placeholder:text-ink-muted outline-none focus:border-hai-focus focus:ring-2 focus:ring-[#55c7df]/20 transition-all max-h-[160px] overflow-y-auto"
               onInput={e => {
                 const field = e.currentTarget
                 field.style.height = 'auto'
@@ -294,18 +294,18 @@ function MessageBubble({
   return (
     <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} ${optimistic ? 'opacity-60' : ''}`}>
       {showName && !isMine && (
-        <span className="text-xs font-bold text-ink-muted-gray mb-1 px-1">{msg.senderName}</span>
+        <span className="text-xs font-bold text-ink-muted mb-1 px-1">{msg.senderName}</span>
       )}
       <div
         className={`max-w-[70%] px-4 py-3 rounded-[18px] text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm ${
           isMine
-            ? 'bg-[#dff8ff] text-[#1a2535] border border-[#8fdff0] rounded-br-[4px]'
-            : 'bg-white text-ink border border-[#e8e8ee] rounded-bl-[4px]'
+            ? 'bg-[#dff8ff] text-[#1a2535] border border-hai-aqua rounded-br-[4px]'
+            : 'bg-white text-ink border border-line rounded-bl-[4px]'
         }`}
       >
         {msg.content}
       </div>
-      <span className="text-xs text-ink-muted-gray mt-1 px-1">
+      <span className="text-xs text-ink-muted mt-1 px-1">
         {optimistic ? t('meetingRequest.sending') : time}
       </span>
     </div>

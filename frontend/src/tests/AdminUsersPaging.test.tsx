@@ -1,12 +1,12 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import '../i18n'
 import api from '../lib/api'
 import AdminPage from '../pages/admin/AdminPage'
 import { useAuthStore } from '../store/authStore'
-import { usePostStore } from '../store/postStore'
 import { useMeetingStore } from '../store/meetingStore'
+import { renderWithQuery } from './renderWithQuery'
 
 vi.mock('../lib/api', () => ({ default: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() } }))
 vi.mock('../lib/socket', () => ({ connectSocket: vi.fn(), disconnectSocket: vi.fn(), getSocket: vi.fn() }))
@@ -18,7 +18,7 @@ const users = Array.from({ length: 30 }, (_, i) => ({
 }))
 
 async function openUsers() {
-  render(<MemoryRouter><AdminPage /></MemoryRouter>)
+  renderWithQuery(<MemoryRouter><AdminPage /></MemoryRouter>)
   fireEvent.click(screen.getAllByRole('button', { name: 'Users' })[0])
   await screen.findByText('Member 01')
 }
@@ -28,13 +28,17 @@ const rows = () => within(screen.getByRole('table')).getAllByText(/^Member \d\d$
 describe('admin users list', () => {
   beforeEach(() => {
     localStorage.clear()
-    vi.mocked(api.get).mockImplementation(async (url: string) => {
-      if (url === '/auth/users') return { data: { success: true, data: { users, total: users.length } } }
+    vi.mocked(api.get).mockImplementation(async (url: string, config?: { params?: { page?: number; limit?: number } }) => {
+      // Like the server: one page of members for the requested page and size, plus the full count.
+      if (url === '/auth/users') {
+        const page = config?.params?.page ?? 1
+        const limit = config?.params?.limit ?? 500
+        return { data: { success: true, data: { users: users.slice((page - 1) * limit, page * limit), total: users.length } } }
+      }
       if (url === '/logs') return { data: { success: true, data: { logs: [], total: 0 } } }
       return { data: { success: true, data: null } }
     })
     useAuthStore.setState({ user: { ...users[0], id: 'admin', role: 'admin' } as never, isAuthenticated: true })
-    usePostStore.setState({ posts: [], fetchPosts: vi.fn() })
     useMeetingStore.setState({ meetings: [], fetchByUser: vi.fn() })
   })
 
@@ -44,7 +48,8 @@ describe('admin users list', () => {
 
     fireEvent.change(screen.getByLabelText('Per page'), { target: { value: '50' } })
 
-    expect(rows()).toHaveLength(30)
+    // The bigger page is a new server request; the previous rows stay until it arrives.
+    await waitFor(() => expect(rows()).toHaveLength(30))
     expect(localStorage.getItem('admin_usersPerPage')).toBe('50')
   })
 

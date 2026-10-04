@@ -11,15 +11,33 @@ import PostStatusBadge from '../../components/posts/PostStatusBadge'
 import { ROUTES, postDetail } from '../../constants/routes'
 import { postDomains } from '../../constants/domains'
 import { localDateInputValue } from '../../utils/timeSlots'
+import { usePost } from '../../hooks/usePost'
+import type { Post } from '../../types/post.types'
 
+// Loads the post from the server first, so a link opened directly or after a reload works and the
+// form starts from the saved values.
 export default function PostEditPage() {
+  const { id } = useParams<{ id: string }>()
+  const { data: post, isPending } = usePost(id)
+
+  if (isPending && id) {
+    return (
+      <main className="min-h-screen bg-surface-subtle px-4 py-20 text-hai-plum sm:px-8">
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-hai-plum/20 border-t-hai-plum" />
+        </div>
+      </main>
+    )
+  }
+  return <PostEditForm post={post} />
+}
+
+function PostEditForm({ post }: { post: Post | undefined }) {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
-  const { getById, update } = usePostStore()
+  const { update } = usePostStore()
   const { user } = useAuthStore()
   const navigate = useNavigate()
-
-  const post = getById(id ?? '')
 
   const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting } } = useForm<PostCreateFormData>({
     resolver: zodResolver(createPostCreateSchema(t)),
@@ -34,11 +52,11 @@ export default function PostEditPage() {
 
   if (!post) {
     return (
-      <main className="min-h-screen bg-[#f6f7f9] text-ink">
+      <main className="min-h-screen bg-surface-subtle text-ink">
         <div className="mx-auto flex min-h-screen max-w-[640px] items-center justify-center px-8">
           <div className="w-full rounded-[16px] border border-[#e1e4ea] bg-white p-10 text-center shadow-[0_24px_70px_-58px_rgba(45,24,56,0.55)]">
             <h1 className="font-headline text-3xl font-black text-ink">{t('editPost.notFound')}</h1>
-            <p className="mt-3 text-sm font-semibold text-ink-muted-alt">{t('editPost.notFoundDesc')}</p>
+            <p className="mt-3 text-sm font-semibold text-ink-muted">{t('editPost.notFoundDesc')}</p>
             <button onClick={() => navigate(ROUTES.POSTS)} className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-ink px-7 text-sm font-black text-white transition hover:bg-[#1c1024]">
               <ArrowLeft size={15} />
               {t('common.back')}
@@ -61,16 +79,16 @@ export default function PostEditPage() {
   const minDateStr = localDateInputValue(minDate)
 
   return (
-    <main className="min-h-screen bg-[#f6f7f9] text-ink">
+    <main className="min-h-screen bg-surface-subtle text-ink">
       <div className="mx-auto w-full max-w-[900px] px-4 pb-20 pt-16 sm:px-8">
-        <button onClick={() => navigate(postDetail(id!))} className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-ink-muted-alt transition hover:text-ink">
+        <button onClick={() => navigate(postDetail(id!))} className="mb-9 inline-flex items-center gap-3 text-sm font-bold text-ink-muted transition hover:text-ink">
           <ArrowLeft size={16} />
           {t('editPost.backToPost')}
         </button>
 
         <div className="mb-12">
           <div className="mb-5 flex items-center gap-4">
-            <div className="inline-flex rounded-full border border-[#cfd3dc] bg-white px-4 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ink-muted-alt">
+            <div className="inline-flex rounded-full border border-line-strong bg-white px-4 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ink-muted">
               {t('editPost.badge')}
             </div>
             <PostStatusBadge status={post.status} size="sm" />

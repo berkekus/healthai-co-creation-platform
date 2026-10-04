@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import AppRouter from './router/AppRouter'
 import { useAuthStore } from './store/authStore'
-import { usePostStore } from './store/postStore'
 import { useNotificationStore } from './store/notificationStore'
 import { subscribeToSocketMessages } from './store/conversationStore'
 
@@ -10,7 +9,6 @@ export default function App() {
   const { i18n } = useTranslation()
   const hydrate         = useAuthStore(s => s.hydrate)
   const isAuthenticated = useAuthStore(s => s.isAuthenticated)
-  const fetchPosts      = usePostStore(s => s.fetchPosts)
   const startPolling    = useNotificationStore(s => s.startPolling)
   const stopPolling     = useNotificationStore(s => s.stopPolling)
 
@@ -22,10 +20,6 @@ export default function App() {
     const language = i18n.language.split('-')[0]
     document.documentElement.lang = ['en', 'tr', 'pt', 'es', 'nl'].includes(language) ? language : 'en'
   }, [i18n.language])
-
-  useEffect(() => {
-    if (isAuthenticated) fetchPosts()
-  }, [isAuthenticated, fetchPosts])
 
   useEffect(() => {
     if (!isAuthenticated) return

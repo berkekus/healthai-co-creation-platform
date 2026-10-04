@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { ArrowLeft, MessageSquare, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
@@ -18,6 +18,7 @@ function partnerFor(conv: Conversation, userId?: string) {
 
 export default function FloatingChat() {
   const { t } = useTranslation()
+  const { pathname } = useLocation()
   const { user } = useAuthStore()
   const {
     conversations,
@@ -63,6 +64,9 @@ export default function FloatingChat() {
   }, [selectedMessages.length, selectedId])
 
   if (!user) return null
+  // The messaging screen is the full version of this bubble, and on phones the bubble sat on its send button.
+  // Only the visible part is dropped: the unread polling above keeps the navbar badge current.
+  if (pathname.startsWith(ROUTES.MESSAGES)) return null
 
   const handleOpenConversation = (conv: Conversation) => {
     setSelectedId(conv.id)
@@ -103,7 +107,7 @@ export default function FloatingChat() {
                 >
                   <ArrowLeft size={16} />
                 </button>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-[#B8F3FF]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-hai-mint">
                   {initials(partner?.name)}
                 </div>
                 <div className="min-w-0">
@@ -135,7 +139,7 @@ export default function FloatingChat() {
 
           {selected ? (
             <>
-              <div className="h-[310px] overflow-y-auto bg-[#F8FAFC] px-4 py-4">
+              <div className="h-[310px] overflow-y-auto bg-surface-subtle px-4 py-4">
                 {selectedMessages.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center text-center">
                     <MessageSquare size={34} className="text-[#C5C0CC]" />
@@ -160,7 +164,7 @@ export default function FloatingChat() {
                     onKeyDown={handleKeyDown}
                     rows={1}
                     placeholder={t('messagesPage.placeholder')}
-                    className="max-h-[96px] min-h-[44px] flex-1 resize-none rounded-[14px] border border-line bg-[#F8FAFC] px-3 py-3 text-sm font-semibold text-hai-plum outline-none transition focus:border-hai-focus focus:ring-2 focus:ring-hai-teal/20"
+                    className="max-h-[96px] min-h-[44px] flex-1 resize-none rounded-[14px] border border-line bg-surface-subtle px-3 py-3 text-sm font-semibold text-hai-plum outline-none transition focus:border-hai-focus focus:ring-2 focus:ring-hai-teal/20"
                   />
                   <button
                     type="button"
@@ -194,19 +198,19 @@ export default function FloatingChat() {
                       key={conv.id}
                       type="button"
                       onClick={() => handleOpenConversation(conv)}
-                      className="flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left transition last:border-0 hover:bg-[#F8FAFC]"
+                      className="flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left transition last:border-0 hover:bg-surface-subtle"
                     >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-[#B8F3FF]">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-hai-mint">
                         {initials(itemPartner?.name)}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-3">
                           <span className="truncate text-sm font-black text-hai-plum">{itemPartner?.name ?? t('messagesPage.unknownPartner')}</span>
-                          <span className="shrink-0 text-xs font-semibold text-ink-muted-gray">{timeAgo(conv.lastMessageAt, t)}</span>
+                          <span className="shrink-0 text-xs font-semibold text-ink-muted">{timeAgo(conv.lastMessageAt, t)}</span>
                         </div>
                         <p className="mt-0.5 truncate text-xs font-semibold text-ink-muted">{conv.postTitle}</p>
                         {conv.lastMessagePreview && (
-                          <p className="mt-0.5 truncate text-xs text-ink-muted-gray">{conv.lastMessagePreview}</p>
+                          <p className="mt-0.5 truncate text-xs text-ink-muted">{conv.lastMessagePreview}</p>
                         )}
                       </div>
                     </button>

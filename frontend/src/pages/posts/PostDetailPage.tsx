@@ -27,9 +27,9 @@ import { useMeetingStore } from '../../store/meetingStore'
 import ExpressInterestModal from '../../components/meetings/ExpressInterestModal'
 import { postEdit, ROUTES } from '../../constants/routes'
 import { postDomains } from '../../constants/domains'
-import api from '../../lib/api'
+import { usePost } from '../../hooks/usePost'
 import { localDateInputValue } from '../../utils/timeSlots'
-import type { Post, PostStatus } from '../../types/post.types'
+import type { PostStatus } from '../../types/post.types'
 
 const COMMITMENT_KEYS = {
   flexible: 'posts.form.commitmentFlexible',
@@ -49,44 +49,27 @@ export default function PostDetailPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuthStore()
-  const { posts, getById, fetchPosts, publish, markPartnerFound, reopen } = usePostStore()
+  const { publish, markPartnerFound, reopen } = usePostStore()
   const { getByPost, fetchByUser } = useMeetingStore()
   const [showInterest, setShowInterest] = useState(false)
   const [copied, setCopied] = useState(false)
   const [saved, setSaved] = useState(() =>
     id ? localStorage.getItem(`saved_post_${id}`) === 'true' : false
   )
-  const [fetchedPost, setFetchedPost] = useState<Post | undefined>(undefined)
-  const [isFetching, setIsFetching] = useState(false)
-  const [fetchError, setFetchError] = useState(false)
   const [dialog, setDialog] = useState<'partnerFound' | 'reopen' | null>(null)
   const [dialogBusy, setDialogBusy] = useState(false)
   const [dialogError, setDialogError] = useState<string | null>(null)
   const [newExpiry, setNewExpiry] = useState('')
 
-  const storePost = getById(id ?? '')
-  const post = storePost ?? fetchedPost
-
-  useEffect(() => {
-    if (!posts.length) fetchPosts({ limit: 100, filters: {} })
-  }, [fetchPosts, posts.length])
+  // Always loaded from the server, so a link opened directly or after a reload works; edits refresh it.
+  const { data: post, isPending, isError, error, refetch } = usePost(id)
+  const notFound = isError && (error as { status?: number } | null)?.status === 404
+  const fetchError = isError && !notFound
 
   useEffect(() => {
     if (user) fetchByUser()
   }, [fetchByUser, user])
 
-  useEffect(() => {
-    if (storePost || !id) return
-    setIsFetching(true)
-    setFetchError(false)
-    api.get<{ success: boolean; data: Post & { _id?: string } }>(`/posts/${id}`)
-      .then(({ data }) => {
-        const raw = data.data
-        setFetchedPost({ ...raw, id: raw._id ?? raw.id })
-      })
-      .catch(() => setFetchError(true))
-      .finally(() => setIsFetching(false))
-  }, [id, storePost])
 
   // Comment notifications link to /posts/:id#comments; the router does not scroll to hashes itself.
   const postLoaded = Boolean(post)
@@ -111,9 +94,9 @@ export default function PostDetailPage() {
   const canEdit = !!post && isOwner && (post.status === 'draft' || post.status === 'active')
   const expiredWhileClosed = !!post && new Date(post.expiryDate).getTime() <= Date.now()
 
-  if (isFetching && !post) {
+  if (isPending && id) {
     return (
-      <main className="min-h-screen bg-[#f6f7f9] px-4 sm:px-8 py-20 text-hai-plum">
+      <main className="min-h-screen bg-surface-subtle px-4 sm:px-8 py-20 text-hai-plum">
         <div className="flex min-h-[40vh] items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-hai-plum/20 border-t-hai-plum" />
         </div>
@@ -123,7 +106,7 @@ export default function PostDetailPage() {
 
   if (!post || fetchError) {
     return (
-      <main className="min-h-screen bg-[#f6f7f9] px-4 sm:px-8 py-20 text-hai-plum">
+      <main className="min-h-screen bg-surface-subtle px-4 sm:px-8 py-20 text-hai-plum">
         <div className="mx-auto max-w-[760px] rounded-[18px] bg-white p-12 text-center shadow-[0_24px_80px_-68px_rgba(45,24,56,0.75)]">
           <h1 className="text-3xl font-black">
             {fetchError ? t('postDetail.loadFailedTitle') : t('postDetail.notFoundTitle')}
@@ -134,7 +117,7 @@ export default function PostDetailPage() {
           <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
             {fetchError && (
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => { void refetch() }}
                 className="rounded-full border border-hai-plum bg-white px-6 py-3 text-sm font-black text-hai-plum hover:bg-hai-plum hover:text-white transition-colors"
               >
                 {t('postDetail.tryAgain')}
@@ -191,12 +174,12 @@ export default function PostDetailPage() {
         : null
 
   return (
-    <main className="min-h-screen bg-[#f6f7f9] text-hai-plum">
+    <main className="min-h-screen bg-surface-subtle text-hai-plum">
       <div className="mx-auto w-full max-w-[1120px] px-5 pb-14 pt-[42px] sm:px-8 xl:px-0">
         <div className="mb-[22px] flex items-center justify-between gap-2 sm:gap-4">
           <button
             onClick={() => navigate(ROUTES.POSTS)}
-            className="inline-flex shrink-0 items-center gap-2 sm:gap-3 text-sm font-black text-[#26162f] transition hover:text-[#55bde0]"
+            className="inline-flex shrink-0 items-center gap-2 sm:gap-3 text-sm font-black text-[#26162f] transition hover:text-hai-teal-dark"
             aria-label={t('postDetail.backToDirectory')}
           >
             <ArrowLeft size={17} />
@@ -210,7 +193,7 @@ export default function PostDetailPage() {
                 setCopied(true)
                 setTimeout(() => setCopied(false), 2000)
               }}
-              className="inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border border-line-strong bg-white px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              className="inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border border-line-strong bg-white px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-hai-aqua"
               title={copied ? t('postDetail.copied') : t('postDetail.share')}
               aria-label={copied ? t('postDetail.copied') : t('postDetail.share')}
             >
@@ -232,7 +215,7 @@ export default function PostDetailPage() {
                 expiryDate: post.expiryDate,
                 expertiseRequired: post.expertiseRequired,
               })}
-              className="inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border border-line-strong bg-white px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-[#8bddea]"
+              className="inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border border-line-strong bg-white px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition hover:border-hai-aqua"
               title={t('postDetail.exportPdf')}
               aria-label={t('postDetail.exportPdf')}
             >
@@ -249,7 +232,7 @@ export default function PostDetailPage() {
               className={`inline-flex h-[40px] sm:h-[44px] items-center gap-2 sm:gap-3 rounded-[12px] border px-3 sm:px-6 text-sm font-black shadow-[0_16px_45px_-40px_rgba(45,24,56,0.7)] transition ${
                 saved
                   ? 'border-ink bg-ink text-white'
-                  : 'border-line-strong bg-white hover:border-[#8bddea]'
+                  : 'border-line-strong bg-white hover:border-hai-aqua'
               }`}
               title={saved ? t('postDetail.saved') : t('postDetail.save')}
               aria-label={saved ? t('postDetail.saved') : t('postDetail.save')}
@@ -299,7 +282,7 @@ export default function PostDetailPage() {
                     <>
                       {canPublish && <button onClick={() => publish(post.id)} className="h-[46px] rounded-full bg-hai-plum px-7 text-sm font-black text-white">{t('postDetail.publish')}</button>}
                       {canMarkFound && (
-                        <button onClick={() => { setDialogError(null); setDialog('partnerFound') }} className="h-[46px] rounded-full bg-[#D8EFF2] px-7 text-sm font-black text-hai-plum">
+                        <button onClick={() => { setDialogError(null); setDialog('partnerFound') }} className="h-[46px] rounded-full bg-hai-lime px-7 text-sm font-black text-hai-plum">
                           {t('partnerFound.button')}
                         </button>
                       )}
@@ -345,7 +328,7 @@ export default function PostDetailPage() {
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
               {meta.map(item => (
                 <div key={item.label} className="flex items-start gap-4" title={item.help}>
-                  <span className="mt-1 shrink-0 text-[#6FB8C4]" aria-hidden="true">{item.icon}</span>
+                  <span className="mt-1 shrink-0 text-hai-teal-dark" aria-hidden="true">{item.icon}</span>
                   <span>
                     <span className="block text-xs font-black uppercase tracking-[0.12em] text-ink-muted">{item.label}</span>
                     <span className="mt-2 block break-words text-sm font-black leading-5 text-hai-plum">{item.value}</span>
@@ -414,7 +397,7 @@ export default function PostDetailPage() {
                   [t('postDetail.listingExpiry'), formatDate(post.expiryDate, { day: 'numeric', month: 'short', year: 'numeric' }), <CalendarDays size={18} />],
                 ] as const).map(([label, value, icon]) => (
                   <div key={label} className="flex gap-4">
-                    <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-[#EEF0F3] text-[#6FB8C4]" aria-hidden="true">
+                    <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-surface-muted text-hai-teal-dark" aria-hidden="true">
                       {icon}
                     </span>
                     <span>
@@ -491,7 +474,7 @@ export default function PostDetailPage() {
 
 /** `lang` matters for untranslated text: uppercase follows the language's rules ("Midwifery" → "MİDWİFERY" in Turkish). */
 function Pill({ children, tone, lang }: { children: string; tone: 'blue' | 'green' | 'gray'; lang?: string }) {
-  const cls = tone === 'green' ? 'bg-[#DCF5E6] text-[#14532D]' : tone === 'blue' ? 'bg-hai-teal-soft text-[#1B6F7C]' : 'bg-[#EEF0F3] text-[#4B5563]'
+  const cls = tone === 'green' ? 'bg-tone-green-soft text-tone-green' : tone === 'blue' ? 'bg-hai-teal-soft text-[#1B6F7C]' : 'bg-tone-gray-soft text-tone-gray'
   return <span lang={lang} className={`rounded-full px-5 py-2 text-xs font-black uppercase tracking-normal ${cls}`}>{children}</span>
 }
 

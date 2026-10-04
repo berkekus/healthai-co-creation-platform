@@ -52,7 +52,7 @@
 - Modify `backend/controllers/postController.ts` — `listPosts`: `sort`, `location` parametreleri; relevance için izleyici profili.
 - Create `backend/utils/matchScore.ts` — frontend `getCombinedMatchScore` taban puanının sunucu karşılığı (yapay zekâsız).
 - Modify `backend/models/Post.ts` — bileşik indeksler.
-- Modify `backend/services/logService.ts` — `action` tam eşleşme.
+- Modify `backend/services/logService.ts` — `action` kaçışlanmış kısmi eşleşme (bkz. Task 3 notu).
 - Modify `backend/tests/helpers.ts` — `createPublishedPost`.
 - Create `backend/tests/postListing.test.ts`, `backend/tests/matchScore.test.ts`, `backend/tests/logs.test.ts`.
 
@@ -485,6 +485,8 @@ git commit -m "feat(api): server-side best-match ranking with a bounded candidat
 ---
 
 ### Task 3: Backend — log filtresinde regex enjeksiyonunu kapat
+
+> **Uygulamada farklı yapıldı (planın yürütülmesinden önce, ayrı bir düzeltmeyle).** Tam eşleşme yerine `action` girdisi `escapeRegex` ile kaçışlanıyor; mevcut kısmi, büyük/küçük harf duyarsız eşleşme korundu ve regex enjeksiyonu yine kapandı (`logService.ts:31`). Ayrıca `result` bir beyaz listeyle sınırlandı, `page`/`limit` pozitif tam sayıya zorlandı ve controller sorgu parametrelerini metne zorluyor (nesne/dizi biçimleri yok sayılıyor). Testler `backend/tests/logs.test.ts` içinde. Aşağıdaki adımlar planın ilk hâli olarak bırakıldı.
 
 **Files:**
 - Modify: `backend/services/logService.ts:27`
