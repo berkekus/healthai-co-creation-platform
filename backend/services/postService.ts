@@ -121,7 +121,7 @@ function buildListQuery(filters: PostFilters): FilterQuery<IPost> {
     // Partial, case-insensitive match (what users had with in-browser filtering). $text only
     // matches whole words; move to Atlas Search if the collection grows past ~50k posts.
     const text = new RegExp(escapeRegex(filters.search.trim()), 'i')
-    and.push({ $or: [{ title: text }, { description: text }, { expertiseRequired: text }, { authorName: text }] })
+    and.push({ $or: [{ title: text }, { description: text }, { expertiseRequired: text }, { authorName: text }, { domains: text }, { domain: text }] })
   }
   if (filters.expertise) query.expertiseRequired = { $regex: escapeRegex(filters.expertise), $options: 'i' }
   if (filters.city) query.city = { $regex: `^${escapeRegex(filters.city)}$`, $options: 'i' }

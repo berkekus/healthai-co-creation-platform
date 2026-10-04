@@ -29,10 +29,19 @@ describe('GET /api/posts — server-side listing', () => {
   it('finds partial words, case-insensitively, like the old in-browser search', async () => {
     const { token } = await createUser()
     await createPublishedPost(token, { title: 'Cardiology triage assistant' })
-    await createPublishedPost(token, { title: 'Wound imaging' })
+    await createPublishedPost(token, { title: 'Wound imaging', domain: 'Dermatology' })
 
     const res = await api.get('/api/posts?search=CARDI').set('Authorization', `Bearer ${token}`)
     expect(titles(res)).toEqual(['Cardiology triage assistant'])
+  })
+
+  it('finds posts by their domain name, as the old in-browser search did', async () => {
+    const { token } = await createUser()
+    await createPublishedPost(token, { title: 'Triage assistant', domains: ['Emergency Medicine', 'Neurology'] })
+    await createPublishedPost(token, { title: 'Wound imaging', domain: 'Dermatology' })
+
+    const res = await api.get('/api/posts?search=neuro').set('Authorization', `Bearer ${token}`)
+    expect(titles(res)).toEqual(['Triage assistant'])
   })
 
   it('matches location against city or country, together with a domain filter', async () => {

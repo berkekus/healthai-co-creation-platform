@@ -1219,6 +1219,9 @@
       "clear": "Wissen",
       "entryCount": "{{shown}} van {{total}} vermeldingen",
       "exportCsv": "CSV exporteren",
+      "exporting": "Exporteren…",
+      "exportFailed": "Exporteren mislukt. Probeer het opnieuw.",
+      "exportCapped": "Alleen de nieuwste {{count}} items zijn geëxporteerd.",
       "columns": {
         "timestamp": "Tijdstempel",
         "user": "Gebruiker",

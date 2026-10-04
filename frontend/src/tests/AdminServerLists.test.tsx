@@ -28,6 +28,16 @@ describe('admin lists use the server', () => {
     useMeetingStore.setState({ meetings: [], fetchByUser: vi.fn() })
   })
 
+  it('does not load the posts list until the Posts tab is opened', async () => {
+    renderWithQuery(<MemoryRouter><AdminPage /></MemoryRouter>)
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/auth/stats', expect.anything()))
+    const postRequests = () => vi.mocked(api.get).mock.calls.filter(c => String(c[0]).startsWith('/posts?'))
+    expect(postRequests()).toHaveLength(0)
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Posts & Listings' })[0])
+    await waitFor(() => expect(postRequests()).toHaveLength(1))
+  })
+
   it('shows the real number of posts, not the 100 the list used to stop at', async () => {
     renderWithQuery(<MemoryRouter><AdminPage /></MemoryRouter>)
     fireEvent.click(screen.getAllByRole('button', { name: 'Posts & Listings' })[0])
@@ -62,6 +72,85 @@ describe('admin lists use the server', () => {
 
     await waitFor(() => expect(screen.getByRole('button', { name: '2' })).toHaveAttribute('aria-current', 'page'))
     expect(vi.mocked(api.get).mock.calls.map(c => c[0] as string)).toContainEqual(expect.stringContaining('page=2&'))
+  })
+
+  it('exports every filtered log, not just the page on screen, with formulas neutralised', async () => {
+    const total = 450
+    const log = (n: number) => ({
+      _id: `l${n}`, timestamp: '2026-10-01T00:00:00.000Z', userId: 'u1', role: 'engineer', action: 'login_failed',
+      userEmail: n === 0 ? '=HYPERLINK("http://evil.test")' : `u${n}@example.test`, targetEntityId: '', result: 'failure', ipAddress: '10.0.0.1',
+    })
+    vi.mocked(api.get).mockImplementation(async (url: string, config?: Config) => {
+      if (url !== '/logs') return { data: { success: true, data: null } }
+      const page = Number(config?.params?.page ?? 1)
+      const limit = Number(config?.params?.limit ?? 50)
+      const logs = Array.from({ length: Math.max(0, Math.min(limit, total - (page - 1) * limit)) }, (_, i) => log((page - 1) * limit + i))
+      return { data: { success: true, data: { logs, total, page, limit } } }
+    })
+    const blobs: Blob[] = []
+    URL.createObjectURL = vi.fn((blob: Blob) => { blobs.push(blob); return 'blob:logs' })
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+
+    renderWithQuery(<MemoryRouter><AdminPage /></MemoryRouter>)
+    fireEvent.click(screen.getAllByRole('button', { name: 'Activity Logs' })[0])
+    fireEvent.change(await screen.findByDisplayValue('All actions'), { target: { value: 'login_failed' } })
+    fireEvent.click(await screen.findByRole('button', { name: /Export CSV/ }))
+
+    await waitFor(() => expect(blobs).toHaveLength(1))
+    const csv = await new Promise<string>(resolve => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.readAsText(blobs[0])
+    })
+    const lines = csv.split('\n')
+    expect(lines).toHaveLength(total + 1)
+    expect(lines[1]).toContain(`"'=HYPERLINK(""http://evil.test"")"`)
+    expect(calls('/logs')).toContainEqual(expect.objectContaining({ page: 3, limit: 200, action: 'login_failed' }))
+    click.mockRestore()
+  })
+
+  it('keeps a member’s formula-like name as text in the users CSV', async () => {
+    vi.mocked(api.get).mockImplementation(async (url: string) => {
+      if (url === '/auth/users') return { data: { success: true, data: { users: [{ _id: 'u1', name: '@SUM(1+1)', email: 'a@example.test', role: 'engineer' }], total: 1 } } }
+      return { data: { success: true, data: null } }
+    })
+    const blobs: Blob[] = []
+    URL.createObjectURL = vi.fn((blob: Blob) => { blobs.push(blob); return 'blob:users' })
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+
+    renderWithQuery(<MemoryRouter><AdminPage /></MemoryRouter>)
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/auth/users', expect.anything()))
+    fireEvent.click(await screen.findByRole('button', { name: /Export users CSV/ }))
+
+    await waitFor(() => expect(blobs).toHaveLength(1))
+    const csv = await new Promise<string>(resolve => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.readAsText(blobs[0])
+    })
+    expect(csv.split('\n')[1]).toMatch(/^"'@SUM\(1\+1\)"/)
+    click.mockRestore()
+  })
+
+  it('says so when the export stops at the newest 5000 entries', async () => {
+    vi.mocked(api.get).mockImplementation(async (url: string, config?: Config) => {
+      if (url !== '/logs') return { data: { success: true, data: null } }
+      const limit = Number(config?.params?.limit ?? 50)
+      const page = Number(config?.params?.page ?? 1)
+      const logs = Array.from({ length: limit }, (_, i) => ({ _id: `l${page}-${i}`, action: 'login', result: 'success' }))
+      return { data: { success: true, data: { logs, total: 6000, page, limit } } }
+    })
+    URL.createObjectURL = vi.fn(() => 'blob:logs')
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+
+    renderWithQuery(<MemoryRouter><AdminPage /></MemoryRouter>)
+    fireEvent.click(screen.getAllByRole('button', { name: 'Activity Logs' })[0])
+    fireEvent.click(await screen.findByRole('button', { name: /Export CSV/ }))
+
+    expect(await screen.findByText('Only the newest 5000 entries were exported.')).toBeInTheDocument()
+    // The Overview's own 200-entry summary carries no page; export requests do.
+    expect(calls('/logs').filter(p => p.limit === 200 && p.page !== undefined)).toHaveLength(25)
+    click.mockRestore()
   })
 
   it('filters activity logs on the server and counts all of them', async () => {

@@ -30,6 +30,9 @@ const USERS_PAGE_SIZES = [20, 50, 100] as const
 const USERS_PAGE_SIZE_KEY = 'admin_usersPerPage'
 const POSTS_PAGE_SIZE = 20
 const LOGS_PAGE_SIZE = 50
+// Export fetches every filtered entry in the server's largest pages, up to a ceiling that keeps the download bounded.
+const LOG_EXPORT_PAGE_SIZE = 200
+const LOG_EXPORT_MAX = 5000
 
 function readUsersPageSize(): number {
   try {
@@ -48,7 +51,7 @@ function downloadUsersCSV(users: User[]) {
   const headers = ['name', 'email', 'role', 'institution', 'city', 'country', 'isVerified', 'isSuspended', 'createdAt']
   const rows = users
     .filter(u => u.role !== 'admin')
-    .map(u => headers.map(h => `"${String((u as unknown as Record<string, unknown>)[h] ?? '').replace(/"/g, '""')}"`).join(','))
+    .map(u => headers.map(h => csvCell((u as unknown as Record<string, unknown>)[h])).join(','))
   const a = Object.assign(document.createElement('a'), {
     href: URL.createObjectURL(new Blob([[headers.join(','), ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' })),
     download: `healthai-users-${new Date().toISOString().split('T')[0]}.csv`,
@@ -56,11 +59,15 @@ function downloadUsersCSV(users: User[]) {
   a.click()
 }
 
+// A cell starting with = + - @ (or a tab/CR) runs as a formula in spreadsheets; a leading quote keeps it text (OWASP CSV injection).
+function csvCell(value: unknown) {
+  const text = String(value ?? '')
+  return `"${(/^[=+\-@\t\r]/.test(text) ? `'${text}` : text).replace(/"/g, '""')}"`
+}
+
 function downloadCSV(logs: ActivityLog[]) {
   const headers = ['timestamp', 'userId', 'userEmail', 'role', 'action', 'targetEntityId', 'result', 'ipAddress']
-  const rows = logs.map(l =>
-    headers.map(h => `"${String((l as unknown as Record<string, unknown>)[h] ?? '').replace(/"/g, '""')}"`).join(','),
-  )
+  const rows = logs.map(l => headers.map(h => csvCell((l as unknown as Record<string, unknown>)[h])).join(','))
   const a = Object.assign(document.createElement('a'), {
     href: URL.createObjectURL(new Blob([[headers.join(','), ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' })),
     download: `healthai-logs-${new Date().toISOString().split('T')[0]}.csv`,
@@ -759,6 +766,7 @@ export default function AdminPage() {
   const [logAction, setLogAction] = useState('')
   const [logResult, setLogResult] = useState('')
   const [logsPage, setLogsPage] = useState(1)
+  const [logExport, setLogExport] = useState<'idle' | 'running' | 'failed' | 'capped'>('idle')
   const [postsPage, setPostsPage] = useState(1)
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null)
 
@@ -803,7 +811,26 @@ export default function AdminPage() {
   })
   const pageLogs = logsQuery.data?.logs ?? []
   const logsTotal = logsQuery.data?.total ?? 0
-  useEffect(() => { setLogsPage(1) }, [logAction, logResult])
+  useEffect(() => { setLogsPage(1); setLogExport('idle') }, [logAction, logResult])
+
+  const exportLogs = async () => {
+    setLogExport('running')
+    try {
+      // Keyed by id: entries logged while the export runs push older ones onto the next page, which would repeat them.
+      const byId = new Map<string, ActivityLog>()
+      let total = 0
+      for (let page = 1; byId.size < LOG_EXPORT_MAX; page++) {
+        const res = await fetchLogs({ page, limit: LOG_EXPORT_PAGE_SIZE, action: logAction, result: logResult })
+        total = res.total
+        res.logs.forEach(l => byId.set(l.id, l))
+        if (res.logs.length < LOG_EXPORT_PAGE_SIZE || page * LOG_EXPORT_PAGE_SIZE >= total) break
+      }
+      downloadCSV([...byId.values()].slice(0, LOG_EXPORT_MAX))
+      setLogExport(total > LOG_EXPORT_MAX ? 'capped' : 'idle')
+    } catch {
+      setLogExport('failed')
+    }
+  }
 
   // Users are searched and paged on the server; typing is debounced so one request goes out per pause.
   const userSearch = useDebouncedValue(userQuery.trim(), 300)
@@ -817,7 +844,7 @@ export default function AdminPage() {
   const usersTotal = usersQuery.data?.total ?? 0
   useEffect(() => { setUsersPage(1) }, [userSearch])
 
-  const adminPosts = usePostList({ page: postsPage, limit: POSTS_PAGE_SIZE, sort: 'newest' })
+  const adminPosts = usePostList({ page: postsPage, limit: POSTS_PAGE_SIZE, sort: 'newest' }, { enabled: view === 'posts' })
   const adminPostsTotal = adminPosts.data?.total ?? 0
 
   useClampPage(postsPage, setPostsPage, adminPosts.data?.total, POSTS_PAGE_SIZE)
@@ -1133,9 +1160,14 @@ export default function AdminPage() {
                   </button>
                 )}
                 <span className="text-xs text-ink-muted font-semibold">{logsQuery.isPending ? t('admin.verification.loading') : t('admin.logs.entryCount', { shown: pageLogs.length, total: logsTotal })}</span>
-                <button onClick={() => downloadCSV(pageLogs)}
-                  className="ml-auto flex items-center gap-2 bg-ink text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition-colors">
-                  <Download size={14} /> {t('admin.logs.exportCsv')}
+                {(logExport === 'failed' || logExport === 'capped') && (
+                  <span role={logExport === 'failed' ? 'alert' : 'status'} className={`ml-auto text-xs font-semibold ${logExport === 'failed' ? 'text-error' : 'text-ink-muted'}`}>
+                    {logExport === 'failed' ? t('admin.logs.exportFailed') : t('admin.logs.exportCapped', { count: LOG_EXPORT_MAX })}
+                  </span>
+                )}
+                <button onClick={exportLogs} disabled={logExport === 'running'}
+                  className={`${logExport === 'failed' || logExport === 'capped' ? '' : 'ml-auto '}flex items-center gap-2 bg-ink text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition-colors disabled:opacity-60 disabled:cursor-wait`}>
+                  <Download size={14} /> {logExport === 'running' ? t('admin.logs.exporting') : t('admin.logs.exportCsv')}
                 </button>
               </div>
               <div className="overflow-x-auto">

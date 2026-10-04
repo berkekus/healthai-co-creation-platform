@@ -1219,6 +1219,9 @@
       "clear": "Limpar",
       "entryCount": "{{shown}} de {{total}} entradas",
       "exportCsv": "Exportar CSV",
+      "exporting": "Exportando…",
+      "exportFailed": "Falha ao exportar. Tente novamente.",
+      "exportCapped": "Apenas os {{count}} registros mais recentes foram exportados.",
       "columns": {
         "timestamp": "Data/hora",
         "user": "Utilizador",

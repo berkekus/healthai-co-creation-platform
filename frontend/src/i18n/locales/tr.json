@@ -1219,6 +1219,9 @@
       "clear": "Temizle",
       "entryCount": "{{total}} kayıttan {{shown}} tanesi",
       "exportCsv": "CSV olarak dışa aktar",
+      "exporting": "Dışa aktarılıyor…",
+      "exportFailed": "Dışa aktarma başarısız oldu. Lütfen tekrar deneyin.",
+      "exportCapped": "Yalnızca en yeni {{count}} kayıt dışa aktarıldı.",
       "columns": {
         "timestamp": "Zaman",
         "user": "Kullanıcı",
