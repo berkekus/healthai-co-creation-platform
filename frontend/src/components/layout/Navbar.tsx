@@ -270,7 +270,7 @@ export default function Navbar() {
                   <>
                     <MessageSquare size={17} />
                     {unreadMessages > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-white bg-hai-plum px-1 font-mono text-xs font-bold text-hai-mint">
+                      <span className="count-halo absolute -top-1 -right-0.5 font-mono text-[13px] font-black leading-none text-hai-plum">
                         {unreadMessages > 9 ? '9+' : unreadMessages}
                       </span>
                     )}
@@ -297,7 +297,7 @@ export default function Navbar() {
                     <>
                       <Bell size={17} />
                       {unread > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-white bg-hai-plum px-1 font-mono text-xs font-bold text-hai-mint">
+                        <span className="count-halo absolute -top-1 -right-0.5 font-mono text-[13px] font-black leading-none text-hai-plum">
                           {unread > 9 ? '9+' : unread}
                         </span>
                       )}
