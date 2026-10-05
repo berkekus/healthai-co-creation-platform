@@ -41,6 +41,7 @@ import { usePostStore } from '../../store/postStore'
 import { useSmartSuggestions } from '../../lib/gemini'
 import { usePostList } from '../../hooks/usePostList'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
+import { useUrlBackedText } from '../../hooks/useUrlBackedText'
 import type { PostSort } from '../../lib/postsApi'
 import { CITIES, COUNTRIES } from '../../data/locations'
 import { computeMatchReasons, getCombinedMatchScore } from '../../utils/matchPosts'
@@ -100,12 +101,12 @@ export default function PostListPage() {
   // Filters and page live in the URL, so returning from a post, reloading or sharing the
   // link keeps them. Updates replace the history entry so Back leaves the list, not each keystroke.
   const [searchParams, setSearchParams] = useSearchParams()
-  const search = searchParams.get('q') ?? ''
+  const urlSearch = searchParams.get('q') ?? ''
   const domain = searchParams.get('domain') ?? ''
   const stage = searchParams.get('stage') ?? ''
   const status = searchParams.get('status') ?? ''
   const postedBy = POSTED_BY_FROM_PARAM[searchParams.get('by') ?? ''] ?? 'Anyone'
-  const location = searchParams.get('loc') ?? ''
+  const urlLocation = searchParams.get('loc') ?? ''
   const page = Math.max(1, Number(searchParams.get('page')) || 1)
   // React Router hands the updater the params of the last render, so two updates in one
   // tick would drop the first; read and write through a ref that always holds the latest.
@@ -121,12 +122,13 @@ export default function PostListPage() {
     latestParams.current = next
     setSearchParams(next, { replace: true })
   }
-  const setSearch = (value: string) => updateParams({ q: value })
+  // The two text fields keep their own text so fast typing never waits on the URL (see useUrlBackedText).
+  const [search, setSearch] = useUrlBackedText(urlSearch, value => updateParams({ q: value }))
+  const [location, setLocation] = useUrlBackedText(urlLocation, value => updateParams({ loc: value }))
   const setDomain = (value: string) => updateParams({ domain: value })
   const setStage = (value: string) => updateParams({ stage: value })
   const setStatus = (value: string) => updateParams({ status: value })
   const setPostedBy = (value: PostedBy) => updateParams({ by: POSTED_BY_TO_PARAM[value] })
-  const setLocation = (value: string) => updateParams({ loc: value })
   const setPage = (value: number) => updateParams({ page: value > 1 ? String(value) : '' }, true)
   const [sort, setSort] = useState<SortMode>(() => (localStorage.getItem('postList_sort') as SortMode) ?? 'best')
   const [viewMode, setViewMode] = useState<ViewMode>(() => (localStorage.getItem('postList_view') as ViewMode) ?? 'list')
