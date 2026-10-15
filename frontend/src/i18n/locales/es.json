@@ -1604,5 +1604,47 @@
         "description": "Te uniste antes de junio de 2026"
       }
     }
+  },
+  "aboutPage": {
+    "badge": "Acerca de",
+    "challenge": "El reto de la innovación en tecnología sanitaria",
+    "imageAlt": "Registro — regístrate con un correo institucional; Explorar — los profesionales sanitarios ven las publicaciones; Crear publicación — indica el ámbito y la experiencia que necesitas; Solicitar reunión — envía una solicitud de reunión con NDA.",
+    "whyTitle": "Por qué importa la co-creación estructurada",
+    "whyBody": "La innovación multidisciplinar en tecnología sanitaria requiere un acceso rápido y estructurado a conocimientos complementarios que hoy depende de la casualidad o de los contactos personales.",
+    "gapTitle": "La brecha que abordamos",
+    "gapBody": "Los ingenieros que desarrollan tecnologías sanitarias necesitan conocimiento clínico, comprensión de los flujos de trabajo, procesos de validación y vías de aprobación ética para convertir sus ideas en soluciones viables. A la inversa, los profesionales sanitarios generan a menudo ideas innovadoras convincentes, pero carecen de la competencia de ingeniería y de la infraestructura técnica para llevarlas a cabo. El panorama actual obliga a los innovadores a depender sobre todo de sus contactos personales, un modelo ineficiente que frena la innovación y limita las colaboraciones a quienes ya se conocen.",
+    "purposeTitle": "Propósito del proyecto",
+    "purposeBody": "La innovación multidisciplinar en tecnología sanitaria requiere un acceso rápido y estructurado a conocimientos complementarios. Los ingenieros que desarrollan tecnologías sanitarias necesitan conocimiento clínico, comprensión de los flujos de trabajo, procesos de validación y vías de aprobación ética. A la inversa, los profesionales sanitarios suelen tener buenas ideas innovadoras, pero les falta la competencia de ingeniería para llevarlas a cabo. Hoy, estas colaboraciones dependen sobre todo de los contactos personales o de la casualidad.",
+    "purposeLead": "La plataforma de co-creación HEALTH AI elimina el azar en la colaboración interdisciplinar al ofrecer:",
+    "capabilities": [
+      "Búsqueda estructurada de socios mediante publicaciones",
+      "Primer contacto seguro",
+      "Divulgación controlada de las ideas",
+      "Proceso de reuniones transparente",
+      "Cierre claro de las búsquedas de socios"
+    ],
+    "objective": "El objetivo es desarrollar una plataforma web segura y conforme al RGPD que permita una búsqueda estructurada de socios entre profesionales sanitarios e ingenieros, con la usabilidad como requisito de máxima prioridad.",
+    "philosophyTitle": "Filosofía de la plataforma",
+    "notTitle": "Lo que no es",
+    "notItems": [
+      "Un repositorio de documentos",
+      "Un sistema de datos médicos",
+      "Una herramienta de gestión de proyectos",
+      "Un servicio para compartir archivos"
+    ],
+    "isTitle": "Lo que es",
+    "isItems": [
+      "Una infraestructura segura de emparejamiento",
+      "Un tablón estructurado de búsqueda de socios",
+      "Un facilitador para iniciar reuniones",
+      "Un puente interdisciplinar basado en la confianza"
+    ],
+    "avoids": "El sistema evita deliberadamente almacenar material técnico confidencial, archivos de propiedad intelectual o datos de pacientes para reducir el riesgo de robo de propiedad intelectual, la exposición legal, el riesgo de RGPD y las complicaciones éticas.",
+    "ux": "HEALTH AI es, ante todo, una plataforma de experiencia de usuario. El sistema debe transmitir seguridad, profesionalidad, sencillez, orden y confianza.",
+    "usersMustTitle": "Los usuarios deben:",
+    "usersMust": [
+      "Entender el propósito de la plataforma en 20 segundos",
+      "Poder publicar un anuncio sin confusión"
+    ]
   }
 }

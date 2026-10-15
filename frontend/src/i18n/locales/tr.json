@@ -1604,5 +1604,47 @@
         "description": "Haziran 2026 öncesinde katıldınız"
       }
     }
+  },
+  "aboutPage": {
+    "badge": "Hakkında",
+    "challenge": "Sağlık Teknolojisi İnovasyonunun Zorluğu",
+    "imageAlt": "Kayıt — kurumsal e-postayla kaydolun; Göz atın — sağlık profesyonelleri ilanları inceler; İlan oluşturun — alan ve uzmanlık ihtiyaçlarını belirtin; Toplantı isteyin — NDA ile toplantı isteği gönderin.",
+    "whyTitle": "Yapılandırılmış Ortak Üretim Neden Önemli",
+    "whyBody": "Sağlık teknolojisinde disiplinler arası inovasyon, tamamlayıcı uzmanlığa hızlı ve düzenli erişim gerektirir; bu erişim bugün çoğunlukla tesadüfe veya kişisel çevreye bağlıdır.",
+    "gapTitle": "Kapatmak İstediğimiz Boşluk",
+    "gapBody": "Sağlık teknolojileri geliştiren mühendislerin, fikirleri uygulanabilir çözümlere dönüştürmek için klinik alan bilgisine, iş akışlarını anlamaya, doğrulama süreçlerine ve etik onay yollarına ihtiyacı vardır. Öte yandan sağlık profesyonelleri sık sık güçlü inovasyon fikirleri üretir, ancak bunları hayata geçirecek mühendislik yetkinliği ve teknik altyapıdan yoksundur. Mevcut durum, yenilikçileri büyük ölçüde kişisel çevrelerine bağımlı kılıyor; bu verimsiz model inovasyonu yavaşlatıyor ve olası ortaklıkları zaten tanışıklığı olanlarla sınırlıyor.",
+    "purposeTitle": "Projenin Amacı",
+    "purposeBody": "Disiplinler arası sağlık teknolojisi inovasyonu, tamamlayıcı uzmanlığa hızlı ve düzenli erişim gerektirir. Sağlık teknolojileri geliştiren mühendislerin klinik alan bilgisine, iş akışlarını anlamaya, doğrulama süreçlerine ve etik onay yollarına ihtiyacı vardır. Öte yandan sağlık profesyonelleri çoğu zaman güçlü inovasyon fikirleri üretir, ancak bunları uygulayacak mühendislik yetkinliğinden yoksundur. Bugün bu tür ortaklıklar büyük ölçüde kişisel çevreye veya tesadüfe dayanıyor.",
+    "purposeLead": "HEALTH AI ortak üretim platformu, disiplinler arası işbirliğindeki rastlantısallığı şunları sağlayarak ortadan kaldırır:",
+    "capabilities": [
+      "İlanlara dayalı, düzenli ortak bulma",
+      "Güvenli ilk temas",
+      "Fikirlerin kontrollü paylaşımı",
+      "Şeffaf toplantı süreci",
+      "Ortak arayışlarının net biçimde kapatılması"
+    ],
+    "objective": "Amaç, sağlık profesyonelleri ile mühendisler arasında düzenli ortak bulmayı sağlayan, güvenli ve GDPR ile uyumlu bir web platformu geliştirmek; en öncelikli gereksinim ise kullanılabilirlik.",
+    "philosophyTitle": "Platformun Temel Felsefesi",
+    "notTitle": "Ne değildir",
+    "notItems": [
+      "Bir doküman deposu",
+      "Bir tıbbi veri sistemi",
+      "Bir proje yönetim aracı",
+      "Bir dosya paylaşım servisi"
+    ],
+    "isTitle": "Nedir",
+    "isItems": [
+      "Güvenli bir eşleştirme altyapısı",
+      "Düzenli bir ortak arama ilan panosu",
+      "Toplantı başlatmayı kolaylaştıran bir araç",
+      "Güvene dayalı, disiplinler arası bir köprü"
+    ],
+    "avoids": "Sistem; fikri mülkiyet hırsızlığı riskini, hukuki sorumluluğu, GDPR riskini ve etik sorunları azaltmak için gizli teknik materyali, fikri mülkiyet dosyalarını veya hasta verilerini bilinçli olarak saklamaz.",
+    "ux": "HEALTH AI özünde bir kullanıcı deneyimi platformudur. Sistem güvenli, profesyonel, sade, düzenli ve güvenilir hissettirmelidir.",
+    "usersMustTitle": "Kullanıcılar:",
+    "usersMust": [
+      "Platformun amacını 20 saniye içinde anlayabilmeli",
+      "Kafa karışıklığı yaşamadan ilan yayınlayabilmeli"
+    ]
   }
 }

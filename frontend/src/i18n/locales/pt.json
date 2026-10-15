@@ -1604,5 +1604,47 @@
         "description": "Aderiu antes de junho de 2026"
       }
     }
+  },
+  "aboutPage": {
+    "badge": "Sobre",
+    "challenge": "O desafio da inovação em tecnologia da saúde",
+    "imageAlt": "Registo — registe-se com um email institucional; Explorar — os profissionais de saúde veem as publicações; Criar publicação — indique o domínio e a experiência necessários; Pedir reunião — envie um pedido de reunião com NDA.",
+    "whyTitle": "Porque é que a cocriação estruturada é importante",
+    "whyBody": "A inovação multidisciplinar em tecnologia da saúde exige acesso rápido e estruturado a competências complementares que, hoje, depende do acaso ou de contactos pessoais.",
+    "gapTitle": "A lacuna que queremos colmatar",
+    "gapBody": "Os engenheiros que desenvolvem tecnologias de saúde precisam de conhecimento clínico, de compreender os fluxos de trabalho, de processos de validação e de vias de aprovação ética para transformar ideias em soluções viáveis. Por outro lado, os profissionais de saúde geram muitas vezes ideias inovadoras convincentes, mas não têm a competência de engenharia nem a infraestrutura técnica para as concretizar. O panorama atual obriga os inovadores a depender sobretudo de contactos pessoais, um modelo ineficiente que atrasa a inovação e limita as parcerias a quem já se conhece.",
+    "purposeTitle": "Objetivo do projeto",
+    "purposeBody": "A inovação multidisciplinar em tecnologia da saúde exige acesso rápido e estruturado a competências complementares. Os engenheiros que desenvolvem tecnologias de saúde precisam de conhecimento clínico, de compreender os fluxos de trabalho, de processos de validação e de vias de aprovação ética. Por outro lado, os profissionais de saúde têm muitas vezes boas ideias inovadoras, mas falta-lhes a competência de engenharia para as concretizar. Hoje, estas parcerias dependem sobretudo de contactos pessoais ou do acaso.",
+    "purposeLead": "A plataforma de cocriação HEALTH AI elimina o acaso na colaboração interdisciplinar ao oferecer:",
+    "capabilities": [
+      "Procura estruturada de parceiros através de publicações",
+      "Primeiro contacto seguro",
+      "Divulgação controlada de ideias",
+      "Processo de reuniões transparente",
+      "Encerramento claro das procuras de parceiros"
+    ],
+    "objective": "O objetivo é desenvolver uma plataforma web segura e conforme o RGPD que permita uma procura estruturada de parceiros entre profissionais de saúde e engenheiros, tendo a usabilidade como requisito de máxima prioridade.",
+    "philosophyTitle": "Filosofia da plataforma",
+    "notTitle": "O que não é",
+    "notItems": [
+      "Um repositório de documentos",
+      "Um sistema de dados médicos",
+      "Uma ferramenta de gestão de projetos",
+      "Um serviço de partilha de ficheiros"
+    ],
+    "isTitle": "O que é",
+    "isItems": [
+      "Uma infraestrutura segura de correspondência",
+      "Um quadro estruturado de procura de parceiros",
+      "Um facilitador para iniciar reuniões",
+      "Uma ponte interdisciplinar baseada na confiança"
+    ],
+    "avoids": "O sistema evita deliberadamente guardar material técnico confidencial, ficheiros de propriedade intelectual ou dados de doentes, para reduzir o risco de roubo de propriedade intelectual, a exposição legal, o risco de RGPD e as complicações éticas.",
+    "ux": "A HEALTH AI é, antes de tudo, uma plataforma de experiência de utilizador. O sistema tem de transmitir segurança, profissionalismo, simplicidade, organização e confiança.",
+    "usersMustTitle": "Os utilizadores devem:",
+    "usersMust": [
+      "Perceber o objetivo da plataforma em 20 segundos",
+      "Conseguir publicar um anúncio sem confusão"
+    ]
   }
 }

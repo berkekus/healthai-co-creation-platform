@@ -1604,5 +1604,47 @@
         "description": "Lid geworden vóór juni 2026"
       }
     }
+  },
+  "aboutPage": {
+    "badge": "Over",
+    "challenge": "De uitdaging van innovatie in zorgtechnologie",
+    "imageAlt": "Registreren — meld je aan met een institutioneel e-mailadres; Bladeren — zorgprofessionals bekijken berichten; Bericht maken — geef het domein en de gezochte expertise aan; Vergadering aanvragen — stuur een vergaderverzoek met NDA.",
+    "whyTitle": "Waarom gestructureerde co-creatie belangrijk is",
+    "whyBody": "Multidisciplinaire innovatie in zorgtechnologie vraagt om snelle, gestructureerde toegang tot aanvullende expertise, die nu afhangt van toeval of persoonlijke netwerken.",
+    "gapTitle": "Het gat dat we dichten",
+    "gapBody": "Ingenieurs die zorgtechnologie ontwikkelen hebben klinische domeinkennis, inzicht in werkprocessen, validatieprocessen en ethische goedkeuringstrajecten nodig om ideeën om te zetten in werkbare oplossingen. Omgekeerd bedenken zorgprofessionals vaak overtuigende innovatie-ideeën, maar missen ze de technische kennis en infrastructuur om die uit te voeren. Innovators zijn nu grotendeels afhankelijk van hun persoonlijke netwerk: een inefficiënt model dat innovatie vertraagt en samenwerkingen beperkt tot mensen die elkaar al kennen.",
+    "purposeTitle": "Doel van het project",
+    "purposeBody": "Multidisciplinaire innovatie in zorgtechnologie vraagt om snelle en gestructureerde toegang tot aanvullende expertise. Ingenieurs die zorgtechnologie ontwikkelen hebben klinische domeinkennis, inzicht in werkprocessen, validatieprocessen en ethische goedkeuringstrajecten nodig. Omgekeerd hebben zorgprofessionals vaak sterke innovatie-ideeën, maar missen ze de technische kennis om die uit te voeren. Zulke samenwerkingen hangen nu grotendeels af van persoonlijke netwerken of toeval.",
+    "purposeLead": "Het HEALTH AI co-creatieplatform haalt het toeval uit interdisciplinaire samenwerking door te bieden:",
+    "capabilities": [
+      "Gestructureerd partners vinden via berichten",
+      "Veilig eerste contact",
+      "Gecontroleerd delen van ideeën",
+      "Transparant vergaderproces",
+      "Duidelijke afsluiting van partnerverzoeken"
+    ],
+    "objective": "Het doel is een veilig, AVG-conform webplatform te ontwikkelen waarmee zorgprofessionals en ingenieurs gestructureerd partners vinden, met gebruiksvriendelijkheid als hoogste prioriteit.",
+    "philosophyTitle": "Kernfilosofie van het platform",
+    "notTitle": "Wat het niet is",
+    "notItems": [
+      "Een documentenarchief",
+      "Een systeem voor medische gegevens",
+      "Een projectmanagementpakket",
+      "Een dienst voor het delen van bestanden"
+    ],
+    "isTitle": "Wat het wel is",
+    "isItems": [
+      "Een veilige infrastructuur om partners te koppelen",
+      "Een gestructureerd prikbord voor partnerverzoeken",
+      "Een hulpmiddel om vergaderingen te starten",
+      "Een interdisciplinaire brug gebouwd op vertrouwen"
+    ],
+    "avoids": "Het systeem slaat bewust geen vertrouwelijk technisch materiaal, bestanden met intellectueel eigendom of patiëntgegevens op, om het risico op IE-diefstal, juridische aansprakelijkheid, AVG-risico en ethische complicaties te beperken.",
+    "ux": "HEALTH AI is in de kern een platform voor gebruikerservaring. Het systeem moet veilig, professioneel, eenvoudig, overzichtelijk en betrouwbaar aanvoelen.",
+    "usersMustTitle": "Gebruikers moeten:",
+    "usersMust": [
+      "Het doel van het platform binnen 20 seconden begrijpen",
+      "Zonder verwarring een bericht kunnen plaatsen"
+    ]
   }
 }

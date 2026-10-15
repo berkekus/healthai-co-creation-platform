@@ -1604,5 +1604,47 @@
         "description": "Joined before June 2026"
       }
     }
+  },
+  "aboutPage": {
+    "badge": "About",
+    "challenge": "The Challenge of Health-Tech Innovation",
+    "imageAlt": "Register — sign up with an institutional email; Browse — healthcare professionals view postings; Create Post — specify domain and expertise needs; Request Meeting — send a meeting request with NDA.",
+    "whyTitle": "Why Structured Co-Creation Matters",
+    "whyBody": "Multidisciplinary innovation in healthcare technology requires rapid, structured access to complementary expertise that currently relies on coincidence or personal networks.",
+    "gapTitle": "The Gap We're Addressing",
+    "gapBody": "Engineers developing healthcare technologies require clinical domain knowledge, workflow understanding, validation processes, and ethical approval pathways to transform concepts into viable solutions. Conversely, healthcare professionals frequently generate compelling innovation ideas but lack the engineering competence and technical infrastructure to implement them effectively. The current landscape forces innovators to depend largely on personal networks, an inefficient model that slows innovation and limits potential partnerships to those with existing connections.",
+    "purposeTitle": "Project Purpose",
+    "purposeBody": "Multidisciplinary health-tech innovation requires rapid and structured access to complementary expertise. Engineers developing healthcare technologies require clinical domain knowledge, workflow understanding, validation processes, and ethical approval pathways. Conversely, healthcare professionals often generate strong innovation ideas but lack engineering competence to implement them. Currently, such partnerships depend largely on personal networks or coincidence.",
+    "purposeLead": "The HEALTH AI co-creation platform eliminates randomness in interdisciplinary collaboration by providing:",
+    "capabilities": [
+      "Structured announcement-based partner discovery",
+      "Secure first-contact initiation",
+      "Controlled disclosure of ideas",
+      "Transparent meeting workflow",
+      "Clear closure of partner requests"
+    ],
+    "objective": "The objective is to develop a secure, GDPR-compliant web platform that enables structured partner discovery between healthcare professionals and engineers, with usability as the highest priority requirement.",
+    "philosophyTitle": "Core Platform Philosophy",
+    "notTitle": "What it is not",
+    "notItems": [
+      "A document repository",
+      "A medical data system",
+      "A project management suite",
+      "A file-sharing service"
+    ],
+    "isTitle": "What it is",
+    "isItems": [
+      "A secure matchmaking infrastructure",
+      "A structured partner announcement board",
+      "A meeting initiation facilitator",
+      "A trust-based interdisciplinary bridge"
+    ],
+    "avoids": "The system intentionally avoids storing confidential technical material, intellectual property files, or patient data in order to reduce IP theft risks, legal exposure, GDPR risk, and ethical complications.",
+    "ux": "HEALTH AI is fundamentally a user experience platform. The system must feel safe, professional, simple, structured, and trustworthy.",
+    "usersMustTitle": "Users must:",
+    "usersMust": [
+      "Understand the platform's purpose within 20 seconds",
+      "Be able to post an announcement without confusion"
+    ]
   }
 }
