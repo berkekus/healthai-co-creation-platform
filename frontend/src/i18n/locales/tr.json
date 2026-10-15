@@ -770,6 +770,8 @@
       "emailTakenHelp": "Giriş yapabilir ya da şifrenizi unuttuysanız sıfırlayabilirsiniz.",
       "emailSuggestion": "Bunu mu demek istediniz: {{email}}?",
       "emailDomainInvalid": "Bu e-posta alan adı bulunamadı. Lütfen adreste yazım hatası olup olmadığını kontrol edin.",
+      "sendingTo": "Doğrulama bağlantısı şu adrese gönderilecek:",
+      "editEmail": "Düzenle",
       "signInInstead": "Giriş yap",
       "resetPasswordLink": "Şifremi sıfırla"
     },

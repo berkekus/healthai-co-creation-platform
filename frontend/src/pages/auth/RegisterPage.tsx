@@ -517,6 +517,24 @@ export default function RegisterPage() {
                     />)}
                   </div>
 
+                  {/* A slip in the part before the @ (a student number off by one digit) passes
+                      every automatic check, so show the address once more before sending. */}
+                  <div className="rounded-[14px] border border-line-strong bg-white px-4 py-3 text-sm text-ink-muted">
+                    {t('authPage.register.sendingTo')}{' '}
+                    <span className="font-mono font-semibold text-hai-plum break-all">{watch('email')}</span>
+                    {' · '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStep(0)
+                        requestAnimationFrame(() => document.getElementById(fieldId('email'))?.focus())
+                      }}
+                      className="font-bold text-hai-teal-dark underline hover:text-hai-plum"
+                    >
+                      {t('authPage.register.editEmail')}
+                    </button>
+                  </div>
+
                   <div className="flex gap-3 mt-2">
                     <button type="button" onClick={() => setStep(preselectedRole ? 0 : 1)} className="flex-1 py-[15px] rounded-full border border-line-strong bg-white text-ink font-bold text-base hover:border-accent-bright transition-colors font-headline">
                       {t('authPage.register.backBtn')}

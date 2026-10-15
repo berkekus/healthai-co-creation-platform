@@ -770,6 +770,8 @@
       "emailTakenHelp": "Inicia sesión, o restablece tu contraseña si la has olvidado.",
       "emailSuggestion": "¿Quisiste decir {{email}}?",
       "emailDomainInvalid": "No encontramos este dominio de correo. Revisa si la dirección tiene errores.",
+      "sendingTo": "El enlace de verificación se enviará a",
+      "editEmail": "Editar",
       "signInInstead": "Iniciar sesión",
       "resetPasswordLink": "Restablecer tu contraseña"
     },

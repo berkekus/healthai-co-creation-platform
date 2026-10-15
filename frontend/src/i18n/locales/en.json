@@ -770,6 +770,8 @@
       "emailTakenHelp": "Sign in instead, or reset your password if you have forgotten it.",
       "emailSuggestion": "Did you mean {{email}}?",
       "emailDomainInvalid": "We couldn't find this email domain. Please check the address for typos.",
+      "sendingTo": "The verification link will be sent to",
+      "editEmail": "Edit",
       "signInInstead": "Sign in",
       "resetPasswordLink": "Reset your password"
     },

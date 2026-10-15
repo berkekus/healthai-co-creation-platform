@@ -770,6 +770,8 @@
       "emailTakenHelp": "Log in plaats daarvan in, of reset je wachtwoord als je het bent vergeten.",
       "emailSuggestion": "Bedoelde je {{email}}?",
       "emailDomainInvalid": "We kunnen dit e-maildomein niet vinden. Controleer het adres op typefouten.",
+      "sendingTo": "De verificatielink wordt verstuurd naar",
+      "editEmail": "Wijzigen",
       "signInInstead": "Inloggen",
       "resetPasswordLink": "Reset je wachtwoord"
     },

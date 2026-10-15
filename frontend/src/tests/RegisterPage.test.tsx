@@ -85,6 +85,20 @@ describe('RegisterPage — account step', () => {
     for (const input of document.querySelectorAll('input[autocomplete="new-password"]')) expect(input).toHaveValue('')
   })
 
+  it('shows the address once more on the last step and goes back to fix it', async () => {
+    render(<MemoryRouter><RegisterPage /></MemoryRouter>)
+    fillAccountStep('password123', 'password123')
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }))
+    fireEvent.click(within(await screen.findByRole('group', { name: /I am a/ })).getByRole('button', { name: /^Engineer/ }))
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }))
+
+    expect(await screen.findByText(/verification link will be sent to/i)).toHaveTextContent('alice@university.edu')
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+
+    await waitFor(() => expect(emailInput()).toHaveFocus())
+    expect(emailInput()).toHaveValue('alice@university.edu')
+  })
+
   it('moves on to the role step when the passwords match', async () => {
     render(<MemoryRouter><RegisterPage /></MemoryRouter>)
     fillAccountStep('password123', 'password123')
