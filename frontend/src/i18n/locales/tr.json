@@ -1044,7 +1044,9 @@
     "savingDraft": "Taslak kaydediliyor…",
     "publish": "İncele & yayınla →",
     "publishing": "Yayınlanıyor…",
-    "badge": "07  Yeni ilan"
+    "badge": "07  Yeni ilan",
+    "fixErrors": "Bazı alanlar eksik veya hatalı — lütfen kırmızıyla işaretli alanları kontrol edin.",
+    "submitFailed": "İlan kaydedilemedi. Lütfen tekrar deneyin."
   },
   "editPost": {
     "backToPost": "İlana dön",

@@ -1044,7 +1044,9 @@
     "savingDraft": "Saving draft…",
     "publish": "Review & publish →",
     "publishing": "Publishing…",
-    "badge": "07  New post"
+    "badge": "07  New post",
+    "fixErrors": "Some fields need attention — please check the fields marked in red.",
+    "submitFailed": "Could not save your post. Please try again."
   },
   "editPost": {
     "backToPost": "Back to post",

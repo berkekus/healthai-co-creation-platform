@@ -1044,7 +1044,9 @@
     "savingDraft": "A guardar rascunho…",
     "publish": "Rever & publicar →",
     "publishing": "A publicar…",
-    "badge": "07  Nova publicação"
+    "badge": "07  Nova publicação",
+    "fixErrors": "Alguns campos precisam de atenção — verifique os campos assinalados a vermelho.",
+    "submitFailed": "Não foi possível guardar a publicação. Tente novamente."
   },
   "editPost": {
     "backToPost": "Voltar à publicação",

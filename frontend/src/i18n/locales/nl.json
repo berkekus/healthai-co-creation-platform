@@ -1044,7 +1044,9 @@
     "savingDraft": "Concept opslaan…",
     "publish": "Controleren & publiceren →",
     "publishing": "Bezig met publiceren…",
-    "badge": "07  Nieuw bericht"
+    "badge": "07  Nieuw bericht",
+    "fixErrors": "Sommige velden vragen aandacht — controleer de rood gemarkeerde velden.",
+    "submitFailed": "Je bericht kon niet worden opgeslagen. Probeer het opnieuw."
   },
   "editPost": {
     "backToPost": "Terug naar bericht",

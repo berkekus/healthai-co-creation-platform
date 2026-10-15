@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
@@ -14,9 +14,12 @@ import { localDateInputValue } from '../../utils/timeSlots'
 export default function PostCreatePage() {
   const { t } = useTranslation()
   const { user } = useAuthStore()
-  const { create } = usePostStore()
+  const { create, update, publish } = usePostStore()
   const navigate = useNavigate()
   const [submitAction, setSubmitAction] = useState<'draft' | 'publish'>('draft')
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  // Set once the draft exists, so retrying a failed publish doesn't create a duplicate.
+  const createdPostId = useRef<string | null>(null)
 
   const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<PostCreateFormData>({
     resolver: zodResolver(createPostCreateSchema(t)),
@@ -34,13 +37,26 @@ export default function PostCreatePage() {
 
   const onSubmit = async (data: PostCreateFormData) => {
     if (!user) return
+    setSubmitError(null)
     const role = user.role === 'admin' ? 'engineer' : user.role
-    const post = await create(data, user.id, user.name, role as 'engineer' | 'healthcare_professional')
-    if (submitAction === 'publish') {
-      await usePostStore.getState().publish(post.id)
+    try {
+      let postId = createdPostId.current
+      if (postId) {
+        await update(postId, data)
+      } else {
+        postId = (await create(data, user.id, user.name, role as 'engineer' | 'healthcare_professional')).id
+        createdPostId.current = postId
+      }
+      if (submitAction === 'publish') {
+        await publish(postId)
+      }
+      navigate(postDetail(postId))
+    } catch (err) {
+      setSubmitError((err as Error).message || t('createPost.submitFailed'))
     }
-    navigate(postDetail(post.id))
   }
+
+  const onInvalid = () => setSubmitError(t('createPost.fixErrors'))
 
   const minDate = new Date()
   minDate.setDate(minDate.getDate() + 1)
@@ -81,11 +97,17 @@ export default function PostCreatePage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate>
           {/* fieldset disabled freezes all inputs/selects/textareas during submit */}
           <fieldset disabled={isSubmitting} className="min-w-0 border-0 p-0 m-0">
             <PostFormFields register={register} control={control} setValue={setValue} errors={errors} minDateStr={minDateStr} />
           </fieldset>
+
+          {submitError && (
+            <div role="alert" className="mt-8 rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+              {submitError}
+            </div>
+          )}
 
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <button

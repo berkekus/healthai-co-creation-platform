@@ -1044,7 +1044,9 @@
     "savingDraft": "Guardando borrador…",
     "publish": "Revisar y publicar →",
     "publishing": "Publicando…",
-    "badge": "07  Nueva publicación"
+    "badge": "07  Nueva publicación",
+    "fixErrors": "Algunos campos necesitan atención: revisa los campos marcados en rojo.",
+    "submitFailed": "No se pudo guardar la publicación. Inténtalo de nuevo."
   },
   "editPost": {
     "backToPost": "Volver a la publicación",
