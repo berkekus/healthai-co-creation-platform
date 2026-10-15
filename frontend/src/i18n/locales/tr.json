@@ -1250,6 +1250,7 @@
     }
   },
   "common": {
+    "opensInNewTab": "yeni sekmede açılır",
     "save": "Kaydet",
     "cancel": "İptal",
     "edit": "Düzenle",
@@ -1367,6 +1368,7 @@
     "sending": "Gönderiliyor…"
   },
   "meetingSlots": {
+    "dateTooEarly": "Bu tarih geçmiş. Yarından itibaren bir tarih seçin.",
     "zoneNote": "Saatler sizin saat diliminizdedir: {{zone}}",
     "slotN": "Zaman {{n}}",
     "remove": "{{n}}. zamanı kaldır",

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { TimeSlot } from '../../types/meeting.types'
 import { browserTimeZone, localDateInputValue } from '../../utils/timeSlots'
 import ConfirmDialog from '../ui/ConfirmDialog'
-import SlotListEditor, { newSlotDraft, slotsFromDrafts, type SlotDraft } from './SlotListEditor'
+import SlotListEditor, { hasTooEarlySlot, newSlotDraft, slotsFromDrafts, type SlotDraft } from './SlotListEditor'
 
 interface Props {
   ownerName: string
@@ -45,7 +45,7 @@ export default function ProposeTimesModal({ ownerName, onSubmit, onClose }: Prop
       onConfirm={submit}
       onCancel={onClose}
       busy={busy}
-      confirmDisabled={slots.length === 0}
+      confirmDisabled={slots.length === 0 || hasTooEarlySlot(drafts, minDate)}
       error={error}
     >
       <p>{t('meetingsPage.proposeIntro', { name: ownerName })}</p>

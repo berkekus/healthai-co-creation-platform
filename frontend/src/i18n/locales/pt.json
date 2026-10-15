@@ -1250,6 +1250,7 @@
     }
   },
   "common": {
+    "opensInNewTab": "abre num novo separador",
     "save": "Guardar",
     "cancel": "Cancelar",
     "edit": "Editar",
@@ -1367,6 +1368,7 @@
     "sending": "A enviar…"
   },
   "meetingSlots": {
+    "dateTooEarly": "Esta data já passou. Escolha uma data a partir de amanhã.",
     "zoneNote": "Os horários estão no seu fuso horário: {{zone}}",
     "slotN": "Horário {{n}}",
     "remove": "Remover horário {{n}}",

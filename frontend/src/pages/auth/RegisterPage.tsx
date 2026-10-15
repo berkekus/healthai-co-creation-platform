@@ -494,12 +494,16 @@ export default function RegisterPage() {
                       )}
                     </div>
                     <span className="text-sm text-ink-muted leading-relaxed font-body">
+                      {/* A new tab: following it in place threw away everything typed so far. */}
                       <Link
                         to={ROUTES.PRIVACY}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="font-bold text-ink hover:text-hai-teal-dark transition-colors"
                         onClick={e => e.stopPropagation()}
                       >
                         {gdprConsentLink}
+                        <span className="sr-only"> ({t('common.opensInNewTab')})</span>
                       </Link>
                       {' '}{gdprConsentRest}
                     </span>

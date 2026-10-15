@@ -1250,6 +1250,7 @@
     }
   },
   "common": {
+    "opensInNewTab": "opens in a new tab",
     "save": "Save",
     "cancel": "Cancel",
     "edit": "Edit",
@@ -1367,6 +1368,7 @@
     "sending": "Sending…"
   },
   "meetingSlots": {
+    "dateTooEarly": "This date has passed. Pick a date from tomorrow onwards.",
     "zoneNote": "Times are in your time zone: {{zone}}",
     "slotN": "Time {{n}}",
     "remove": "Remove time {{n}}",

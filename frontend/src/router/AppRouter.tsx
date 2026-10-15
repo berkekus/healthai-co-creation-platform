@@ -6,6 +6,7 @@ import ErrorBoundary from '../components/ui/ErrorBoundary'
 import LandingShell from '../components/layout/LandingShell'
 import ProtectedRoute from './ProtectedRoute'
 import GuestRoute from './GuestRoute'
+import ScrollToTop from './ScrollToTop'
 
 // Critical path — eager load
 import LandingPage from '../pages/LandingPage'
@@ -46,6 +47,7 @@ function PageLoader() {
 export default function AppRouter() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <ScrollToTop />
       {/* Last line of defence: layouts have their own boundary around the page. */}
       <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>

@@ -156,10 +156,12 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
   const firstName = firstNameOf(user?.name)
   return (
     <div className="pt-6">
-      <h1 className="font-headline text-4xl font-black leading-tight tracking-normal text-hai-plum sm:text-6xl">
+      {/* Extrabold, not black: Plus Jakarta Sans stops at 800, and the browser's fake 900
+          ran the letters together at this size (worst with names typed in capitals). */}
+      <h1 className="font-headline text-4xl font-extrabold leading-tight tracking-normal text-hai-plum sm:text-6xl">
         {t('dashboard.welcomeBack')}
       </h1>
-      <h2 className="font-headline text-4xl font-black leading-tight tracking-normal text-hai-teal-dark sm:text-6xl">
+      <h2 className="font-headline text-4xl font-extrabold leading-tight tracking-normal text-hai-teal-dark sm:text-6xl">
         {firstName}<span className="text-hai-plum">.</span>
       </h2>
 
@@ -169,6 +171,13 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
           <>
             <span className="px-1.5">·</span>
             <span className="font-black text-hai-plum">{user.institution}</span>
+          </>
+        )}
+        {/* Testers could not tell which address they were signed in with. */}
+        {user?.email && (
+          <>
+            <span className="px-1.5">·</span>
+            <span className="break-all font-mono text-sm font-bold text-hai-plum">{user.email}</span>
           </>
         )}
       </p>

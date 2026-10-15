@@ -32,6 +32,18 @@ export function slotsFromDrafts(drafts: SlotDraft[], timezone?: string): TimeSlo
     }))
 }
 
+/**
+ * A typed-in date the picker's `min` cannot stop (e.g. 2023). YYYY-MM-DD strings
+ * compare in date order.
+ */
+export function isTooEarly(draft: SlotDraft, minDate: string): boolean {
+  return Boolean(draft.date) && draft.date < minDate
+}
+
+export function hasTooEarlySlot(drafts: SlotDraft[], minDate: string): boolean {
+  return drafts.some(draft => isTooEarly(draft, minDate))
+}
+
 interface Props {
   drafts: SlotDraft[]
   onChange: (drafts: SlotDraft[]) => void
@@ -75,6 +87,7 @@ export default function SlotListEditor({ drafts, onChange, minDate, timezone }: 
           : null
         // Separate labels: a label wrapping a <select> makes screen readers read its options too.
         const fieldId = (field: string) => `${idPrefix}-${draft.key}-${field}`
+        const tooEarly = isTooEarly(draft, minDate)
         return (
           <div key={draft.key} role="group" aria-label={t('meetingSlots.slotN', { n: index + 1 })} className="rounded-2xl bg-hai-offwhite p-4">
             <div className="mb-3 flex items-center justify-between">
@@ -102,8 +115,15 @@ export default function SlotListEditor({ drafts, onChange, minDate, timezone }: 
                   value={draft.date}
                   min={minDate}
                   onChange={event => update(draft.key, { date: event.target.value })}
-                  className={controlCls}
+                  aria-invalid={tooEarly || undefined}
+                  aria-describedby={tooEarly ? fieldId('date-error') : undefined}
+                  className={`${controlCls} ${tooEarly ? 'border-red-400' : ''}`}
                 />
+                {tooEarly && (
+                  <p id={fieldId('date-error')} role="alert" className="mt-1.5 text-xs font-semibold text-red-600">
+                    {t('meetingSlots.dateTooEarly')}
+                  </p>
+                )}
               </div>
 
               <fieldset className="min-w-0">
@@ -128,7 +148,7 @@ export default function SlotListEditor({ drafts, onChange, minDate, timezone }: 
               </fieldset>
             </div>
 
-            {preview && (
+            {preview && !tooEarly && (
               <p className="mt-3 text-sm font-bold text-hai-plum">
                 {preview.dateLabel} · {preview.timeLabel}
               </p>

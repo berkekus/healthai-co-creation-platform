@@ -115,8 +115,10 @@ function TagAutocomplete({
         aria-label={t('profile.tagPlaceholder')}
         style={inputStyle()}
       />
+      {/* Expertise is the last section, right above the sticky save bar (z-30): the list
+          has to open above that bar and stay short enough not to run underneath it. */}
       {open && suggestions.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-line-strong bg-white shadow-[0_8px_24px_-8px_rgba(54,33,62,0.18)]">
+        <div className="absolute left-0 right-0 top-full z-40 mt-1 max-h-60 overflow-y-auto rounded-xl border border-line-strong bg-white shadow-[0_8px_24px_-8px_rgba(54,33,62,0.18)]">
           {suggestions.map(s => (
             <button
               key={s}

@@ -1250,6 +1250,7 @@
     }
   },
   "common": {
+    "opensInNewTab": "opent in een nieuw tabblad",
     "save": "Opslaan",
     "cancel": "Annuleren",
     "edit": "Bewerken",
@@ -1367,6 +1368,7 @@
     "sending": "Bezig met versturen…"
   },
   "meetingSlots": {
+    "dateTooEarly": "Deze datum is al voorbij. Kies een datum vanaf morgen.",
     "zoneNote": "Tijden worden weergegeven in jouw tijdzone: {{zone}}",
     "slotN": "Tijdstip {{n}}",
     "remove": "Tijdstip {{n}} verwijderen",

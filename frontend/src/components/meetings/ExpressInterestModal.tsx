@@ -5,7 +5,7 @@ import { useMeetingStore } from '../../store/meetingStore'
 import { useAuthStore } from '../../store/authStore'
 import { useFocusTrap } from '../../hooks/useFocusTrap'
 import { browserTimeZone, localDateInputValue, MAX_PROPOSED_SLOTS } from '../../utils/timeSlots'
-import SlotListEditor, { newSlotDraft, slotsFromDrafts, type SlotDraft } from './SlotListEditor'
+import SlotListEditor, { hasTooEarlySlot, newSlotDraft, slotsFromDrafts, type SlotDraft } from './SlotListEditor'
 
 interface Props {
   post: Post
@@ -58,6 +58,7 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
   }, [])
 
   const slots = slotsFromDrafts(drafts, timezone)
+  const tooEarly = hasTooEarlySlot(drafts, minDateStr)
   const stepLabels = [t('meetingRequest.steps.message'), t('meetingRequest.steps.nda'), t('meetingRequest.steps.times')]
 
   const validateStep = () => {
@@ -70,6 +71,9 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
     }
     if (step === 3 && slots.length === 0) {
       setError(t('meetingRequest.errors.timesRequired')); return false
+    }
+    if (step === 3 && tooEarly) {
+      setError(t('meetingSlots.dateTooEarly')); return false
     }
     return true
   }
@@ -245,7 +249,7 @@ export default function ExpressInterestModal({ post, onClose, onSuccess }: Props
           ) : (
             <button
               onClick={handleSubmit}
-              disabled={slots.length === 0 || sending}
+              disabled={slots.length === 0 || tooEarly || sending}
               className="px-6 py-2.5 rounded-full bg-hai-plum text-white text-sm font-bold hover:bg-black transition-colors inline-flex items-center gap-2 shadow-[0_10px_30px_-10px_rgba(54,33,62,0.4)] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-hai-plum"
             >
               <span aria-hidden="true" className="material-symbols-outlined text-base" style={{ fontVariationSettings: '"FILL" 1' }}>send</span>
