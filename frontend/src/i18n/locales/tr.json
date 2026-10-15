@@ -1250,6 +1250,7 @@
     }
   },
   "common": {
+    "loadingPost": "İlan yükleniyor",
     "opensInNewTab": "yeni sekmede açılır",
     "save": "Kaydet",
     "cancel": "İptal",
@@ -1503,5 +1504,105 @@
   "language": {
     "change": "Dili değiştir",
     "options": "Dil seçenekleri"
+  },
+  "apiErrors": {
+    "network": "Sunucuya ulaşılamıyor. Bağlantınızı kontrol edip tekrar deneyin.",
+    "timeout": "Sunucu çok geç yanıt verdi. Lütfen tekrar deneyin.",
+    "tooManyRequests": "Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.",
+    "invalidCredentials": "E-posta veya şifre hatalı.",
+    "accountSuspended": "Bu hesap askıya alınmış.",
+    "emailNotVerified": "E-posta adresiniz henüz doğrulanmadı. Gelen kutunuzu kontrol edin veya yeni bir doğrulama bağlantısı isteyin.",
+    "emailAlreadyRegistered": "Bu e-posta ile zaten bir hesap var.",
+    "alreadyVerified": "Bu e-posta adresi zaten doğrulanmış. Giriş yapabilirsiniz.",
+    "verifyLinkInvalid": "Bu doğrulama bağlantısı geçersiz veya süresi dolmuş.",
+    "resetLinkInvalid": "Bu şifre sıfırlama bağlantısı geçersiz veya süresi dolmuş. Yeni bir bağlantı isteyin.",
+    "humanVerificationFailed": "Güvenlik doğrulaması başarısız oldu. Lütfen tekrar deneyin.",
+    "emailRequired": "Lütfen e-posta adresinizi girin.",
+    "emailPasswordRequired": "Lütfen e-posta adresinizi ve şifrenizi girin.",
+    "invalidEmail": "Lütfen geçerli bir e-posta adresi girin.",
+    "passwordMin": "Şifre en az 8 karakter olmalıdır.",
+    "currentPasswordIncorrect": "Mevcut şifreniz hatalı.",
+    "incorrectPassword": "Şifre hatalı.",
+    "sessionExpired": "Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.",
+    "emailDomainInvalid": "Bu e-posta alan adı bulunamadı. Lütfen adreste yazım hatası olup olmadığını kontrol edin.",
+    "institutionalOnly": "Yalnızca kurumsal .edu veya .gov e-posta adresleriyle kayıt olunabilir.",
+    "nameMin": "Ad en az 2 karakter olmalıdır.",
+    "forbidden": "Bu işlem için yetkiniz yok.",
+    "userNotFound": "Kullanıcı bulunamadı.",
+    "postNotFound": "İlan bulunamadı. Kaldırılmış olabilir.",
+    "meetingNotFound": "Toplantı bulunamadı.",
+    "commentNotFound": "Bu yorum artık mevcut değil.",
+    "conversationNotFound": "Sohbet bulunamadı.",
+    "notificationNotFound": "Bu bildirim artık mevcut değil.",
+    "savedSearchNotFound": "Bu kayıtlı arama artık mevcut değil.",
+    "savedSearchLimit": "En fazla 20 kayıtlı arama tutabilirsiniz. Yenisini eklemek için birini silin.",
+    "adminsCannotPost": "Yönetici hesapları ilan oluşturamaz.",
+    "requiredFields": "Lütfen tüm zorunlu alanları doldurun.",
+    "expiryFuture": "Bitiş tarihi ileri bir tarih olmalıdır.",
+    "chooseDomain": "En az bir alan seçin.",
+    "tooManyDomains": "En fazla {{max}} alan seçebilirsiniz.",
+    "domainInvalid": "Alanlardan biri boş ya da çok uzun.",
+    "postExpiredReopen": "Bu ilanın süresi doldu. Yeniden açmak için yeni bir bitiş tarihi seçin.",
+    "reopenNotAllowed": "Yalnızca \"Ortak bulundu\" olarak işaretlenmiş bir ilan yeniden açılabilir.",
+    "partnerFoundNotAllowed": "Yalnızca yayınlanmış bir ilan \"Ortak bulundu\" olarak işaretlenebilir.",
+    "postClosed": "Bu ilan artık istek kabul etmiyor.",
+    "ownPost": "Bu işlemi kendi ilanınızda yapamazsınız.",
+    "openRequestExists": "Bu ilan için zaten açık bir toplantı isteğiniz var.",
+    "ndaRequired": "Lütfen gizlilik sözleşmesini (NDA) kabul edin.",
+    "messageMin": "Mesajınız en az 20 karakter olmalıdır.",
+    "messageTooLong": "Mesajınız çok uzun (en fazla {{max}} karakter).",
+    "contentRequired": "Lütfen önce bir şey yazın.",
+    "commentTooLong": "Yorumunuz çok uzun (en fazla 500 karakter).",
+    "slotsRequired": "En az bir zaman önerin.",
+    "slotsFuture": "Önerilen zamanlar ileri bir tarihte olmalıdır.",
+    "slotsUnique": "Önerilen zamanların her biri farklı olmalıdır.",
+    "slotsInvalid": "Önerilen zamanlardan biri eksik. Tarih ve saati kontrol edin.",
+    "slotsMax": "En fazla {{max}} zaman önerebilirsiniz.",
+    "confirmedSlotInvalid": "Önerilen zamanlardan birini seçin.",
+    "slotConflict": "Katılımcılardan birinin bu saatte zaten onaylanmış bir toplantısı var.",
+    "meetingStatusChanged": "Bu toplantının durumu değişmiş; bu işlem artık yapılamıyor. Güncel durumu görmek için sayfayı yenileyin.",
+    "summaryNeedsHeld": "Özet ancak toplantı yapıldıktan sonra oluşturulabilir.",
+    "aiRateLimited": "Yapay zekâ servisi şu anda yoğun. Lütfen bir dakika sonra tekrar deneyin.",
+    "aiError": "Yapay zekâ servisi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
+    "aiNeedsText": "Önce bir başlık veya açıklama yazın.",
+    "noImage": "Yüklemek için bir görsel seçin.",
+    "contactEmailInvalid": "İletişim e-postası geçerli bir e-posta adresi değil.",
+    "orcidInvalid": "Geçerli bir ORCID iD girin, ör. 0000-0002-1825-0097.",
+    "websiteInvalid": "Kurum web sitesi https:// ile başlayan bir adres olmalıdır.",
+    "linkedinInvalid": "LinkedIn bağlantısı linkedin.com adresine işaret etmelidir.",
+    "fieldInvalid": "Alanlardan biri çok uzun veya geçersiz.",
+    "cannotDeleteAdmin": "Başka bir yöneticinin hesabı silinemez.",
+    "accountDeleteFailed": "Hesap silinemedi. Lütfen tekrar deneyin.",
+    "providerNotConfigured": "{{provider}} ile giriş henüz kullanılamıyor."
+  },
+  "badges": {
+    "title": "Rozetler",
+    "points": "{{count}} puan",
+    "items": {
+      "first_post": {
+        "label": "İlk İlan",
+        "description": "İlk işbirliği ilanınızı yayınladınız"
+      },
+      "active_collaborator": {
+        "label": "Aktif İşbirlikçi",
+        "description": "3+ onaylanmış toplantı"
+      },
+      "trusted_partner": {
+        "label": "Güvenilir Ortak",
+        "description": "5+ tamamlanmış işbirliği"
+      },
+      "community_helper": {
+        "label": "Topluluk Destekçisi",
+        "description": "10+ yorum yazdınız"
+      },
+      "profile_complete": {
+        "label": "Eksiksiz Profil",
+        "description": "Profilin tamamı dolduruldu"
+      },
+      "early_adopter": {
+        "label": "Erken Katılımcı",
+        "description": "Haziran 2026 öncesinde katıldınız"
+      }
+    }
   }
 }

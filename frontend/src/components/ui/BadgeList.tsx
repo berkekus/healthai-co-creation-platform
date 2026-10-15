@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import api from '../../lib/api'
 
 interface Badge {
@@ -14,6 +15,7 @@ interface BadgeData {
 }
 
 export default function BadgeList({ userId }: { userId: string }) {
+  const { t } = useTranslation()
   const [data, setData] = useState<BadgeData | null>(null)
 
   useEffect(() => {
@@ -27,10 +29,10 @@ export default function BadgeList({ userId }: { userId: string }) {
   return (
     <div className="mt-4">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-xs font-black uppercase tracking-wide text-ink-muted">Badges</p>
+        <p className="text-xs font-black uppercase tracking-wide text-ink-muted">{t('badges.title')}</p>
         {data.collaborationScore > 0 && (
           <span className="rounded-full bg-hai-teal-soft px-2 py-0.5 text-xs font-black text-hai-teal">
-            {data.collaborationScore} pts
+            {t('badges.points', { count: data.collaborationScore })}
           </span>
         )}
       </div>
@@ -38,7 +40,8 @@ export default function BadgeList({ userId }: { userId: string }) {
         {data.badges.map(badge => (
           <div
             key={badge.id}
-            title={badge.description}
+            // The server sends English text; a badge it adds later still shows that until translated.
+            title={t(`badges.items.${badge.id}.description`, { defaultValue: badge.description })}
             className="group relative flex items-center gap-1.5 rounded-full border border-line-strong bg-white px-2.5 py-1 text-xs font-black text-hai-plum transition hover:border-hai-teal hover:bg-hai-teal-soft"
           >
             <span
@@ -47,7 +50,7 @@ export default function BadgeList({ userId }: { userId: string }) {
             >
               {badge.icon}
             </span>
-            {badge.label}
+            {t(`badges.items.${badge.id}.label`, { defaultValue: badge.label })}
           </div>
         ))}
       </div>

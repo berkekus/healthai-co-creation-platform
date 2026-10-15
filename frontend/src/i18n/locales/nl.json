@@ -1250,6 +1250,7 @@
     }
   },
   "common": {
+    "loadingPost": "Bericht laden",
     "opensInNewTab": "opent in een nieuw tabblad",
     "save": "Opslaan",
     "cancel": "Annuleren",
@@ -1503,5 +1504,105 @@
   "language": {
     "change": "Taal wijzigen",
     "options": "Taalopties"
+  },
+  "apiErrors": {
+    "network": "We kunnen de server niet bereiken. Controleer je verbinding en probeer het opnieuw.",
+    "timeout": "De server reageerde te traag. Probeer het opnieuw.",
+    "tooManyRequests": "Te veel verzoeken. Wacht even en probeer het opnieuw.",
+    "invalidCredentials": "E-mailadres of wachtwoord onjuist.",
+    "accountSuspended": "Dit account is geschorst.",
+    "emailNotVerified": "Je e-mailadres is nog niet geverifieerd. Kijk in je inbox of vraag een nieuwe verificatielink aan.",
+    "emailAlreadyRegistered": "Er bestaat al een account met dit e-mailadres.",
+    "alreadyVerified": "Dit e-mailadres is al geverifieerd. Je kunt inloggen.",
+    "verifyLinkInvalid": "Deze verificatielink is ongeldig of verlopen.",
+    "resetLinkInvalid": "Deze link om je wachtwoord te herstellen is ongeldig of verlopen. Vraag een nieuwe aan.",
+    "humanVerificationFailed": "De beveiligingscontrole is mislukt. Probeer het opnieuw.",
+    "emailRequired": "Vul je e-mailadres in.",
+    "emailPasswordRequired": "Vul je e-mailadres en wachtwoord in.",
+    "invalidEmail": "Vul een geldig e-mailadres in.",
+    "passwordMin": "Het wachtwoord moet minstens 8 tekens lang zijn.",
+    "currentPasswordIncorrect": "Je huidige wachtwoord is onjuist.",
+    "incorrectPassword": "Onjuist wachtwoord.",
+    "sessionExpired": "Je sessie is verlopen. Log opnieuw in.",
+    "emailDomainInvalid": "We kunnen dit e-maildomein niet vinden. Controleer het adres op typefouten.",
+    "institutionalOnly": "Alleen institutionele .edu- of .gov-adressen kunnen zich registreren.",
+    "nameMin": "De naam moet minstens 2 tekens lang zijn.",
+    "forbidden": "Je hebt geen toestemming om dit te doen.",
+    "userNotFound": "Deze gebruiker is niet gevonden.",
+    "postNotFound": "Dit bericht is niet gevonden. Het is mogelijk verwijderd.",
+    "meetingNotFound": "Deze vergadering is niet gevonden.",
+    "commentNotFound": "Deze reactie bestaat niet meer.",
+    "conversationNotFound": "Dit gesprek is niet gevonden.",
+    "notificationNotFound": "Deze melding bestaat niet meer.",
+    "savedSearchNotFound": "Deze opgeslagen zoekopdracht bestaat niet meer.",
+    "savedSearchLimit": "Je kunt maximaal 20 zoekopdrachten opslaan. Verwijder er een om een nieuwe toe te voegen.",
+    "adminsCannotPost": "Beheerdersaccounts kunnen geen berichten plaatsen.",
+    "requiredFields": "Vul alle verplichte velden in.",
+    "expiryFuture": "De vervaldatum moet in de toekomst liggen.",
+    "chooseDomain": "Kies minstens één domein.",
+    "tooManyDomains": "Kies maximaal {{max}} domeinen.",
+    "domainInvalid": "Een van de domeinen is leeg of te lang.",
+    "postExpiredReopen": "Dit bericht is verlopen. Kies een nieuwe vervaldatum om het te heropenen.",
+    "reopenNotAllowed": "Alleen een bericht dat als Partner gevonden is gemarkeerd, kan worden heropend.",
+    "partnerFoundNotAllowed": "Alleen een gepubliceerd bericht kan als Partner gevonden worden gemarkeerd.",
+    "postClosed": "Dit bericht accepteert geen verzoeken meer.",
+    "ownPost": "Dit kan niet bij je eigen bericht.",
+    "openRequestExists": "Je hebt al een open vergaderverzoek voor dit bericht.",
+    "ndaRequired": "Accepteer de geheimhoudingsovereenkomst (NDA).",
+    "messageMin": "Je bericht moet minstens 20 tekens lang zijn.",
+    "messageTooLong": "Je bericht is te lang (max. {{max}} tekens).",
+    "contentRequired": "Schrijf eerst iets.",
+    "commentTooLong": "Je reactie is te lang (max. 500 tekens).",
+    "slotsRequired": "Stel minstens één tijdstip voor.",
+    "slotsFuture": "Voorgestelde tijdstippen moeten in de toekomst liggen.",
+    "slotsUnique": "Elk voorgesteld tijdstip moet anders zijn.",
+    "slotsInvalid": "Een van de voorgestelde tijdstippen is onvolledig. Controleer datum en tijd.",
+    "slotsMax": "Stel maximaal {{max}} tijdstippen voor.",
+    "confirmedSlotInvalid": "Kies een van de voorgestelde tijdstippen.",
+    "slotConflict": "Een van de deelnemers heeft op dit tijdstip al een bevestigde vergadering.",
+    "meetingStatusChanged": "De status van deze vergadering is veranderd; dit kan niet meer. Vernieuw de pagina om de huidige status te zien.",
+    "summaryNeedsHeld": "Een samenvatting kan pas worden gemaakt als de vergadering heeft plaatsgevonden.",
+    "aiRateLimited": "De AI-dienst is nu druk. Probeer het over een minuut opnieuw.",
+    "aiError": "De AI-dienst is nu niet beschikbaar. Probeer het later opnieuw.",
+    "aiNeedsText": "Schrijf eerst een titel of beschrijving.",
+    "noImage": "Kies een afbeelding om te uploaden.",
+    "contactEmailInvalid": "Het contactadres is geen geldig e-mailadres.",
+    "orcidInvalid": "Vul een geldige ORCID iD in, bijv. 0000-0002-1825-0097.",
+    "websiteInvalid": "De website van de instelling moet een adres zijn dat begint met https://.",
+    "linkedinInvalid": "De LinkedIn-link moet naar linkedin.com verwijzen.",
+    "fieldInvalid": "Een van de velden is te lang of ongeldig.",
+    "cannotDeleteAdmin": "Het account van een andere beheerder kan niet worden verwijderd.",
+    "accountDeleteFailed": "Het account kon niet worden verwijderd. Probeer het opnieuw.",
+    "providerNotConfigured": "Inloggen met {{provider}} is nog niet beschikbaar."
+  },
+  "badges": {
+    "title": "Badges",
+    "points": "{{count}} ptn",
+    "items": {
+      "first_post": {
+        "label": "Eerste bericht",
+        "description": "Je eerste samenwerkingsbericht geplaatst"
+      },
+      "active_collaborator": {
+        "label": "Actieve samenwerker",
+        "description": "3+ bevestigde vergaderingen"
+      },
+      "trusted_partner": {
+        "label": "Betrouwbare partner",
+        "description": "5+ afgeronde samenwerkingen"
+      },
+      "community_helper": {
+        "label": "Community-helper",
+        "description": "10+ reacties geplaatst"
+      },
+      "profile_complete": {
+        "label": "Volledig profiel",
+        "description": "Profiel volledig ingevuld"
+      },
+      "early_adopter": {
+        "label": "Early adopter",
+        "description": "Lid geworden vóór juni 2026"
+      }
+    }
   }
 }

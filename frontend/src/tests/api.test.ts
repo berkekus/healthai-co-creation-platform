@@ -3,7 +3,7 @@ import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 
 import api from '../lib/api'
 
 describe('api error handling', () => {
-  it('rejects with the server message and keeps the HTTP status for the caller', async () => {
+  it('rejects with the server message in the interface language and keeps the HTTP status for the caller', async () => {
     api.defaults.adapter = async (config: InternalAxiosRequestConfig) => {
       const response = {
         status: 503,
@@ -16,7 +16,7 @@ describe('api error handling', () => {
     }
 
     await expect(api.post('/ai/improve-post', {})).rejects.toMatchObject({
-      message: 'Gemini API key is not configured',
+      message: 'The AI service is not available right now. Please try again later.',
       status: 503,
     })
   })

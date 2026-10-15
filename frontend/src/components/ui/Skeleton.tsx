@@ -13,6 +13,7 @@
  * `src/styles/globals.css`, which respects `prefers-reduced-motion`.
  */
 import type { CSSProperties, ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface SkeletonProps {
   width?: number | string
@@ -57,10 +58,11 @@ export const SkeletonCircle = ({ size = 36, className = '', ...rest }: { size?: 
  * is visually stable (no layout shift when real data arrives).
  */
 export function PostCardSkeleton() {
+  const { t } = useTranslation()
   return (
     <article
       aria-busy
-      aria-label="Loading post"
+      aria-label={t('common.loadingPost')}
       className="bg-white rounded-[1.5rem] border border-neutral-200 p-6 flex flex-col gap-4 font-body"
     >
       <div className="flex items-center justify-between gap-3">

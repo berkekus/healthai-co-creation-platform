@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useNetworkStore } from '../store/networkStore'
+import { translateApiMessage } from '../i18n/apiErrors'
 
 declare module 'axios' {
   interface InternalAxiosRequestConfig {
@@ -41,8 +42,9 @@ api.interceptors.response.use(
         window.location.href = '/login'
       }
     }
-    const message: string =
+    const message: string = translateApiMessage(
       error.response?.data?.message ?? error.message ?? 'Something went wrong'
+    )
     // Keep the status so callers can tell "not configured" (503) from other failures.
     return Promise.reject(Object.assign(new Error(message), { status: error.response?.status as number | undefined }))
   }

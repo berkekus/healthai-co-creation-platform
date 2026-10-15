@@ -1250,6 +1250,7 @@
     }
   },
   "common": {
+    "loadingPost": "A carregar publicação",
     "opensInNewTab": "abre num novo separador",
     "save": "Guardar",
     "cancel": "Cancelar",
@@ -1503,5 +1504,105 @@
   "language": {
     "change": "Mudar idioma",
     "options": "Opções de idioma"
+  },
+  "apiErrors": {
+    "network": "Não conseguimos contactar o servidor. Verifique a sua ligação e tente novamente.",
+    "timeout": "O servidor demorou demasiado a responder. Tente novamente.",
+    "tooManyRequests": "Demasiados pedidos. Aguarde um momento e tente novamente.",
+    "invalidCredentials": "Email ou palavra-passe incorretos.",
+    "accountSuspended": "Esta conta foi suspensa.",
+    "emailNotVerified": "O seu email ainda não foi verificado. Verifique a sua caixa de entrada ou peça um novo link de verificação.",
+    "emailAlreadyRegistered": "Este email já tem uma conta.",
+    "alreadyVerified": "Este endereço de email já está verificado. Pode iniciar sessão.",
+    "verifyLinkInvalid": "Este link de verificação é inválido ou expirou.",
+    "resetLinkInvalid": "Este link de redefinição de palavra-passe é inválido ou expirou. Peça um novo.",
+    "humanVerificationFailed": "A verificação de segurança falhou. Tente novamente.",
+    "emailRequired": "Introduza o seu endereço de email.",
+    "emailPasswordRequired": "Introduza o seu email e a sua palavra-passe.",
+    "invalidEmail": "Introduza um endereço de email válido.",
+    "passwordMin": "A palavra-passe deve ter pelo menos 8 caracteres.",
+    "currentPasswordIncorrect": "A sua palavra-passe atual está incorreta.",
+    "incorrectPassword": "Palavra-passe incorreta.",
+    "sessionExpired": "A sua sessão expirou. Inicie sessão novamente.",
+    "emailDomainInvalid": "Não encontrámos este domínio de email. Verifique se o endereço tem erros.",
+    "institutionalOnly": "Só é possível registar endereços institucionais .edu ou .gov.",
+    "nameMin": "O nome deve ter pelo menos 2 caracteres.",
+    "forbidden": "Não tem permissão para fazer isto.",
+    "userNotFound": "Não foi possível encontrar este utilizador.",
+    "postNotFound": "Não foi possível encontrar esta publicação. Pode ter sido removida.",
+    "meetingNotFound": "Não foi possível encontrar esta reunião.",
+    "commentNotFound": "Este comentário já não existe.",
+    "conversationNotFound": "Não foi possível encontrar esta conversa.",
+    "notificationNotFound": "Esta notificação já não existe.",
+    "savedSearchNotFound": "Esta pesquisa guardada já não existe.",
+    "savedSearchLimit": "Pode guardar até 20 pesquisas. Elimine uma para adicionar outra.",
+    "adminsCannotPost": "As contas de administrador não podem criar publicações.",
+    "requiredFields": "Preencha todos os campos obrigatórios.",
+    "expiryFuture": "A data de expiração tem de ser no futuro.",
+    "chooseDomain": "Escolha pelo menos um domínio.",
+    "tooManyDomains": "Escolha no máximo {{max}} domínios.",
+    "domainInvalid": "Um dos domínios está vazio ou é demasiado longo.",
+    "postExpiredReopen": "Esta publicação expirou. Escolha uma nova data de expiração para a reabrir.",
+    "reopenNotAllowed": "Só é possível reabrir uma publicação marcada como Parceiro encontrado.",
+    "partnerFoundNotAllowed": "Só uma publicação ativa pode ser marcada como Parceiro encontrado.",
+    "postClosed": "Esta publicação já não aceita pedidos.",
+    "ownPost": "Não pode fazer isto na sua própria publicação.",
+    "openRequestExists": "Já tem um pedido de reunião em aberto para esta publicação.",
+    "ndaRequired": "Aceite o acordo de confidencialidade (NDA).",
+    "messageMin": "A sua mensagem deve ter pelo menos 20 caracteres.",
+    "messageTooLong": "A sua mensagem é demasiado longa (máx. {{max}} caracteres).",
+    "contentRequired": "Escreva algo primeiro.",
+    "commentTooLong": "O seu comentário é demasiado longo (máx. 500 caracteres).",
+    "slotsRequired": "Proponha pelo menos um horário.",
+    "slotsFuture": "Os horários propostos têm de ser no futuro.",
+    "slotsUnique": "Cada horário proposto tem de ser diferente.",
+    "slotsInvalid": "Um dos horários propostos está incompleto. Verifique a data e a hora.",
+    "slotsMax": "Proponha no máximo {{max}} horários.",
+    "confirmedSlotInvalid": "Escolha um dos horários propostos.",
+    "slotConflict": "Um dos participantes já tem uma reunião confirmada a esta hora.",
+    "meetingStatusChanged": "O estado desta reunião mudou e já não pode ser alterada desta forma. Atualize a página para ver o estado atual.",
+    "summaryNeedsHeld": "Só é possível gerar um resumo depois de a reunião se realizar.",
+    "aiRateLimited": "O serviço de IA está ocupado. Tente novamente dentro de um minuto.",
+    "aiError": "O serviço de IA não está disponível de momento. Tente mais tarde.",
+    "aiNeedsText": "Escreva primeiro um título ou uma descrição.",
+    "noImage": "Escolha uma imagem para carregar.",
+    "contactEmailInvalid": "O email de contacto não é um endereço válido.",
+    "orcidInvalid": "Introduza um ORCID iD válido, p. ex. 0000-0002-1825-0097.",
+    "websiteInvalid": "O site da instituição tem de ser um endereço que comece por https://.",
+    "linkedinInvalid": "O link do LinkedIn tem de apontar para linkedin.com.",
+    "fieldInvalid": "Um dos campos é demasiado longo ou inválido.",
+    "cannotDeleteAdmin": "Não é possível eliminar a conta de outro administrador.",
+    "accountDeleteFailed": "Não foi possível eliminar a conta. Tente novamente.",
+    "providerNotConfigured": "O início de sessão com {{provider}} ainda não está disponível."
+  },
+  "badges": {
+    "title": "Distintivos",
+    "points": "{{count}} pts",
+    "items": {
+      "first_post": {
+        "label": "Primeira publicação",
+        "description": "Publicou a sua primeira proposta de colaboração"
+      },
+      "active_collaborator": {
+        "label": "Colaborador ativo",
+        "description": "3+ reuniões confirmadas"
+      },
+      "trusted_partner": {
+        "label": "Parceiro de confiança",
+        "description": "5+ colaborações concluídas"
+      },
+      "community_helper": {
+        "label": "Apoio à comunidade",
+        "description": "Escreveu mais de 10 comentários"
+      },
+      "profile_complete": {
+        "label": "Perfil completo",
+        "description": "Perfil totalmente preenchido"
+      },
+      "early_adopter": {
+        "label": "Utilizador pioneiro",
+        "description": "Aderiu antes de junho de 2026"
+      }
+    }
   }
 }

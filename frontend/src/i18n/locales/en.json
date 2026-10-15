@@ -1250,6 +1250,7 @@
     }
   },
   "common": {
+    "loadingPost": "Loading post",
     "opensInNewTab": "opens in a new tab",
     "save": "Save",
     "cancel": "Cancel",
@@ -1503,5 +1504,105 @@
   "language": {
     "change": "Change language",
     "options": "Language options"
+  },
+  "apiErrors": {
+    "network": "We can't reach the server. Check your connection and try again.",
+    "timeout": "The server took too long to answer. Please try again.",
+    "tooManyRequests": "Too many requests. Please wait a moment and try again.",
+    "invalidCredentials": "Incorrect email or password.",
+    "accountSuspended": "This account has been suspended.",
+    "emailNotVerified": "Your email is not verified yet. Check your inbox or request a new verification link.",
+    "emailAlreadyRegistered": "This email already has an account.",
+    "alreadyVerified": "This email address is already verified. You can sign in.",
+    "verifyLinkInvalid": "This verification link is invalid or has expired.",
+    "resetLinkInvalid": "This password reset link is invalid or has expired. Request a new one.",
+    "humanVerificationFailed": "The security check failed. Please try again.",
+    "emailRequired": "Please enter your email address.",
+    "emailPasswordRequired": "Please enter your email and password.",
+    "invalidEmail": "Please enter a valid email address.",
+    "passwordMin": "Password must be at least 8 characters.",
+    "currentPasswordIncorrect": "Your current password is incorrect.",
+    "incorrectPassword": "Incorrect password.",
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "emailDomainInvalid": "We couldn't find this email domain. Please check the address for typos.",
+    "institutionalOnly": "Only institutional .edu or .gov email addresses can register.",
+    "nameMin": "Name must be at least 2 characters.",
+    "forbidden": "You don't have permission to do this.",
+    "userNotFound": "This user could not be found.",
+    "postNotFound": "This post could not be found. It may have been removed.",
+    "meetingNotFound": "This meeting could not be found.",
+    "commentNotFound": "This comment no longer exists.",
+    "conversationNotFound": "This conversation could not be found.",
+    "notificationNotFound": "This notification no longer exists.",
+    "savedSearchNotFound": "This saved search no longer exists.",
+    "savedSearchLimit": "You can keep up to 20 saved searches. Delete one to add another.",
+    "adminsCannotPost": "Admin accounts cannot create posts.",
+    "requiredFields": "Please fill in all required fields.",
+    "expiryFuture": "The expiry date must be in the future.",
+    "chooseDomain": "Choose at least one domain.",
+    "tooManyDomains": "Choose no more than {{max}} domains.",
+    "domainInvalid": "One of the domains is empty or too long.",
+    "postExpiredReopen": "This post has expired. Choose a new expiry date to reopen it.",
+    "reopenNotAllowed": "Only a post marked as Partner Found can be reopened.",
+    "partnerFoundNotAllowed": "Only a published post can be marked as Partner Found.",
+    "postClosed": "This post is no longer accepting requests.",
+    "ownPost": "You can't do this on your own post.",
+    "openRequestExists": "You already have an open meeting request for this post.",
+    "ndaRequired": "Please accept the confidentiality agreement (NDA).",
+    "messageMin": "Your message must be at least 20 characters.",
+    "messageTooLong": "Your message is too long (max {{max}} characters).",
+    "contentRequired": "Please write something first.",
+    "commentTooLong": "Your comment is too long (max 500 characters).",
+    "slotsRequired": "Propose at least one time.",
+    "slotsFuture": "Proposed times must be in the future.",
+    "slotsUnique": "Each proposed time must be different.",
+    "slotsInvalid": "One of the proposed times is incomplete. Check the date and time.",
+    "slotsMax": "Propose no more than {{max}} times.",
+    "confirmedSlotInvalid": "Choose one of the proposed times.",
+    "slotConflict": "One of the participants already has a confirmed meeting at this time.",
+    "meetingStatusChanged": "This meeting has moved on and can't be changed this way. Refresh the page to see its current state.",
+    "summaryNeedsHeld": "A summary can only be generated once the meeting has been held.",
+    "aiRateLimited": "The AI service is busy right now. Please try again in a minute.",
+    "aiError": "The AI service is not available right now. Please try again later.",
+    "aiNeedsText": "Write a title or description first.",
+    "noImage": "Choose an image to upload.",
+    "contactEmailInvalid": "The contact email is not a valid email address.",
+    "orcidInvalid": "Enter a valid ORCID iD, e.g. 0000-0002-1825-0097.",
+    "websiteInvalid": "The institution website must be a web address starting with https://.",
+    "linkedinInvalid": "The LinkedIn link must point to linkedin.com.",
+    "fieldInvalid": "One of the fields is too long or not valid.",
+    "cannotDeleteAdmin": "Another admin's account cannot be deleted.",
+    "accountDeleteFailed": "The account could not be deleted. Please try again.",
+    "providerNotConfigured": "Sign-in with {{provider}} is not available yet."
+  },
+  "badges": {
+    "title": "Badges",
+    "points": "{{count}} pts",
+    "items": {
+      "first_post": {
+        "label": "First Post",
+        "description": "Published your first collaboration post"
+      },
+      "active_collaborator": {
+        "label": "Active Collaborator",
+        "description": "3+ confirmed meetings"
+      },
+      "trusted_partner": {
+        "label": "Trusted Partner",
+        "description": "5+ completed collaborations"
+      },
+      "community_helper": {
+        "label": "Community Helper",
+        "description": "Posted 10+ comments"
+      },
+      "profile_complete": {
+        "label": "Complete Profile",
+        "description": "Profile fully filled out"
+      },
+      "early_adopter": {
+        "label": "Early Adopter",
+        "description": "Joined before June 2026"
+      }
+    }
   }
 }
