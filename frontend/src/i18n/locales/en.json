@@ -1646,5 +1646,77 @@
       "Understand the platform's purpose within 20 seconds",
       "Be able to post an announcement without confusion"
     ]
+  },
+  "privacyPage": {
+    "badge": "Privacy policy",
+    "titleLine1": "Privacy",
+    "titleLine2": "policy",
+    "gdprBadge": "GDPR rights information",
+    "lastUpdated": "Last updated · 19 Apr 2026",
+    "bindingNote": "",
+    "who": {
+      "title": "Who we are",
+      "body": "HEALTH AI Co-Creation Platform connects engineers and healthcare professionals across Europe for structured research collaboration.",
+      "contact": "Contact:"
+    },
+    "collect": {
+      "title": "Data we collect",
+      "accountLabel": "Account data:",
+      "account": "Full name, institutional email (<mono>.edu</mono> only), role, institution, city, country, bio, expertise tags.",
+      "activityLabel": "Activity data:",
+      "activity": "Posts created / edited, meeting requests sent / received, login events.",
+      "securityLabel": "Security logs:",
+      "security": "IP address (login events), failed login attempts, rate-limit hits. Retained for 24 months.",
+      "sessionLabel": "Session data:",
+      "session": "A session token is stored in browser session storage, or persistent browser storage when “Remember me” is selected. The application signs users out after 30 minutes of inactivity.",
+      "notCollected": "We do <b>not</b> collect patient data, clinical records, proprietary IP, or personal emails. File uploads are prohibited on this platform."
+    },
+    "legal": {
+      "title": "Legal basis (GDPR Art. 6)",
+      "contractLabel": "Contract performance —",
+      "contract": "account and collaboration data processed to provide the service.",
+      "interestLabel": "Legitimate interest —",
+      "interest": "security logs and rate limiting to protect platform integrity.",
+      "consentLabel": "Consent —",
+      "consent": "non-essential cookies (accepted via banner)."
+    },
+    "retention": {
+      "title": "Data retention",
+      "accountPosts": "Account & posts",
+      "whileActive": "While active",
+      "securityLogs": "Security logs",
+      "months24": "24 months",
+      "session": "Session",
+      "inMemory": "In-memory",
+      "tamper": "Security logs are tamper-resistant — no manual deletion permitted."
+    },
+    "rights": {
+      "title": "Your rights (GDPR Art. 15–22)",
+      "accessLabel": "Access (Art. 15):",
+      "access": "View your profile and posts in the platform.",
+      "portabilityLabel": "Portability (Art. 20):",
+      "portability": "Export your data as JSON via Profile → Export my data.",
+      "erasureLabel": "Erasure (Art. 17):",
+      "erasure": "Delete your account via Profile → Delete account. Security logs cannot be deleted per retention policy.",
+      "rectificationLabel": "Rectification (Art. 16):",
+      "rectification": "Edit your profile at any time.",
+      "objectionLabel": "Objection (Art. 21):",
+      "objection": "Contact <mono>{{email}}</mono> to object to processing."
+    },
+    "cookies": {
+      "title": "Cookies",
+      "essential": "We use only <b>essential cookies</b> required for session security. No analytics, advertising, or third-party tracking cookies are used.",
+      "choose": "You may choose <pill>Essential only</pill> in the cookie consent banner to explicitly limit cookies."
+    },
+    "transfers": {
+      "title": "Data transfers",
+      "processing": "To provide the service, account, profile, post, meeting, message, notification, and security-log data are processed through the platform's server infrastructure. This data is not limited to the user's browser session.",
+      "hosting": "Hosting location and service providers can vary by deployment. For questions about the current hosting arrangement or data processing, contact <mono>{{email}}</mono>."
+    },
+    "contact": {
+      "kicker": "Contact & complaints",
+      "title": "Reach out anytime.",
+      "body": "Email <mail>{{email}}</mail>. You have the right to lodge a complaint with your national data protection authority."
+    }
   }
 }

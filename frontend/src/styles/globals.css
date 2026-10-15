@@ -384,6 +384,12 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-feature-settings: "ss01", "cv11";
+  /* The fonts are loaded up to 800 (Plus Jakarta Sans, its heaviest) and 700
+     (Source Sans 3), but `font-black` asks for 900. Without this the browser
+     fakes the missing weight by smearing the glyphs, which ran letters into
+     each other ("Welcome back, NAME" in the survey); now it uses the heaviest
+     real weight instead. Italic synthesis is left on. */
+  font-synthesis-weight: none;
   position: relative;
   overflow-x: hidden;
 }

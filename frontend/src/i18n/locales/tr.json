@@ -1646,5 +1646,77 @@
       "Platformun amacını 20 saniye içinde anlayabilmeli",
       "Kafa karışıklığı yaşamadan ilan yayınlayabilmeli"
     ]
+  },
+  "privacyPage": {
+    "badge": "Gizlilik politikası",
+    "titleLine1": "Gizlilik",
+    "titleLine2": "politikası",
+    "gdprBadge": "GDPR hakları hakkında bilgi",
+    "lastUpdated": "Son güncelleme · 19 Nisan 2026",
+    "bindingNote": "Bu çeviri kolaylık amacıyla sunulmuştur. Bağlayıcı olan, bu politikanın İngilizce metnidir.",
+    "who": {
+      "title": "Biz kimiz",
+      "body": "HEALTH AI Ortak Üretim Platformu, Avrupa genelinde mühendisleri ve sağlık profesyonellerini yapılandırılmış araştırma işbirliği için bir araya getirir.",
+      "contact": "İletişim:"
+    },
+    "collect": {
+      "title": "Topladığımız veriler",
+      "accountLabel": "Hesap verileri:",
+      "account": "Ad soyad, kurumsal e-posta (yalnızca <mono>.edu</mono>), rol, kurum, şehir, ülke, biyografi, uzmanlık etiketleri.",
+      "activityLabel": "Etkinlik verileri:",
+      "activity": "Oluşturulan / düzenlenen ilanlar, gönderilen / alınan toplantı istekleri, giriş kayıtları.",
+      "securityLabel": "Güvenlik kayıtları:",
+      "security": "IP adresi (giriş kayıtları), başarısız giriş denemeleri, istek limiti aşımları. 24 ay saklanır.",
+      "sessionLabel": "Oturum verileri:",
+      "session": "Oturum anahtarı tarayıcının oturum depolamasında, “Beni hatırla” seçildiğinde ise tarayıcının kalıcı depolamasında saklanır. Uygulama, 30 dakika işlem yapılmadığında kullanıcının oturumunu kapatır.",
+      "notCollected": "Hasta verisi, klinik kayıt, şirkete ait fikri mülkiyet veya kişisel e-posta <b>toplamıyoruz</b>. Bu platformda dosya yüklemek yasaktır."
+    },
+    "legal": {
+      "title": "Hukuki dayanak (GDPR Md. 6)",
+      "contractLabel": "Sözleşmenin ifası —",
+      "contract": "hizmeti sunmak için işlenen hesap ve işbirliği verileri.",
+      "interestLabel": "Meşru menfaat —",
+      "interest": "platformun bütünlüğünü korumak için güvenlik kayıtları ve istek limitleri.",
+      "consentLabel": "Açık rıza —",
+      "consent": "zorunlu olmayan çerezler (banner üzerinden kabul edilir)."
+    },
+    "retention": {
+      "title": "Saklama süreleri",
+      "accountPosts": "Hesap ve ilanlar",
+      "whileActive": "Hesap aktif olduğu sürece",
+      "securityLogs": "Güvenlik kayıtları",
+      "months24": "24 ay",
+      "session": "Oturum",
+      "inMemory": "Bellekte",
+      "tamper": "Güvenlik kayıtları değiştirilemez; elle silinmelerine izin verilmez."
+    },
+    "rights": {
+      "title": "Haklarınız (GDPR Md. 15–22)",
+      "accessLabel": "Erişim (Md. 15):",
+      "access": "Profilinizi ve ilanlarınızı platformda görüntüleyin.",
+      "portabilityLabel": "Taşınabilirlik (Md. 20):",
+      "portability": "Verilerinizi Profil → Verilerimi dışa aktar üzerinden JSON olarak indirin.",
+      "erasureLabel": "Silme (Md. 17):",
+      "erasure": "Hesabınızı Profil → Hesabı sil üzerinden silin. Güvenlik kayıtları, saklama politikası gereği silinemez.",
+      "rectificationLabel": "Düzeltme (Md. 16):",
+      "rectification": "Profilinizi istediğiniz zaman düzenleyin.",
+      "objectionLabel": "İtiraz (Md. 21):",
+      "objection": "Verilerinizin işlenmesine itiraz etmek için <mono>{{email}}</mono> adresine yazın."
+    },
+    "cookies": {
+      "title": "Çerezler",
+      "essential": "Yalnızca oturum güvenliği için gereken <b>zorunlu çerezleri</b> kullanıyoruz. Analiz, reklam veya üçüncü taraf takip çerezi kullanılmaz.",
+      "choose": "Çerezleri açıkça sınırlamak için çerez onay banner'ında <pill>Yalnızca zorunlu</pill> seçeneğini seçebilirsiniz."
+    },
+    "transfers": {
+      "title": "Veri aktarımları",
+      "processing": "Hizmeti sunmak için hesap, profil, ilan, toplantı, mesaj, bildirim ve güvenlik kaydı verileri platformun sunucu altyapısında işlenir. Bu veriler kullanıcının tarayıcı oturumuyla sınırlı değildir.",
+      "hosting": "Barındırma konumu ve hizmet sağlayıcılar kuruluma göre değişebilir. Mevcut barındırma düzeni veya veri işleme hakkındaki sorularınız için <mono>{{email}}</mono> adresine yazın."
+    },
+    "contact": {
+      "kicker": "İletişim ve şikayetler",
+      "title": "Bize her zaman ulaşabilirsiniz.",
+      "body": "E-posta: <mail>{{email}}</mail>. Ülkenizdeki veri koruma otoritesine şikayette bulunma hakkına sahipsiniz."
+    }
   }
 }

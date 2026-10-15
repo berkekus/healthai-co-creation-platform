@@ -1,4 +1,7 @@
+import { Trans, useTranslation } from 'react-i18next'
 import PageWrapper from '../../components/layout/PageWrapper'
+
+const CONTACT_EMAIL = 'admin@healthcocreate.com'
 
 type SectionTone = 'mint' | 'lime' | 'cream' | 'plum'
 
@@ -55,7 +58,21 @@ function BulletRow({ label, children }: { label: string; children: React.ReactNo
   )
 }
 
+/** Markup the translations may use: <b>, <mono>, <pill> and <mail>. */
+const RICH = {
+  b: <strong className="text-hai-plum font-body font-bold" />,
+  mono: <span className="font-mono bg-hai-offwhite text-hai-plum px-1 rounded font-bold" />,
+  pill: <span className="inline-flex items-center gap-1 bg-hai-offwhite text-hai-plum rounded-full px-2.5 py-0.5 font-mono text-xs font-bold" />,
+  mail: <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-2 text-hai-mint hover:text-white transition-colors" />,
+}
+
+function Rich({ k }: { k: string }) {
+  return <Trans i18nKey={`privacyPage.${k}`} values={{ email: CONTACT_EMAIL }} components={RICH} />
+}
+
 export default function PrivacyPage() {
+  const { t, i18n } = useTranslation()
+  const p = (key: string) => t(`privacyPage.${key}`)
   return (
     <PageWrapper maxWidth={820}>
       {/* Header card */}
@@ -65,125 +82,106 @@ export default function PrivacyPage() {
           <div className="inline-flex items-center gap-2 bg-hai-offwhite border border-hai-teal/30 rounded-full px-4 py-1.5 mb-5 text-xs font-mono tracking-[0.16em] uppercase text-hai-plum font-bold">
             <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>shield_lock</span>
             <span className="text-hai-plum/70">19</span>
-            <span>Privacy policy</span>
+            <span>{p('badge')}</span>
           </div>
 
           <h1 className="font-headline font-bold text-4xl md:text-6xl leading-tight tracking-normal text-hai-plum mb-4">
-            Privacy<br />policy<span className="text-hai-teal">.</span>
+            {p('titleLine1')}<br />{p('titleLine2')}<span className="text-hai-teal">.</span>
           </h1>
 
           <div className="flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1.5 bg-hai-mint text-hai-plum rounded-full px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-hai-teal" />
-              GDPR rights information
+              {p('gdprBadge')}
             </span>
             <span className="inline-flex items-center gap-1.5 bg-hai-offwhite text-hai-plum rounded-full px-3 py-1 text-xs font-mono tracking-[0.12em] uppercase font-bold">
               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: '"FILL" 1' }}>event</span>
-              Last updated · 19 Apr 2026
+              {p('lastUpdated')}
             </span>
           </div>
+
+          {/* The policy was written in English; translations are a courtesy, not the legal text. */}
+          {!i18n.resolvedLanguage?.startsWith('en') && (
+            <p role="note" className="mt-5 rounded-2xl border border-hai-plum/10 bg-hai-cream/50 px-4 py-3 text-sm font-semibold text-hai-plum">
+              {p('bindingNote')}
+            </p>
+          )}
         </div>
       </div>
 
       {/* Sections */}
       <div className="flex flex-col gap-3">
-        <SectionCard index="01" title="Who we are" icon="corporate_fare" tone="mint">
-          <p>
-            HEALTH AI Co-Creation Platform connects engineers and healthcare professionals across Europe for structured research collaboration.
-          </p>
+        <SectionCard index="01" title={p('who.title')} icon="corporate_fare" tone="mint">
+          <p>{p('who.body')}</p>
           <p className="text-sm text-neutral-500">
-            Contact:{' '}
+            {p('who.contact')}{' '}
             <span className="inline-flex items-center gap-1 bg-hai-offwhite rounded-full px-2.5 py-0.5 font-mono text-xs text-hai-plum font-bold">
               <span className="material-symbols-outlined text-sm">mail</span>
-              admin@healthcocreate.com
+              {CONTACT_EMAIL}
             </span>
           </p>
         </SectionCard>
 
-        <SectionCard index="02" title="Data we collect" icon="database" tone="lime">
+        <SectionCard index="02" title={p('collect.title')} icon="database" tone="lime">
           <div className="flex flex-col gap-2.5">
-            <BulletRow label="Account data:">
-              Full name, institutional email (<span className="font-mono bg-hai-mint/60 text-hai-plum px-1 rounded font-bold">.edu</span> only), role, institution, city, country, bio, expertise tags.
-            </BulletRow>
-            <BulletRow label="Activity data:">
-              Posts created / edited, meeting requests sent / received, login events.
-            </BulletRow>
-            <BulletRow label="Security logs:">
-              IP address (login events), failed login attempts, rate-limit hits. Retained for 24 months.
-            </BulletRow>
-            <BulletRow label="Session data:">
-              A session token is stored in browser session storage, or persistent browser storage when “Remember me” is selected. The application signs users out after 30 minutes of inactivity.
-            </BulletRow>
+            <BulletRow label={p('collect.accountLabel')}><Rich k="collect.account" /></BulletRow>
+            <BulletRow label={p('collect.activityLabel')}>{p('collect.activity')}</BulletRow>
+            <BulletRow label={p('collect.securityLabel')}>{p('collect.security')}</BulletRow>
+            <BulletRow label={p('collect.sessionLabel')}>{p('collect.session')}</BulletRow>
           </div>
           <div className="mt-4 bg-hai-cream/50 border border-hai-plum/10 rounded-2xl p-4 flex items-start gap-3">
             <span className="material-symbols-outlined text-hai-plum text-lg shrink-0 mt-0.5" style={{ fontVariationSettings: '"FILL" 1' }}>block</span>
-            <p className="text-sm text-hai-plum leading-relaxed">
-              We do <strong className="font-body font-bold">not</strong> collect patient data, clinical records, proprietary IP, or personal emails. File uploads are prohibited on this platform.
-            </p>
+            <p className="text-sm text-hai-plum leading-relaxed"><Rich k="collect.notCollected" /></p>
           </div>
         </SectionCard>
 
-        <SectionCard index="03" title="Legal basis (GDPR Art. 6)" icon="gavel" tone="cream">
+        <SectionCard index="03" title={p('legal.title')} icon="gavel" tone="cream">
           <div className="flex flex-col gap-2.5">
-            <BulletRow label="Contract performance —">
-              account and collaboration data processed to provide the service.
-            </BulletRow>
-            <BulletRow label="Legitimate interest —">
-              security logs and rate limiting to protect platform integrity.
-            </BulletRow>
-            <BulletRow label="Consent —">
-              non-essential cookies (accepted via banner).
-            </BulletRow>
+            <BulletRow label={p('legal.contractLabel')}>{p('legal.contract')}</BulletRow>
+            <BulletRow label={p('legal.interestLabel')}>{p('legal.interest')}</BulletRow>
+            <BulletRow label={p('legal.consentLabel')}>{p('legal.consent')}</BulletRow>
           </div>
         </SectionCard>
 
-        <SectionCard index="04" title="Data retention" icon="schedule" tone="mint">
+        <SectionCard index="04" title={p('retention.title')} icon="schedule" tone="mint">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="bg-hai-offwhite rounded-2xl p-4">
-              <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold mb-1">Account & posts</div>
-              <div className="font-headline font-bold text-lg text-hai-plum leading-tight">While active</div>
+              <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500 font-bold mb-1">{p('retention.accountPosts')}</div>
+              <div className="font-headline font-bold text-lg text-hai-plum leading-tight">{p('retention.whileActive')}</div>
             </div>
             <div className="bg-hai-lime/60 rounded-2xl p-4">
-              <div className="text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold mb-1">Security logs</div>
-              <div className="font-headline font-bold text-lg text-hai-plum leading-tight">24 months</div>
+              <div className="text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold mb-1">{p('retention.securityLogs')}</div>
+              <div className="font-headline font-bold text-lg text-hai-plum leading-tight">{p('retention.months24')}</div>
             </div>
             <div className="bg-hai-mint rounded-2xl p-4">
-              <div className="text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold mb-1">Session</div>
-              <div className="font-headline font-bold text-lg text-hai-plum leading-tight">In-memory</div>
+              <div className="text-xs font-mono tracking-[0.12em] uppercase text-hai-plum font-bold mb-1">{p('retention.session')}</div>
+              <div className="font-headline font-bold text-lg text-hai-plum leading-tight">{p('retention.inMemory')}</div>
             </div>
           </div>
           <p className="text-sm text-neutral-500 mt-3 flex items-start gap-1.5">
             <span className="material-symbols-outlined text-sm mt-0.5" style={{ fontVariationSettings: '"FILL" 1' }}>lock</span>
-            Security logs are tamper-resistant — no manual deletion permitted.
+            {p('retention.tamper')}
           </p>
         </SectionCard>
 
-        <SectionCard index="05" title="Your rights (GDPR Art. 15–22)" icon="account_circle" tone="lime">
+        <SectionCard index="05" title={p('rights.title')} icon="account_circle" tone="lime">
           <div className="flex flex-col gap-2.5">
-            <BulletRow label="Access (Art. 15):">View your profile and posts in the platform.</BulletRow>
-            <BulletRow label="Portability (Art. 20):">Export your data as JSON via Profile → Export my data.</BulletRow>
-            <BulletRow label="Erasure (Art. 17):">Delete your account via Profile → Delete account. Security logs cannot be deleted per retention policy.</BulletRow>
-            <BulletRow label="Rectification (Art. 16):">Edit your profile at any time.</BulletRow>
-            <BulletRow label="Objection (Art. 21):">Contact <span className="font-mono bg-hai-offwhite text-hai-plum px-1 rounded font-bold">admin@healthcocreate.com</span> to object to processing.</BulletRow>
+            <BulletRow label={p('rights.accessLabel')}>{p('rights.access')}</BulletRow>
+            <BulletRow label={p('rights.portabilityLabel')}>{p('rights.portability')}</BulletRow>
+            <BulletRow label={p('rights.erasureLabel')}>{p('rights.erasure')}</BulletRow>
+            <BulletRow label={p('rights.rectificationLabel')}>{p('rights.rectification')}</BulletRow>
+            <BulletRow label={p('rights.objectionLabel')}><Rich k="rights.objection" /></BulletRow>
           </div>
         </SectionCard>
 
-        <SectionCard index="06" title="Cookies" icon="cookie" tone="cream">
-          <p>
-            We use only <strong className="text-hai-plum font-body font-bold">essential cookies</strong> required for session security. No analytics, advertising, or third-party tracking cookies are used.
-          </p>
-          <p>
-            You may choose <span className="inline-flex items-center gap-1 bg-hai-offwhite text-hai-plum rounded-full px-2.5 py-0.5 font-mono text-xs font-bold">Essential only</span> in the cookie consent banner to explicitly limit cookies.
-          </p>
+        <SectionCard index="06" title={p('cookies.title')} icon="cookie" tone="cream">
+          <p><Rich k="cookies.essential" /></p>
+          <p><Rich k="cookies.choose" /></p>
         </SectionCard>
 
-        <SectionCard index="07" title="Data transfers" icon="public" tone="mint">
-          <p>
-            To provide the service, account, profile, post, meeting, message, notification, and security-log data are processed through the platform's server infrastructure. This data is not limited to the user's browser session.
-          </p>
-          <p>
-            Hosting location and service providers can vary by deployment. For questions about the current hosting arrangement or data processing, contact <span className="font-mono bg-hai-offwhite text-hai-plum px-1 rounded font-bold">admin@healthcocreate.com</span>.
-          </p>
+        <SectionCard index="07" title={p('transfers.title')} icon="public" tone="mint">
+          <p>{p('transfers.processing')}</p>
+          <p><Rich k="transfers.hosting" /></p>
         </SectionCard>
       </div>
 
@@ -196,18 +194,12 @@ export default function PrivacyPage() {
           </div>
           <div className="min-w-0">
             <div className="text-xs font-mono tracking-[0.16em] uppercase text-hai-mint/80 font-bold mb-1.5">
-              Contact & complaints
+              {p('contact.kicker')}
             </div>
             <div className="font-headline font-bold text-xl leading-tight tracking-normal mb-2">
-              Reach out anytime.
+              {p('contact.title')}
             </div>
-            <p className="text-sm leading-relaxed text-hai-offwhite/85">
-              Email{' '}
-              <a href="mailto:admin@healthcocreate.com" className="underline underline-offset-2 text-hai-mint hover:text-white transition-colors">
-                admin@healthcocreate.com
-              </a>{' '}
-              . You have the right to lodge a complaint with your national data protection authority.
-            </p>
+            <p className="text-sm leading-relaxed text-hai-offwhite/85"><Rich k="contact.body" /></p>
           </div>
         </div>
       </div>

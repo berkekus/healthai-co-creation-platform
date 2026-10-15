@@ -1646,5 +1646,77 @@
       "Het doel van het platform binnen 20 seconden begrijpen",
       "Zonder verwarring een bericht kunnen plaatsen"
     ]
+  },
+  "privacyPage": {
+    "badge": "Privacybeleid",
+    "titleLine1": "Privacy-",
+    "titleLine2": "beleid",
+    "gdprBadge": "Informatie over je AVG-rechten",
+    "lastUpdated": "Laatst bijgewerkt · 19 apr 2026",
+    "bindingNote": "Deze vertaling is bedoeld voor het gemak. De Engelse tekst van dit beleid is bindend.",
+    "who": {
+      "title": "Wie we zijn",
+      "body": "Het HEALTH AI co-creatieplatform verbindt ingenieurs en zorgprofessionals in heel Europa voor gestructureerde samenwerking in onderzoek.",
+      "contact": "Contact:"
+    },
+    "collect": {
+      "title": "Gegevens die we verzamelen",
+      "accountLabel": "Accountgegevens:",
+      "account": "Volledige naam, institutioneel e-mailadres (alleen <mono>.edu</mono>), rol, instelling, stad, land, bio, expertisetags.",
+      "activityLabel": "Activiteitsgegevens:",
+      "activity": "Geplaatste / bewerkte berichten, verstuurde / ontvangen vergaderverzoeken, inlogmomenten.",
+      "securityLabel": "Beveiligingslogs:",
+      "security": "IP-adres (inlogmomenten), mislukte inlogpogingen, bereikte verzoeklimieten. Worden 24 maanden bewaard.",
+      "sessionLabel": "Sessiegegevens:",
+      "session": "Een sessietoken wordt bewaard in de sessieopslag van de browser, of in de blijvende browseropslag als “Onthoud mij” is aangevinkt. De applicatie logt gebruikers uit na 30 minuten inactiviteit.",
+      "notCollected": "We verzamelen <b>geen</b> patiëntgegevens, medische dossiers, bedrijfseigen intellectueel eigendom of persoonlijke e-mailadressen. Bestanden uploaden is op dit platform niet toegestaan."
+    },
+    "legal": {
+      "title": "Rechtsgrond (AVG art. 6)",
+      "contractLabel": "Uitvoering van een overeenkomst —",
+      "contract": "account- en samenwerkingsgegevens die worden verwerkt om de dienst te leveren.",
+      "interestLabel": "Gerechtvaardigd belang —",
+      "interest": "beveiligingslogs en verzoeklimieten om de integriteit van het platform te beschermen.",
+      "consentLabel": "Toestemming —",
+      "consent": "niet-essentiële cookies (geaccepteerd via de banner)."
+    },
+    "retention": {
+      "title": "Bewaartermijnen",
+      "accountPosts": "Account & berichten",
+      "whileActive": "Zolang actief",
+      "securityLogs": "Beveiligingslogs",
+      "months24": "24 maanden",
+      "session": "Sessie",
+      "inMemory": "In het geheugen",
+      "tamper": "Beveiligingslogs zijn fraudebestendig: handmatig verwijderen is niet toegestaan."
+    },
+    "rights": {
+      "title": "Je rechten (AVG art. 15–22)",
+      "accessLabel": "Inzage (art. 15):",
+      "access": "Bekijk je profiel en berichten op het platform.",
+      "portabilityLabel": "Overdraagbaarheid (art. 20):",
+      "portability": "Exporteer je gegevens als JSON via Profiel → Mijn gegevens exporteren.",
+      "erasureLabel": "Verwijdering (art. 17):",
+      "erasure": "Verwijder je account via Profiel → Account verwijderen. Beveiligingslogs kunnen volgens het bewaarbeleid niet worden verwijderd.",
+      "rectificationLabel": "Rectificatie (art. 16):",
+      "rectification": "Bewerk je profiel wanneer je wilt.",
+      "objectionLabel": "Bezwaar (art. 21):",
+      "objection": "Neem contact op via <mono>{{email}}</mono> om bezwaar te maken tegen de verwerking."
+    },
+    "cookies": {
+      "title": "Cookies",
+      "essential": "We gebruiken alleen <b>essentiële cookies</b> die nodig zijn voor de beveiliging van je sessie. Er worden geen analytische, advertentie- of trackingcookies van derden gebruikt.",
+      "choose": "Je kunt in de cookiebanner kiezen voor <pill>Alleen essentieel</pill> om cookies uitdrukkelijk te beperken."
+    },
+    "transfers": {
+      "title": "Gegevensoverdracht",
+      "processing": "Om de dienst te leveren worden account-, profiel-, bericht-, vergader-, chat-, meldings- en beveiligingsloggegevens verwerkt op de serverinfrastructuur van het platform. Deze gegevens blijven niet beperkt tot de browsersessie van de gebruiker.",
+      "hosting": "De hostinglocatie en dienstverleners kunnen per installatie verschillen. Voor vragen over de huidige hosting of gegevensverwerking kun je contact opnemen via <mono>{{email}}</mono>."
+    },
+    "contact": {
+      "kicker": "Contact & klachten",
+      "title": "Neem altijd contact op.",
+      "body": "E-mail: <mail>{{email}}</mail>. Je hebt het recht een klacht in te dienen bij je nationale toezichthouder voor gegevensbescherming."
+    }
   }
 }

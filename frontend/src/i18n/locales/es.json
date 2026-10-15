@@ -1646,5 +1646,77 @@
       "Entender el propósito de la plataforma en 20 segundos",
       "Poder publicar un anuncio sin confusión"
     ]
+  },
+  "privacyPage": {
+    "badge": "Política de privacidad",
+    "titleLine1": "Política de",
+    "titleLine2": "privacidad",
+    "gdprBadge": "Información sobre derechos RGPD",
+    "lastUpdated": "Última actualización · 19 abr 2026",
+    "bindingNote": "Esta traducción se ofrece por comodidad. El texto vinculante es la versión en inglés de esta política.",
+    "who": {
+      "title": "Quiénes somos",
+      "body": "La plataforma de co-creación HEALTH AI conecta a ingenieros y profesionales sanitarios de toda Europa para colaborar en investigación de forma estructurada.",
+      "contact": "Contacto:"
+    },
+    "collect": {
+      "title": "Datos que recopilamos",
+      "accountLabel": "Datos de la cuenta:",
+      "account": "Nombre completo, correo institucional (solo <mono>.edu</mono>), rol, institución, ciudad, país, biografía, etiquetas de experiencia.",
+      "activityLabel": "Datos de actividad:",
+      "activity": "Publicaciones creadas / editadas, solicitudes de reunión enviadas / recibidas, inicios de sesión.",
+      "securityLabel": "Registros de seguridad:",
+      "security": "Dirección IP (inicios de sesión), intentos fallidos de inicio de sesión, límites de solicitudes alcanzados. Se conservan 24 meses.",
+      "sessionLabel": "Datos de sesión:",
+      "session": "Se guarda un token de sesión en el almacenamiento de sesión del navegador, o en el almacenamiento persistente si se marca “Recordarme”. La aplicación cierra la sesión tras 30 minutos de inactividad.",
+      "notCollected": "<b>No</b> recopilamos datos de pacientes, historias clínicas, propiedad intelectual de terceros ni correos personales. En esta plataforma no se permite subir archivos."
+    },
+    "legal": {
+      "title": "Base jurídica (RGPD art. 6)",
+      "contractLabel": "Ejecución de un contrato —",
+      "contract": "datos de la cuenta y de colaboración tratados para prestar el servicio.",
+      "interestLabel": "Interés legítimo —",
+      "interest": "registros de seguridad y límites de solicitudes para proteger la integridad de la plataforma.",
+      "consentLabel": "Consentimiento —",
+      "consent": "cookies no esenciales (aceptadas mediante el banner)."
+    },
+    "retention": {
+      "title": "Conservación de datos",
+      "accountPosts": "Cuenta y publicaciones",
+      "whileActive": "Mientras esté activa",
+      "securityLogs": "Registros de seguridad",
+      "months24": "24 meses",
+      "session": "Sesión",
+      "inMemory": "En memoria",
+      "tamper": "Los registros de seguridad son a prueba de manipulaciones: no se permite borrarlos manualmente."
+    },
+    "rights": {
+      "title": "Tus derechos (RGPD art. 15–22)",
+      "accessLabel": "Acceso (art. 15):",
+      "access": "Consulta tu perfil y tus publicaciones en la plataforma.",
+      "portabilityLabel": "Portabilidad (art. 20):",
+      "portability": "Exporta tus datos en JSON desde Perfil → Exportar mis datos.",
+      "erasureLabel": "Supresión (art. 17):",
+      "erasure": "Elimina tu cuenta desde Perfil → Eliminar cuenta. Los registros de seguridad no pueden eliminarse según la política de conservación.",
+      "rectificationLabel": "Rectificación (art. 16):",
+      "rectification": "Edita tu perfil cuando quieras.",
+      "objectionLabel": "Oposición (art. 21):",
+      "objection": "Escribe a <mono>{{email}}</mono> para oponerte al tratamiento."
+    },
+    "cookies": {
+      "title": "Cookies",
+      "essential": "Solo usamos <b>cookies esenciales</b> necesarias para la seguridad de la sesión. No usamos cookies de analítica, publicidad ni seguimiento de terceros.",
+      "choose": "Puedes elegir <pill>Solo esenciales</pill> en el banner de consentimiento para limitar las cookies de forma explícita."
+    },
+    "transfers": {
+      "title": "Transferencias de datos",
+      "processing": "Para prestar el servicio, los datos de cuenta, perfil, publicaciones, reuniones, mensajes, notificaciones y registros de seguridad se tratan en la infraestructura de servidores de la plataforma. Estos datos no se limitan a la sesión del navegador del usuario.",
+      "hosting": "La ubicación del alojamiento y los proveedores pueden variar según la instalación. Si tienes preguntas sobre el alojamiento actual o el tratamiento de datos, escribe a <mono>{{email}}</mono>."
+    },
+    "contact": {
+      "kicker": "Contacto y reclamaciones",
+      "title": "Escríbenos cuando quieras.",
+      "body": "Correo: <mail>{{email}}</mail>. Tienes derecho a presentar una reclamación ante la autoridad nacional de protección de datos."
+    }
   }
 }

@@ -1646,5 +1646,77 @@
       "Perceber o objetivo da plataforma em 20 segundos",
       "Conseguir publicar um anúncio sem confusão"
     ]
+  },
+  "privacyPage": {
+    "badge": "Política de privacidade",
+    "titleLine1": "Política de",
+    "titleLine2": "privacidade",
+    "gdprBadge": "Informação sobre direitos RGPD",
+    "lastUpdated": "Última atualização · 19 abr 2026",
+    "bindingNote": "Esta tradução é disponibilizada por conveniência. O texto vinculativo é a versão em inglês desta política.",
+    "who": {
+      "title": "Quem somos",
+      "body": "A plataforma de cocriação HEALTH AI liga engenheiros e profissionais de saúde de toda a Europa para colaboração estruturada em investigação.",
+      "contact": "Contacto:"
+    },
+    "collect": {
+      "title": "Dados que recolhemos",
+      "accountLabel": "Dados da conta:",
+      "account": "Nome completo, email institucional (apenas <mono>.edu</mono>), função, instituição, cidade, país, biografia, etiquetas de competências.",
+      "activityLabel": "Dados de atividade:",
+      "activity": "Publicações criadas / editadas, pedidos de reunião enviados / recebidos, inícios de sessão.",
+      "securityLabel": "Registos de segurança:",
+      "security": "Endereço IP (inícios de sessão), tentativas de início de sessão falhadas, limites de pedidos atingidos. Guardados durante 24 meses.",
+      "sessionLabel": "Dados de sessão:",
+      "session": "Um token de sessão é guardado no armazenamento de sessão do navegador, ou no armazenamento persistente quando “Lembrar-me” está selecionado. A aplicação termina a sessão após 30 minutos de inatividade.",
+      "notCollected": "<b>Não</b> recolhemos dados de doentes, registos clínicos, propriedade intelectual de terceiros nem emails pessoais. Nesta plataforma não é permitido carregar ficheiros."
+    },
+    "legal": {
+      "title": "Fundamento jurídico (RGPD art. 6.º)",
+      "contractLabel": "Execução de contrato —",
+      "contract": "dados da conta e de colaboração tratados para prestar o serviço.",
+      "interestLabel": "Interesse legítimo —",
+      "interest": "registos de segurança e limites de pedidos para proteger a integridade da plataforma.",
+      "consentLabel": "Consentimento —",
+      "consent": "cookies não essenciais (aceites através do banner)."
+    },
+    "retention": {
+      "title": "Conservação de dados",
+      "accountPosts": "Conta e publicações",
+      "whileActive": "Enquanto ativa",
+      "securityLogs": "Registos de segurança",
+      "months24": "24 meses",
+      "session": "Sessão",
+      "inMemory": "Em memória",
+      "tamper": "Os registos de segurança são invioláveis: não é permitido apagá-los manualmente."
+    },
+    "rights": {
+      "title": "Os seus direitos (RGPD art. 15.º–22.º)",
+      "accessLabel": "Acesso (art. 15.º):",
+      "access": "Consulte o seu perfil e as suas publicações na plataforma.",
+      "portabilityLabel": "Portabilidade (art. 20.º):",
+      "portability": "Exporte os seus dados em JSON em Perfil → Exportar os meus dados.",
+      "erasureLabel": "Apagamento (art. 17.º):",
+      "erasure": "Elimine a sua conta em Perfil → Eliminar conta. Os registos de segurança não podem ser apagados, de acordo com a política de conservação.",
+      "rectificationLabel": "Retificação (art. 16.º):",
+      "rectification": "Edite o seu perfil a qualquer momento.",
+      "objectionLabel": "Oposição (art. 21.º):",
+      "objection": "Contacte <mono>{{email}}</mono> para se opor ao tratamento."
+    },
+    "cookies": {
+      "title": "Cookies",
+      "essential": "Usamos apenas <b>cookies essenciais</b>, necessários para a segurança da sessão. Não são usados cookies de análise, publicidade ou rastreio de terceiros.",
+      "choose": "Pode escolher <pill>Apenas essenciais</pill> no banner de consentimento de cookies para limitar explicitamente os cookies."
+    },
+    "transfers": {
+      "title": "Transferências de dados",
+      "processing": "Para prestar o serviço, os dados de conta, perfil, publicações, reuniões, mensagens, notificações e registos de segurança são tratados na infraestrutura de servidores da plataforma. Estes dados não se limitam à sessão do navegador do utilizador.",
+      "hosting": "O local de alojamento e os prestadores de serviços podem variar consoante a instalação. Para questões sobre o alojamento atual ou o tratamento de dados, contacte <mono>{{email}}</mono>."
+    },
+    "contact": {
+      "kicker": "Contacto e reclamações",
+      "title": "Fale connosco a qualquer momento.",
+      "body": "Email: <mail>{{email}}</mail>. Tem o direito de apresentar reclamação junto da autoridade nacional de proteção de dados."
+    }
   }
 }
