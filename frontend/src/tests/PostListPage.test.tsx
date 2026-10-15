@@ -59,6 +59,22 @@ describe('PostListPage (server-side list)', () => {
     expect(lastListRequest()).toContain('page=3')
   })
 
+  it('opens on posts still looking for a partner, with every status one choice away', async () => {
+    renderAt('/posts')
+    await screen.findByText('Prototype A')
+    expect(lastListRequest()).toContain('status=open')
+
+    renderAt('/posts?status=all')
+    await waitFor(() => expect(lastListRequest()).not.toContain('status='))
+  })
+
+  it('lists every status of your own posts, drafts included, unless one is chosen', async () => {
+    renderAt('/posts?mine=true')
+    await screen.findByText('Prototype A')
+    expect(lastListRequest()).toContain('mine=true')
+    expect(lastListRequest()).not.toContain('status=')
+  })
+
   it('shows the total the server counted, not the length of what was downloaded', async () => {
     renderAt('/posts')
     await screen.findByText('Prototype A')

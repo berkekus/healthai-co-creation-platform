@@ -412,11 +412,12 @@ function ProfileCompletionCard({ user, onSaved }: { user: User; onSaved?: boolea
   const [remote, setRemote] = useState<ProfileScore | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
   const lang = i18n.language?.split('-')[0] ?? 'en'
-  const remoteScore = remote?.score ?? null
 
+  // The number always comes from the checklist below it. Taking the server's score made
+  // the ring jump once that answer arrived, and an AI-given score drifted between visits
+  // without the profile changing; the AI still writes the tips.
   const localOptionalDone = items.filter(i => i.done).length
-  const localScore = 40 + Math.round((localOptionalDone / items.length) * 60)
-  const score = remoteScore ?? localScore
+  const score = 40 + Math.round((localOptionalDone / items.length) * 60)
 
   useEffect(() => {
     let cancelled = false
@@ -720,8 +721,14 @@ export default function ProfilePage() {
 
   const onSubmit = async (data: ProfileFormData) => {
     const { firstName, lastName, ...rest } = data
+    // Text typed into the expertise box but never added (no Enter, no suggestion clicked)
+    // was silently dropped, leaving "No data available" after saving.
+    const pending = tagInput.trim()
+    const expertiseTags = pending && !tags.includes(pending) ? [...tags, pending] : tags
     try {
-      await updateProfile({ ...rest, name: `${firstName.trim()} ${lastName.trim()}`, expertiseTags: tags })
+      await updateProfile({ ...rest, name: `${firstName.trim()} ${lastName.trim()}`, expertiseTags })
+      setTags(expertiseTags)
+      setTagInput('')
       setSaved(true)
       setIsEditing(false)
       setTimeout(() => setSaved(false), 2500)

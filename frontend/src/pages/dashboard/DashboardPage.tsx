@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const mine = usePostList({ page: 1, limit: 5, mine: true, sort: 'newest' })
   const activeMine = usePostList({ page: 1, limit: 1, mine: true, status: 'active' })
   const scheduledMine = usePostList({ page: 1, limit: 1, mine: true, status: 'meeting_scheduled' })
+  const draftsMine = usePostList({ page: 1, limit: 1, mine: true, status: 'draft' })
   const recentPosts = mine.data?.posts ?? []
   const myPostCount = mine.data?.total ?? 0
 
@@ -48,7 +49,7 @@ export default function DashboardPage() {
           <OnboardingPanel />
         ) : (
           <section className="mt-10 grid grid-cols-1 gap-12 xl:grid-cols-[minmax(0,680px)_minmax(0,700px)] xl:gap-28">
-            <RecentPosts posts={recentPosts} />
+            <RecentPosts posts={recentPosts} draftCount={draftsMine.data?.total ?? 0} />
             <UpcomingMeetings meetings={upcomingMeetings} userId={user?.id ?? ''} />
           </section>
         )}
@@ -270,7 +271,7 @@ function Metric({
   )
 }
 
-function RecentPosts({ posts }: { posts: Post[] }) {
+function RecentPosts({ posts, draftCount }: { posts: Post[]; draftCount: number }) {
   const { t } = useTranslation()
   const recentPosts = [...posts]
     .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
@@ -280,10 +281,18 @@ function RecentPosts({ posts }: { posts: Post[] }) {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-base font-black text-hai-plum">{t('dashboard.recentPosts')}</h3>
-        <Link to={`${ROUTES.POSTS}?mine=true`} className="flex items-center gap-3 text-sm font-black text-hai-teal-dark transition hover:text-hai-plum">
-          {t('common.viewAll')}
-          <ArrowRight size={16} />
-        </Link>
+        <div className="flex items-center gap-4">
+          {/* Saved drafts had no visible way back to them. */}
+          {draftCount > 0 && (
+            <Link to={`${ROUTES.POSTS}?mine=true&status=draft`} className="text-sm font-black text-hai-teal-dark transition hover:text-hai-plum">
+              {t('dashboard.drafts', { count: draftCount })}
+            </Link>
+          )}
+          <Link to={`${ROUTES.POSTS}?mine=true`} className="flex items-center gap-3 text-sm font-black text-hai-teal-dark transition hover:text-hai-plum">
+            {t('common.viewAll')}
+            <ArrowRight size={16} />
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3">

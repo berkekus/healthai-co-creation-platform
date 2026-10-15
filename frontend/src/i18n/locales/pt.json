@@ -644,6 +644,7 @@
     }
   },
   "dashboard": {
+    "drafts": "Rascunhos ({{count}})",
     "welcome": "Bem-vindo de volta, {{name}}",
     "welcomeBack": "Bem-vindo de volta,",
     "subtitle": "Eis o que se está a passar na HealthAI.",
@@ -1048,6 +1049,8 @@
     "unknownPartner": "Membro desconhecido"
   },
   "createPost": {
+    "startOver": "Recomeçar",
+    "restored": "Guardámos o que tinha escrito antes de a página recarregar.",
     "backToDirectory": "Voltar ao diretório",
     "heading": "Publicar uma oportunidade de colaboração.",
     "desc": "Conecte-se com o parceiro certo entre engenharia e saúde. Sem carregamento de ficheiros — os detalhes são partilhados em reuniões sob NDA.",
@@ -1388,6 +1391,9 @@
     "confirm": "Sim, marcar parceiro encontrado"
   },
   "postDetail": {
+    "publishing": "A publicar…",
+    "noticeDraftSaved": "Rascunho guardado. Só você o pode ver até o publicar.",
+    "noticePublished": "A sua publicação está ativa. Os outros membros já a podem encontrar em Explorar publicações.",
     "backToDirectory": "Voltar ao diretório",
     "loadFailedTitle": "Não foi possível carregar esta publicação",
     "loadFailedDesc": "Ocorreu um problema ao carregar este anúncio. Por favor, verifique a sua ligação e tente novamente.",
@@ -1718,5 +1724,12 @@
       "title": "Fale connosco a qualquer momento.",
       "body": "Email: <mail>{{email}}</mail>. Tem o direito de apresentar reclamação junto da autoridade nacional de proteção de dados."
     }
+  },
+  "pdf": {
+    "author": "Autor",
+    "location": "Localização",
+    "generatedBy": "Gerado pela plataforma de cocriação HEALTH AI",
+    "aiFooter": "Resumo gerado por IA — plataforma de cocriação HEALTH AI",
+    "summaryTitle": "Resumo da reunião: {{title}}"
   }
 }

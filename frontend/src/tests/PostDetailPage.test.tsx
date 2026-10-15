@@ -51,18 +51,19 @@ function makePost(extra: Partial<Post> = {}): Post {
 
 const markPartnerFound = vi.fn()
 const reopen = vi.fn()
+const publish = vi.fn()
 
 // The page loads its post from the server (GET /posts/:id); comments come from their own endpoint.
-async function renderAs(user: User, post: Post) {
+async function renderAs(user: User, post: Post, entry: string | { pathname: string; state: unknown } = '/posts/post-1') {
   useAuthStore.setState({ user, isAuthenticated: true })
-  usePostStore.setState({ markPartnerFound, reopen })
+  usePostStore.setState({ markPartnerFound, reopen, publish })
   useMeetingStore.setState({ meetings: [], fetchByUser: vi.fn() })
   vi.mocked(api.get).mockImplementation(async (url: string) =>
     url === `/posts/${post.id}`
       ? { data: { success: true, data: post } }
       : { data: { success: true, data: { comments: [], total: 0, page: 1, pages: 1 } } })
   renderWithQuery(
-    <MemoryRouter initialEntries={['/posts/post-1']}>
+    <MemoryRouter initialEntries={[entry]}>
       <Routes>
         <Route path="/posts/:id" element={<PostDetailPage />} />
       </Routes>
@@ -75,6 +76,7 @@ describe('PostDetailPage', () => {
   beforeEach(() => {
     markPartnerFound.mockReset().mockResolvedValue(undefined)
     reopen.mockReset().mockResolvedValue(undefined)
+    publish.mockReset().mockResolvedValue(undefined)
   })
 
   afterEach(async () => {
@@ -172,5 +174,21 @@ describe('PostDetailPage', () => {
     await i18n.changeLanguage('tr')
     await renderAs(visitor, makePost())
     expect(screen.getByRole('button', { name: 'Toplantı planla' })).toBeInTheDocument()
+  })
+
+  it('confirms a post that was just published from the create page', async () => {
+    await renderAs(owner, makePost(), { pathname: '/posts/post-1', state: { notice: 'published' } })
+
+    expect(screen.getByRole('status')).toHaveTextContent('Your post is live.')
+    fireEvent.click(within(screen.getByRole('status')).getByRole('button', { name: 'Close' }))
+    expect(screen.queryByText(/Your post is live/)).not.toBeInTheDocument()
+  })
+
+  it('says why publishing a draft failed instead of doing nothing', async () => {
+    publish.mockRejectedValue(new Error('Please fill in all required fields.'))
+    await renderAs(owner, makePost({ status: 'draft' }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Publish' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Please fill in all required fields.')
   })
 })

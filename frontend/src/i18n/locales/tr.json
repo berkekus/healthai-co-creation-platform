@@ -644,6 +644,7 @@
     }
   },
   "dashboard": {
+    "drafts": "Taslaklar ({{count}})",
     "welcome": "Hoş geldiniz, {{name}}",
     "welcomeBack": "Tekrar hoş geldiniz,",
     "subtitle": "HealthAI'da bugün neler oluyor.",
@@ -1048,6 +1049,8 @@
     "unknownPartner": "Bilinmeyen üye"
   },
   "createPost": {
+    "startOver": "Baştan başla",
+    "restored": "Sayfa yenilenmeden önce yazdıklarınızı sakladık.",
     "backToDirectory": "Dizine dön",
     "heading": "İşbirliği fırsatı paylaşın.",
     "desc": "Mühendislik ve sağlık arasında doğru ortakla bağlantı kurun. Dosya yükleme yok — detaylar NDA kapsamında toplantılarda paylaşılır.",
@@ -1388,6 +1391,9 @@
     "confirm": "Evet, ortak bulundu"
   },
   "postDetail": {
+    "publishing": "Yayınlanıyor…",
+    "noticeDraftSaved": "Taslak kaydedildi. Yayınlayana kadar yalnızca siz görebilirsiniz.",
+    "noticePublished": "İlanınız yayında. Diğer üyeler artık onu İlanları Keşfet bölümünde bulabilir.",
     "backToDirectory": "Dizine dön",
     "loadFailedTitle": "Bu ilan yüklenemedi",
     "loadFailedDesc": "İlan yüklenirken bir sorun oluştu. Bağlantınızı kontrol edip tekrar deneyin.",
@@ -1718,5 +1724,12 @@
       "title": "Bize her zaman ulaşabilirsiniz.",
       "body": "E-posta: <mail>{{email}}</mail>. Ülkenizdeki veri koruma otoritesine şikayette bulunma hakkına sahipsiniz."
     }
+  },
+  "pdf": {
+    "author": "Yazar",
+    "location": "Konum",
+    "generatedBy": "HEALTH AI Ortak Üretim Platformu tarafından oluşturuldu",
+    "aiFooter": "Yapay zekâ ile oluşturulmuş özet — HEALTH AI Ortak Üretim Platformu",
+    "summaryTitle": "Toplantı özeti: {{title}}"
   }
 }

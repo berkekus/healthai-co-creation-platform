@@ -11,21 +11,68 @@ import PostFormFields from '../../components/posts/PostFormFields'
 import { postDetail, ROUTES } from '../../constants/routes'
 import { localDateInputValue } from '../../utils/timeSlots'
 
+const FORM_DEFAULTS: Partial<PostCreateFormData> = { domains: [], confidentiality: 'public_pitch', projectStage: 'idea', levelOfCommitment: 'flexible' }
+
+// What has been typed survives a reload (it used to be lost), but only for this tab:
+// session storage is gone once the tab closes, so nothing lingers on a shared computer.
+const draftStorageKey = (userId: string) => `postCreateDraft:${userId}`
+
+function readStoredDraft(key: string): Partial<PostCreateFormData> | null {
+  try {
+    const raw = sessionStorage.getItem(key)
+    return raw ? JSON.parse(raw) as Partial<PostCreateFormData> : null
+  } catch {
+    return null
+  }
+}
+
+function forgetStoredDraft(key: string) {
+  try { sessionStorage.removeItem(key) } catch { /* storage unavailable */ }
+}
+
 export default function PostCreatePage() {
   const { t } = useTranslation()
   const { user } = useAuthStore()
   const { create, update, publish } = usePostStore()
   const navigate = useNavigate()
   const [submitAction, setSubmitAction] = useState<'draft' | 'publish'>('draft')
+  // Read by onSubmit. The submit runs in the same click that sets the state above, so
+  // it could still see the old value and save "Review & publish" as a mere draft.
+  const submitActionRef = useRef<'draft' | 'publish'>('draft')
+  const chooseAction = (action: 'draft' | 'publish') => {
+    submitActionRef.current = action
+    setSubmitAction(action)
+  }
   const [submitError, setSubmitError] = useState<string | null>(null)
   // Set once the draft exists, so retrying a failed publish doesn't create a duplicate.
   const createdPostId = useRef<string | null>(null)
+  const storageKey = draftStorageKey(user?.id ?? 'anonymous')
+  const [storedDraft] = useState(() => readStoredDraft(storageKey))
+  const [restored, setRestored] = useState(Boolean(storedDraft))
 
-  const { register, control, setValue, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<PostCreateFormData>({
+  const { register, control, setValue, watch, reset, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm<PostCreateFormData>({
     resolver: zodResolver(createPostCreateSchema(t)),
-    defaultValues: { domains: [], confidentiality: 'public_pitch', projectStage: 'idea', levelOfCommitment: 'flexible' },
+    defaultValues: { ...FORM_DEFAULTS, ...storedDraft },
     mode: 'onTouched',
   })
+
+  useEffect(() => {
+    const subscription = watch(values => {
+      try { sessionStorage.setItem(storageKey, JSON.stringify(values)) } catch { /* storage full or blocked */ }
+    })
+    return () => subscription.unsubscribe()
+  }, [watch, storageKey])
+
+  const startOver = () => {
+    forgetStoredDraft(storageKey)
+    // reset() leaves fields it is not given as they were, so the text ones are named here.
+    reset({
+      ...FORM_DEFAULTS,
+      title: '', expertiseRequired: '', description: '', city: '', country: '', expiryDate: '',
+      collaborationType: '' as PostCreateFormData['collaborationType'],
+    })
+    setRestored(false)
+  }
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -47,10 +94,13 @@ export default function PostCreatePage() {
         postId = (await create(data, user.id, user.name, role as 'engineer' | 'healthcare_professional')).id
         createdPostId.current = postId
       }
-      if (submitAction === 'publish') {
+      const action = submitActionRef.current
+      if (action === 'publish') {
         await publish(postId)
       }
-      navigate(postDetail(postId))
+      forgetStoredDraft(storageKey)
+      // The detail page confirms what happened; it used to change without a word.
+      navigate(postDetail(postId), { state: { notice: action === 'publish' ? 'published' : 'draftSaved' } })
     } catch (err) {
       setSubmitError((err as Error).message || t('createPost.submitFailed'))
     }
@@ -97,6 +147,15 @@ export default function PostCreatePage() {
           </p>
         </div>
 
+        {restored && (
+          <div role="status" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-hai-ice-line bg-hai-ice px-4 py-3 text-sm font-semibold text-ink">
+            <span>{t('createPost.restored')}</span>
+            <button type="button" onClick={startOver} className="font-black text-hai-teal-dark underline hover:text-ink">
+              {t('createPost.startOver')}
+            </button>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate>
           {/* fieldset disabled freezes all inputs/selects/textareas during submit */}
           <fieldset disabled={isSubmitting} className="min-w-0 border-0 p-0 m-0">
@@ -113,7 +172,7 @@ export default function PostCreatePage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              onClick={() => setSubmitAction('draft')}
+              onClick={() => chooseAction('draft')}
               className="h-14 rounded-full border border-ink bg-white px-9 text-sm font-black text-ink transition hover:bg-ink hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting && submitAction === 'draft' ? t('createPost.savingDraft') : t('createPost.saveDraft')}
@@ -121,7 +180,7 @@ export default function PostCreatePage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              onClick={() => setSubmitAction('publish')}
+              onClick={() => chooseAction('publish')}
               className="inline-flex h-14 min-w-[250px] items-center justify-center gap-3 rounded-full bg-ink px-9 text-sm font-black text-white shadow-[0_18px_42px_-28px_rgba(45,24,56,0.9)] transition hover:bg-[#1c1024] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting && submitAction === 'publish'

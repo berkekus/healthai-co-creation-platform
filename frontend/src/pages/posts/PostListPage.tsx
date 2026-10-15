@@ -91,6 +91,8 @@ interface DirectoryPost {
 
 const stageValues: ProjectStage[] = ['idea', 'concept_validation', 'prototype', 'pilot', 'pre_deployment']
 const statusValues: PostStatus[] = ['active', 'meeting_scheduled', 'partner_found', 'expired', 'draft']
+/** URL value for "every status"; an empty status means open posts only. */
+const STATUS_ALL = 'all'
 
 export default function PostListPage() {
   const { t } = useTranslation()
@@ -143,6 +145,9 @@ export default function PostListPage() {
   // The server filters, sorts and pages; typing is debounced so one request goes out when the user pauses.
   const debouncedSearch = useDebouncedValue(search.trim(), 300)
   const debouncedLocation = useDebouncedValue(location.trim(), 300)
+  // The directory opens on posts still looking for a partner; expired and closed ones
+  // stay one choice away ("all"). Your own list keeps every status, drafts included.
+  const requestStatus = status === STATUS_ALL ? undefined : status || (mineOnly ? undefined : 'open')
   const listQuery = usePostList({
     page,
     limit: POSTS_PER_PAGE,
@@ -151,7 +156,7 @@ export default function PostListPage() {
     location: debouncedLocation,
     domain,
     projectStage: stage,
-    status,
+    status: requestStatus,
     authorRole: postedBy === 'Engineer' ? 'engineer' : postedBy === 'Healthcare Professional' ? 'healthcare_professional' : undefined,
     sort: SORT_TO_SERVER[sort],
   })
@@ -315,6 +320,7 @@ export default function PostListPage() {
             onLocation={setLocation}
             onClear={clearFilters}
             open={filterOpen}
+            mineOnly={mineOnly}
           />
           <div className="min-w-0">
             {hasActiveFilters && user && (
@@ -478,6 +484,7 @@ function FilterSidebar({
   onLocation,
   onClear,
   open = true,
+  mineOnly = false,
 }: {
   domain: string
   stage: string
@@ -492,6 +499,8 @@ function FilterSidebar({
   onPostedBy: (value: PostedBy) => void
   onLocation: (value: string) => void
   onClear: () => void
+  /** Your own posts list every status by default instead of open ones only. */
+  mineOnly?: boolean
   /** Controlled by mobile toggle; always visible on xl+ via CSS */
   open?: boolean
 }) {
@@ -526,7 +535,13 @@ function FilterSidebar({
             <option key={value} value={value}>{t(`posts.stage.${value}`)}</option>
           ))}
         </FilterSelect>
-        <FilterSelect label={t('posts.statusFilterLabel')} value={status} placeholder={t('posts.allStatuses')} onChange={onStatus}>
+        <FilterSelect
+          label={t('posts.statusFilterLabel')}
+          value={status}
+          placeholder={mineOnly ? t('posts.allStatuses') : t('posts.status.open')}
+          onChange={onStatus}
+        >
+          {!mineOnly && <option value={STATUS_ALL}>{t('posts.allStatuses')}</option>}
           {statusValues.map(value => (
             <option key={value} value={value}>{t(`posts.status.${value}`)}</option>
           ))}

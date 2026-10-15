@@ -1,6 +1,7 @@
 // jsPDF is imported dynamically inside each export function to prevent
 // jspdf.node.min.js from running Node.js-specific side-effects at module
 // evaluation time, which crashes the browser bundle on import.
+import i18n from '../i18n'
 
 interface PostData {
   title: string
@@ -25,42 +26,75 @@ interface SummaryData {
   generatedAt: string
 }
 
-const STAGE_LABELS: Record<string, string> = {
-  idea: 'Idea',
-  concept_validation: 'Concept Validation',
-  prototype: 'Prototype',
-  pilot: 'Pilot',
-  pre_deployment: 'Pre-deployment',
+const COMMITMENT_KEYS: Record<string, string> = {
+  flexible: 'posts.form.commitmentFlexible',
+  low: 'posts.form.commitmentLow',
+  medium: 'posts.form.commitmentMedium',
+  high: 'posts.form.commitmentHigh',
 }
 
-const COLLAB_LABELS: Record<string, string> = {
-  advisor: 'Advisor',
-  co_founder: 'Co-Founder',
-  research_partner: 'Research Partner',
-  contract: 'Contract',
+// jsPDF's built-in Helvetica only covers Latin-1, so ğ, ş, ı, İ, Ğ and Ş came out
+// as garbage (a Turkish author name was unreadable). Source Sans 3, the site's body
+// font, covers them; it is fetched only when someone exports a PDF.
+const PDF_FONT = 'SourceSans3'
+const FONT_FILES = [
+  { style: 'normal', url: '/fonts/SourceSans3-Regular.ttf' },
+  { style: 'bold', url: '/fonts/SourceSans3-Bold.ttf' },
+] as const
+
+let fontData: Promise<string[] | null> | null = null
+
+function toBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer)
+  let binary = ''
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+  }
+  return btoa(binary)
 }
 
-const COMMITMENT_LABELS: Record<string, string> = {
-  flexible: 'Flexible / to be agreed',
-  low: 'Light advisory (1-2 hrs/week)',
-  medium: 'Part-time collaboration (3-6 hrs/week)',
-  high: 'High commitment / focused sprint',
+function loadFontData(): Promise<string[] | null> {
+  fontData ??= Promise.all(FONT_FILES.map(async ({ url }) => {
+    const res = await fetch(url)
+    if (!res.ok) throw new Error(`font ${url}: ${res.status}`)
+    return toBase64(await res.arrayBuffer())
+  })).catch(() => {
+    fontData = null // try again next time
+    return null
+  })
+  return fontData
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function addHeader(doc: any, title: string) {
+async function createDoc(): Promise<{ doc: any; font: string }> {
+  const { default: jsPDF } = await import('jspdf')
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+  const data = await loadFontData()
+  if (!data) return { doc, font: 'helvetica' } // offline: still export, without Turkish letters
+  FONT_FILES.forEach(({ style }, index) => {
+    const file = `${PDF_FONT}-${style}.ttf`
+    doc.addFileToVFS(file, data[index])
+    doc.addFont(file, PDF_FONT, style)
+  })
+  return { doc, font: PDF_FONT }
+}
+
+const formatDate = (value: string | Date) => new Date(value).toLocaleDateString(i18n.language)
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function addHeader(doc: any, font: string, title: string) {
   doc.setFillColor(54, 33, 62)
   doc.rect(0, 0, 210, 18, 'F')
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(10)
-  doc.setFont('helvetica', 'bold')
+  doc.setFont(font, 'bold')
   doc.text('HEALTH AI Co-Creation Platform', 10, 11)
   doc.setFontSize(8)
-  doc.setFont('helvetica', 'normal')
-  doc.text(new Date().toLocaleDateString('en-GB'), 200, 11, { align: 'right' })
+  doc.setFont(font, 'normal')
+  doc.text(formatDate(new Date()), 200, 11, { align: 'right' })
   doc.setTextColor(54, 33, 62)
   doc.setFontSize(16)
-  doc.setFont('helvetica', 'bold')
+  doc.setFont(font, 'bold')
   doc.text(title, 10, 32)
   doc.setDrawColor(111, 184, 196)
   doc.setLineWidth(0.5)
@@ -68,61 +102,62 @@ function addHeader(doc: any, title: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function addField(doc: any, label: string, value: string, y: number): number {
+function addField(doc: any, font: string, label: string, value: string, y: number): number {
   doc.setFontSize(8)
-  doc.setFont('helvetica', 'bold')
+  doc.setFont(font, 'bold')
   doc.setTextColor(111, 131, 120)
-  doc.text(label.toUpperCase(), 10, y)
+  doc.text(label.toLocaleUpperCase(i18n.language), 10, y)
   doc.setFontSize(10)
-  doc.setFont('helvetica', 'normal')
+  doc.setFont(font, 'normal')
   doc.setTextColor(54, 33, 62)
   const lines = doc.splitTextToSize(value, 185)
   doc.text(lines, 10, y + 5)
   return y + 5 + (lines.length * 5) + 4
 }
 
+const fileSlug = (title: string) => title.replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 40)
+
 export async function exportPostToPdf(post: PostData): Promise<void> {
-  const { default: jsPDF } = await import('jspdf')
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' })
-  addHeader(doc, post.title)
+  const t = i18n.t.bind(i18n)
+  const { doc, font } = await createDoc()
+  addHeader(doc, font, post.title)
 
   let y = 42
-  y = addField(doc, 'Author', `${post.authorName} (${post.authorRole === 'engineer' ? 'Engineer' : 'Healthcare Professional'})`, y)
-  y = addField(doc, 'Domain', post.domain, y)
-  y = addField(doc, 'Expertise Required', post.expertiseRequired, y)
-  y = addField(doc, 'Project Stage', STAGE_LABELS[post.projectStage] ?? post.projectStage, y)
-  y = addField(doc, 'Collaboration Type', COLLAB_LABELS[post.collaborationType] ?? post.collaborationType, y)
-  y = addField(doc, 'Commitment Required', COMMITMENT_LABELS[post.levelOfCommitment ?? 'flexible'], y)
-  y = addField(doc, 'Location', `${post.city}, ${post.country}`, y)
-  y = addField(doc, 'Listing Expires', new Date(post.expiryDate).toLocaleDateString('en-GB'), y)
+  y = addField(doc, font, t('pdf.author'), `${post.authorName} (${t(`common.role.${post.authorRole}`, { defaultValue: post.authorRole })})`, y)
+  y = addField(doc, font, t('posts.form.domains'), post.domain, y)
+  y = addField(doc, font, t('posts.form.expertise'), post.expertiseRequired, y)
+  y = addField(doc, font, t('posts.form.stage'), t(`posts.stage.${post.projectStage}`, { defaultValue: post.projectStage }), y)
+  y = addField(doc, font, t('posts.form.collab'), t(`posts.collab.${post.collaborationType}`, { defaultValue: post.collaborationType }), y)
+  y = addField(doc, font, t('posts.form.commitment'), t(COMMITMENT_KEYS[post.levelOfCommitment ?? 'flexible'] ?? COMMITMENT_KEYS.flexible), y)
+  y = addField(doc, font, t('pdf.location'), `${post.city}, ${post.country}`, y)
+  y = addField(doc, font, t('posts.form.expiry'), formatDate(post.expiryDate), y)
   y += 3
-  addField(doc, 'Description', post.description, y)
+  addField(doc, font, t('posts.form.description'), post.description, y)
 
   doc.setFontSize(7)
+  doc.setFont(font, 'normal')
   doc.setTextColor(180, 180, 180)
-  doc.text('Generated by HEALTH AI Co-Creation Platform', 105, 290, { align: 'center' })
+  doc.text(t('pdf.generatedBy'), 105, 290, { align: 'center' })
 
-  const filename = post.title.replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 40)
-  doc.save(`healthai-post-${filename}.pdf`)
+  doc.save(`healthai-post-${fileSlug(post.title)}.pdf`)
 }
 
 export async function exportSummaryToPdf(summary: SummaryData): Promise<void> {
-  const { default: jsPDF } = await import('jspdf')
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' })
-  addHeader(doc, `Meeting Summary: ${summary.postTitle}`)
+  const t = i18n.t.bind(i18n)
+  const { doc, font } = await createDoc()
+  addHeader(doc, font, t('pdf.summaryTitle', { title: summary.postTitle }))
 
   let y = 42
   doc.setFontSize(8)
-  doc.setFont('helvetica', 'normal')
+  doc.setFont(font, 'normal')
   doc.setTextColor(111, 131, 120)
-  doc.text(`Generated ${new Date(summary.generatedAt).toLocaleDateString('en-GB')}`, 10, y)
+  doc.text(`${t('meetings.summaryGenerated')} ${formatDate(summary.generatedAt)}`, 10, y)
   y += 8
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const addBulletSection = (title: string, items: string[], bulletColor: [number, number, number]) => {
     if (items.length === 0) return
     doc.setFontSize(10)
-    doc.setFont('helvetica', 'bold')
+    doc.setFont(font, 'bold')
     doc.setTextColor(54, 33, 62)
     doc.text(title, 10, y)
     y += 6
@@ -130,7 +165,7 @@ export async function exportSummaryToPdf(summary: SummaryData): Promise<void> {
       doc.setFillColor(...bulletColor)
       doc.circle(13, y - 1, 1, 'F')
       doc.setFontSize(9)
-      doc.setFont('helvetica', 'normal')
+      doc.setFont(font, 'normal')
       doc.setTextColor(55, 65, 81)
       const lines = doc.splitTextToSize(item, 178)
       doc.text(lines, 16, y)
@@ -139,14 +174,14 @@ export async function exportSummaryToPdf(summary: SummaryData): Promise<void> {
     y += 4
   }
 
-  addBulletSection('Topics Discussed', summary.topics, [111, 184, 196])
-  addBulletSection('Next Steps', summary.nextSteps, [74, 222, 128])
-  addBulletSection('Open Questions', summary.openQuestions, [251, 191, 36])
+  addBulletSection(t('meetings.summaryTopics'), summary.topics, [111, 184, 196])
+  addBulletSection(t('meetings.summaryNextSteps'), summary.nextSteps, [74, 222, 128])
+  addBulletSection(t('meetings.summaryOpenQuestions'), summary.openQuestions, [251, 191, 36])
 
   doc.setFontSize(7)
+  doc.setFont(font, 'normal')
   doc.setTextColor(180, 180, 180)
-  doc.text('AI-generated summary — HEALTH AI Co-Creation Platform', 105, 290, { align: 'center' })
+  doc.text(t('pdf.aiFooter'), 105, 290, { align: 'center' })
 
-  const filename = summary.postTitle.replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 40)
-  doc.save(`healthai-meeting-summary-${filename}.pdf`)
+  doc.save(`healthai-meeting-summary-${fileSlug(summary.postTitle)}.pdf`)
 }

@@ -84,12 +84,20 @@ export async function createPost(data: {
 }
 
 export async function getPostById(id: string, requesterId: string, isAdmin: boolean) {
+  await expireDuePostsIfStale()
   const post = await Post.findById(id)
   if (!post) throw makeError('Post not found', 404)
   if (post.status === 'draft' && !isAdmin && post.authorId.toString() !== requesterId) {
     throw makeError('Forbidden', 403)
   }
   return post
+}
+
+/** Statuses in which a post still looks for a partner; `status=open` lists these. */
+export const OPEN_STATUSES: IPost['status'][] = ['active', 'meeting_scheduled']
+
+function statusCondition(status: string) {
+  return status === 'open' ? { $in: OPEN_STATUSES } : status
 }
 
 function buildListQuery(filters: PostFilters): FilterQuery<IPost> {
@@ -100,9 +108,9 @@ function buildListQuery(filters: PostFilters): FilterQuery<IPost> {
   if (filters.authorId) {
     query.authorId = filters.authorId
     // When scoped to a specific author, allow further filtering by status
-    if (filters.status) query.status = filters.status
+    if (filters.status) query.status = statusCondition(filters.status)
   } else if (filters.status) {
-    query.status = filters.status
+    query.status = statusCondition(filters.status)
   } else {
     query.status = { $ne: 'draft' }
   }
@@ -139,9 +147,36 @@ export const RELEVANCE_CANDIDATES = 1000
 /** posts are documents, or plain objects with a matchScore when ranked by relevance; the controller only serialises them. */
 export interface PostListResult { posts: unknown[]; total: number; page: number; limit: number; pages: number }
 
+/** Marks open posts whose expiry date has passed as expired. */
+export async function expireDuePosts(): Promise<number> {
+  const result = await Post.updateMany(
+    { status: { $in: OPEN_STATUSES }, expiryDate: { $lt: new Date() } },
+    { $set: { status: 'expired' } }
+  )
+  return result.modifiedCount
+}
+
+// The hourly cron alone is not enough: a free-tier server sleeps between visitors and
+// its timers stop, so posts stayed "open" for hours past their date. Reads catch up
+// too, at most once a minute.
+const EXPIRY_CHECK_INTERVAL_MS = 60 * 1000
+let lastExpiryCheck = 0
+
+export async function expireDuePostsIfStale(): Promise<void> {
+  if (Date.now() - lastExpiryCheck < EXPIRY_CHECK_INTERVAL_MS) return
+  lastExpiryCheck = Date.now()
+  try {
+    await expireDuePosts()
+  } catch {
+    // A failed catch-up must not fail the read; the next one, or the cron, retries.
+    lastExpiryCheck = 0
+  }
+}
+
 export async function listPosts(
   filters: PostFilters, page = 1, limit = 20, sort: PostSort = 'newest', viewer?: MatchViewer,
 ): Promise<PostListResult> {
+  await expireDuePostsIfStale()
   const query = buildListQuery(filters)
   const skip = (page - 1) * limit
   const hasProfile = Boolean(viewer && (viewer.expertiseTags?.length || viewer.city || viewer.country))

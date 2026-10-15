@@ -56,7 +56,13 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 app.get('/api/health', (_req, res) => {
   const dbReady = mongoose.connection.readyState === 1
   const status = dbReady ? 'ok' : 'degraded'
-  res.status(dbReady ? 200 : 503).json({ status, db: dbReady ? 'connected' : 'disconnected', timestamp: new Date().toISOString() })
+  res.status(dbReady ? 200 : 503).json({
+    status,
+    db: dbReady ? 'connected' : 'disconnected',
+    // Which commit is live, so a stale deploy is visible from outside (Render sets this).
+    version: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? 'unknown',
+    timestamp: new Date().toISOString(),
+  })
 })
 
 app.use('/api/auth', authRoutes)

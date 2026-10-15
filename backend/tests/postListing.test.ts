@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { api, createUser, createPost, createPublishedPost, futureDate } from './helpers'
 import User from '../models/User'
+import Post from '../models/Post'
+import { expireDuePosts } from '../services/postService'
 
 // Registration takes no expertise tags and requires a location, so viewer profiles are set on the raw collection.
 async function setProfile(email: string, profile: { city?: string; country?: string; expertiseTags?: string[] }) {
@@ -102,5 +104,40 @@ describe('GET /api/posts?sort=relevance', () => {
     expect(res.status).toBe(200)
     expect(titles(res)).toEqual(['Newer fallback', 'Older fallback'])
     expect(res.body.data.posts[0].matchScore).toBeUndefined()
+  })
+})
+
+describe('GET /api/posts — open posts and expiry', () => {
+  it('lists only posts still looking for a partner when status=open', async () => {
+    const { token } = await createUser()
+    await createPublishedPost(token, { title: 'Open one' })
+    const closed = await createPublishedPost(token, { title: 'Closed one' })
+    await Post.updateOne({ _id: closed.id ?? closed._id }, { status: 'partner_found' })
+    await createPost(token, { title: 'Draft one' })
+
+    const res = await api.get('/api/posts?status=open&limit=50').set('Authorization', `Bearer ${token}`)
+    expect(titles(res)).toContain('Open one')
+    expect(titles(res)).not.toContain('Closed one')
+    expect(titles(res)).not.toContain('Draft one')
+  })
+
+  it('treats a published post past its expiry date as expired', async () => {
+    const { token } = await createUser()
+    const post = await createPublishedPost(token, { title: 'Past its date' })
+    await Post.updateOne({ _id: post.id ?? post._id }, { expiryDate: new Date(Date.now() - 60_000) })
+
+    expect(await expireDuePosts()).toBeGreaterThanOrEqual(1)
+    expect((await Post.findById(post.id ?? post._id))?.status).toBe('expired')
+    const res = await api.get('/api/posts?status=open&limit=50').set('Authorization', `Bearer ${token}`)
+    expect(titles(res)).not.toContain('Past its date')
+  })
+
+  it('applies the status filter to your own posts too', async () => {
+    const { token } = await createUser()
+    await createPublishedPost(token, { title: 'Mine, live' })
+    await createPost(token, { title: 'Mine, draft' })
+
+    const res = await api.get('/api/posts?mine=true&status=active').set('Authorization', `Bearer ${token}`)
+    expect(titles(res)).toEqual(['Mine, live'])
   })
 })

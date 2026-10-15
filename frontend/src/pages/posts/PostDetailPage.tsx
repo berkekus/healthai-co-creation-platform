@@ -60,6 +60,19 @@ export default function PostDetailPage() {
   const [dialogBusy, setDialogBusy] = useState(false)
   const [dialogError, setDialogError] = useState<string | null>(null)
   const [newExpiry, setNewExpiry] = useState('')
+  // Set by the create page; without it, publishing or saving a draft ended in silence.
+  const [notice, setNotice] = useState<'published' | 'draftSaved' | null>(
+    () => (location.state as { notice?: 'published' | 'draftSaved' } | null)?.notice ?? null,
+  )
+  const [publishing, setPublishing] = useState(false)
+  const [publishError, setPublishError] = useState<string | null>(null)
+
+  // Drop the notice from history so a reload does not announce it again.
+  useEffect(() => {
+    if ((location.state as { notice?: string } | null)?.notice) {
+      navigate({ pathname: location.pathname, hash: location.hash }, { replace: true, state: null })
+    }
+  }, [location.state, location.pathname, location.hash, navigate])
 
   // Always loaded from the server, so a link opened directly or after a reload works; edits refresh it.
   const { data: post, isPending, isError, error, refetch } = usePost(id)
@@ -151,6 +164,19 @@ export default function PostDetailPage() {
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
 
+  const handlePublish = async () => {
+    setPublishing(true)
+    setPublishError(null)
+    try {
+      await publish(post.id)
+      setNotice('published')
+    } catch (err) {
+      setPublishError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setPublishing(false)
+    }
+  }
+
   const runDialog = async (action: () => Promise<void>) => {
     setDialogBusy(true)
     setDialogError(null)
@@ -176,6 +202,17 @@ export default function PostDetailPage() {
   return (
     <main className="min-h-screen bg-surface-subtle text-hai-plum">
       <div className="mx-auto w-full max-w-[1120px] px-5 pb-14 pt-[42px] sm:px-8 xl:px-0">
+        {notice && (
+          <div role="status" className="mb-5 flex items-start justify-between gap-3 rounded-[14px] border border-hai-teal/40 bg-hai-mint/60 px-5 py-4 text-sm font-bold text-hai-plum">
+            <span>{t(notice === 'published' ? 'postDetail.noticePublished' : 'postDetail.noticeDraftSaved')}</span>
+            <button type="button" onClick={() => setNotice(null)} aria-label={t('common.close')} className="shrink-0 text-hai-plum/70 hover:text-hai-plum">✕</button>
+          </div>
+        )}
+        {publishError && (
+          <div role="alert" className="mb-5 rounded-[14px] border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-700">
+            {publishError}
+          </div>
+        )}
         <div className="mb-[22px] flex items-center justify-between gap-2 sm:gap-4">
           <button
             onClick={() => navigate(ROUTES.POSTS)}
@@ -280,7 +317,11 @@ export default function PostDetailPage() {
                     </button>
                   ) : isOwner ? (
                     <>
-                      {canPublish && <button onClick={() => publish(post.id)} className="h-[46px] rounded-full bg-hai-plum px-7 text-sm font-black text-white">{t('postDetail.publish')}</button>}
+                      {canPublish && (
+                        <button onClick={() => void handlePublish()} disabled={publishing} className="h-[46px] rounded-full bg-hai-plum px-7 text-sm font-black text-white disabled:opacity-60">
+                          {publishing ? t('postDetail.publishing') : t('postDetail.publish')}
+                        </button>
+                      )}
                       {canMarkFound && (
                         <button onClick={() => { setDialogError(null); setDialog('partnerFound') }} className="h-[46px] rounded-full bg-hai-lime px-7 text-sm font-black text-hai-plum">
                           {t('partnerFound.button')}

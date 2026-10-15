@@ -108,6 +108,33 @@ describe('ProfilePage', () => {
     expect(screen.queryByText('.edu / .gov')).not.toBeInTheDocument()
   })
 
+  it('keeps expertise typed into the box but not yet added when saving', async () => {
+    renderProfile()
+    fireEvent.click(screen.getByRole('button', { name: 'Edit profile' }))
+
+    fireEvent.change(screen.getByPlaceholderText(/search or type a tag/i), { target: { value: 'OCR' } })
+    fireEvent.click(within(screen.getByRole('region', { name: 'Save your profile' })).getByRole('button', { name: 'Save changes' }))
+
+    await waitFor(() => expect(updateProfile).toHaveBeenCalledOnce())
+    expect(updateProfile.mock.calls[0][0].expertiseTags).toEqual(['Nursing', 'OCR'])
+  })
+
+  it('takes the strength score from the checklist, not from a server score that disagrees', async () => {
+    vi.mocked(api.get).mockImplementation(async (url: string) => {
+      if (url === '/ai/profile-score') return { data: { success: true, data: { score: 12, suggestions: [], source: 'ai' } } }
+      if (url === '/auth/providers') return { data: { success: true, data: { github: false, linkedin: false } } }
+      throw new Error('not mocked')
+    })
+    renderProfile()
+    const shown = () => screen.getAllByText(/^\d+%$/)[0].textContent
+
+    const before = shown()
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/ai/profile-score', expect.anything()))
+    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(shown()).toBe(before)
+    expect(before).not.toBe('12%')
+  })
+
   it('suggests midwifery when adding expertise', () => {
     renderProfile()
     fireEvent.click(screen.getByRole('button', { name: 'Edit profile' }))

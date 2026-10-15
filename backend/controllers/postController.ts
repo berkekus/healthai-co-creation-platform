@@ -79,7 +79,9 @@ export const listPosts = asyncHandler<AuthenticatedRequest>(async (req, res) => 
       location: text(q.location),
       projectStage: text(q.projectStage),
       authorId: (isMine || forceScopeToOwn) ? req.userId : undefined,
-      status: isMine ? undefined : status,
+      // Dropping the status for "mine" made the dashboard count every own post, drafts
+      // included, once per status it asked about.
+      status,
       search: text(q.search),
       authorRole: text(q.authorRole),
     },

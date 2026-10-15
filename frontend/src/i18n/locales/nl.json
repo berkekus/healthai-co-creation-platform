@@ -644,6 +644,7 @@
     }
   },
   "dashboard": {
+    "drafts": "Concepten ({{count}})",
     "welcome": "Welkom terug, {{name}}",
     "welcomeBack": "Welkom terug,",
     "subtitle": "Dit is wat er speelt op HealthAI.",
@@ -1048,6 +1049,8 @@
     "unknownPartner": "Onbekend lid"
   },
   "createPost": {
+    "startOver": "Opnieuw beginnen",
+    "restored": "We hebben bewaard wat je had getypt voordat de pagina opnieuw laadde.",
     "backToDirectory": "Terug naar directory",
     "heading": "Plaats een samenwerkingsmogelijkheid.",
     "desc": "Maak verbinding met de juiste partner binnen engineering en zorg. Geen bestandsuploads — details worden gedeeld tijdens vergaderingen onder NDA.",
@@ -1388,6 +1391,9 @@
     "confirm": "Ja, markeren als partner gevonden"
   },
   "postDetail": {
+    "publishing": "Bezig met publiceren…",
+    "noticeDraftSaved": "Concept opgeslagen. Alleen jij ziet het tot je het publiceert.",
+    "noticePublished": "Je bericht staat online. Andere leden kunnen het nu vinden bij Berichten verkennen.",
     "backToDirectory": "Terug naar directory",
     "loadFailedTitle": "Kan dit bericht niet laden",
     "loadFailedDesc": "Er is een probleem opgetreden bij het laden van deze vermelding. Controleer je verbinding en probeer het opnieuw.",
@@ -1718,5 +1724,12 @@
       "title": "Neem altijd contact op.",
       "body": "E-mail: <mail>{{email}}</mail>. Je hebt het recht een klacht in te dienen bij je nationale toezichthouder voor gegevensbescherming."
     }
+  },
+  "pdf": {
+    "author": "Auteur",
+    "location": "Locatie",
+    "generatedBy": "Gemaakt met het HEALTH AI co-creatieplatform",
+    "aiFooter": "Door AI gemaakte samenvatting — HEALTH AI co-creatieplatform",
+    "summaryTitle": "Samenvatting van de vergadering: {{title}}"
   }
 }
