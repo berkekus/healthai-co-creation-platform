@@ -837,6 +837,16 @@
     }
   },
   "meetingsPage": {
+    "calendarTitle": "Vergaderkalender",
+    "calendarHelp": "Kies een gemarkeerde dag om de vergaderingen ervan in de lijst te zien.",
+    "legendConfirmed": "Gepland",
+    "legendProposed": "Voorgesteld, nog niet bevestigd",
+    "dayMeetings": "{{count}} vergadering",
+    "dayMeetings_other": "{{count}} vergaderingen",
+    "dayNoMeetings": "geen vergaderingen",
+    "today": "vandaag",
+    "dayFilter": "Vergaderingen op {{date}}",
+    "clearDay": "Alle dagen tonen",
     "title": "Jouw vergaderingen.",
     "desc": "Bekijk verzoeken, bevestig tijdstippen en houd je samenwerkingspijplijn in beweging.",
     "totalCount": "{{count}} vergadering",

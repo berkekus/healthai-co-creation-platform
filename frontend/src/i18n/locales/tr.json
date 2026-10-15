@@ -837,6 +837,16 @@
     }
   },
   "meetingsPage": {
+    "calendarTitle": "Toplantı takvimi",
+    "calendarHelp": "İşaretli bir güne tıklayın; o günün toplantıları listede gösterilir.",
+    "legendConfirmed": "Kesinleşmiş",
+    "legendProposed": "Önerildi, henüz onaylanmadı",
+    "dayMeetings": "{{count}} toplantı",
+    "dayMeetings_other": "{{count}} toplantı",
+    "dayNoMeetings": "toplantı yok",
+    "today": "bugün",
+    "dayFilter": "{{date}} tarihli toplantılar",
+    "clearDay": "Tüm günleri göster",
     "title": "Toplantılarınız.",
     "desc": "Talepleri inceleyin, zaman dilimlerini onaylayın ve iş birliği sürecinizi ilerletin.",
     "totalCount": "{{count}} toplantı",

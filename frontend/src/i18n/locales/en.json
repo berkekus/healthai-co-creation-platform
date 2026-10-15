@@ -837,6 +837,16 @@
     }
   },
   "meetingsPage": {
+    "calendarTitle": "Meeting calendar",
+    "calendarHelp": "Pick a marked day to see its meetings in the list.",
+    "legendConfirmed": "Scheduled",
+    "legendProposed": "Proposed, not yet confirmed",
+    "dayMeetings": "{{count}} meeting",
+    "dayMeetings_other": "{{count}} meetings",
+    "dayNoMeetings": "no meetings",
+    "today": "today",
+    "dayFilter": "Meetings on {{date}}",
+    "clearDay": "Show all days",
     "title": "Your meetings.",
     "desc": "Review requests, confirm time slots, and keep your collaboration pipeline in motion.",
     "totalCount": "{{count}} meeting",

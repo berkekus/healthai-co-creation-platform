@@ -837,6 +837,16 @@
     }
   },
   "meetingsPage": {
+    "calendarTitle": "Calendario de reuniones",
+    "calendarHelp": "Elige un día marcado para ver sus reuniones en la lista.",
+    "legendConfirmed": "Programada",
+    "legendProposed": "Propuesta, aún sin confirmar",
+    "dayMeetings": "{{count}} reunión",
+    "dayMeetings_other": "{{count}} reuniones",
+    "dayNoMeetings": "sin reuniones",
+    "today": "hoy",
+    "dayFilter": "Reuniones del {{date}}",
+    "clearDay": "Mostrar todos los días",
     "title": "Tus reuniones.",
     "desc": "Revisa solicitudes, confirma horarios y mantén en marcha tu proceso de colaboración.",
     "totalCount": "{{count}} reunión",
