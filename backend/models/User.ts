@@ -36,6 +36,8 @@ export interface IUser extends Document {
   isVerified: boolean
   verifyToken?: string
   verifyTokenExpires?: Date
+  /** Earlier links that are still valid, so a re-sent email doesn't break one that arrives late. */
+  previousVerifyTokens: { hash: string; expires: Date }[]
   resetToken?: string
   resetTokenExpires?: Date
   isSuspended: boolean
@@ -90,6 +92,10 @@ const UserSchema = new Schema<IUser>(
     isVerified: { type: Boolean, default: false },
     verifyToken: { type: String, index: true },
     verifyTokenExpires: { type: Date },
+    previousVerifyTokens: {
+      type: [new Schema({ hash: { type: String, required: true }, expires: { type: Date, required: true } }, { _id: false })],
+      default: [],
+    },
     resetToken: { type: String, index: true },
     resetTokenExpires: { type: Date },
     isSuspended: { type: Boolean, default: false },
@@ -113,5 +119,6 @@ const UserSchema = new Schema<IUser>(
 
 // Admin stats count sign-ups by date range (recent days, and everyone before them).
 UserSchema.index({ createdAt: 1 })
+UserSchema.index({ 'previousVerifyTokens.hash': 1 })
 
 export default model<IUser>('User', UserSchema)

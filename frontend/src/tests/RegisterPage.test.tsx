@@ -54,6 +54,37 @@ describe('RegisterPage — account step', () => {
     expect(consent).toBeChecked()
   })
 
+  const emailInput = () => document.querySelector('input[autocomplete="email"]') as HTMLInputElement
+
+  it('suggests the likely address when the email domain looks mistyped', async () => {
+    render(<MemoryRouter><RegisterPage /></MemoryRouter>)
+    fireEvent.change(emailInput(), { target: { value: 'alice@gmial.com' } })
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Did you mean alice@gmail.com?' }))
+    await waitFor(() => expect(emailInput()).toHaveValue('alice@gmail.com'))
+    expect(screen.queryByRole('button', { name: /did you mean/i })).not.toBeInTheDocument()
+  })
+
+  it('explains an email domain the server could not find', () => {
+    useAuthStore.setState({ error: 'This email domain does not appear to exist.', errorStatus: 422 })
+    render(<MemoryRouter><RegisterPage /></MemoryRouter>)
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/couldn't find this email domain/i)
+  })
+
+  it('refills the form, but not the passwords, when coming back to change the email', () => {
+    useAuthStore.setState({
+      error: null, errorStatus: null,
+      registrationDraft: { firstName: 'Alice', lastName: 'Smith', email: 'alice@gmial.com', role: 'engineer', institution: 'Uni', city: 'Ankara', country: 'Türkiye' },
+    })
+    render(<MemoryRouter initialEntries={[{ pathname: '/register', state: { changeEmail: true } }]}><RegisterPage /></MemoryRouter>)
+
+    expect(emailInput()).toHaveValue('alice@gmial.com')
+    expect(emailInput()).toHaveFocus()
+    expect(document.querySelector('input[autocomplete="given-name"]')).toHaveValue('Alice')
+    for (const input of document.querySelectorAll('input[autocomplete="new-password"]')) expect(input).toHaveValue('')
+  })
+
   it('moves on to the role step when the passwords match', async () => {
     render(<MemoryRouter><RegisterPage /></MemoryRouter>)
     fillAccountStep('password123', 'password123')

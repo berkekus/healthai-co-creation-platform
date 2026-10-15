@@ -768,6 +768,8 @@
       "submit": "Account aanmaken →",
       "emailTaken": "Voor dit e-mailadres bestaat al een account.",
       "emailTakenHelp": "Log in plaats daarvan in, of reset je wachtwoord als je het bent vergeten.",
+      "emailSuggestion": "Bedoelde je {{email}}?",
+      "emailDomainInvalid": "We kunnen dit e-maildomein niet vinden. Controleer het adres op typefouten.",
       "signInInstead": "Inloggen",
       "resetPasswordLink": "Reset je wachtwoord"
     },
@@ -821,7 +823,14 @@
       "pendingNotice": "Dit e-mailadres wachtte al op verificatie, dus we hebben een nieuwe link gestuurd. Je account behoudt het wachtwoord dat je de eerste keer hebt gekozen.",
       "pendingForgot": "Weet je dat wachtwoord niet meer?",
       "pendingResetLink": "Reset het",
-      "resendFailed": "We konden de link niet versturen. Probeer het opnieuw."
+      "resendFailed": "We konden de link niet versturen. Probeer het opnieuw.",
+      "linkInvalid": "Deze link is ongeldig of verlopen. Verificatielinks zijn 24 uur geldig; vraag hieronder een nieuwe aan.",
+      "alreadyTitle": "Al geverifieerd",
+      "alreadyDesc": "Dit e-mailadres is al geverifieerd. Log in om verder te gaan.",
+      "alreadyCta": "Inloggen →",
+      "wrongEmail": "Verkeerd adres?",
+      "changeEmail": "Wijzig het",
+      "resendToShown": "We sturen een nieuwe link naar het adres hierboven."
     }
   },
   "meetingsPage": {

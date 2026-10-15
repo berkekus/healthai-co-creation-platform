@@ -8,6 +8,13 @@ export type ProfileUpdate = Partial<Pick<User,
   'position' | 'department' | 'orcid' | 'institutionWebsite' | 'contactEmail' | 'linkedinUrl'
 >>
 
+/** What the person typed at registration, minus the passwords, so a mistyped email can be fixed without starting over. */
+export type RegistrationDraft = Pick<RegisterData, 'email' | 'institution' | 'city' | 'country'> & {
+  firstName: string
+  lastName: string
+  role: 'engineer' | 'healthcare_professional'
+}
+
 interface AuthState {
   user: User | null
   isAuthenticated: boolean
@@ -20,6 +27,9 @@ interface AuthState {
   pendingVerificationEmail: string | null
   /** True when the email already had a pending registration and got a fresh link instead. */
   verificationResent: boolean
+  /** Kept in memory only (never stored), for the "wrong address? change it" link. */
+  registrationDraft: RegistrationDraft | null
+  setRegistrationDraft: (draft: RegistrationDraft | null) => void
   login: (credentials: LoginCredentials) => Promise<void>
   logout: () => void
   register: (data: RegisterData) => Promise<{ requiresVerification: boolean }>
@@ -44,6 +54,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
   errorStatus: null,
   pendingVerificationEmail: null,
   verificationResent: false,
+  registrationDraft: null,
+
+  setRegistrationDraft: (draft) => set({ registrationDraft: draft }),
 
   hydrate: async () => {
     const token = localStorage.getItem('token') ?? sessionStorage.getItem('token')
@@ -123,16 +136,16 @@ export const useAuthStore = create<AuthState>()((set) => ({
   },
 
   verifyEmail: async (token: string) => {
-    set({ isLoading: true, error: null })
+    set({ isLoading: true, error: null, errorStatus: null })
     try {
       const { data: res } = await api.post<{ success: boolean; data: { user: User; token: string } }>(
         '/auth/verify-email',
         { token }
       )
       localStorage.setItem('token', res.data.token)
-      set({ user: res.data.user, isAuthenticated: true, isLoading: false, pendingVerificationEmail: null })
+      set({ user: res.data.user, isAuthenticated: true, isLoading: false, pendingVerificationEmail: null, registrationDraft: null })
     } catch (err) {
-      set({ isLoading: false, error: (err as Error).message })
+      set({ isLoading: false, error: (err as Error).message, errorStatus: (err as { status?: number }).status ?? null })
     }
   },
 

@@ -12,6 +12,7 @@ import { deleteAvatarFile } from '../middleware/uploadMiddleware'
 import { makeError } from '../utils/AppError'
 import { normalizeProfessionalFields } from '../utils/profileFields'
 import { escapeRegex } from '../constants/domains'
+import { emailDomainAcceptsMail } from '../utils/emailDomain'
 import logger from '../src/logger'
 
 const SALT_ROUNDS = 12
@@ -23,6 +24,28 @@ function generateVerifyToken(): string {
 
 function hashToken(token: string): string {
   return crypto.createHash('sha256').update(token).digest('hex')
+}
+
+// How many earlier, still-unexpired links keep working after a new one is sent.
+const MAX_PREVIOUS_VERIFY_TOKENS = 4
+
+/**
+ * Gives the user a fresh verification link and returns its raw token. The link
+ * it replaces keeps working until it expires: verification emails can arrive
+ * late, and people who asked for a second one often click the first.
+ */
+function issueVerifyToken(user: IUser): string {
+  const now = new Date()
+  const previous = (user.previousVerifyTokens ?? []).filter(t => t.expires > now)
+  if (user.verifyToken && user.verifyTokenExpires && user.verifyTokenExpires > now) {
+    previous.push({ hash: user.verifyToken, expires: user.verifyTokenExpires })
+  }
+  user.previousVerifyTokens = previous.slice(-MAX_PREVIOUS_VERIFY_TOKENS)
+
+  const rawToken = generateVerifyToken()
+  user.verifyToken = hashToken(rawToken)
+  user.verifyTokenExpires = new Date(now.getTime() + VERIFY_TOKEN_TTL_MS)
+  return rawToken
 }
 
 function signToken(user: IUser): string {
@@ -101,9 +124,7 @@ export async function registerUser(data: {
     // password and details stay untouched: nothing yet proves the caller owns
     // this inbox, so letting a second registration overwrite them would let a
     // stranger plant a password on someone else's pending account.
-    const rawToken = generateVerifyToken()
-    existing.verifyToken = hashToken(rawToken)
-    existing.verifyTokenExpires = new Date(Date.now() + VERIFY_TOKEN_TTL_MS)
+    const rawToken = issueVerifyToken(existing)
     await existing.save()
     sendVerificationEmail(existing.email, rawToken, existing.name).catch((err) => {
       logger.error({ err }, 'Failed to re-send verification email')
@@ -111,15 +132,14 @@ export async function registerUser(data: {
     return { email: existing.email, requiresVerification: true, pendingVerification: true }
   }
 
+  if (!(await emailDomainAcceptsMail(data.email))) {
+    throw makeError('This email domain does not appear to exist. Please check the address for typos.', 422)
+  }
+
   const hashed = await bcrypt.hash(data.password, SALT_ROUNDS)
-  const rawToken = generateVerifyToken()
-  const user = await User.create({
-    ...data,
-    password: hashed,
-    isVerified: false,
-    verifyToken: hashToken(rawToken),
-    verifyTokenExpires: new Date(Date.now() + VERIFY_TOKEN_TTL_MS),
-  })
+  const user = new User({ ...data, password: hashed, isVerified: false })
+  const rawToken = issueVerifyToken(user)
+  await user.save()
 
   // Send verification email asynchronously — don't block registration response
   sendVerificationEmail(user.email, rawToken, user.name).catch((err) => {
@@ -130,15 +150,21 @@ export async function registerUser(data: {
 }
 
 export async function verifyEmail(token: string) {
+  const hash = hashToken(token)
+  const now = new Date()
   const user = await User.findOne({
-    verifyToken: hashToken(token),
-    verifyTokenExpires: { $gt: new Date() },
+    $or: [
+      { verifyToken: hash, verifyTokenExpires: { $gt: now } },
+      { previousVerifyTokens: { $elemMatch: { hash, expires: { $gt: now } } } },
+    ],
   })
-  if (!user) throw makeError('Invalid or expired verification token', 400)
+  if (!user) throw makeError('This verification link is invalid or has expired', 400)
+  // The links are kept until they expire, so opening one again (a second click,
+  // a mail scanner that got there first) explains itself instead of failing.
+  // It does not sign anyone in a second time.
+  if (user.isVerified) throw makeError('This email address is already verified', 409)
 
   user.isVerified = true
-  user.verifyToken = undefined
-  user.verifyTokenExpires = undefined
   await user.save()
 
   const jwtToken = signToken(user)
@@ -153,9 +179,7 @@ export async function resendVerification(email: string) {
   }
   if (user.isVerified) throw makeError('Account is already verified', 400)
 
-  const rawToken = generateVerifyToken()
-  user.verifyToken = hashToken(rawToken)
-  user.verifyTokenExpires = new Date(Date.now() + VERIFY_TOKEN_TTL_MS)
+  const rawToken = issueVerifyToken(user)
   await user.save()
 
   sendVerificationEmail(user.email, rawToken, user.name).catch((err) => {

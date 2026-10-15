@@ -274,6 +274,51 @@ describe('POST /api/auth/verify-email', () => {
     const res = await api.post('/api/auth/verify-email').send({ token: 'definitely-not-real' })
     expect(res.status).toBe(400)
   })
+
+  async function registerWithKnownToken() {
+    const email = uniqueEmail()
+    await api.post('/api/auth/register').send({
+      name: 'Late Mail',
+      email,
+      password: 'password123',
+      role: 'engineer',
+      institution: 'Uni',
+      city: 'Istanbul',
+      country: 'Turkey',
+    })
+    const rawToken = crypto.randomBytes(32).toString('hex')
+    await User.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      { verifyToken: crypto.createHash('sha256').update(rawToken).digest('hex'), verifyTokenExpires: new Date(Date.now() + 86400_000) }
+    )
+    return { email, rawToken }
+  }
+
+  it('keeps an earlier link working after a new one is sent', async () => {
+    const { email, rawToken } = await registerWithKnownToken()
+    expect((await api.post('/api/auth/resend-verification').send({ email })).status).toBe(200)
+
+    const res = await api.post('/api/auth/verify-email').send({ token: rawToken })
+    expect(res.status).toBe(200)
+    expect(res.body.data.user.isVerified).toBe(true)
+  })
+
+  it('does not keep an earlier link that has already expired', async () => {
+    const { email, rawToken } = await registerWithKnownToken()
+    await User.updateOne({ email: email.toLowerCase() }, { verifyTokenExpires: new Date(Date.now() - 1000) })
+    await api.post('/api/auth/resend-verification').send({ email })
+
+    expect((await api.post('/api/auth/verify-email').send({ token: rawToken })).status).toBe(400)
+  })
+
+  it('answers 409 without signing in again when a used link is opened a second time', async () => {
+    const { rawToken } = await registerWithKnownToken()
+    expect((await api.post('/api/auth/verify-email').send({ token: rawToken })).status).toBe(200)
+
+    const again = await api.post('/api/auth/verify-email').send({ token: rawToken })
+    expect(again.status).toBe(409)
+    expect(again.body.data?.token).toBeUndefined()
+  })
 })
 
 describe('DELETE /api/auth/me', () => {

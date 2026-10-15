@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
 
-type Status = 'idle' | 'verifying' | 'success' | 'error'
+type Status = 'idle' | 'verifying' | 'success' | 'already' | 'error'
 
 export default function VerifyEmailPage() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
-  const { verifyEmail, resendVerification, pendingVerificationEmail, verificationResent } = useAuthStore()
+  const { verifyEmail, resendVerification, pendingVerificationEmail, verificationResent, registrationDraft } = useAuthStore()
   const successHeading = useRef<HTMLHeadingElement>(null)
   const token = searchParams.get('token')
 
@@ -27,8 +27,11 @@ export default function VerifyEmailPage() {
       try {
         await verifyEmail(token)
         if (!mounted) return
-        const err = useAuthStore.getState().error
-        if (err) { setStatus('error'); setErrorMsg(err) }
+        const { error: err, errorStatus } = useAuthStore.getState()
+        if (errorStatus === 409) setStatus('already')
+        // 400 is a dead link; the server's wording is technical and not translated.
+        else if (errorStatus === 400) { setStatus('error'); setErrorMsg(t('authPage.verify.linkInvalid')) }
+        else if (err) { setStatus('error'); setErrorMsg(err) }
         // No automatic redirect: the user reads the confirmation and continues when ready.
         else setStatus('success')
       } catch (e) {
@@ -37,11 +40,11 @@ export default function VerifyEmailPage() {
       }
     })()
     return () => { mounted = false }
-  }, [token, verifyEmail])
+  }, [token, verifyEmail, t])
 
   // The result replaces the page without user action, so move focus there for screen readers.
   useEffect(() => {
-    if (status === 'success') successHeading.current?.focus()
+    if (status === 'success' || status === 'already') successHeading.current?.focus()
   }, [status])
 
   const handleResend = async (e: React.FormEvent) => {
@@ -80,6 +83,20 @@ export default function VerifyEmailPage() {
           <p className="text-sm text-ink-muted mb-7 max-w-sm">{t('authPage.verify.successDesc')}</p>
           <Link to={ROUTES.DASHBOARD} className="inline-flex items-center gap-2 bg-hai-plum text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-black transition-colors">
             {t('authPage.verify.successCta')}
+          </Link>
+        </div>
+      </PageShell>
+    )
+  }
+
+  if (status === 'already') {
+    return (
+      <PageShell>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+          <h1 ref={successHeading} tabIndex={-1} className="font-headline font-black text-4xl text-hai-plum mb-3 outline-none">{t('authPage.verify.alreadyTitle')}</h1>
+          <p className="text-sm text-ink-muted mb-7 max-w-sm">{t('authPage.verify.alreadyDesc')}</p>
+          <Link to={ROUTES.LOGIN} className="inline-flex items-center gap-2 bg-hai-plum text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-black transition-colors">
+            {t('authPage.verify.alreadyCta')}
           </Link>
         </div>
       </PageShell>
@@ -141,9 +158,20 @@ export default function VerifyEmailPage() {
             {t('authPage.verify.checkDesc', { email: '' })}
           </p>
           {pendingVerificationEmail && (
-            <span className="inline-block bg-white border border-line-strong rounded-lg px-3 py-1.5 text-sm font-mono text-hai-plum font-semibold mb-4">
-              {pendingVerificationEmail}
-            </span>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
+              <span className="inline-block bg-white border border-line-strong rounded-lg px-3 py-1.5 text-sm font-mono text-hai-plum font-semibold">
+                {pendingVerificationEmail}
+              </span>
+              {/* Only when the form can be refilled; after a reload the draft is gone. */}
+              {registrationDraft && (
+                <span className="text-sm text-ink-muted">
+                  {t('authPage.verify.wrongEmail')}{' '}
+                  <Link to={ROUTES.REGISTER} state={{ changeEmail: true }} className="font-bold text-hai-teal-dark underline hover:text-hai-plum">
+                    {t('authPage.verify.changeEmail')}
+                  </Link>
+                </span>
+              )}
+            </div>
           )}
           <p className="text-base text-ink-muted leading-relaxed mb-8">{t('authPage.verify.checkSub')}</p>
 
@@ -157,6 +185,8 @@ export default function VerifyEmailPage() {
             </div>
           )}
 
+          {/* Right after registering the address is known: typing another one here would
+              only "succeed" silently, since links go to registered addresses only. */}
           <ResendForm
             email={resendEmail}
             onChange={setResendEmail}
@@ -164,6 +194,7 @@ export default function VerifyEmailPage() {
             loading={resending}
             sent={resendSent}
             error={resendError}
+            locked={Boolean(pendingVerificationEmail)}
           />
 
           <Link
@@ -202,14 +233,20 @@ function StepBadge() {
   )
 }
 
-function ResendForm({ email, onChange, onSubmit, loading, sent, error }: {
+function ResendForm({ email, onChange, onSubmit, loading, sent, error, locked = false }: {
   email: string; onChange: (v: string) => void; onSubmit: (e: React.FormEvent) => void; loading: boolean; sent: boolean; error: string | null
+  /** Send to the address just registered instead of asking for one. */
+  locked?: boolean
 }) {
   const { t } = useTranslation()
   return (
     <form onSubmit={onSubmit} className="bg-white rounded-[18px] border border-neutral-200 p-5 max-w-[460px]">
       <span className="block text-xs font-bold tracking-[0.16em] uppercase text-ink-muted mb-3">{t('authPage.verify.didntGet')}</span>
-      <input type="email" value={email} onChange={e => onChange(e.target.value)} placeholder={t('authPage.verify.emailPlaceholder')} required className="w-full bg-hai-offwhite border border-line rounded-xl px-4 py-3 text-sm font-mono text-hai-plum outline-none focus:border-hai-focus focus:bg-white focus:ring-2 focus:ring-hai-teal/20 transition-all mb-3" />
+      {locked ? (
+        <p className="text-sm text-ink-muted mb-3">{t('authPage.verify.resendToShown')}</p>
+      ) : (
+        <input type="email" value={email} onChange={e => onChange(e.target.value)} placeholder={t('authPage.verify.emailPlaceholder')} required className="w-full bg-hai-offwhite border border-line rounded-xl px-4 py-3 text-sm font-mono text-hai-plum outline-none focus:border-hai-focus focus:bg-white focus:ring-2 focus:ring-hai-teal/20 transition-all mb-3" />
+      )}
       <div className="flex items-center gap-3 flex-wrap">
         <button type="submit" disabled={loading || !email.trim()} className="inline-flex items-center gap-2.5 bg-hai-plum text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M1 7h12M7 1l6 6-6 6" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>

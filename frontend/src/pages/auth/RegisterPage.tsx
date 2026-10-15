@@ -13,6 +13,7 @@ import CountryCityPicker from '../../components/ui/CountryCityPicker'
 import { useSelectLabels } from '../../components/ui/useSelectLabels'
 import { prewarmBackend } from '../../lib/prewarm'
 import { useSlowRequestHint } from '../../hooks/useSlowRequestHint'
+import { suggestEmail } from '../../utils/emailTypos'
 
 type Step = 0 | 1 | 2
 type PreselectedRole = 'engineer' | 'healthcare_professional'
@@ -22,10 +23,13 @@ export default function RegisterPage() {
   const selectLabels = useSelectLabels()
   const idPrefix = useId()
   const fieldId = (name: string) => `${idPrefix}-${name}`
-  const { register: registerUser, isLoading, error, errorStatus, clearError } = useAuthStore()
+  const { register: registerUser, isLoading, error, errorStatus, clearError, registrationDraft, setRegistrationDraft } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
-  const preselectedRole = (location.state as { role?: PreselectedRole } | null)?.role
+  const routeState = location.state as { role?: PreselectedRole; changeEmail?: boolean } | null
+  const preselectedRole = routeState?.role
+  // Back from the verify page to fix a mistyped address: refill everything but the passwords.
+  const draft = routeState?.changeEmail ? registrationDraft : null
   const [step, setStep] = useState<Step>(0)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -36,9 +40,11 @@ export default function RegisterPage() {
   const { register, handleSubmit, formState: { errors }, trigger, watch, setValue } = useForm<RegisterFormData>({
     resolver: zodResolver(createRegisterSchema(t)),
     mode: 'onBlur',
+    defaultValues: draft ?? undefined,
   })
 
   const role = watch('role')
+  const emailSuggestion = suggestEmail(watch('email') ?? '')
 
   // Wake the sleeping API container while the user works through the form, so
   // the register POST doesn't have to absorb the cold start.
@@ -95,6 +101,10 @@ export default function RegisterPage() {
       captchaRef.current?.reset()
       setCaptchaToken(null)
     } else {
+      setRegistrationDraft({
+        firstName: data.firstName, lastName: data.lastName, email: data.email, role: data.role,
+        institution: data.institution, city: data.city, country: data.country,
+      })
       navigate(ROUTES.VERIFY_EMAIL)
     }
   }
@@ -225,6 +235,8 @@ export default function RegisterPage() {
                       <Link to={ROUTES.FORGOT_PASSWORD} className="font-bold underline">{t('authPage.register.resetPasswordLink')}</Link>
                     </p>
                   </div>
+                ) : errorStatus === 422 ? (
+                  <div className="text-sm text-red-700 font-semibold">{t('authPage.register.emailDomainInvalid')}</div>
                 ) : (
                   <div className="text-sm text-red-700 font-semibold">{error}</div>
                 )}
@@ -290,10 +302,21 @@ export default function RegisterPage() {
                         type="email"
                         placeholder={t('authPage.register.emailPlaceholder')}
                         autoComplete="email"
+                        // Back to fix a mistyped address: start right on the field.
+                        autoFocus={Boolean(draft)}
                         className={`${inputCls(!!errors.email)} pl-11 pr-4`}
                       />
                     </div>
                     {errors.email && <p className="mt-1.5 text-xs text-red-600 font-semibold">{errors.email.message}</p>}
+                    {emailSuggestion && (
+                      <button
+                        type="button"
+                        onClick={() => setValue('email', emailSuggestion, { shouldValidate: true, shouldDirty: true })}
+                        className="mt-1.5 block text-left text-xs font-semibold text-hai-teal-dark underline hover:text-hai-plum"
+                      >
+                        {t('authPage.register.emailSuggestion', { email: emailSuggestion })}
+                      </button>
+                    )}
                   </div>
 
                   <div>

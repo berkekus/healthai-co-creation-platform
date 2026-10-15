@@ -768,6 +768,8 @@
       "submit": "Create account →",
       "emailTaken": "This email already has an account.",
       "emailTakenHelp": "Sign in instead, or reset your password if you have forgotten it.",
+      "emailSuggestion": "Did you mean {{email}}?",
+      "emailDomainInvalid": "We couldn't find this email domain. Please check the address for typos.",
       "signInInstead": "Sign in",
       "resetPasswordLink": "Reset your password"
     },
@@ -821,7 +823,14 @@
       "pendingNotice": "This email was already waiting for verification, so we sent a new link. Your account keeps the password you chose the first time.",
       "pendingForgot": "Don't remember that password?",
       "pendingResetLink": "Reset it",
-      "resendFailed": "We could not send the link. Please try again."
+      "resendFailed": "We could not send the link. Please try again.",
+      "linkInvalid": "This link is invalid or has expired. Verification links work for 24 hours — request a new one below.",
+      "alreadyTitle": "Already verified",
+      "alreadyDesc": "This email address has already been verified. Sign in to continue.",
+      "alreadyCta": "Sign in →",
+      "wrongEmail": "Wrong address?",
+      "changeEmail": "Change it",
+      "resendToShown": "We'll send a new link to the address above."
     }
   },
   "meetingsPage": {

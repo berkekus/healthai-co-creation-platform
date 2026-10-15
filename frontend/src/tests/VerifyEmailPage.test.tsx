@@ -16,7 +16,42 @@ vi.mock('../lib/socket', () => ({ connectSocket: vi.fn(), disconnectSocket: vi.f
 describe('VerifyEmailPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    useAuthStore.setState({ error: null, errorStatus: null, pendingVerificationEmail: null, verificationResent: false })
+    useAuthStore.setState({ error: null, errorStatus: null, pendingVerificationEmail: null, verificationResent: false, registrationDraft: null })
+  })
+
+  const apiError = (message: string, status: number) => Object.assign(new Error(message), { status })
+
+  it('explains a dead link in plain words instead of the server message', async () => {
+    vi.mocked(api.post).mockRejectedValue(apiError('This verification link is invalid or has expired', 400))
+    render(<MemoryRouter initialEntries={['/verify-email?token=expired']}><VerifyEmailPage /></MemoryRouter>)
+
+    expect(await screen.findByText(/Verification links work for 24 hours/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /resend verification/i })).toBeInTheDocument()
+  })
+
+  it('sends someone who opens a used link to sign in rather than showing a failure', async () => {
+    vi.mocked(api.post).mockRejectedValue(apiError('This email address is already verified', 409))
+    render(<MemoryRouter initialEntries={['/verify-email?token=used']}><VerifyEmailPage /></MemoryRouter>)
+
+    expect(await screen.findByRole('heading', { name: 'Already verified' })).toHaveFocus()
+    expect(screen.getByRole('link', { name: /sign in/i })).toHaveAttribute('href', '/login')
+    expect(screen.queryByText('Verification failed.')).not.toBeInTheDocument()
+  })
+
+  it('resends to the address just registered and offers to change a mistyped one', async () => {
+    vi.mocked(api.post).mockResolvedValue({ data: { success: true } })
+    useAuthStore.setState({
+      pendingVerificationEmail: 'alice@gmial.com',
+      registrationDraft: { firstName: 'Alice', lastName: 'Kaya', email: 'alice@gmial.com', role: 'engineer', institution: 'Uni', city: 'Ankara', country: 'Türkiye' },
+    })
+    render(<MemoryRouter><VerifyEmailPage /></MemoryRouter>)
+
+    expect(screen.queryByPlaceholderText('your.email@university.edu')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Change it' })).toHaveAttribute('href', '/register')
+
+    fireEvent.click(screen.getByRole('button', { name: /resend verification/i }))
+    expect(await screen.findByText(/link sent/i)).toBeInTheDocument()
+    expect(api.post).toHaveBeenCalledWith('/auth/resend-verification', { email: 'alice@gmial.com' })
   })
 
   it('tells someone whose registration was already pending that a new link is on its way', () => {

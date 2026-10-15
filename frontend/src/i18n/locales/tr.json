@@ -768,6 +768,8 @@
       "submit": "Hesap oluştur →",
       "emailTaken": "Bu e-posta ile zaten bir hesap var.",
       "emailTakenHelp": "Giriş yapabilir ya da şifrenizi unuttuysanız sıfırlayabilirsiniz.",
+      "emailSuggestion": "Bunu mu demek istediniz: {{email}}?",
+      "emailDomainInvalid": "Bu e-posta alan adı bulunamadı. Lütfen adreste yazım hatası olup olmadığını kontrol edin.",
       "signInInstead": "Giriş yap",
       "resetPasswordLink": "Şifremi sıfırla"
     },
@@ -821,7 +823,14 @@
       "pendingNotice": "Bu e-posta zaten doğrulama bekliyordu, bu yüzden yeni bir bağlantı gönderdik. Hesabınız ilk kayıtta belirlediğiniz şifreyi kullanmaya devam eder.",
       "pendingForgot": "O şifreyi hatırlamıyor musunuz?",
       "pendingResetLink": "Sıfırlayın",
-      "resendFailed": "Bağlantı gönderilemedi. Lütfen tekrar deneyin."
+      "resendFailed": "Bağlantı gönderilemedi. Lütfen tekrar deneyin.",
+      "linkInvalid": "Bu bağlantı geçersiz veya süresi dolmuş. Doğrulama bağlantıları 24 saat geçerlidir; aşağıdan yeni bir bağlantı isteyebilirsiniz.",
+      "alreadyTitle": "Zaten doğrulandı",
+      "alreadyDesc": "Bu e-posta adresi zaten doğrulanmış. Devam etmek için giriş yapın.",
+      "alreadyCta": "Giriş yap →",
+      "wrongEmail": "Adres yanlış mı?",
+      "changeEmail": "Değiştirin",
+      "resendToShown": "Yeni bağlantıyı yukarıdaki adrese göndereceğiz."
     }
   },
   "meetingsPage": {

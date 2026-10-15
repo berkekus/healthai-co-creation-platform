@@ -768,6 +768,8 @@
       "submit": "Crear cuenta →",
       "emailTaken": "Este correo ya tiene una cuenta asociada.",
       "emailTakenHelp": "Inicia sesión, o restablece tu contraseña si la has olvidado.",
+      "emailSuggestion": "¿Quisiste decir {{email}}?",
+      "emailDomainInvalid": "No encontramos este dominio de correo. Revisa si la dirección tiene errores.",
       "signInInstead": "Iniciar sesión",
       "resetPasswordLink": "Restablecer tu contraseña"
     },
@@ -821,7 +823,14 @@
       "pendingNotice": "Este correo ya estaba a la espera de verificación, así que hemos enviado un nuevo enlace. Tu cuenta conserva la contraseña que elegiste la primera vez.",
       "pendingForgot": "¿No recuerdas esa contraseña?",
       "pendingResetLink": "Restablécela",
-      "resendFailed": "No pudimos enviar el enlace. Inténtalo de nuevo."
+      "resendFailed": "No pudimos enviar el enlace. Inténtalo de nuevo.",
+      "linkInvalid": "Este enlace no es válido o ha caducado. Los enlaces de verificación son válidos durante 24 horas; solicita uno nuevo a continuación.",
+      "alreadyTitle": "Ya verificado",
+      "alreadyDesc": "Esta dirección de correo ya ha sido verificada. Inicia sesión para continuar.",
+      "alreadyCta": "Iniciar sesión →",
+      "wrongEmail": "¿Dirección incorrecta?",
+      "changeEmail": "Cámbiala",
+      "resendToShown": "Enviaremos un nuevo enlace a la dirección de arriba."
     }
   },
   "meetingsPage": {
