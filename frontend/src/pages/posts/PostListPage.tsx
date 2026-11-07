@@ -711,7 +711,8 @@ function PostList({
   return (
     <SectionCard className="border-[var(--border)] shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)]">
       <div className="border-b border-[var(--border)] px-7 py-5">
-        <div className="flex items-center justify-between gap-6">
+        {/* Wraps on phones: count badge, sort and view buttons ran 49px off a 360px screen. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
           <div>
             <div className="text-base font-black text-[var(--muted)]">
               {isLoading ? t('posts.loadingOpportunities') : mineOnly ? t('posts.postsFoundCount', { count: totalPosts }) : t('posts.opportunitiesFoundCount', { count: totalPosts })}
@@ -727,7 +728,7 @@ function PostList({
             )}
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             <div className="flex items-center gap-3 text-sm font-black text-[var(--muted)]">
               <span>{t('meetingsPage.sortBy')}</span>
               <div className="relative">

@@ -204,7 +204,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 h-[76px] bg-white/90 backdrop-blur-md border-b border-line font-body">
-      <div className="max-w-[1640px] mx-auto h-full px-4 sm:px-6 md:px-10 2xl:px-0 flex items-center justify-between gap-4 sm:gap-8">
+      <div className="max-w-[1640px] mx-auto h-full px-4 sm:px-6 md:px-10 2xl:px-0 flex items-center justify-between gap-2 sm:gap-8">
 
         {/* Brand — Erasmus+ funding mark sits left of the HealthAI lockup.
             Signed in, the right-hand cluster runs to ~242px, so under sm the

@@ -76,7 +76,8 @@ export default function LanguageToggle({ className, compact = false }: LanguageT
         <ChevronDown
           size={14}
           aria-hidden="true"
-          className={cx('transition-transform duration-200', open && 'rotate-180')}
+          // Hidden on phones: at 360px the header ran 5px past the screen; globe and code still read as a menu.
+          className={cx('hidden transition-transform duration-200 sm:block', open && 'rotate-180')}
         />
       </button>
 

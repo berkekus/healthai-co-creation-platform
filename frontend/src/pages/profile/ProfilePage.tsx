@@ -851,7 +851,8 @@ export default function ProfilePage() {
         </aside>
 
         <div className="min-w-0">
-          <div className="flex items-start justify-between gap-8 pt-10">
+          {/* flex-wrap: on a phone the Edit button ran 13px past the screen edge beside the title. */}
+          <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4 pt-10">
             <div>
               <h1 className="font-headline text-5xl font-black leading-none tracking-normal text-hai-plum">
                 {t('profile.title')}<span className="text-hai-teal">.</span>
@@ -859,7 +860,7 @@ export default function ProfilePage() {
               <p className="mt-5 text-base font-semibold text-ink-muted">{t('profile.subtitle')}</p>
             </div>
             {!isEditing ? (
-              <button onClick={() => setIsEditing(true)} className="mt-1 inline-flex items-center gap-2 rounded-full bg-hai-plum px-7 py-3 text-sm font-black text-white shadow-[0_18px_36px_-22px_rgba(54,33,62,0.7)]">
+              <button onClick={() => setIsEditing(true)} className="mt-1 inline-flex shrink-0 items-center gap-2 rounded-full bg-hai-plum px-7 py-3 text-sm font-black text-white shadow-[0_18px_36px_-22px_rgba(54,33,62,0.7)]">
                 <span aria-hidden="true" className="material-symbols-outlined text-base">edit</span>
                 {t('profile.edit')}
               </button>
@@ -873,7 +874,7 @@ export default function ProfilePage() {
 
           {saved && <div className="mt-7 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 px-5 py-4 text-sm font-bold text-hai-plum">{t('profile.saved')}</div>}
 
-          <div className="mt-10 flex items-center justify-between gap-6 rounded-[22px] bg-hai-teal-soft px-7 py-8">
+          <div className="mt-10 flex flex-wrap items-center justify-between gap-6 rounded-[22px] bg-hai-teal-soft px-5 py-8 sm:px-7">
             <div className="flex items-center gap-5">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-hai-lime text-hai-teal-dark">
                 <span aria-hidden="true" className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: '"FILL" 1' }}>verified_user</span>
