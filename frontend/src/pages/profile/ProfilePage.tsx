@@ -778,17 +778,36 @@ export default function ProfilePage() {
       <div className="profile-page-layout">
         <aside className="profile-profile-rail rounded-[22px] bg-white/78 px-5 py-8 shadow-[0_32px_80px_-58px_rgba(54,33,62,0.42)]">
           <div className="flex flex-col items-center text-center">
+            {/* Nothing used to say the initials circle could be clicked (survey N30): it now carries a
+                camera badge and a hover hint, with a plain-text action and the file rules below. */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarUploading}
+                className="group relative h-20 w-20 overflow-hidden rounded-full bg-hai-plum text-xl font-black tracking-normal text-hai-mint focus:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal focus-visible:ring-offset-2"
+                aria-label={user.avatarUrl ? t('profile.avatar.change') : t('profile.avatar.upload')}
+              >
+                {avatarSrc ? <img src={avatarSrc} alt="" className="h-full w-full object-cover" /> : <span className="flex h-full w-full items-center justify-center">{initials}</span>}
+                <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-hai-plum/60 text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+                  <span className="material-symbols-outlined text-2xl">photo_camera</span>
+                </span>
+                {avatarUploading && <span className="absolute inset-0 flex items-center justify-center bg-hai-plum/60 text-white">...</span>}
+              </button>
+              <span aria-hidden="true" className="pointer-events-none absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-hai-teal-dark text-white">
+                <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: '"FILL" 1' }}>photo_camera</span>
+              </span>
+            </div>
+            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarChange} />
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={avatarUploading}
-              className="relative h-16 w-16 overflow-hidden rounded-full bg-hai-plum text-xl font-black tracking-normal text-hai-mint"
-              aria-label={t('profile.avatar.upload')}
+              className="mt-3 text-xs font-black text-hai-teal-dark underline underline-offset-2 hover:text-hai-plum disabled:opacity-50"
             >
-              {avatarSrc ? <img src={avatarSrc} alt={user.name} className="h-full w-full object-cover" /> : <span className="flex h-full w-full items-center justify-center">{initials}</span>}
-              {avatarUploading && <span className="absolute inset-0 flex items-center justify-center bg-hai-plum/60 text-white">...</span>}
+              {user.avatarUrl ? t('profile.avatar.change') : t('profile.avatar.upload')}
             </button>
-            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarChange} />
+            <p className="mt-1 text-xs font-semibold text-ink-muted">{t('profile.avatar.rules')}</p>
             <h2 className="mt-5 text-lg font-black leading-tight text-hai-plum">{user.name}</h2>
             <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-ink-muted">
               <span aria-hidden="true" className="material-symbols-outlined text-base">{ROLE_ICON[user.role] ?? 'person'}</span>

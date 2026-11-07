@@ -174,7 +174,7 @@ export default function MeetingsPage() {
         '--cancelled-bg': '#EEF0F3',
       } as CSSProperties}
     >
-      <section className="mx-auto w-full max-w-[1640px] px-6 pb-20 pt-[72px] md:px-10 2xl:px-0">
+      <section className="mx-auto w-full max-w-[1640px] px-4 pb-20 pt-[72px] sm:px-6 md:px-10 2xl:px-0">
         <Hero total={countsKnown ? scopedMeetings.length : null} />
 
         {requestSentTo && (
@@ -311,7 +311,7 @@ function Hero({ total }: { total: number | null }) {
           {total === null ? t('common.loading') : t('meetingsPage.totalCount', { count: total })}
         </div>
 
-        <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-[var(--primary)] md:text-8xl">
+        <h1 className="mt-5 break-words font-headline text-4xl font-black leading-tight tracking-normal text-[var(--primary)] sm:text-6xl md:text-8xl">
           {t('meetingsPage.title')}
         </h1>
 
@@ -535,8 +535,9 @@ function MeetingRow({
       </div>
 
       <div className="min-w-0">
-        <div className="flex min-w-0 flex-wrap items-center gap-3">
-          <h2 className="truncate font-headline text-lg font-black">
+        <div className="min-w-0">
+          {/* Two lines, then an ellipsis: one line cut most titles short even on wide screens. */}
+          <h2 className="line-clamp-2 break-words font-headline text-lg font-black leading-snug">
             <Link
               to={postDetail(meeting.postId)}
               className="rounded-sm text-[var(--text)] transition hover:text-[var(--accent-strong)] hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-offset-2"
@@ -544,12 +545,12 @@ function MeetingRow({
               {meeting.postTitle}
             </Link>
           </h2>
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] ${style.className}`}>
+          <span className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] ${style.className}`}>
             <StatusIcon size={13} aria-hidden="true" />
             {t(`meetings.status.${status}`)}
           </span>
         </div>
-        <p className="mt-2 truncate text-sm font-semibold text-[var(--muted)]">
+        <p className="mt-2 break-words text-sm font-semibold text-[var(--muted)]">
           {t(`meetingsPage.direction.${isOwner ? 'incoming' : 'outgoing'}`, { name: partner })}
           {partnerEmail && (
             <>
@@ -582,8 +583,8 @@ function MeetingRow({
             <div className="flex items-center gap-2">
               <Clock size={16} className="text-[var(--primary)]" aria-hidden="true" />
               {confirmed.timeLabel}
-              {confirmed.zoneLabel && <span className="font-semibold">· {confirmed.zoneLabel}</span>}
             </div>
+            {confirmed.zoneLabel && <div className="pl-6 text-xs font-semibold">{confirmed.zoneLabel}</div>}
             {confirmed.local && (
               <div className="text-xs font-semibold">{t('meetingSlots.yourTime', { date: confirmed.local.dateLabel, time: confirmed.local.timeLabel })}</div>
             )}

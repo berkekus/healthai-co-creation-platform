@@ -250,6 +250,10 @@
     }
   },
   "posts": {
+    "match": {
+      "needsEngineering": "Needs engineering",
+      "needsClinical": "Needs clinical input"
+    },
     "browse": "Browse Posts",
     "myPosts": "My Posts",
     "newPost": "New post",
@@ -612,6 +616,8 @@
       "editing": "Editing your profile"
     },
     "avatar": {
+      "change": "Change photo",
+      "rules": "JPEG, PNG, WebP or GIF, up to 5 MB",
       "upload": "Upload profile photo",
       "wrongType": "Only JPEG, PNG, WebP or GIF images are allowed.",
       "tooLarge": "The image must be under 5 MB."

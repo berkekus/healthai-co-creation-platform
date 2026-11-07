@@ -216,7 +216,10 @@ export default function Navbar() {
           <img src="/images/healthailogo.svg" alt="HealthAI" className="h-5 sm:h-6 md:h-7 w-auto" />
         </Link>
 
-        <nav className="hidden md:flex flex-1 items-center justify-center gap-3">
+        {/* Signed in, three Turkish labels ("Kontrol Paneli", "İlanları Keşfet"...) plus the right-hand
+            cluster do not fit between 768 and 1023px, which pushed the avatar and language menu off
+            screen; the drawer covers that range. The two signed-out links still fit from md. */}
+        <nav className={`hidden ${user ? 'lg:flex' : 'md:flex'} flex-1 items-center justify-center gap-3`}>
           {user ? navLinks.map(({ to, label }) => {
             const active = isActive(to)
             return (
@@ -379,7 +382,7 @@ export default function Navbar() {
               onClick={() => setMenuOpen(o => !o)}
               label={t('nav.toggleMenu')}
               icon={menuOpen ? <X size={17} /> : <Menu size={17} />}
-              className="md:hidden"
+              className="lg:hidden"
             />
           )}
 
@@ -390,7 +393,7 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       {menuOpen && user && (
-        <div className="md:hidden absolute top-[76px] inset-x-0 z-40 bg-white border-b border-neutral-200 shadow-lg py-2 font-body">
+        <div className="lg:hidden absolute top-[76px] inset-x-0 z-40 bg-white border-b border-neutral-200 shadow-lg py-2 font-body">
           {[...navLinks, { to: ROUTES.MESSAGES, label: unreadMessages > 0 ? t('nav.messagesUnread', { n: unreadMessages }) : t('nav.messages') }].map(({ to, label }) => {
             const active = isActive(to)
             return (

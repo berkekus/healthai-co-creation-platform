@@ -250,6 +250,10 @@
     }
   },
   "posts": {
+    "match": {
+      "needsEngineering": "Zoekt engineering",
+      "needsClinical": "Zoekt klinische input"
+    },
     "browse": "Berichten verkennen",
     "myPosts": "Mijn berichten",
     "newPost": "Nieuw bericht",
@@ -612,6 +616,8 @@
       "editing": "Je profiel bewerken"
     },
     "avatar": {
+      "change": "Foto wijzigen",
+      "rules": "JPEG, PNG, WebP of GIF, max. 5 MB",
       "upload": "Profielfoto uploaden",
       "wrongType": "Alleen JPEG-, PNG-, WebP- of GIF-afbeeldingen zijn toegestaan.",
       "tooLarge": "De afbeelding moet kleiner zijn dan 5 MB."

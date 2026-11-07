@@ -250,6 +250,10 @@
     }
   },
   "posts": {
+    "match": {
+      "needsEngineering": "Procura engenharia",
+      "needsClinical": "Procura apoio clínico"
+    },
     "browse": "Explorar publicações",
     "myPosts": "As minhas publicações",
     "newPost": "Nova publicação",
@@ -612,6 +616,8 @@
       "editing": "A editar o seu perfil"
     },
     "avatar": {
+      "change": "Alterar foto",
+      "rules": "JPEG, PNG, WebP ou GIF, até 5 MB",
       "upload": "Carregar foto de perfil",
       "wrongType": "Apenas são permitidas imagens JPEG, PNG, WebP ou GIF.",
       "tooLarge": "A imagem deve ter menos de 5 MB."

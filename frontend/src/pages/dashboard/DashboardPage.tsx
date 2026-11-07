@@ -37,8 +37,9 @@ export default function DashboardPage() {
   const activeListings = (activeMine.data?.total ?? 0) + (scheduledMine.data?.total ?? 0)
   const isNewUser = mine.isSuccess && myPostCount === 0 && myMeetings.length === 0
 
+  // overflow-x-clip: the weekly summary's backdrop reaches past the right edge and scrolled the page sideways.
   return (
-    <main className="min-h-screen bg-hai-offwhite text-hai-plum">
+    <main className="min-h-screen overflow-x-clip bg-hai-offwhite text-hai-plum">
       <div className="mx-auto w-full max-w-[1640px] px-4 pb-24 pt-[94px] sm:px-8">
         <section className="grid grid-cols-1 items-start gap-10 xl:grid-cols-[420px_minmax(0,1fr)] xl:gap-28">
           <WelcomePanel user={user} />
@@ -174,14 +175,12 @@ function WelcomePanel({ user }: { user: ReturnType<typeof useAuthStore.getState>
             <span className="font-black text-hai-plum">{user.institution}</span>
           </>
         )}
-        {/* Testers could not tell which address they were signed in with. */}
-        {user?.email && (
-          <>
-            <span className="px-1.5">·</span>
-            <span className="break-all font-mono text-sm font-bold text-hai-plum">{user.email}</span>
-          </>
-        )}
       </p>
+      {/* Testers could not tell which address they were signed in with. Its own line, so a
+          long address is not split mid-word at the end of the sentence. */}
+      {user?.email && (
+        <p className="mt-1 break-words font-mono text-sm font-bold text-hai-plum">{user.email}</p>
+      )}
 
       <div className="mt-10 border-l-2 border-[#b7c1ca] py-1 pl-6 text-lg font-semibold leading-8 text-ink-muted">
         {t('dashboard.tagline')}
@@ -380,25 +379,26 @@ function RecentPostStatusBadge({ status }: { status: Post['status'] }) {
   const config: Record<Post['status'], { label: string; className: string }> = {
     draft: {
       label: t('dashboard.status.draft'),
-      className: 'bg-[#EEF0F6] text-ink-muted',
+      className: 'bg-tone-gray-soft text-tone-gray',
     },
     active: {
       label: t('dashboard.status.open', { defaultValue: 'Open' }),
-      className: 'bg-[#E8F0FF] text-[#3562C7]',
+      className: 'bg-tone-green-soft text-tone-green',
     },
     meeting_scheduled: {
       label: t('dashboard.status.meeting_scheduled'),
-      className: 'bg-[#EAF0FF] text-[#3562C7]',
+      className: 'bg-tone-blue-soft text-tone-blue',
     },
     partner_found: {
       label: t('dashboard.status.partner_found'),
-      className: 'bg-[#63BFC1] text-white',
+      className: 'bg-hai-plum text-white',
     },
     expired: {
       label: t('dashboard.status.expired'),
-      className: 'bg-[#F3E9EA] text-[#A94555]',
+      className: 'bg-tone-amber-soft text-tone-amber',
     },
   }
+  // Same colours as the status badges in Browse posts.
   const item = config[status]
 
   return (

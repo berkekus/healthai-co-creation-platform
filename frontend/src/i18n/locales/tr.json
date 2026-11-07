@@ -250,6 +250,10 @@
     }
   },
   "posts": {
+    "match": {
+      "needsEngineering": "Mühendislik desteği arıyor",
+      "needsClinical": "Klinik destek arıyor"
+    },
     "browse": "İlanları Keşfet",
     "myPosts": "İlanlarım",
     "newPost": "Yeni ilan",
@@ -612,6 +616,8 @@
       "editing": "Profilinizi düzenliyorsunuz"
     },
     "avatar": {
+      "change": "Fotoğrafı değiştir",
+      "rules": "JPEG, PNG, WebP veya GIF, en fazla 5 MB",
       "upload": "Profil fotoğrafı yükle",
       "wrongType": "Yalnızca JPEG, PNG, WebP veya GIF görselleri yüklenebilir.",
       "tooLarge": "Görsel 5 MB'tan küçük olmalı."

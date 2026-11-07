@@ -101,6 +101,7 @@ function TopNav() {
         <Logo />
 
         {/* Center pill — hidden below lg */}
+        {/* The bar is a pill, so link hovers are pills too; rounded-lg read as rectangles inside it. */}
         <div className="hidden lg:flex items-center bg-white/25 rounded-full p-1 border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
           <div className="flex items-center bg-white rounded-full h-full">
             {user ? (
@@ -108,7 +109,7 @@ function TopNav() {
                 {appLinks.map((link, i) => (
                   <span key={link.to} className="flex items-center">
                     {i > 0 && <NavDivider />}
-                    <Link to={link.to} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{link.label}</Link>
+                    <Link to={link.to} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-full hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{link.label}</Link>
                   </span>
                 ))}
               </div>
@@ -118,11 +119,11 @@ function TopNav() {
                   {anchorLinks.map((link, i) => (
                     <span key={link.href} className="flex items-center">
                       {i > 0 && <NavDivider />}
-                      <a href={link.href} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{link.label}</a>
+                      <a href={link.href} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-full hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">{link.label}</a>
                     </span>
                   ))}
                   <NavDivider />
-                  <Link to={ROUTES.ABOUT} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-lg hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">
+                  <Link to={ROUTES.ABOUT} className="text-neutral-900 font-semibold text-sm px-4 py-2 rounded-full hover:text-neutral-900 hover:bg-black/5 transition-colors duration-200 ease-in-out">
                     {t('nav.about')}
                   </Link>
                 </div>
