@@ -47,10 +47,10 @@
     "hero": {
       "titleLine1": "European HealthTech",
       "titleLine2": "Co-Creation & Innovation Platform",
-      "subtitle": "A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all under institutional .edu verification and an immutable audit trail."
+      "subtitle": "A structured, GDPR-native directory where European clinicians and engineers publish, match, and meet — all with email verification and an immutable audit trail."
     },
     "directory": {
-      "verifiedNetwork": "Verified Institutional Network",
+      "verifiedNetwork": "Verified Professional Network",
       "join": "Join the Directory",
       "engineerLabel": "FOR ENGINEERS",
       "engineerTitle": "Build with clinical insight.",
@@ -65,7 +65,7 @@
       "zeroPatientData": "Zero patient data",
       "europeanInstitutions": "Built for European institutions",
       "gdprNative": "GDPR-native",
-      "body": "Planning a medical–engineering collaboration? Every interaction is governed by institutional .edu verification, a 24-month tamper-resistant audit log, and a zero-patient-data policy. No file uploads. No ambiguity. Every Article 6 & 15–22 right is exercisable from your profile, one click away."
+      "body": "Planning a medical–engineering collaboration? Every interaction is governed by email verification, a 24-month tamper-resistant audit log, and a zero-patient-data policy. No file uploads. No ambiguity. Every Article 6 & 15–22 right is exercisable from your profile, one click away."
     },
     "platform": {
       "eyebrow": "Built for Europe.",
@@ -111,7 +111,7 @@
       "paragraph1": "We know medical–engineering partnerships can stall in legal uncertainty, vague scope, and the wrong introduction. Our protocol is designed to make the first conversation easy — and the handshake legitimate.",
       "paragraph2": "Think of the platform as the common ground: a shared grammar, a shared NDA, a shared log — so every meeting starts on record.",
       "directoryMatching": "Directory & Matching",
-      "institutionalVerification": "Institutional Verification",
+      "institutionalVerification": "Verified Accounts",
       "ndaMeetingFlow": "NDA & Meeting Flow",
       "questionsPrompt": "Have any questions about the platform?",
       "readPolicy": "Read policy →"
@@ -147,7 +147,7 @@
           "desc": "Complete your role, institution, city, country, expertise, and collaboration interests. These fields power the profile match score users see on Browse Posts.",
           "screen": "Profile",
           "routeLabel": "Open profile",
-          "checkpoints": ["Verify institutional email", "Add city and country", "Choose expertise and interests"]
+          "checkpoints": ["Verify your email", "Add city and country", "Choose expertise and interests"]
         },
         "browse": {
           "name": "Browse",
@@ -217,7 +217,7 @@
       "title": "Create an account",
       "subtitle": "Join the HealthAI co-creation platform",
       "name": "Full name",
-      "email": "Institutional email (.edu or .gov only)",
+      "email": "Email (an institutional address is recommended)",
       "password": "Password",
       "confirm": "Confirm password",
       "role": "I am a",
@@ -712,13 +712,13 @@
     "wakingServer": "Waking the server — the first request after a quiet spell can take up to a minute.",
     "login": {
       "heading": "Welcome back",
-      "sub": "Sign in with your institutional .edu or .gov account.",
+      "sub": "Sign in with the email address you registered with.",
       "tooMany": "Too many failed attempts",
       "waitSeconds": "Please wait {{count}}s before trying again.",
       "attemptsLeft": "{{count}} attempt remaining before lockout.",
       "attemptsLeft_other": "{{count}} attempts remaining before lockout.",
       "resendVerification": "Resend verification email →",
-      "emailLabel": "Institutional email",
+      "emailLabel": "Email",
       "emailPlaceholder": "you@university.edu",
       "passwordLabel": "Password",
       "showPassword": "Show password",
@@ -784,8 +784,8 @@
     },
     "forgot": {
       "heading": "Forgot your password",
-      "sub": "Enter your institutional email and we'll send you a reset link.",
-      "emailLabel": "Institutional email",
+      "sub": "Enter the email address you registered with and we'll send you a reset link.",
+      "emailLabel": "Email",
       "emailPlaceholder": "you@university.edu",
       "submitting": "Sending link…",
       "submit": "Send reset link →",
@@ -1120,7 +1120,7 @@
     "notFound": "User not found.",
     "goBack": "← Go back",
     "back": "Back",
-    "verified": "Verified institutional account",
+    "verified": "Verified email",
     "bio": "Bio",
     "expertise": "Expertise",
     "memberSince": "Member since {{date}}"
@@ -1511,7 +1511,7 @@
     "forEngineers": "For Engineers",
     "contactTeam": "Contact team",
     "copyright": "Copyright",
-    "institutionalOnly": "Institutional .edu accounts only. Verification is automated and one-time.",
+    "institutionalOnly": "Every account verifies its email address. An institutional address is recommended.",
     "noUploads": "No file uploads. No patient data. No exceptions.",
     "builtByTeam": "Built in Europe · by Team HealthAI"
   },
@@ -1674,7 +1674,7 @@
     "titleLine1": "Privacy",
     "titleLine2": "policy",
     "gdprBadge": "GDPR rights information",
-    "lastUpdated": "Last updated · 19 Apr 2026",
+    "lastUpdated": "Last updated · 7 Nov 2026",
     "bindingNote": "",
     "who": {
       "title": "Who we are",
@@ -1684,14 +1684,14 @@
     "collect": {
       "title": "Data we collect",
       "accountLabel": "Account data:",
-      "account": "Full name, institutional email (<mono>.edu</mono> only), role, institution, city, country, bio, expertise tags.",
+      "account": "Full name, email address (an institutional address is recommended), role, institution, city, country, bio, expertise tags.",
       "activityLabel": "Activity data:",
       "activity": "Posts created / edited, meeting requests sent / received, login events.",
       "securityLabel": "Security logs:",
       "security": "IP address (login events), failed login attempts, rate-limit hits. Retained for 24 months.",
       "sessionLabel": "Session data:",
       "session": "A session token is stored in browser session storage, or persistent browser storage when “Remember me” is selected. The application signs users out after 30 minutes of inactivity.",
-      "notCollected": "We do <b>not</b> collect patient data, clinical records, proprietary IP, or personal emails. File uploads are prohibited on this platform."
+      "notCollected": "We do <b>not</b> collect patient data, clinical records or proprietary IP. File uploads are prohibited on this platform."
     },
     "legal": {
       "title": "Legal basis (GDPR Art. 6)",

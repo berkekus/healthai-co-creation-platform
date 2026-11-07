@@ -14,13 +14,13 @@ vi.mock('../lib/prewarm', () => ({ prewarmBackend: vi.fn() }))
 describe('auth form labels', () => {
   it('names the sign-in fields by their labels', () => {
     render(<MemoryRouter><LoginPage /></MemoryRouter>)
-    expect(screen.getByLabelText('Institutional email')).toHaveAttribute('type', 'email')
+    expect(screen.getByLabelText('Email')).toHaveAttribute('type', 'email')
     expect(screen.getByLabelText('Password')).toHaveAttribute('autocomplete', 'current-password')
   })
 
   it('names the forgotten-password email field by its label', () => {
     render(<MemoryRouter><ForgotPasswordPage /></MemoryRouter>)
-    expect(screen.getByLabelText(/^Institutional email/)).toHaveAttribute('type', 'email')
+    expect(screen.getByLabelText(/^Email/)).toHaveAttribute('type', 'email')
   })
 
   it('names both new-password fields by their labels', () => {

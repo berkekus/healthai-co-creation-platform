@@ -47,10 +47,10 @@
     "hero": {
       "titleLine1": "European HealthTech",
       "titleLine2": "Co-Creation & Innovation Platform",
-      "subtitle": "Avrupalı klinisyenlerin ve mühendislerin yayınladığı, eşleştiği ve buluştuğu; kurumsal .edu doğrulaması ve değiştirilemez denetim kaydıyla desteklenen, GDPR uyumlu yapılandırılmış bir dizin."
+      "subtitle": "Avrupalı klinisyenlerin ve mühendislerin yayınladığı, eşleştiği ve buluştuğu; e-posta doğrulaması ve değiştirilemez denetim kaydıyla desteklenen, GDPR uyumlu yapılandırılmış bir dizin."
     },
     "directory": {
-      "verifiedNetwork": "Doğrulanmış Kurumsal Ağ",
+      "verifiedNetwork": "Doğrulanmış Profesyonel Ağ",
       "join": "Dizine Katıl",
       "engineerLabel": "MÜHENDİSLER İÇİN",
       "engineerTitle": "Klinik içgörüyle geliştirin.",
@@ -65,7 +65,7 @@
       "zeroPatientData": "Sıfır hasta verisi",
       "europeanInstitutions": "Avrupa kurumları için geliştirildi",
       "gdprNative": "GDPR uyumlu",
-      "body": "Tıp-mühendislik iş birliği mi planlıyorsunuz? Her etkileşim kurumsal .edu doğrulaması, 24 aylık değiştirilemez denetim kaydı ve sıfır hasta verisi politikasıyla güvence altındadır. Dosya yükleme yok. Belirsizlik yok. Madde 6 ve 15-22 kapsamındaki her hak profilinizden tek tıkla kullanılabilir."
+      "body": "Tıp-mühendislik iş birliği mi planlıyorsunuz? Her etkileşim e-posta doğrulaması, 24 aylık değiştirilemez denetim kaydı ve sıfır hasta verisi politikasıyla güvence altındadır. Dosya yükleme yok. Belirsizlik yok. Madde 6 ve 15-22 kapsamındaki her hak profilinizden tek tıkla kullanılabilir."
     },
     "platform": {
       "eyebrow": "Avrupa için geliştirildi.",
@@ -111,7 +111,7 @@
       "paragraph1": "Tıp-mühendislik ortaklıklarının hukuki belirsizlik, muğlak kapsam ve yanlış tanışıklıklar yüzünden tıkanabildiğini biliyoruz. Protokolümüz ilk görüşmeyi kolaylaştırmak ve el sıkışmayı meşru kılmak için tasarlandı.",
       "paragraph2": "Platformu ortak zemin olarak düşünün: ortak bir dil, ortak bir NDA, ortak bir kayıt — böylece her toplantı kayıt altında başlar.",
       "directoryMatching": "Dizin ve Eşleştirme",
-      "institutionalVerification": "Kurumsal Doğrulama",
+      "institutionalVerification": "Doğrulanmış Hesaplar",
       "ndaMeetingFlow": "NDA ve Toplantı Süreci",
       "questionsPrompt": "Platform hakkında sorularınız mı var?",
       "readPolicy": "Politikayı oku →"
@@ -147,7 +147,7 @@
           "desc": "Rolünüzü, kurumunuzu, şehir ve ülkenizi, uzmanlığınızı ve iş birliği ilgi alanlarınızı tamamlayın. Bu alanlar, İlanları Keşfet'te görülen profil eşleşme puanını besler.",
           "screen": "Profil",
           "routeLabel": "Profili aç",
-          "checkpoints": ["Kurumsal e-postayı doğrulayın", "Şehir ve ülke ekleyin", "Uzmanlık ve ilgi alanlarını seçin"]
+          "checkpoints": ["E-postanızı doğrulayın", "Şehir ve ülke ekleyin", "Uzmanlık ve ilgi alanlarını seçin"]
         },
         "browse": {
           "name": "Keşfet",
@@ -217,7 +217,7 @@
       "title": "Hesap oluştur",
       "subtitle": "HealthAI ortak yaratım platformuna katılın",
       "name": "Ad Soyad",
-      "email": "Kurumsal e-posta (yalnızca .edu veya .gov)",
+      "email": "E-posta (kurumsal adres önerilir)",
       "password": "Şifre",
       "confirm": "Şifreyi onayla",
       "role": "Ben bir",
@@ -553,7 +553,7 @@
       "firstName": "Ad",
       "lastName": "Soyad",
       "institution": "Kurum",
-      "email": "Kurumsal e-posta",
+      "email": "E-posta",
       "memberSince": "Üyelik tarihi",
       "city": "Şehir",
       "country": "Ülke",
@@ -712,13 +712,13 @@
     "wakingServer": "Sunucu uyanıyor — uzun bir aradan sonraki ilk istek bir dakikayı bulabilir.",
     "login": {
       "heading": "Tekrar hoş geldiniz",
-      "sub": "Kurumsal .edu veya .gov hesabınızla giriş yapın.",
+      "sub": "Kayıt olduğunuz e-posta adresiyle giriş yapın.",
       "tooMany": "Çok fazla başarısız deneme",
       "waitSeconds": "Lütfen {{count}} saniye bekleyin.",
       "attemptsLeft": "Kilitlenmeden önce {{count}} deneme hakkınız kaldı.",
       "attemptsLeft_other": "Kilitlenmeden önce {{count}} deneme hakkınız kaldı.",
       "resendVerification": "Doğrulama e-postasını yeniden gönder →",
-      "emailLabel": "Kurumsal e-posta",
+      "emailLabel": "E-posta",
       "emailPlaceholder": "siz@universite.edu",
       "passwordLabel": "Şifre",
       "showPassword": "Şifreyi göster",
@@ -784,8 +784,8 @@
     },
     "forgot": {
       "heading": "Şifrenizi mi unuttunuz",
-      "sub": "Kurumsal e-postanızı girin, size sıfırlama bağlantısı gönderelim.",
-      "emailLabel": "Kurumsal e-posta",
+      "sub": "Kayıt olduğunuz e-posta adresini girin, size sıfırlama bağlantısı gönderelim.",
+      "emailLabel": "E-posta",
       "emailPlaceholder": "siz@universite.edu",
       "submitting": "Bağlantı gönderiliyor…",
       "submit": "Sıfırlama bağlantısı gönder →",
@@ -1120,7 +1120,7 @@
     "notFound": "Kullanıcı bulunamadı.",
     "goBack": "← Geri git",
     "back": "Geri",
-    "verified": "Doğrulanmış kurumsal hesap",
+    "verified": "E-postası doğrulanmış hesap",
     "bio": "Biyografi",
     "expertise": "Uzmanlık",
     "memberSince": "Üyelik tarihi: {{date}}"
@@ -1511,7 +1511,7 @@
     "forEngineers": "Mühendisler için",
     "contactTeam": "Ekiple iletişime geç",
     "copyright": "Telif hakkı",
-    "institutionalOnly": "Yalnızca kurumsal .edu hesapları. Doğrulama otomatik ve tek seferliktir.",
+    "institutionalOnly": "Her hesap e-posta adresini doğrular. Kurumsal adres önerilir.",
     "noUploads": "Dosya yükleme yok. Hasta verisi yok. İstisna yok.",
     "builtByTeam": "Avrupa'da geliştirildi · HealthAI Ekibi"
   },
@@ -1674,7 +1674,7 @@
     "titleLine1": "Gizlilik",
     "titleLine2": "politikası",
     "gdprBadge": "GDPR hakları hakkında bilgi",
-    "lastUpdated": "Son güncelleme · 19 Nisan 2026",
+    "lastUpdated": "Son güncelleme · 7 Kasım 2026",
     "bindingNote": "Bu çeviri kolaylık amacıyla sunulmuştur. Bağlayıcı olan, bu politikanın İngilizce metnidir.",
     "who": {
       "title": "Biz kimiz",
@@ -1684,14 +1684,14 @@
     "collect": {
       "title": "Topladığımız veriler",
       "accountLabel": "Hesap verileri:",
-      "account": "Ad soyad, kurumsal e-posta (yalnızca <mono>.edu</mono>), rol, kurum, şehir, ülke, biyografi, uzmanlık etiketleri.",
+      "account": "Ad soyad, e-posta adresi (kurumsal adres önerilir), rol, kurum, şehir, ülke, biyografi, uzmanlık etiketleri.",
       "activityLabel": "Etkinlik verileri:",
       "activity": "Oluşturulan / düzenlenen ilanlar, gönderilen / alınan toplantı istekleri, giriş kayıtları.",
       "securityLabel": "Güvenlik kayıtları:",
       "security": "IP adresi (giriş kayıtları), başarısız giriş denemeleri, istek limiti aşımları. 24 ay saklanır.",
       "sessionLabel": "Oturum verileri:",
       "session": "Oturum anahtarı tarayıcının oturum depolamasında, “Beni hatırla” seçildiğinde ise tarayıcının kalıcı depolamasında saklanır. Uygulama, 30 dakika işlem yapılmadığında kullanıcının oturumunu kapatır.",
-      "notCollected": "Hasta verisi, klinik kayıt, şirkete ait fikri mülkiyet veya kişisel e-posta <b>toplamıyoruz</b>. Bu platformda dosya yüklemek yasaktır."
+      "notCollected": "Hasta verisi, klinik kayıt veya şirkete ait fikri mülkiyet <b>toplamıyoruz</b>. Bu platformda dosya yüklemek yasaktır."
     },
     "legal": {
       "title": "Hukuki dayanak (GDPR Md. 6)",
