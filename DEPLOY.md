@@ -98,19 +98,20 @@ Vercel otomatik algılar ama manuel girilmesi gerekirse:
 
 ---
 
-## 4. Seed Data (İlk Deploy Sonrası)
+## 4. Demo Verisi — Production'a YÜKLEMEYİN
 
-Dev seed hesaplarının doğrulanması:
+Seed betikleri (`seed-realistic-posts.ts`, `seed-realistic-meetings.ts`, `seed-demo-messages.ts`)
+yalnızca yerel geliştirme içindir. Oluşturdukları 14 demo hesabın şifresi bu herkese açık
+repoda yazılı ve profiller gerçek kurumların alan adlarını kullanıyor: production'da olurlarsa
+herkes bu hesaplarla giriş yapabilir ve gerçek kullanıcılar sahte profiller görür.
+
+Production veritabanında demo hesap olup olmadığını kontrol edin ve varsa silin:
 ```bash
 cd backend
-MONGO_URI=mongodb+srv://... npx ts-node scripts/verify-seed-accounts.ts
+MONGO_URI=mongodb+srv://... npm run remove:demo-accounts             # yalnızca listeler
+MONGO_URI=mongodb+srv://... npm run remove:demo-accounts -- --apply  # siler (ilan, toplantı ve mesajlarıyla)
 ```
-
-Demo post ve meeting eklemek için:
-```bash
-MONGO_URI=mongodb+srv://... npx ts-node scripts/seed-realistic-posts.ts
-MONGO_URI=mongodb+srv://... npx ts-node scripts/seed-realistic-meetings.ts
-```
+Betik, şifresi demo şifresi olan bütün hesapları bulur; admin hesaplarını silmez, yalnızca listeler.
 
 ---
 
@@ -141,5 +142,7 @@ Gerekli env vars: `MONGO_URI`, `JWT_SECRET`, `CLIENT_ORIGIN`, `APP_BASE_URL`, `T
 - [ ] Vercel → `VITE_API_URL` Railway URL'i ile güncellendi
 - [ ] Cloudflare Turnstile site key + secret key ayarlandı
 - [ ] SMTP (email) test edildi (kayıt → doğrulama maili geliyor)
-- [ ] Seed hesapları `verify-seed-accounts.ts` ile doğrulandı
+- [ ] `npm run remove:demo-accounts` production'da 0 hesap gösteriyor (demo hesaplar silindi)
+- [ ] Render → `NODE_ENV=production` (istek limitleri ve e-posta alan adı kontrolü buna bağlı); `RATE_LIMIT_ENABLED` tanımlı değil veya `true`
+- [ ] Render otomatik deploy açık; deploy sonrası `/api/health` yanıtındaki `version` son commit'i gösteriyor
 - [ ] GitHub OAuth (opsiyonel) callback URL güncellendi: `https://railway-url/api/auth/github/callback`
