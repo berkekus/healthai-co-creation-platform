@@ -417,12 +417,14 @@ function ProfileCompletionCard({ user, onSaved }: { user: User; onSaved?: boolea
     let cancelled = false
     setAiLoading(true)
     // AI-written tips come back in the requested language, so ask again when it changes.
+    // A new photo is saved without the form, so it asks again too; otherwise
+    // "Upload a profile photo" stayed listed after the upload.
     api.get<{ success: boolean; data: ProfileScore }>('/ai/profile-score', { params: { lang } })
       .then(res => { if (!cancelled) setRemote(res.data.data) })
       .catch(() => { /* fallback to local score */ })
       .finally(() => { if (!cancelled) setAiLoading(false) })
     return () => { cancelled = true }
-  }, [onSaved, lang])
+  }, [onSaved, lang, user.avatarUrl])
 
   const r = 22
   const cx = 28
