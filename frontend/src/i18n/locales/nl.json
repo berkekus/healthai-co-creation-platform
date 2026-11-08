@@ -617,10 +617,11 @@
     },
     "avatar": {
       "change": "Foto wijzigen",
-      "rules": "JPEG, PNG, WebP of GIF, max. 5 MB",
+      "rules": "JPEG, PNG, WebP of GIF, max. 20 MB",
       "upload": "Profielfoto uploaden",
       "wrongType": "Alleen JPEG-, PNG-, WebP- of GIF-afbeeldingen zijn toegestaan.",
-      "tooLarge": "De afbeelding moet kleiner zijn dan 5 MB."
+      "tooLarge": "De afbeelding moet kleiner zijn dan 20 MB.",
+      "unreadable": "Deze afbeelding kon niet worden gelezen. Probeer een JPEG- of PNG-foto."
     },
     "deleteModal": {
       "badge": "Gevarenzone",
@@ -1588,6 +1589,8 @@
     "aiError": "De AI-dienst is nu niet beschikbaar. Probeer het later opnieuw.",
     "aiNeedsText": "Schrijf eerst een titel of beschrijving.",
     "noImage": "Kies een afbeelding om te uploaden.",
+    "imageWrongType": "Alleen JPEG-, PNG-, WebP- of GIF-afbeeldingen zijn toegestaan.",
+    "imageTooLarge": "Deze afbeelding is te groot om te uploaden. Probeer een kleinere foto.",
     "contactEmailInvalid": "Het contactadres is geen geldig e-mailadres.",
     "orcidInvalid": "Vul een geldige ORCID iD in, bijv. 0000-0002-1825-0097.",
     "websiteInvalid": "De website van de instelling moet een adres zijn dat begint met https://.",

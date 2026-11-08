@@ -6,13 +6,7 @@ import api from '../../lib/api'
 import BadgeList from '../../components/ui/BadgeList'
 import ProfessionalDetails, { hasProfessionalDetails } from '../../components/profile/ProfessionalDetails'
 import type { User } from '../../types/auth.types'
-
-const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
-const resolveAvatar = (url?: string) => {
-  if (!url) return undefined
-  if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`
-  return url
-}
+import { resolveAvatarUrl as resolveAvatar } from '../../utils/avatarImage'
 
 export default function PublicProfilePage() {
   const { t, i18n } = useTranslation()

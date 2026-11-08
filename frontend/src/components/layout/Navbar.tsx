@@ -11,13 +11,7 @@ import { ROUTES } from '../../constants/routes'
 import type { NotificationType, Notification } from '../../types/common.types'
 import { getNotificationContent } from '../../utils/notificationContent'
 import { timeAgo } from '../../utils/timeAgo'
-
-const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
-const resolveAvatar = (url?: string) => {
-  if (!url) return undefined
-  if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`
-  return url
-}
+import { resolveAvatarUrl as resolveAvatar } from '../../utils/avatarImage'
 
 function NotifIcon({ type }: { type: NotificationType }) {
   const base = 'flex items-center justify-center w-9 h-9 rounded-xl shrink-0'

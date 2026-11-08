@@ -15,10 +15,10 @@ import { createProfileSchema, type ProfileFormData } from '../../utils/validator
 import { EXPERTISE_SUGGESTIONS } from '../../constants/domains'
 import ProfessionalDetails from '../../components/profile/ProfessionalDetails'
 import { useSelectLabels } from '../../components/ui/useSelectLabels'
+import { MAX_ORIGINAL_BYTES, prepareAvatar, resolveAvatarUrl as resolveAvatar } from '../../utils/avatarImage'
 
 const FOCUS_SHADOW = '0 0 0 3px rgba(138,198,208,0.32)'
 const ERROR_SHADOW = '0 0 0 3px rgba(220,38,38,0.18)'
-const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
 
 /** Institutional domains (.edu / .gov, optionally with a country suffix). */
 const INSTITUTIONAL_EMAIL_RE = /\.(edu|gov)(\.[a-z]{2,})?$/i
@@ -35,12 +35,6 @@ function splitName(fullName?: string): { firstName: string; lastName: string } {
   const parts = (fullName ?? '').trim().split(/\s+/).filter(Boolean)
   if (parts.length === 0) return { firstName: '', lastName: '' }
   return { firstName: parts[0], lastName: parts.slice(1).join(' ') }
-}
-
-const resolveAvatar = (url?: string | null) => {
-  if (!url) return null
-  if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`
-  return url
 }
 
 const onInputFocus = (hasError: boolean) => (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -704,13 +698,16 @@ export default function ProfilePage() {
     if (!file) return
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
     if (!allowed.includes(file.type)) { setAvatarError(t('profile.avatar.wrongType')); return }
-    if (file.size > 5 * 1024 * 1024) { setAvatarError(t('profile.avatar.tooLarge')); return }
+    if (file.size > MAX_ORIGINAL_BYTES) { setAvatarError(t('profile.avatar.tooLarge')); return }
     setAvatarError(null)
     const previewUrl = URL.createObjectURL(file)
     setAvatarPreview(previewUrl)
     setAvatarUploading(true)
     try {
-      await uploadAvatar(file)
+      // Shrunk to a small square first: a phone photo is several MB, the circle needs ~30 KB.
+      const photo = await prepareAvatar(file)
+      if (photo) await uploadAvatar(photo)
+      else setAvatarError(t('profile.avatar.unreadable'))
     } finally {
       setAvatarUploading(false)
       URL.revokeObjectURL(previewUrl)

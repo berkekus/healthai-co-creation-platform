@@ -13,6 +13,7 @@ import logRoutes from '../routes/logRoutes'
 import aiRoutes from '../routes/aiRoutes'
 import savedSearchRoutes from '../routes/savedSearchRoutes'
 import commentRoutes, { commentRouter } from '../routes/commentRoutes'
+import avatarRoutes from '../routes/avatarRoutes'
 import { errorHandler, notFound } from '../middleware/errorHandler'
 import passport from 'passport'
 import { initPassport } from './passport'
@@ -75,6 +76,7 @@ app.use('/api/ai', aiRoutes)
 app.use('/api/saved-searches', savedSearchRoutes)
 app.use('/api/posts/:id/comments', commentRoutes)
 app.use('/api/comments', commentRouter)
+app.use('/api/avatars', avatarRoutes)
 
 app.use(notFound)
 app.use(errorHandler)

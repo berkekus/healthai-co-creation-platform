@@ -617,10 +617,11 @@
     },
     "avatar": {
       "change": "Change photo",
-      "rules": "JPEG, PNG, WebP or GIF, up to 5 MB",
+      "rules": "JPEG, PNG, WebP or GIF, up to 20 MB",
       "upload": "Upload profile photo",
       "wrongType": "Only JPEG, PNG, WebP or GIF images are allowed.",
-      "tooLarge": "The image must be under 5 MB."
+      "tooLarge": "The image must be under 20 MB.",
+      "unreadable": "This image could not be read. Try a JPEG or PNG photo."
     },
     "deleteModal": {
       "badge": "Danger zone",
@@ -1588,6 +1589,8 @@
     "aiError": "The AI service is not available right now. Please try again later.",
     "aiNeedsText": "Write a title or description first.",
     "noImage": "Choose an image to upload.",
+    "imageWrongType": "Only JPEG, PNG, WebP or GIF images are allowed.",
+    "imageTooLarge": "This image is too large to upload. Try a smaller photo.",
     "contactEmailInvalid": "The contact email is not a valid email address.",
     "orcidInvalid": "Enter a valid ORCID iD, e.g. 0000-0002-1825-0097.",
     "websiteInvalid": "The institution website must be a web address starting with https://.",

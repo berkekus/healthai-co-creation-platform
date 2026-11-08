@@ -617,10 +617,11 @@
     },
     "avatar": {
       "change": "Alterar foto",
-      "rules": "JPEG, PNG, WebP ou GIF, até 5 MB",
+      "rules": "JPEG, PNG, WebP ou GIF, até 20 MB",
       "upload": "Carregar foto de perfil",
       "wrongType": "Apenas são permitidas imagens JPEG, PNG, WebP ou GIF.",
-      "tooLarge": "A imagem deve ter menos de 5 MB."
+      "tooLarge": "A imagem deve ter menos de 20 MB.",
+      "unreadable": "Não foi possível ler esta imagem. Experimente uma foto JPEG ou PNG."
     },
     "deleteModal": {
       "badge": "Zona de perigo",
@@ -1588,6 +1589,8 @@
     "aiError": "O serviço de IA não está disponível de momento. Tente mais tarde.",
     "aiNeedsText": "Escreva primeiro um título ou uma descrição.",
     "noImage": "Escolha uma imagem para carregar.",
+    "imageWrongType": "Apenas são permitidas imagens JPEG, PNG, WebP ou GIF.",
+    "imageTooLarge": "Esta imagem é demasiado grande para carregar. Experimente uma foto mais pequena.",
     "contactEmailInvalid": "O email de contacto não é um endereço válido.",
     "orcidInvalid": "Introduza um ORCID iD válido, p. ex. 0000-0002-1825-0097.",
     "websiteInvalid": "O site da instituição tem de ser um endereço que comece por https://.",

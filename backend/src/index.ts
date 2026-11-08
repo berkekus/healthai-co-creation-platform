@@ -7,6 +7,7 @@ import connectDB from '../config/db'
 import app from './app'
 import { startCronJobs } from './cron'
 import { initSocket } from './socket'
+import { clearMissingDiskAvatars } from '../services/avatarService'
 
 const REQUIRED_ENV = ['JWT_SECRET', 'MONGO_URI'] as const
 for (const key of REQUIRED_ENV) {
@@ -28,6 +29,7 @@ initSocket(httpServer)
 
 connectDB().then(() => {
   startCronJobs()
+  clearMissingDiskAvatars().catch(err => logger.error({ err }, 'Failed to clear lost profile photos'))
   httpServer.listen(PORT, () => {
     logger.info({ port: PORT }, 'Server running')
   })

@@ -5,6 +5,7 @@ import { createLog } from '../services/logService'
 import { LOG } from '../constants/logActions'
 import { asyncHandler } from '../utils/asyncHandler'
 import { deleteAvatarFile } from '../middleware/uploadMiddleware'
+import { storeAvatar, deleteAvatarsExcept } from '../services/avatarService'
 import { verifyTurnstile } from '../utils/verifyTurnstile'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -341,12 +342,10 @@ export const uploadAvatar = asyncHandler<AuthenticatedRequest>(async (req, res) 
   }
 
   const existing = await authService.getUserById(req.userId)
-  if (existing.avatarUrl && existing.avatarUrl.startsWith('/uploads/')) {
-    deleteAvatarFile(existing.avatarUrl)
-  }
-
-  const avatarUrl = `/uploads/avatars/${req.file.filename}`
-  const user = await authService.updateUserProfile(req.userId, { avatarUrl })
+  const avatar = await storeAvatar(req.userId, req.file.buffer)
+  const user = await authService.updateUserProfile(req.userId, { avatarUrl: avatar.url })
+  await deleteAvatarsExcept(req.userId, avatar.id)
+  if (existing.avatarUrl?.startsWith('/uploads/')) deleteAvatarFile(existing.avatarUrl)
 
   createLog({
     userId: user.id,

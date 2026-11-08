@@ -84,6 +84,8 @@ const EXACT: Record<string, string> = {
   'Gemini returned an unexpected format': 'aiError',
   'At least title or description is required': 'aiNeedsText',
   'No image file provided': 'noImage',
+  'Only JPEG, PNG, WebP, and GIF images are allowed': 'imageWrongType',
+  'Image is too large': 'imageTooLarge',
   'Contact email is not a valid email address': 'contactEmailInvalid',
   'Enter a valid ORCID iD, e.g. 0000-0002-1825-0097': 'orcidInvalid',
   'Institution website must be a web address starting with https://': 'websiteInvalid',

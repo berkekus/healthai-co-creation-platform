@@ -5,6 +5,7 @@ import User, { IUser } from '../models/User'
 import Post from '../models/Post'
 import Meeting from '../models/Meeting'
 import Notification from '../models/Notification'
+import Avatar from '../models/Avatar'
 import { sendVerificationEmail, sendAccountDeletedEmail, sendPasswordResetEmail } from './emailService'
 import { pushNotification } from './notificationService'
 import { deleteAvatarFile } from '../middleware/uploadMiddleware'
@@ -371,6 +372,7 @@ async function cascadeDeleteUser(
   )
   await Post.deleteMany({ authorId: userId }, { session })
   await Notification.deleteMany({ userId }, { session })
+  await Avatar.deleteMany({ userId }, { session })
 
   // Use a fresh model query instead of reusing a document instance across a
   // possible transaction retry. Mongoose document.deleteOne() marks the
