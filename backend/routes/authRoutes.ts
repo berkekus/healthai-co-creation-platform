@@ -8,7 +8,7 @@ import {
 import { getPlatformStats } from '../controllers/adminController'
 import { protect, adminOnly, AuthenticatedRequest } from '../middleware/authMiddleware'
 import { avatarUpload } from '../middleware/uploadMiddleware'
-import { authLimiter } from '../middleware/rateLimiter'
+import { authIpLimiter, emailSendLimiter, loginLimiter } from '../middleware/rateLimiter'
 import { asyncHandler } from '../utils/asyncHandler'
 import { recalculateBadges, BADGE_META } from '../services/badgeService'
 import User from '../models/User'
@@ -21,11 +21,11 @@ import type { IUser } from '../models/User'
 const router = Router()
 
 // Rate-limited only on unauthenticated mutation endpoints
-router.post('/register',            authLimiter, register)
-router.post('/login',               authLimiter, login)
-router.post('/forgot-password',     authLimiter, forgotPassword)
-router.post('/resend-verification', authLimiter, resendVerification)
-router.post('/reset-password',      authLimiter, resetPassword)
+router.post('/register',            authIpLimiter, emailSendLimiter, register)
+router.post('/login',               authIpLimiter, loginLimiter, login)
+router.post('/forgot-password',     authIpLimiter, emailSendLimiter, forgotPassword)
+router.post('/resend-verification', authIpLimiter, emailSendLimiter, resendVerification)
+router.post('/reset-password',      authIpLimiter, resetPassword)
 router.post('/verify-email', verifyEmail)
 router.post('/logout', protect, logout)
 router.get('/me', protect, getMe)

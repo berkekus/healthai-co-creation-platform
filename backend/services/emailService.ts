@@ -39,17 +39,39 @@ function getAppUrl(): string {
 
 const APP_URL = getAppUrl()
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+// Resend accepts about two requests per second per account. When a class
+// registers together, mails go out one by one with a gap, and a 429 is retried:
+// a student whose verification mail is lost cannot sign in at all.
+const SEND_GAP_MS = 600
+const MAX_SEND_ATTEMPTS = 4
+let previousSend: Promise<unknown> = Promise.resolve()
+
+function inTurn<T>(task: () => Promise<T>): Promise<T> {
+  const run = previousSend.then(task, task)
+  previousSend = run.then(() => sleep(SEND_GAP_MS), () => sleep(SEND_GAP_MS))
+  return run
+}
+
 async function sendViaResendApi(to: string, subject: string, html: string): Promise<void> {
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ from: FROM, to, subject, html }),
-  })
-  if (!res.ok) {
-    throw new Error(`Resend API error ${res.status}: ${await res.text()}`)
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ from: FROM, to, subject, html }),
+    })
+    if (res.ok) return
+
+    const retryable = res.status === 429 || res.status >= 500
+    if (!retryable || attempt === MAX_SEND_ATTEMPTS) {
+      throw new Error(`Resend API error ${res.status}: ${await res.text()}`)
+    }
+    const retryAfterSeconds = Number(res.headers.get('retry-after'))
+    await sleep(retryAfterSeconds > 0 ? retryAfterSeconds * 1000 : 1000 * attempt)
   }
 }
 
@@ -65,7 +87,7 @@ async function send(to: string, subject: string, html: string): Promise<void> {
   // Prefer Resend's HTTPS API — many PaaS hosts (e.g. Render) block outbound SMTP ports entirely
   if (process.env.RESEND_API_KEY) {
     try {
-      await sendViaResendApi(to, subject, html)
+      await inTurn(() => sendViaResendApi(to, subject, html))
       logger.info({ to, subject }, '[EMAIL] Sent successfully (Resend API)')
     } catch (err) {
       logger.error({ err, to, subject }, '[EMAIL] Resend API send failed — link still logged to console above')
@@ -80,7 +102,7 @@ async function send(to: string, subject: string, html: string): Promise<void> {
   }
 
   try {
-    await t.sendMail({ from: FROM, to, subject, html })
+    await inTurn(() => t.sendMail({ from: FROM, to, subject, html }))
     logger.info({ to, subject }, '[EMAIL] Sent successfully (SMTP)')
   } catch (err) {
     logger.error({ err, to, subject }, '[EMAIL] SMTP send failed — link still logged to console above')
