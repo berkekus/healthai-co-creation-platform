@@ -19,9 +19,10 @@ Her madde bir panelde yapılacak iş; kodda karşılığı hazır.
 ### 1. Render (API)
 
 - [ ] **Instance type: Starter** ($7/ay). Free plan 15 dk boşta kalınca uyuyor (ilk istek ~23 sn), CPU 0.1. Aşağıdaki yük testi sonuçlarına bakın; aynı anda yüzlerce kişi bekleniyorsa açılış haftası için **Standard** (1 CPU, $25/ay) düşünün, sonra geri düşürün.
-- [ ] **Branch: `main`**, **Auto-Deploy: On**. 8 Kasım'da canlıdaki API, `main`'in 15 Ekim commit'inden eskiydi; hangi branch'in deploy edildiğine bakın.
+- [ ] **Branch: `main`**, **Auto-Deploy: On**. 8 Kasım'da Vercel `main`'in son halini yayınlıyordu, Render ise 14 Eylül ile 15 Ekim arasındaki bir sürümde kalmıştı. Dashboard → **Events** sekmesinde son deploy'un "failed" olup olmadığına ve hangi branch'ten alındığına bakın.
+- [ ] **Deploy sonrası kontrol:** `https://healthai-co-creation-platform.onrender.com/api/health` yanıtındaki `version`, merge commit'inin ilk 7 karakteri olmalı. `.../api/avatars/000000000000000000000000` adresi `"Route not found"` değil `"Photo not found"` dönmeli. Böyle değilse yeni backend yayında değildir, Render'da **Manual Deploy → Deploy latest commit** yapın.
 - [ ] **Start Command:** Node runtime ise `npm start` olmalı (Docker runtime ise Dockerfile'daki `CMD` kullanılır, ayrıca bir şey gerekmez). `npm start` = `node --single-threaded-gc dist/src/index.js`. Bu bayrak olmadan 0.5 CPU'da 300 kişilik ani kayıt dalgası tamamen tıkanıyor (aşağıya bakın).
-- [ ] **Build Command:** `npm ci && npm run build` · **Root Directory:** `backend`
+- [ ] **Build Command:** `npm ci --include=dev && npm run build` · **Root Directory:** `backend`. `--include=dev` şart: `NODE_ENV=production` tanımlıyken npm devDependencies'i atlıyor, `typescript` de onların içinde, ve build `tsc: not found` ile düşüyor.
 - [ ] **Health Check Path:** `/api/health`
 - [ ] **Environment** — şu değişkenler tanımlı olsun:
 

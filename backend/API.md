@@ -34,7 +34,7 @@ Rate limits (`429` when exceeded). They are on in production and off elsewhere; 
 
 | Endpoints | Limit |
 |---|---|
-| `register`, `login`, `forgot-password`, `resend-verification`, `reset-password` | 1000 requests / 15 min per IP, shared |
+| `register`, `login`, `forgot-password`, `resend-verification`, `reset-password` | 3000 requests / 15 min per IP, shared |
 | `login` | 10 failed attempts / 15 min per email and IP |
 | `register`, `forgot-password`, `resend-verification` | 5 mails / hour per email address |
 

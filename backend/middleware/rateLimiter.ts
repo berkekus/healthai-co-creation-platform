@@ -38,10 +38,11 @@ const HOUR = 60 * MINUTE
 
 /**
  * Ceiling on all sign-in/sign-up traffic from one address; only a flood guard.
- * A launch can put a few hundred people on one venue network, each making two
- * or three auth calls (sign up, re-send link, sign in), so it sits well above that.
+ * A launch can put several hundred people on one venue network, each making two
+ * to four auth calls (sign up, re-send link, sign in, a mistyped password), so it
+ * sits well above that. Bots are stopped by Turnstile, and CPU by the hashing queue.
  */
-export const authIpLimiter = limiter({ windowMs: 15 * MINUTE, limit: 1000, keyGenerator: ipKey })
+export const authIpLimiter = limiter({ windowMs: 15 * MINUTE, limit: 3000, keyGenerator: ipKey })
 
 /** Wrong passwords per address and account: stops guessing one account without locking out the room. */
 export const loginLimiter = limiter({
