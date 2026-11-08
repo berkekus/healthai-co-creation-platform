@@ -1532,6 +1532,7 @@
     "network": "Sunucuya ulaşılamıyor. Bağlantınızı kontrol edip tekrar deneyin.",
     "timeout": "Sunucu çok geç yanıt verdi. Lütfen tekrar deneyin.",
     "tooManyRequests": "Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.",
+    "serverBusy": "Sunucu şu anda çok yoğun. Lütfen birazdan tekrar deneyin.",
     "invalidCredentials": "E-posta veya şifre hatalı.",
     "accountSuspended": "Bu hesap askıya alınmış.",
     "emailNotVerified": "E-posta adresiniz henüz doğrulanmadı. Gelen kutunuzu kontrol edin veya yeni bir doğrulama bağlantısı isteyin.",

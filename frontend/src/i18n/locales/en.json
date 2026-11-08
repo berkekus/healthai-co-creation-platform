@@ -1532,6 +1532,7 @@
     "network": "We can't reach the server. Check your connection and try again.",
     "timeout": "The server took too long to answer. Please try again.",
     "tooManyRequests": "Too many requests. Please wait a moment and try again.",
+    "serverBusy": "The server is busy right now. Please try again in a moment.",
     "invalidCredentials": "Incorrect email or password.",
     "accountSuspended": "This account has been suspended.",
     "emailNotVerified": "Your email is not verified yet. Check your inbox or request a new verification link.",

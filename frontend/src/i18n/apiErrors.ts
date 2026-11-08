@@ -9,6 +9,7 @@ import i18n from './index'
 const EXACT: Record<string, string> = {
   'Network Error': 'network',
   'Too many requests, please try again later': 'tooManyRequests',
+  'The server is busy. Please try again in a moment.': 'serverBusy',
   'Invalid credentials': 'invalidCredentials',
   'Account suspended': 'accountSuspended',
   'Email not verified. Please check your inbox or request a new verification link.': 'emailNotVerified',

@@ -1532,6 +1532,7 @@
     "network": "Não conseguimos contactar o servidor. Verifique a sua ligação e tente novamente.",
     "timeout": "O servidor demorou demasiado a responder. Tente novamente.",
     "tooManyRequests": "Demasiados pedidos. Aguarde um momento e tente novamente.",
+    "serverBusy": "O servidor está ocupado neste momento. Tente novamente daqui a pouco.",
     "invalidCredentials": "Email ou palavra-passe incorretos.",
     "accountSuspended": "Esta conta foi suspensa.",
     "emailNotVerified": "O seu email ainda não foi verificado. Verifique a sua caixa de entrada ou peça um novo link de verificação.",

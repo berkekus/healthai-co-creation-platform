@@ -1532,6 +1532,7 @@
     "network": "We kunnen de server niet bereiken. Controleer je verbinding en probeer het opnieuw.",
     "timeout": "De server reageerde te traag. Probeer het opnieuw.",
     "tooManyRequests": "Te veel verzoeken. Wacht even en probeer het opnieuw.",
+    "serverBusy": "De server is op dit moment druk. Probeer het zo meteen opnieuw.",
     "invalidCredentials": "E-mailadres of wachtwoord onjuist.",
     "accountSuspended": "Dit account is geschorst.",
     "emailNotVerified": "Je e-mailadres is nog niet geverifieerd. Kijk in je inbox of vraag een nieuwe verificatielink aan.",
