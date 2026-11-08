@@ -8,6 +8,9 @@ import pt from './locales/pt.json'
 import es from './locales/es.json'
 import nl from './locales/nl.json'
 
+/** Where the chosen language is kept; it is read first on every page load. */
+export const LANGUAGE_STORAGE_KEY = 'healthai_lang'
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -25,7 +28,7 @@ i18n
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
-      lookupLocalStorage: 'healthai_lang',
+      lookupLocalStorage: LANGUAGE_STORAGE_KEY,
     },
     interpolation: {
       escapeValue: false,
