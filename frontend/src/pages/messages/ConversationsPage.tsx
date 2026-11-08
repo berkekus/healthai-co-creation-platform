@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { MessageSquare, Clock, Trash2 } from 'lucide-react'
+import { MessageSquare, Clock, Trash2, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useConversationStore } from '../../store/conversationStore'
 import { useAuthStore } from '../../store/authStore'
@@ -92,7 +92,9 @@ function ConversationRow({ conv, userId, isLast, onClick, onDelete }: {
   const [deleting, setDeleting] = useState(false)
 
   const partner = conv.participantDetails.find(p => p.userId !== userId)
-  const initials = partner ? partner.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : '??'
+  // A member who deleted their account has no name; show a person icon rather than "??".
+  const initials = partner?.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+    || <UserRound size={20} aria-hidden="true" />
   const timeAgo = describeTimeAgo(conv.lastMessageAt, t)
 
   const handleDelete = async (e: React.MouseEvent) => {

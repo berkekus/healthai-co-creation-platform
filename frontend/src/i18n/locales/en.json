@@ -1,7 +1,7 @@
 {
   "sessionTimeout": {
     "badge": "Session · Timeout warning",
-    "title": "Still there",
+    "title": "Still there?",
     "descriptionBefore": "You'll be signed out in",
     "descriptionAfter": "seconds due to inactivity.",
     "signOut": "Sign out",

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, Globe2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { LANGUAGE_STORAGE_KEY } from '../../i18n'
+import { reloadPage } from '../../utils/reloadPage'
 import { cx } from './cx'
 
 const LANGUAGE_OPTIONS = [
@@ -23,6 +25,16 @@ function normalizeLanguage(language: string | undefined): LanguageCode {
   return LANGUAGE_OPTIONS.some(option => option.code === baseLanguage)
     ? baseLanguage as LanguageCode
     : 'en'
+}
+
+/** Saves the choice where the next page load reads it; false where the browser blocks storage. */
+function saveLanguage(code: LanguageCode): boolean {
+  try {
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, code)
+    return window.localStorage.getItem(LANGUAGE_STORAGE_KEY) === code
+  } catch {
+    return false
+  }
 }
 
 export default function LanguageToggle({ className, compact = false }: LanguageToggleProps) {
@@ -51,9 +63,18 @@ export default function LanguageToggle({ className, compact = false }: LanguageT
     }
   }, [open])
 
+  // The whole page reloads in the new language, so nothing on it (text the server
+  // sent, dates, AI tips) is left over from the old one.
   const changeLanguage = (code: LanguageCode) => {
-    void i18n.changeLanguage(code)
     setOpen(false)
+    if (code === currentCode) return
+    if (saveLanguage(code)) {
+      reloadPage()
+      return
+    }
+    // Storage is blocked (some private windows): a reload would bring the old
+    // language back, so switch the text in place instead.
+    void i18n.changeLanguage(code)
   }
 
   return (

@@ -296,13 +296,13 @@ const ProfileVisual = () => {
         AY
       </div>
       <div>
-        <div className="font-headline font-bold text-hai-plum text-lg leading-tight">Aylin Yilmaz</div>
+        <div className="font-headline font-bold text-hai-plum text-lg leading-tight">Aylin Yılmaz</div>
         <div className="text-xs font-mono tracking-[0.12em] uppercase text-neutral-500">{t('landing.tour.visual.clinicianProfile')}</div>
       </div>
       <Icon name="verified" className="ml-auto text-hai-teal text-2xl" filled />
     </div>
     <div className="grid grid-cols-2 gap-2 mt-4">
-      {['Cardiology', 'Istanbul, Turkiye', 'Clinical AI', t('landing.tour.visual.institutionVerified')].map((item) => (
+      {['Cardiology', 'Istanbul, Türkiye', 'Clinical AI', t('landing.tour.visual.institutionVerified')].map((item) => (
         <div key={item} className="rounded-xl bg-neutral-100 px-3 py-2 text-xs font-bold text-hai-plum">
           {item}
         </div>
@@ -351,7 +351,7 @@ const MatchVisual = () => {
   const { t } = useTranslation()
   const chips: [string, boolean][] = [
     [t('landing.tour.visual.bestMatch'), true], ['Orthopedics', false], ['Machine learning', true], [t('posts.collab.research_partner'), false],
-    ['Ankara, Turkiye', true], [t('landing.tour.visual.page'), false],
+    ['Ankara, Türkiye', true], [t('landing.tour.visual.page'), false],
   ]
   return (
     <div className="w-full max-w-[360px] mx-auto bg-white rounded-3xl shadow-[0_25px_60px_-25px_rgba(54,33,62,0.35)] border border-hai-teal/20 p-5">
@@ -363,7 +363,7 @@ const MatchVisual = () => {
         <div className="font-headline font-bold text-hai-plum text-base leading-tight">Structured MRI report assistant</div>
         <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-neutral-500">
           <Icon name="location_on" className="text-base" />
-          Ankara, Turkiye
+          Ankara, Türkiye
         </div>
       </div>
       <div className="flex flex-wrap gap-2">

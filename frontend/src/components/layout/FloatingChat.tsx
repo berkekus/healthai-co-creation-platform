@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ArrowLeft, MessageSquare, Send, X } from 'lucide-react'
+import { ArrowLeft, MessageSquare, Send, UserRound, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
 import { useAuthStore } from '../../store/authStore'
@@ -8,8 +8,10 @@ import { useConversationStore } from '../../store/conversationStore'
 import type { Conversation, Message } from '../../types/conversation.types'
 import { timeAgo } from '../../utils/timeAgo'
 
-function initials(name?: string) {
-  return name?.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase() || '??'
+/** Initials for the avatar; a person icon when the member is gone, rather than "??". */
+function Initials({ name }: { name?: string }) {
+  const letters = name?.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
+  return letters ? <>{letters}</> : <UserRound size={16} aria-hidden="true" />
 }
 
 function partnerFor(conv: Conversation, userId?: string) {
@@ -108,10 +110,10 @@ export default function FloatingChat() {
                   <ArrowLeft size={16} />
                 </button>
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-hai-mint">
-                  {initials(partner?.name)}
+                  <Initials name={partner?.name} />
                 </div>
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-black text-hai-plum">{partner?.name ?? t('messagesPage.title')}</div>
+                  <div className="truncate text-sm font-black text-hai-plum">{partner?.name ?? t('messagesPage.unknownPartner')}</div>
                   <div className="truncate text-xs font-semibold text-ink-muted">{selected.postTitle}</div>
                 </div>
               </div>
@@ -201,7 +203,7 @@ export default function FloatingChat() {
                       className="flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left transition last:border-0 hover:bg-surface-subtle"
                     >
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-hai-plum text-xs font-black text-hai-mint">
-                        {initials(itemPartner?.name)}
+                        <Initials name={itemPartner?.name} />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-3">
