@@ -1,9 +1,14 @@
 import User from '../models/User'
 import { makeError } from '../utils/AppError'
-import { fetchGeminiContent, extractGeminiText, type GeminiResponse } from '../utils/geminiClient'
+import { fetchGeminiContent, extractGeminiText, RATE_LIMITED_MESSAGE, type GeminiResponse } from '../utils/geminiClient'
+import { cacheKey, createAiCache, HOUR } from '../utils/aiCache'
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'
 const MAX_POSTS_TO_ANALYZE = 10
+
+// The post list asks again on every page and filter change; paging back and
+// forth should not cost a new call each time.
+const matchCache = createAiCache<AIMatchSuggestion[]>(6 * HOUR)
 
 export interface MatchPostInput {
   id: string
@@ -71,6 +76,11 @@ export async function rankPostsForUser(userId: string, posts: MatchPostInput[]) 
 
   if (!candidates.length) return []
 
+  const key = cacheKey(userId, user.role, user.city, user.country, user.expertiseTags, user.bio,
+    candidates.map(post => [post.id, post.title, post.domain, post.expertiseRequired, post.description, post.authorRole]))
+  const cached = matchCache.get(key)
+  if (cached) return cached
+
   const prompt = `You are matching users to healthcare AI collaboration posts.
 Return ONLY valid JSON in this exact shape:
 {"matches":[{"postId":"string","reason":"max 70 chars","score":0-100,"expertise":["short area"]}]}
@@ -101,6 +111,7 @@ ${JSON.stringify(candidates.map(post => ({
 
   const response = await fetchGeminiContent(GEMINI_MODEL, apiKey, prompt, 0.2)
 
+  if (response.status === 429) throw makeError(RATE_LIMITED_MESSAGE, 429)
   if (!response.ok) {
     const errBody = await response.text().catch(() => '')
     throw makeError(`Gemini ${response.status}: ${errBody.slice(0, 200)}`, 502)
@@ -109,7 +120,9 @@ ${JSON.stringify(candidates.map(post => ({
   const payload = await response.json() as GeminiResponse
   const text = extractGeminiText(payload, '\n')
   const allowedIds = new Set(candidates.map(post => post.id))
-  return parseSuggestions(text)
+  const matches = parseSuggestions(text)
     .filter(item => allowedIds.has(item.postId))
     .sort((a, b) => b.score - a.score)
+  matchCache.set(key, matches)
+  return matches
 }

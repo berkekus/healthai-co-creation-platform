@@ -63,6 +63,12 @@ export const emailActionLimiter = limiter({
   keyGenerator: req => emailOf(req) || `ip:${ipKey(req)}`,
 })
 
+/**
+ * /api/ai/* — calls per member per hour. The Gemini quota is shared by everyone,
+ * so one person clicking through every page cannot spend it for the rest.
+ */
+export const aiLimiter = limiter({ windowMs: HOUR, limit: 100, keyGenerator: userKey })
+
 /** POST /api/posts — new posts per member per day. */
 export const postCreateLimiter = limiter({ windowMs: 24 * HOUR, limit: 30, keyGenerator: userKey })
 
