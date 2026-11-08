@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
-    "start": "node dist/src/index.js",
+    "start": "node --single-threaded-gc dist/src/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "smoke": "ts-node-dev --transpile-only scripts/smoke-test.ts",
+    "remove:demo-accounts": "ts-node-dev --transpile-only scripts/remove-demo-accounts.ts",
     "seed:realistic-posts": "ts-node-dev --transpile-only scripts/seed-realistic-posts.ts",
     "seed:realistic-meetings": "ts-node-dev --transpile-only scripts/seed-realistic-meetings.ts",
     "seed:demo-messages": "ts-node-dev --transpile-only scripts/seed-demo-messages.ts",

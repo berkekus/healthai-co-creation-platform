@@ -256,12 +256,12 @@ npm run seed:demo-messages
 
 ## Demo Accounts
 
-After seeding, the login page includes Dev Access buttons for demo users.
+The seed scripts create demo users for **local development only**. In a dev build
+(`npm run dev`) the login page shows Dev Access buttons that sign in as them; production
+builds leave those buttons out.
 
-| Email | Password | Role |
-| --- | --- | --- |
-| `elif.kaya@istanbul.edu.tr` | `HealthAI2026!` | Healthcare Professional |
-| `mert.aydin@metu.edu.tr` | `HealthAI2026!` | Engineer |
+Never run the seed scripts against the production database: the demo password is in this
+public repository, so anyone could sign in as those users.
 
 ---
 

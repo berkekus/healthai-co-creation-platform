@@ -1,8 +1,12 @@
 import User from '../models/User'
 import { makeError } from '../utils/AppError'
 import { fetchGeminiContent, extractGeminiText, type GeminiResponse } from '../utils/geminiClient'
+import { cacheKey, createAiCache, HOUR } from '../utils/aiCache'
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'
+
+// The profile page asks on every visit; the answer changes only with the profile.
+const scoreCache = createAiCache<ProfileScoreResult>(24 * HOUR)
 
 export interface ProfileScoreResult {
   score: number
@@ -74,6 +78,11 @@ export async function getProfileScore(userId: string, lang?: unknown): Promise<P
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return localScore(user)
 
+  const key = cacheKey(userId, language, user.name, user.role, user.bio, user.expertiseTags,
+    user.institution, user.city, user.country, Boolean(user.avatarUrl))
+  const cached = scoreCache.get(key)
+  if (cached) return cached
+
   const prompt = `You are evaluating the completeness and quality of a healthcare AI collaboration profile.
 Return ONLY valid JSON in this exact shape (no markdown, no prose):
 {"score": 0-100, "suggestions": ["action 1", "action 2", "action 3"]}
@@ -104,7 +113,11 @@ Rules:
 
     const payload = await response.json() as GeminiResponse
     const text = extractGeminiText(payload)
-    return parseScoreResponse(text) ?? localScore(user)
+    const result = parseScoreResponse(text)
+    // Only the AI's own answer is kept; a fallback is retried on the next visit.
+    if (!result) return localScore(user)
+    scoreCache.set(key, result)
+    return result
   } catch {
     return localScore(user)
   }

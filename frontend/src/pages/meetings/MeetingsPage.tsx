@@ -5,8 +5,6 @@ import {
   CalendarPlus,
   Check,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   Clock,
   Flag,
   MessageSquare,
@@ -27,7 +25,8 @@ import { postDetail } from '../../constants/routes'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import ProposeTimesModal from '../../components/meetings/ProposeTimesModal'
 import { CHAT_OPEN_STATUSES, MEETING_STATUS_STYLE, meetingRole } from '../../utils/meetingStatus'
-import { browserTimeZone, describeSlot } from '../../utils/timeSlots'
+import { browserTimeZone, describeSlot, formatSlotDate, zonedTimeToUtc } from '../../utils/timeSlots'
+import MeetingCalendar, { meetingDays, meetingIsOnDay } from '../../components/meetings/MeetingCalendar'
 import { SkeletonCircle, SkeletonLine } from '../../components/ui/Skeleton'
 
 // Direction and status are independent, so they are two filters combined with AND
@@ -54,7 +53,7 @@ function matchesStatus(meeting: Meeting, status: StatusFilter) {
 const CLOSABLE_POST_STATUSES: PostStatus[] = ['active', 'meeting_scheduled', 'expired']
 
 export default function MeetingsPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { user } = useAuthStore()
   const { meetings, listStatus, fetchByUser, accept, confirm, decline, cancel, complete, reschedule } = useMeetingStore()
   const { fetchConversations } = useConversationStore()
@@ -64,6 +63,8 @@ export default function MeetingsPage() {
   const [direction, setDirection] = useState<DirectionFilter>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [sortMode, setSortMode] = useState<SortMode>('recent')
+  // YYYY-MM-DD picked on the calendar; narrows the list to that day.
+  const [selectedDay, setSelectedDay] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [proposeFor, setProposeFor] = useState<Meeting | null>(null)
@@ -110,17 +111,18 @@ export default function MeetingsPage() {
   const awaitingReply = scopedMeetings.filter(m => matchesDirection(m, 'incoming', user?.id) && matchesStatus(m, 'pending')).length
   const showingAwaiting = direction === 'incoming' && statusFilter === 'pending'
 
-  const resetFilters = () => { setDirection('all'); setStatusFilter('all') }
+  const resetFilters = () => { setDirection('all'); setStatusFilter('all'); setSelectedDay(null) }
 
   const visibleMeetings = useMemo(() => {
     return scopedMeetings
       .filter(meeting => matchesDirection(meeting, direction, user?.id) && matchesStatus(meeting, statusFilter))
+      .filter(meeting => !selectedDay || meetingIsOnDay(meeting, selectedDay, viewerZone))
       .sort((a, b) => {
         const left = meetingTimestamp(a)
         const right = meetingTimestamp(b)
         return sortMode === 'recent' ? right - left : left - right
       })
-  }, [direction, statusFilter, scopedMeetings, sortMode, user?.id])
+  }, [direction, statusFilter, selectedDay, viewerZone, scopedMeetings, sortMode, user?.id])
 
   const runAction = async (id: string, action: () => Promise<void>) => {
     setBusyId(id)
@@ -172,7 +174,7 @@ export default function MeetingsPage() {
         '--cancelled-bg': '#EEF0F3',
       } as CSSProperties}
     >
-      <section className="mx-auto w-full max-w-[1640px] px-6 pb-20 pt-[72px] md:px-10 2xl:px-0">
+      <section className="mx-auto w-full max-w-[1640px] px-4 pb-20 pt-[72px] sm:px-6 md:px-10 2xl:px-0">
         <Hero total={countsKnown ? scopedMeetings.length : null} />
 
         {requestSentTo && (
@@ -224,6 +226,15 @@ export default function MeetingsPage() {
             </div>
           )}
 
+          {selectedDay && (
+            <div role="status" className="flex flex-wrap items-center gap-3 text-sm font-bold text-[var(--primary)]">
+              <span className="rounded-full bg-[var(--success-bg)] px-4 py-2">{t('meetingsPage.dayFilter', { date: formatSlotDate(selectedDay, i18n.language) })}</span>
+              <button type="button" onClick={() => setSelectedDay(null)} className="underline underline-offset-2 hover:text-black">
+                {t('meetingsPage.clearDay')}
+              </button>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.41fr)]">
             {showSkeleton ? (
               <MeetingListSkeleton />
@@ -258,7 +269,7 @@ export default function MeetingsPage() {
             />
             )}
             <aside>
-              <WidgetArea meetings={scopedMeetings} />
+              <WidgetArea meetings={scopedMeetings} viewerZone={viewerZone} selectedDay={selectedDay} onSelectDay={setSelectedDay} />
             </aside>
           </div>
         </div>
@@ -300,7 +311,7 @@ function Hero({ total }: { total: number | null }) {
           {total === null ? t('common.loading') : t('meetingsPage.totalCount', { count: total })}
         </div>
 
-        <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-[var(--primary)] md:text-8xl">
+        <h1 className="mt-5 break-words font-headline text-4xl font-black leading-tight tracking-normal text-[var(--primary)] sm:text-6xl md:text-7xl">
           {t('meetingsPage.title')}
         </h1>
 
@@ -524,8 +535,9 @@ function MeetingRow({
       </div>
 
       <div className="min-w-0">
-        <div className="flex min-w-0 flex-wrap items-center gap-3">
-          <h2 className="truncate font-headline text-lg font-black">
+        <div className="min-w-0">
+          {/* Two lines, then an ellipsis: one line cut most titles short even on wide screens. */}
+          <h2 className="line-clamp-2 break-words font-headline text-lg font-black leading-snug">
             <Link
               to={postDetail(meeting.postId)}
               className="rounded-sm text-[var(--text)] transition hover:text-[var(--accent-strong)] hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-offset-2"
@@ -533,12 +545,12 @@ function MeetingRow({
               {meeting.postTitle}
             </Link>
           </h2>
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] ${style.className}`}>
+          <span className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] ${style.className}`}>
             <StatusIcon size={13} aria-hidden="true" />
             {t(`meetings.status.${status}`)}
           </span>
         </div>
-        <p className="mt-2 truncate text-sm font-semibold text-[var(--muted)]">
+        <p className="mt-2 break-words text-sm font-semibold text-[var(--muted)]">
           {t(`meetingsPage.direction.${isOwner ? 'incoming' : 'outgoing'}`, { name: partner })}
           {partnerEmail && (
             <>
@@ -571,8 +583,8 @@ function MeetingRow({
             <div className="flex items-center gap-2">
               <Clock size={16} className="text-[var(--primary)]" aria-hidden="true" />
               {confirmed.timeLabel}
-              {confirmed.zoneLabel && <span className="font-semibold">· {confirmed.zoneLabel}</span>}
             </div>
+            {confirmed.zoneLabel && <div className="pl-6 text-xs font-semibold">{confirmed.zoneLabel}</div>}
             {confirmed.local && (
               <div className="text-xs font-semibold">{t('meetingSlots.yourTime', { date: confirmed.local.dateLabel, time: confirmed.local.timeLabel })}</div>
             )}
@@ -846,7 +858,12 @@ function ActionButton({
   )
 }
 
-function WidgetArea({ meetings }: { meetings: Meeting[] }) {
+function WidgetArea({ meetings, viewerZone, selectedDay, onSelectDay }: {
+  meetings: Meeting[]
+  viewerZone?: string
+  selectedDay: string | null
+  onSelectDay: (day: string | null) => void
+}) {
   const { t } = useTranslation()
   const [calendarOpen, setCalendarOpen] = useState(true)
   const [overviewOpen, setOverviewOpen] = useState(true)
@@ -859,8 +876,16 @@ function WidgetArea({ meetings }: { meetings: Meeting[] }) {
       </div>
 
       <div className="space-y-6">
-        {calendarOpen && <CalendarPanel meetings={meetings} onClose={() => setCalendarOpen(false)} />}
-        {overviewOpen && <OverviewPanel meetings={meetings} onClose={() => setOverviewOpen(false)} />}
+        {calendarOpen && (
+          <MeetingCalendar
+            meetings={meetings}
+            viewerZone={viewerZone}
+            selectedDay={selectedDay}
+            onSelectDay={onSelectDay}
+            onClose={() => { setCalendarOpen(false); onSelectDay(null) }}
+          />
+        )}
+        {overviewOpen && <OverviewPanel meetings={meetings} viewerZone={viewerZone} onClose={() => setOverviewOpen(false)} />}
       </div>
     </div>
   )
@@ -882,81 +907,26 @@ function IconButton({ icon, label, onClick, active }: { icon: ReactNode; label: 
   )
 }
 
-/** Sunday-first narrow weekday names in the interface language. */
-function weekdayInitials(locale: string) {
-  // 4 January 2026 was a Sunday.
-  return Array.from({ length: 7 }, (_, day) =>
-    new Intl.DateTimeFormat(locale, { weekday: 'narrow', timeZone: 'UTC' }).format(new Date(Date.UTC(2026, 0, 4 + day))),
-  )
+/**
+ * The month a meeting belongs to in the overview: when it happens (or would, for a
+ * request), else when it was requested.
+ */
+function meetingMonth(meeting: Meeting, viewerZone?: string): string {
+  const day = meetingDays(meeting, viewerZone)[0]?.day
+  if (day) return day.slice(0, 7)
+  const created = new Date(meeting.createdAt)
+  return `${created.getFullYear()}-${String(created.getMonth() + 1).padStart(2, '0')}`
 }
 
-function CalendarPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: () => void }) {
-  const { t, i18n } = useTranslation()
-  const [monthCursor, setMonthCursor] = useState(() => new Date())
-  const year = monthCursor.getFullYear()
-  const month = monthCursor.getMonth()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const startOffset = new Date(year, month, 1).getDay()
-  const meetingDays = new Set(
-    meetings
-      .map(meeting => slotDate(meeting))
-      .filter(date => date && date.getFullYear() === year && date.getMonth() === month)
-      .map(date => date!.getDate()),
-  )
-
-  return (
-    <section className="rounded-[28px] border border-[var(--border)] bg-white p-6 shadow-[0_28px_70px_-54px_rgba(45,24,56,0.6)]">
-      <div className="mb-5 flex items-center justify-between">
-        <h2 className="font-headline text-lg font-black text-[var(--primary)]">
-          {monthCursor.toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' })}
-        </h2>
-        <div className="flex items-center gap-1.5">
-          <button aria-label={t('meetingsPage.previousMonth')} onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() - 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-surface-muted">
-            <ChevronLeft size={16} />
-          </button>
-          <button aria-label={t('meetingsPage.nextMonth')} onClick={() => setMonthCursor(date => new Date(date.getFullYear(), date.getMonth() + 1, 1))} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-surface-muted">
-            <ChevronRight size={16} />
-          </button>
-          <button aria-label={t('common.close')} onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted)] hover:bg-surface-muted">
-            <X size={16} />
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-7 gap-y-2">
-        {weekdayInitials(i18n.language).map((day, index) => (
-          <div key={`${day}-${index}`} className="text-center text-xs font-black uppercase text-ink-muted">
-            {day}
-          </div>
-        ))}
-        {Array.from({ length: startOffset }, (_, index) => (
-          <div key={`blank-${index}`} />
-        ))}
-        {Array.from({ length: daysInMonth }, (_, index) => index + 1).map(day => {
-          const hasMeeting = meetingDays.has(day)
-          return (
-            <div key={day} className="flex h-10 items-center justify-center">
-              <div
-                className={`relative flex h-9 w-9 items-center justify-center rounded-full text-sm font-black ${
-                  hasMeeting ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted)]'
-                }`}
-              >
-                {day}
-                {hasMeeting && <span className="absolute bottom-1.5 h-1 w-1 rounded-full bg-white" />}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </section>
-  )
-}
-
-function OverviewPanel({ meetings, onClose }: { meetings: Meeting[]; onClose: () => void }) {
+function OverviewPanel({ meetings, viewerZone, onClose }: { meetings: Meeting[]; viewerZone?: string; onClose: () => void }) {
   const { t } = useTranslation()
   const [range, setRange] = useState('month')
-  const total = meetings.length
-  const count = (...statuses: MeetingStatus[]) => meetings.filter(m => statuses.includes(m.status)).length
+  // The "This month / All time" choice used to change nothing.
+  const now = new Date()
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const inRange = range === 'month' ? meetings.filter(m => meetingMonth(m, viewerZone) === thisMonth) : meetings
+  const total = inRange.length
+  const count = (...statuses: MeetingStatus[]) => inRange.filter(m => statuses.includes(m.status)).length
   const legend = [
     { label: t('meetings.status.pending'),       value: count('pending'),               color: '#E0A100' },
     { label: t('meetings.status.time_proposed'), value: count('time_proposed'),         color: '#3B63D1' },
@@ -1050,7 +1020,8 @@ function meetingTimestamp(meeting: Meeting) {
 
 function slotDate(meeting: Meeting) {
   const slot = meeting.confirmedSlot ?? meeting.proposedSlots[0]
-  return slot ? new Date(`${slot.date}T${slot.time}`) : null
+  if (!slot) return null
+  return slot.timezone ? zonedTimeToUtc(slot.date, slot.time, slot.timezone) : new Date(`${slot.date}T${slot.time}`)
 }
 
 function initials(name: string) {

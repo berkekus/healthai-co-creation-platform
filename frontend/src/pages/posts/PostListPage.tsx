@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { HEALTH_DOMAIN_GROUPS, postDomains } from '../../constants/domains'
@@ -23,6 +23,7 @@ import type { TFunction } from 'i18next'
 import api from '../../lib/api'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import { Skeleton, SkeletonLine, SkeletonPill } from '../../components/ui/Skeleton'
+import FilterCombobox from '../../components/ui/FilterCombobox'
 import {
   Badge,
   Button,
@@ -32,7 +33,6 @@ import {
   FieldLabel,
   IconButton,
   SectionCard,
-  SelectInput,
   TextInput,
 } from '../../components/ui'
 import { ROUTES, postDetail } from '../../constants/routes'
@@ -41,9 +41,11 @@ import { usePostStore } from '../../store/postStore'
 import { useSmartSuggestions } from '../../lib/gemini'
 import { usePostList } from '../../hooks/usePostList'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
+import { useUrlBackedText } from '../../hooks/useUrlBackedText'
 import type { PostSort } from '../../lib/postsApi'
 import { CITIES, COUNTRIES } from '../../data/locations'
 import { computeMatchReasons, getCombinedMatchScore } from '../../utils/matchPosts'
+import PostStatusBadge from '../../components/posts/PostStatusBadge'
 import type { Post, PostAuthorRole, PostStatus, ProjectStage } from '../../types/post.types'
 
 type PostedBy = 'Anyone' | 'Engineer' | 'Healthcare Professional'
@@ -59,14 +61,16 @@ function postedByShortLabel(t: TFunction, value: PostedBy): string {
 type SortMode = 'best' | 'recent' | 'oldest' | 'expiring'
 const SORT_TO_SERVER: Record<SortMode, PostSort> = { best: 'relevance', recent: 'newest', oldest: 'oldest', expiring: 'expiring' }
 // Places offered while typing a location; the list no longer holds every post to collect them from.
-const LOCATION_SUGGESTIONS = [...COUNTRIES, ...CITIES]
+// A Set: some names are both a country and a city (Singapore), and duplicate options share a React key.
+const LOCATION_SUGGESTIONS = [...new Set([...COUNTRIES, ...CITIES])]
 type ViewMode = 'list' | 'grid'
 const POSTS_PER_PAGE = 5
 
 interface DirectoryPost {
   id: string
   initials: string
-  tags: string[]
+  /** Why it suits the viewer (highlighted), then its domains. The status is shown on its own. */
+  tags: { label: string; kind: 'match' | 'domain'; english?: boolean }[]
   title: string
   description: string
   author: string
@@ -102,12 +106,12 @@ export default function PostListPage() {
   // Filters and page live in the URL, so returning from a post, reloading or sharing the
   // link keeps them. Updates replace the history entry so Back leaves the list, not each keystroke.
   const [searchParams, setSearchParams] = useSearchParams()
-  const search = searchParams.get('q') ?? ''
+  const urlSearch = searchParams.get('q') ?? ''
   const domain = searchParams.get('domain') ?? ''
   const stage = searchParams.get('stage') ?? ''
   const status = searchParams.get('status') ?? ''
   const postedBy = POSTED_BY_FROM_PARAM[searchParams.get('by') ?? ''] ?? 'Anyone'
-  const location = searchParams.get('loc') ?? ''
+  const urlLocation = searchParams.get('loc') ?? ''
   const page = Math.max(1, Number(searchParams.get('page')) || 1)
   // React Router hands the updater the params of the last render, so two updates in one
   // tick would drop the first; read and write through a ref that always holds the latest.
@@ -123,12 +127,13 @@ export default function PostListPage() {
     latestParams.current = next
     setSearchParams(next, { replace: true })
   }
-  const setSearch = (value: string) => updateParams({ q: value })
+  // The two text fields keep their own text so fast typing never waits on the URL (see useUrlBackedText).
+  const [search, setSearch] = useUrlBackedText(urlSearch, value => updateParams({ q: value }))
+  const [location, setLocation] = useUrlBackedText(urlLocation, value => updateParams({ loc: value }))
   const setDomain = (value: string) => updateParams({ domain: value })
   const setStage = (value: string) => updateParams({ stage: value })
   const setStatus = (value: string) => updateParams({ status: value })
   const setPostedBy = (value: PostedBy) => updateParams({ by: POSTED_BY_TO_PARAM[value] })
-  const setLocation = (value: string) => updateParams({ loc: value })
   const setPage = (value: number) => updateParams({ page: value > 1 ? String(value) : '' }, true)
   const [sort, setSort] = useState<SortMode>(() => (localStorage.getItem('postList_sort') as SortMode) ?? 'best')
   const [viewMode, setViewMode] = useState<ViewMode>(() => (localStorage.getItem('postList_view') as ViewMode) ?? 'list')
@@ -505,6 +510,7 @@ function FilterSidebar({
   open?: boolean
 }) {
   const { t } = useTranslation()
+  const domainLabelId = useId()
   return (
     // On desktop (≥1281px, .directory-body-grid is 2-col) the sidebar is always
     // in view. Below that breakpoint it collapses to a toggle-driven panel.
@@ -520,32 +526,40 @@ function FilterSidebar({
       </div>
 
       <div className="space-y-8">
-        <FilterSelect label={t('posts.domain')} value={domain} placeholder={t('posts.allDomains')} onChange={onDomain}>
-          {/* Every domain a post can carry, grouped the way the post form groups them. */}
-          {HEALTH_DOMAIN_GROUPS.map(group => (
-            <optgroup key={group.id} label={t(`posts.form.domainGroups.${group.id}`)}>
-              {group.domains.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </optgroup>
-          ))}
-        </FilterSelect>
-        <FilterSelect label={t('posts.stageFilterLabel')} value={stage} placeholder={t('posts.allStages')} onChange={onStage}>
-          {stageValues.map(value => (
-            <option key={value} value={value}>{t(`posts.stage.${value}`)}</option>
-          ))}
-        </FilterSelect>
-        <FilterSelect
+        {/* Site-styled, searchable controls: the browser's own dropdowns looked different on every
+            machine and could not be searched (survey N28). */}
+        <div>
+          <FilterLabel id={domainLabelId}>{t('posts.domain')}</FilterLabel>
+          <FilterCombobox
+            labelledBy={domainLabelId}
+            value={domain}
+            onChange={onDomain}
+            allLabel={t('posts.allDomains')}
+            groups={HEALTH_DOMAIN_GROUPS.map(group => ({
+              label: t(`posts.form.domainGroups.${group.id}`),
+              options: group.domains.map(name => ({ value: name, label: name })),
+            }))}
+            searchPlaceholder={t('posts.form.domainSearch')}
+            noResults={query => t('common.select.noResults', { query })}
+            optionLang="en"
+          />
+        </div>
+        <ChipGroup
+          label={t('posts.stageFilterLabel')}
+          value={stage}
+          onChange={onStage}
+          options={[{ value: '', label: t('posts.allStages') }, ...stageValues.map(value => ({ value, label: t(`posts.stage.${value}`) }))]}
+        />
+        <ChipGroup
           label={t('posts.statusFilterLabel')}
           value={status}
-          placeholder={mineOnly ? t('posts.allStatuses') : t('posts.status.open')}
           onChange={onStatus}
-        >
-          {!mineOnly && <option value={STATUS_ALL}>{t('posts.allStatuses')}</option>}
-          {statusValues.map(value => (
-            <option key={value} value={value}>{t(`posts.status.${value}`)}</option>
-          ))}
-        </FilterSelect>
+          options={[
+            { value: '', label: mineOnly ? t('posts.allStatuses') : t('posts.status.open') },
+            ...(mineOnly ? [] : [{ value: STATUS_ALL, label: t('posts.allStatuses') }]),
+            ...statusValues.map(value => ({ value, label: t(`posts.status.${value}`) })),
+          ]}
+        />
         <SegmentedControl active={postedBy} onChange={onPostedBy} />
 
         <div>
@@ -591,36 +605,43 @@ function FilterSidebar({
   )
 }
 
-function FilterSelect({
-  label,
-  value,
-  placeholder,
-  onChange,
-  children,
-}: {
+/** A short list of choices shown at once: one click instead of opening a dropdown. */
+function ChipGroup({ label, value, onChange, options }: {
   label: string
   value: string
-  placeholder: string
   onChange: (value: string) => void
-  children: ReactNode
+  options: { value: string; label: string }[]
 }) {
+  const labelId = useId()
   return (
     <div>
-      <FilterLabel>{label}</FilterLabel>
-      <SelectInput
-        value={value}
-        onChange={event => onChange(event.target.value)}
-        className="border-[var(--border)] text-[var(--text)] hover:border-[var(--accent)] focus:border-[var(--accent)]"
-      >
-        <option value="">{placeholder}</option>
-        {children}
-      </SelectInput>
+      <FilterLabel id={labelId}>{label}</FilterLabel>
+      <div role="group" aria-labelledby={labelId} className="flex flex-wrap gap-2">
+        {options.map(option => {
+          const selected = option.value === value
+          return (
+            <button
+              key={option.value || '__default'}
+              type="button"
+              aria-pressed={selected}
+              onClick={() => onChange(option.value)}
+              className={`rounded-full border px-3.5 py-2 text-xs font-black transition ${
+                selected
+                  ? 'border-[var(--primary)] bg-[var(--primary)] text-white'
+                  : 'border-[var(--border)] bg-white text-[var(--text)] hover:border-[var(--accent)]'
+              }`}
+            >
+              {option.label}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
 
-function FilterLabel({ children }: { children: ReactNode }) {
-  return <FieldLabel className="text-[var(--muted)]">{children}</FieldLabel>
+function FilterLabel({ children, id }: { children: ReactNode; id?: string }) {
+  return <FieldLabel id={id} className="text-[var(--muted)]">{children}</FieldLabel>
 }
 
 function SegmentedControl({ active, onChange }: { active: PostedBy; onChange: (value: PostedBy) => void }) {
@@ -690,7 +711,8 @@ function PostList({
   return (
     <SectionCard className="border-[var(--border)] shadow-[0_30px_80px_-66px_rgba(45,24,56,0.65)]">
       <div className="border-b border-[var(--border)] px-7 py-5">
-        <div className="flex items-center justify-between gap-6">
+        {/* Wraps on phones: count badge, sort and view buttons ran 49px off a 360px screen. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
           <div>
             <div className="text-base font-black text-[var(--muted)]">
               {isLoading ? t('posts.loadingOpportunities') : mineOnly ? t('posts.postsFoundCount', { count: totalPosts }) : t('posts.opportunitiesFoundCount', { count: totalPosts })}
@@ -706,7 +728,7 @@ function PostList({
             )}
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             <div className="flex items-center gap-3 text-sm font-black text-[var(--muted)]">
               <span>{t('meetingsPage.sortBy')}</span>
               <div className="relative">
@@ -880,22 +902,24 @@ function PostRow({
       </div>
 
       <div className="min-w-0 pt-1">
-        {post.matchScore > 0 && (
-          <div className="mb-4 flex flex-wrap items-center gap-3">
+        {/* The status used to be the last grey tag; Partner Found and Expired went unnoticed. */}
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <PostStatusBadge status={post.status} size="lg" />
+          {post.matchScore > 0 && (
             <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.12em] ${post.hasAI ? 'bg-hai-plum text-white' : 'bg-hai-lime text-hai-plum'}`}>
               <Sparkles size={14} />
               {post.hasAI ? t('posts.aiMatch') : t('posts.profileMatch')} · {post.matchScore}%
             </div>
-            {post.aiReason && (
-              <div className="rounded-full bg-hai-teal-soft px-4 py-2 text-xs font-black text-hai-plum">
-                {post.aiReason}
-              </div>
-            )}
-          </div>
-        )}
+          )}
+          {post.matchScore > 0 && post.aiReason && (
+            <div className="rounded-full bg-hai-teal-soft px-4 py-2 text-xs font-black text-hai-plum">
+              {post.aiReason}
+            </div>
+          )}
+        </div>
 
         <Link to={postDetail(post.id)} className="group block">
-          <h2 className="truncate font-headline text-2xl font-black leading-tight text-[var(--primary)] transition group-hover:text-hai-teal">{post.title}</h2>
+          <h2 className="line-clamp-2 break-words font-headline text-2xl font-black leading-tight text-[var(--primary)] transition group-hover:text-hai-teal">{post.title}</h2>
           <p className="mt-4 max-w-[900px] break-words text-base font-semibold leading-6 text-[var(--muted)]">{post.description}</p>
         </Link>
 
@@ -922,7 +946,7 @@ function PostRow({
         </div>
         <div className="flex max-w-[340px] flex-wrap justify-end gap-2 self-end">
           {post.tags.map(tag => (
-            <Tag key={tag} label={tag} lang={post.domains.includes(tag) ? 'en' : undefined} />
+            <Tag key={`${tag.kind}-${tag.label}`} label={tag.label} highlight={tag.kind === 'match'} lang={tag.english ? 'en' : undefined} />
           ))}
           {mineOnly && (
             <Button
@@ -943,22 +967,17 @@ function PostRow({
   )
 }
 
-/** Domain names stay English; `lang="en"` keeps the uppercase style from turning "Midwifery" into "MİDWİFERY". */
-function Tag({ label, lang }: { label: string; lang?: string }) {
-  const cyan = ['Cardiology', 'Active', 'Clinical Pharmacy', 'Orthopedics', 'Radiology & Imaging', 'Neurology'].includes(label)
-  const primary = ['Needs Engineering', 'Partner Found'].includes(label) || label.startsWith('AI:')
-
+/**
+ * Domain names stay English; `lang="en"` keeps the uppercase style from turning "Midwifery" into "MİDWİFERY".
+ * Colour follows meaning: why a post suits the viewer is highlighted, every domain looks the same.
+ * (A hand-picked list of names used to colour Cardiology or Neurology but not, say, Midwifery.)
+ */
+function Tag({ label, lang, highlight }: { label: string; lang?: string; highlight: boolean }) {
   return (
     <Badge
       lang={lang}
-      variant={primary ? 'primary' : cyan ? 'soft' : 'neutral'}
-      className={
-        primary
-          ? 'bg-[var(--primary)]'
-          : cyan
-            ? 'bg-hai-teal-soft text-[var(--tag-text)]'
-            : 'bg-[var(--tag-bg)] text-[var(--tag-text)]'
-      }
+      variant={highlight ? 'soft' : 'neutral'}
+      className={highlight ? 'bg-hai-teal-soft text-[var(--primary)]' : 'bg-[var(--tag-bg)] text-[var(--tag-text)]'}
     >
       {label}
     </Badge>
@@ -1042,15 +1061,21 @@ function toDirectoryPost(
 ): DirectoryPost {
   const days = Math.ceil((new Date(post.expiryDate).getTime() - Date.now()) / 86400000)
   const basicReasons = computeMatchReasons(post, user)
-  const filteredReasons = basicReasons
+  const matches = basicReasons
     .filter(reason => reason.tone !== 'city' && reason.tone !== 'country')
-    .map(reason => reason.label)
+    .slice(0, 2)
+    .map(reason => ({
+      label: reason.labelKey ? t(reason.labelKey, { defaultValue: reason.label }) : reason.label,
+      // Expertise tags are stored in English, like domain names.
+      english: reason.tone === 'expertise',
+    }))
   const domains = postDomains(post)
-  const tags = Array.from(new Set([
-    ...filteredReasons.slice(0, 2),
-    ...domains.slice(0, 2),
-    t(`posts.status.${post.status}`, { defaultValue: post.status }),
-  ].filter(Boolean)))
+  const tags = [
+    ...matches.map(match => ({ ...match, kind: 'match' as const })),
+    ...domains.slice(0, 2)
+      .filter(domain => !matches.some(match => match.label === domain))
+      .map(label => ({ label, kind: 'domain' as const, english: true })),
+  ]
   return {
     id: post.id,
     initials: initials(post.authorName),

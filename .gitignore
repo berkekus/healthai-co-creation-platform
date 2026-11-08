@@ -31,3 +31,6 @@ graphify-out/cost.json
 
 # Domain migration backups contain user data
 backend/scripts/domain-migration-backup-*.json
+
+# Usability survey exports: raw answers, one mentions a participant by name
+*USABILITY TESTING*.csv

@@ -4,7 +4,11 @@ import * as aiMatchService from '../services/aiMatchService'
 import * as aiProfileScoreService from '../services/aiProfileScoreService'
 import * as aiMeetingSummaryService from '../services/aiMeetingSummaryService'
 import { makeError } from '../utils/AppError'
-import { fetchGeminiContent, extractGeminiText, type GeminiResponse } from '../utils/geminiClient'
+import { fetchGeminiContent, extractGeminiText, RATE_LIMITED_MESSAGE, type GeminiResponse } from '../utils/geminiClient'
+import { cacheKey, createAiCache, HOUR } from '../utils/aiCache'
+
+// Many people read the same post, so one translation serves all of them.
+const translationCache = createAiCache<string>(24 * HOUR, 3000)
 
 export const rankPostMatches = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const posts = Array.isArray(req.body.posts) ? req.body.posts : []
@@ -32,14 +36,24 @@ export const translateText = asyncHandler<AuthenticatedRequest>(async (req, res)
   }
   const lang = TRANSLATION_LANGUAGES.get(targetLang) ?? 'English'
   const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-flash-latest'
+  const source = text.slice(0, 2000)
 
-  const prompt = `Translate the following text to ${lang}. Return ONLY the translated text, no explanations, no quotes:\n\n${text.slice(0, 2000)}`
+  const key = cacheKey(lang, source)
+  const cached = translationCache.get(key)
+  if (cached !== undefined) {
+    res.json({ success: true, data: { translated: cached } })
+    return
+  }
+
+  const prompt = `Translate the following text to ${lang}. Return ONLY the translated text, no explanations, no quotes:\n\n${source}`
   const response = await fetchGeminiContent(GEMINI_MODEL, apiKey, prompt, 0.1)
+  if (response.status === 429) throw makeError(RATE_LIMITED_MESSAGE, 429)
   if (!response.ok) throw makeError(`Gemini ${response.status}`, 502)
 
   const payload = await response.json() as GeminiResponse
-  const translated = extractGeminiText(payload)
-  res.json({ success: true, data: { translated: translated.trim() } })
+  const translated = extractGeminiText(payload).trim()
+  if (translated) translationCache.set(key, translated)
+  res.json({ success: true, data: { translated } })
 })
 
 export const improvePost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
@@ -76,6 +90,7 @@ Rules:
 
   const response = await fetchGeminiContent(GEMINI_MODEL, apiKey, prompt, 0.3)
 
+  if (response.status === 429) throw makeError(RATE_LIMITED_MESSAGE, 429)
   if (!response.ok) {
     const errBody = await response.text().catch(() => '')
     throw makeError(`Gemini ${response.status}: ${errBody.slice(0, 200)}`, 502)

@@ -11,13 +11,7 @@ import { ROUTES } from '../../constants/routes'
 import type { NotificationType, Notification } from '../../types/common.types'
 import { getNotificationContent } from '../../utils/notificationContent'
 import { timeAgo } from '../../utils/timeAgo'
-
-const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/api$/, '')
-const resolveAvatar = (url?: string) => {
-  if (!url) return undefined
-  if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`
-  return url
-}
+import { resolveAvatarUrl as resolveAvatar } from '../../utils/avatarImage'
 
 function NotifIcon({ type }: { type: NotificationType }) {
   const base = 'flex items-center justify-center w-9 h-9 rounded-xl shrink-0'
@@ -204,19 +198,23 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 h-[76px] bg-white/90 backdrop-blur-md border-b border-line font-body">
-      <div className="max-w-[1640px] mx-auto h-full px-4 sm:px-6 md:px-10 2xl:px-0 flex items-center justify-between gap-4 sm:gap-8">
+      <div className="max-w-[1640px] mx-auto h-full px-4 sm:px-6 md:px-10 2xl:px-0 flex items-center justify-between gap-2 sm:gap-8">
 
         {/* Brand — Erasmus+ funding mark sits left of the HealthAI lockup.
             Signed in, the right-hand cluster runs to ~242px, so under sm the
             funding mark and the divider stand down: the two together do not
-            fit beside it at 375px and the whole app scrolls sideways. */}
+            fit beside it at 375px and the whole app scrolls sideways. The
+            header gap tightens there too, for 360px Android phones. */}
         <Link to={ROUTES.HOME} className="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0">
           <img src="/images/erasmus-logo.png" alt="Erasmus+" className="hidden sm:block h-9 md:h-11 w-auto" />
           <span aria-hidden className="hidden sm:block h-6 w-px bg-neutral-200" />
           <img src="/images/healthailogo.svg" alt="HealthAI" className="h-5 sm:h-6 md:h-7 w-auto" />
         </Link>
 
-        <nav className="hidden md:flex flex-1 items-center justify-center gap-3">
+        {/* Signed in, three Turkish labels ("Kontrol Paneli", "İlanları Keşfet"...) plus the right-hand
+            cluster do not fit between 768 and 1023px, which pushed the avatar and language menu off
+            screen; the drawer covers that range. The two signed-out links still fit from md. */}
+        <nav className={`hidden ${user ? 'lg:flex' : 'md:flex'} flex-1 items-center justify-center gap-3`}>
           {user ? navLinks.map(({ to, label }) => {
             const active = isActive(to)
             return (
@@ -270,7 +268,7 @@ export default function Navbar() {
                   <>
                     <MessageSquare size={17} />
                     {unreadMessages > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-white bg-hai-plum px-1 font-mono text-xs font-bold text-hai-mint">
+                      <span className="count-halo absolute -top-1 -right-0.5 font-mono text-[13px] font-black leading-none text-hai-plum">
                         {unreadMessages > 9 ? '9+' : unreadMessages}
                       </span>
                     )}
@@ -297,7 +295,7 @@ export default function Navbar() {
                     <>
                       <Bell size={17} />
                       {unread > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-white bg-hai-plum px-1 font-mono text-xs font-bold text-hai-mint">
+                        <span className="count-halo absolute -top-1 -right-0.5 font-mono text-[13px] font-black leading-none text-hai-plum">
                           {unread > 9 ? '9+' : unread}
                         </span>
                       )}
@@ -379,7 +377,7 @@ export default function Navbar() {
               onClick={() => setMenuOpen(o => !o)}
               label={t('nav.toggleMenu')}
               icon={menuOpen ? <X size={17} /> : <Menu size={17} />}
-              className="md:hidden"
+              className="lg:hidden"
             />
           )}
 
@@ -390,7 +388,7 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       {menuOpen && user && (
-        <div className="md:hidden absolute top-[76px] inset-x-0 z-40 bg-white border-b border-neutral-200 shadow-lg py-2 font-body">
+        <div className="lg:hidden absolute top-[76px] inset-x-0 z-40 bg-white border-b border-neutral-200 shadow-lg py-2 font-body">
           {[...navLinks, { to: ROUTES.MESSAGES, label: unreadMessages > 0 ? t('nav.messagesUnread', { n: unreadMessages }) : t('nav.messages') }].map(({ to, label }) => {
             const active = isActive(to)
             return (

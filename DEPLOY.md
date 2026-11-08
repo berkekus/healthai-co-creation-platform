@@ -1,145 +1,119 @@
-# Deploy Guide — HealthAI Co-creation Platform
+# Deploy Rehberi — HealthAI Co-creation Platform
 
-Önerilen kurulum: **Frontend → Vercel**, **Backend → Railway**, **DB → MongoDB Atlas**.
+Canlı yapı:
 
----
-
-## ⚠️ Önce Yapılacaklar (Bir Kez)
-
-### 1. MongoDB Atlas şifresi ve JWT Secret'ı rotate edin
-`backend/.env.atlas` dosyası geçmişte git'e commit edilmişti.  
-Aşağıdaki adımları **hemen** uygulayın:
-
-1. [MongoDB Atlas](https://cloud.mongodb.com) → Database Access → kullanıcıyı seçin → Edit → yeni şifre oluşturun.
-2. `backend/.env.atlas` içindeki URI'daki şifreyi güncelleyin.
-3. Yeni JWT secret üretin:
-   ```bash
-   openssl rand -hex 64
-   ```
-4. `.env.atlas` içindeki `JWT_SECRET` değerini güncelleyin.
+| Parça | Nerede | Adres |
+|---|---|---|
+| Frontend | Vercel | https://www.healthcocreate.com (apex → www yönlenir) |
+| API | Render | https://healthai-co-creation-platform.onrender.com/api |
+| Veritabanı | MongoDB Atlas | — |
+| Mail | Resend (HTTPS API; Render dışarıya SMTP portunu kapatıyor) | — |
+| AI | Google Gemini | — |
 
 ---
 
-## 1. MongoDB Atlas (Zaten Var)
+## Açılış öncesi kontrol listesi
 
-`backend/.env.atlas` dosyasında Atlas URI mevcut. Bunu Railway'e ortam değişkeni olarak ekleyin.
+Her madde bir panelde yapılacak iş; kodda karşılığı hazır.
 
-Atlas URI formatı:
-```
-mongodb+srv://<user>:<password>@<cluster>.mongodb.net/healthai?retryWrites=true&w=majority
-```
+### 1. Render (API)
 
----
+- [ ] **Instance type: Starter** ($7/ay). Free plan 15 dk boşta kalınca uyuyor (ilk istek ~23 sn), CPU 0.1. Aşağıdaki yük testi sonuçlarına bakın; aynı anda yüzlerce kişi bekleniyorsa açılış haftası için **Standard** (1 CPU, $25/ay) düşünün, sonra geri düşürün.
+- [ ] **Branch: `main`**, **Auto-Deploy: On**. 8 Kasım'da Vercel `main`'in son halini yayınlıyordu, Render ise 14 Eylül ile 15 Ekim arasındaki bir sürümde kalmıştı. Dashboard → **Events** sekmesinde son deploy'un "failed" olup olmadığına ve hangi branch'ten alındığına bakın.
+- [ ] **Deploy sonrası kontrol:** `https://healthai-co-creation-platform.onrender.com/api/health` yanıtındaki `version`, merge commit'inin ilk 7 karakteri olmalı. `.../api/avatars/000000000000000000000000` adresi `"Route not found"` değil `"Photo not found"` dönmeli. Böyle değilse yeni backend yayında değildir, Render'da **Manual Deploy → Deploy latest commit** yapın.
+- [ ] **Start Command:** Node runtime ise `npm start` olmalı (Docker runtime ise Dockerfile'daki `CMD` kullanılır, ayrıca bir şey gerekmez). `npm start` = `node --single-threaded-gc dist/src/index.js`. Bu bayrak olmadan 0.5 CPU'da 300 kişilik ani kayıt dalgası tamamen tıkanıyor (aşağıya bakın).
+- [ ] **Build Command:** `npm ci --include=dev && npm run build` · **Root Directory:** `backend`. `--include=dev` şart: `NODE_ENV=production` tanımlıyken npm devDependencies'i atlıyor, `typescript` de onların içinde, ve build `tsc: not found` ile düşüyor.
+- [ ] **Health Check Path:** `/api/health`
+- [ ] **Environment** — şu değişkenler tanımlı olsun:
 
-## 2. Backend → Railway
+| Değişken | Değer |
+|---|---|
+| `NODE_ENV` | `production` (rate limit, captcha ve e-posta domain kontrolü bununla açılır) |
+| `MONGO_URI` | Atlas bağlantı adresi |
+| `JWT_SECRET` | 64+ karakter rastgele (`openssl rand -hex 64`) |
+| `JWT_EXPIRES_IN` | `7d` |
+| `CLIENT_ORIGIN` | `https://www.healthcocreate.com` |
+| `CLIENT_ORIGIN_EXTRA` | `https://healthcocreate.com` (isteğe bağlı) |
+| `APP_BASE_URL` | `https://www.healthcocreate.com` (maillerdeki linkler) |
+| `SERVER_BASE_URL` | `https://healthai-co-creation-platform.onrender.com` (OAuth callback) |
+| `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile gerçek secret |
+| `RESEND_API_KEY` | Resend API anahtarı |
+| `SMTP_FROM` | `"HEALTH AI" <noreply@healthcocreate.com>` — Resend'de **doğrulanmış domain** olmalı, yoksa hiçbir mail gitmez |
+| `GEMINI_API_KEY` | Google AI Studio anahtarı |
+| `GEMINI_MODEL` | AI Studio'da çalıştığı doğrulanmış güncel model (bkz. `backend/.env.example`) |
+| `RATE_LIMIT_ENABLED` | **Tanımlamayın.** Production'da limitler zaten açık; `false` yazarsanız kapanır |
 
-### 2.1 Yeni proje oluşturun
-1. [railway.app](https://railway.app) → New Project → Deploy from GitHub repo
-2. Repo: `healthai-co-creation-platform`, Root Directory: `backend`
-3. Railway `backend/railway.json` ve `backend/Dockerfile` dosyalarını otomatik algılar.
+- [ ] Deploy sonrası: `curl https://healthai-co-creation-platform.onrender.com/api/health` → `"version"` alanı son `main` commit'inin ilk 7 karakteri olmalı.
 
-### 2.2 Ortam değişkenleri (Railway Variables sekmesi)
-```env
-NODE_ENV=production
-MONGO_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/healthai?retryWrites=true&w=majority
-JWT_SECRET=<64-char-hex-from-openssl>
-JWT_EXPIRES_IN=7d
-PORT=5000
-CLIENT_ORIGIN=https://www.healthcocreate.com
-APP_BASE_URL=https://www.healthcocreate.com
-TURNSTILE_SECRET_KEY=<cloudflare-turnstile-secret>
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your.email@gmail.com
-SMTP_PASS=<16-char-gmail-app-password>
-SMTP_FROM="HEALTH AI" <noreply@your-domain.com>
-GEMINI_API_KEY=<google-ai-studio-key>
-GITHUB_CLIENT_ID=<optional>
-GITHUB_CLIENT_SECRET=<optional>
-LINKEDIN_CLIENT_ID=<optional>
-LINKEDIN_CLIENT_SECRET=<optional>
-```
+### 2. Resend (mail)
 
-> **Not:** `CLIENT_ORIGIN` ve `APP_BASE_URL` her zaman canlı alan adına ayarlanmalıdır: `https://www.healthcocreate.com`. Vercel adresi yalnızca teknik barındırma adresidir; e-posta bağlantılarında kullanılmaz.
+- [ ] **Pro plan** ($20/ay). Free plan günde 100 mail gönderiyor; 100'ü aşan kayıtlar doğrulama maili alamaz ve **hiç giriş yapamaz**.
+- [ ] Domains → `healthcocreate.com` **Verified** (SPF + DKIM).
+- [ ] Kendi adresinizle bir test kaydı yapın; mail gelene kadar açılışa geçmeyin.
 
-### 2.3 Domain
-Railway otomatik bir subdomain verir: `https://your-service.up.railway.app`  
-Bunu `VITE_API_URL` için kullanacaksınız: `https://your-service.up.railway.app/api`
+### 3. Gemini (AI)
 
-### 2.4 Sağlık kontrolü
-Deploy sonrası: `https://your-service.up.railway.app/api/health`  
-`{ "status": "ok", "db": "connected" }` dönmeli.
+- [ ] Google AI Studio → projeye **billing** açın (kullandıkça öde, bu ölçekte birkaç dolar). Yeni Flash modellerinin ücretsiz kotası günde birkaç düzine isteğe kadar düşmüş olabilir; panelde projenin kotasını görün.
+- [ ] Kota bitse de site çalışır: kod Gemini'den 429 alınca bir süre çağrı yapmayı bırakıyor ve kural tabanlı öneriler gösteriyor.
 
----
+### 4. MongoDB Atlas
 
-## 3. Frontend → Vercel
+- [ ] **Yedek alın.** M0 (free) kümede otomatik yedek yok. Açılıştan önce: `mongodump --uri "<MONGO_URI>" --out backup-2026-11-09`
+- [ ] Network Access, Render'ın bağlanmasına izin veriyor (şu an çalışıyorsa dokunmayın).
 
-### 3.1 Import
-1. [vercel.com](https://vercel.com) → New Project → Import from GitHub
-2. Repo: `healthai-co-creation-platform`, Root Directory: `frontend`
-3. Framework: **Vite** (otomatik algılanır)
+### 5. Vercel (frontend)
 
-### 3.2 Ortam değişkenleri (Vercel Environment Variables)
-```env
-VITE_API_URL=https://your-service.up.railway.app/api
-VITE_TURNSTILE_SITE_KEY=<cloudflare-turnstile-site-key>
-VITE_GEMINI_API_KEY=<google-ai-studio-key>
-```
+- [ ] `VITE_API_URL=https://healthai-co-creation-platform.onrender.com/api`
+- [ ] `VITE_TURNSTILE_SITE_KEY` gerçek site key; Turnstile panelinde `www.healthcocreate.com` izinli domain.
+- [ ] `main` merge olduktan sonra Production deploy'un yeni commit'te olduğunu görün.
 
-### 3.3 Build ayarları
-Vercel otomatik algılar ama manuel girilmesi gerekirse:
-- Build Command: `npm run build`
-- Output Directory: `dist`
-- Install Command: `npm install`
+### 6. Güvenlik
 
-### 3.4 Deploy
-`vercel.json` zaten mevcut (SPA rewrites). Deploy otomatik başlar.
+- [ ] **Demo hesapları silin.** Seed script'lerinin şifresi (`HealthAI2026!`) bu public repoda; o şifreyle açılan her hesaba herkes girebilir.
+  ```bash
+  cd backend
+  MONGO_URI="<production uri>" npm run remove:demo-accounts             # önce listeler
+  MONGO_URI="<production uri>" npm run remove:demo-accounts -- --apply  # sonra siler
+  ```
+  Admin hesapları silinmez, sadece listelenir: o hesaplarla giriş yapıp **Profil → Şifre değiştir** ile şifrelerini değiştirin.
+- [ ] Atlas şifresi ve `JWT_SECRET` daha önce git geçmişine girdiyse (`backend/.env.atlas`) yenilenmiş olsun. `JWT_SECRET` değişince herkesin oturumu kapanır; açılıştan önce yapın, açılış günü değil.
+
+### 7. Açılış günü
+
+- [ ] UptimeRobot (ücretsiz) ile `/api/health`'i 5 dakikada bir izleyin; düşerse mail gelsin.
+- [ ] Render → Metrics'te CPU'yu izleyin. Kalabalıkta kayıt/giriş 10-30 sn sürebilir; 30 sn'den uzun bekleyen istek "Sunucu şu anda çok yoğun" mesajıyla (503) döner, kullanıcı tekrar dener.
+- [ ] Sorun olursa önce Render loglarına bakın: `Gemini quota exceeded`, `Resend API send failed`, `The server is busy` satırları en olası üç sebep.
 
 ---
 
-## 4. Seed Data (İlk Deploy Sonrası)
+## Kapasite: yük testi (8 Kasım 2026)
 
-Dev seed hesaplarının doğrulanması:
-```bash
-cd backend
-MONGO_URI=mongodb+srv://... npx ts-node scripts/verify-seed-accounts.ts
-```
+Yerel ölçüm: API Windows Job Object ile sabit CPU'ya sınırlandı, veritabanı yerel replica set. Her sanal kullanıcı kayıt oluyor, 3-10 sn sonra maildeki linke "tıklıyor", giriş yapıyor ve dashboard'u açıyor. Tüm istekler aynı IP'den (tek Wi-Fi'daki bir salon gibi). Atlas'ın ağ gecikmesi dahil değil.
 
-Demo post ve meeting eklemek için:
-```bash
-MONGO_URI=mongodb+srv://... npx ts-node scripts/seed-realistic-posts.ts
-MONGO_URI=mongodb+srv://... npx ts-node scripts/seed-realistic-meetings.ts
-```
+| CPU | GC bayrağı | Senaryo | Giriş yapabilen | Kayıt p95 | Giriş p95 |
+|---|---|---|---|---|---|
+| 0.5 (Starter) | yok | 60 kişi / 5 sn | 60/60 | 1.9 sn | 2.6 sn |
+| 0.5 (Starter) | yok | 300 kişi / 60 sn | 297/300 | 9.5 sn | 15 sn |
+| 0.5 (Starter) | yok | 300 kişi / 10 sn | **0/300** (tıkandı) | — | — |
+| 0.5 (Starter) | `--single-threaded-gc` | 60 kişi / 5 sn | 60/60 | 3.5 sn | 1.8 sn |
+| 0.5 (Starter) | `--single-threaded-gc` | 300 kişi / 60 sn | 300/300 | 10.3 sn | 10.3 sn |
+| 0.5 (Starter) | `--single-threaded-gc` | 300 kişi / 10 sn | 289/300 (11 kişi "yoğun" 503) | 28 sn | 30 sn |
+| 1.0 (Standard) | yok | 300 kişi / 10 sn | 300/300 | 9.3 sn | 9.8 sn |
+| 1.0 (Standard) | `--single-threaded-gc` | 300 kişi / 10 sn | 300/300 | 10.8 sn | 12.5 sn |
+
+Özet: Starter + bayrak, bir dakikaya yayılan 300 kişiyi kaldırıyor. 300 kişi aynı 10 saniyede gelirse (sahnede "herkes şimdi kayıt olsun" denirse) bazıları 30 sn bekleyip "yoğun" mesajı alıyor; bunu istemiyorsanız açılış günü Standard'a geçin.
+
+API'nin bellek tepe değeri 130-180 MB (Starter'da 512 MB var). Darboğaz şifre hash'i (bcrypt): sırayla, tek tek yapılıyor ki kalabalıkta diğer istekler donmasın.
 
 ---
 
-## 5. Self-hosted (VPS / Docker Compose)
+## Self-hosted (VPS / Docker Compose)
 
-`docker-compose.prod.yml` ile tüm stack tek makinada:
+`docker-compose.prod.yml` ile tüm stack tek makinede:
 
 ```bash
-# .env.prod dosyası oluşturun
-cp backend/.env.example .env.prod
-# değerleri doldurun...
-
-# Build ve başlat
+cp backend/.env.example .env.prod   # değerleri doldurun
 docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 ```
 
-Gerekli env vars: `MONGO_URI`, `JWT_SECRET`, `CLIENT_ORIGIN`, `APP_BASE_URL`, `TURNSTILE_SECRET_KEY`
-
----
-
-## 6. Kontrol Listesi (Checklist)
-
-- [ ] MongoDB Atlas şifresi rotate edildi
-- [ ] Yeni JWT_SECRET üretildi (64+ char)
-- [ ] Railway backend deploy edildi ve `/api/health` OK dönüyor
-- [ ] Vercel frontend deploy edildi
-- [ ] Railway → `CLIENT_ORIGIN` ve `APP_BASE_URL` `https://www.healthcocreate.com` ile güncellendi
-- [ ] Vercel → `VITE_API_URL` Railway URL'i ile güncellendi
-- [ ] Cloudflare Turnstile site key + secret key ayarlandı
-- [ ] SMTP (email) test edildi (kayıt → doğrulama maili geliyor)
-- [ ] Seed hesapları `verify-seed-accounts.ts` ile doğrulandı
-- [ ] GitHub OAuth (opsiyonel) callback URL güncellendi: `https://railway-url/api/auth/github/callback`
+Gerekli değişkenler: `MONGO_URI`, `JWT_SECRET`, `CLIENT_ORIGIN`, `APP_BASE_URL`, `TURNSTILE_SECRET_KEY`.

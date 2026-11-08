@@ -6,6 +6,27 @@ import { useAuthStore } from '../../store/authStore'
 
 type Status = 'idle' | 'verifying' | 'success' | 'already' | 'error'
 
+type Outcome = { error: string | null; errorStatus: number | null }
+
+/**
+ * One request per link. The effect runs again under StrictMode and whenever the
+ * language changes; a second POST of the same token answers 409, so the person who
+ * had just verified saw "Already verified" instead of the confirmation.
+ */
+const verifications = new Map<string, Promise<Outcome>>()
+
+function verifyOnce(token: string, verify: (token: string) => Promise<void>): Promise<Outcome> {
+  let pending = verifications.get(token)
+  if (!pending) {
+    pending = verify(token).then(() => {
+      const { error, errorStatus } = useAuthStore.getState()
+      return { error, errorStatus }
+    })
+    verifications.set(token, pending)
+  }
+  return pending
+}
+
 export default function VerifyEmailPage() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
@@ -25,9 +46,8 @@ export default function VerifyEmailPage() {
     let mounted = true
     ;(async () => {
       try {
-        await verifyEmail(token)
+        const { error: err, errorStatus } = await verifyOnce(token, verifyEmail)
         if (!mounted) return
-        const { error: err, errorStatus } = useAuthStore.getState()
         if (errorStatus === 409) setStatus('already')
         // 400 is a dead link; the server's wording is technical and not translated.
         else if (errorStatus === 400) { setStatus('error'); setErrorMsg(t('authPage.verify.linkInvalid')) }

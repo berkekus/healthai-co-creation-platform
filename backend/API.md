@@ -30,7 +30,15 @@ All responses follow the envelope:
 
 ## Auth — `/api/auth`
 
-Global rate limit applies to the entire `/api/auth` prefix.
+Rate limits (`429` when exceeded). They are on in production and off elsewhere; `RATE_LIMIT_ENABLED=true|false` overrides either way. A class or an office usually reaches the API from one shared public IP, so the per-IP limit is loose and the tight limits follow the account:
+
+| Endpoints | Limit |
+|---|---|
+| `register`, `login`, `forgot-password`, `resend-verification`, `reset-password` | 3000 requests / 15 min per IP, shared |
+| `login` | 10 failed attempts / 15 min per email and IP |
+| `register`, `forgot-password`, `resend-verification` | 5 mails / hour per email address |
+
+Password checks run one at a time. During a burst of sign-ins, a request that waits more than 30 s for its turn gets `503` and can be retried.
 
 ### POST `/api/auth/register`
 

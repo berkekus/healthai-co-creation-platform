@@ -1,13 +1,17 @@
 import { Router } from 'express'
 import { rankPostMatches, improvePost, translateText, getProfileScore, getMeetingSummary } from '../controllers/aiController'
 import { protect } from '../middleware/authMiddleware'
+import { aiLimiter } from '../middleware/rateLimiter'
 
 const router = Router()
 
-router.post('/matches', protect, rankPostMatches)
-router.post('/improve-post', protect, improvePost)
-router.post('/translate', protect, translateText)
-router.get('/profile-score', protect, getProfileScore)
-router.post('/meeting-summary/:meetingId', protect, getMeetingSummary)
+// After `protect`, so the allowance is counted per member, not per network.
+router.use(protect, aiLimiter)
+
+router.post('/matches', rankPostMatches)
+router.post('/improve-post', improvePost)
+router.post('/translate', translateText)
+router.get('/profile-score', getProfileScore)
+router.post('/meeting-summary/:meetingId', getMeetingSummary)
 
 export default router

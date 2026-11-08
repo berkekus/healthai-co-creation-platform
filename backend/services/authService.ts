@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 import mongoose from 'mongoose'
@@ -6,16 +5,16 @@ import User, { IUser } from '../models/User'
 import Post from '../models/Post'
 import Meeting from '../models/Meeting'
 import Notification from '../models/Notification'
+import Avatar from '../models/Avatar'
 import { sendVerificationEmail, sendAccountDeletedEmail, sendPasswordResetEmail } from './emailService'
 import { pushNotification } from './notificationService'
 import { deleteAvatarFile } from '../middleware/uploadMiddleware'
 import { makeError } from '../utils/AppError'
+import { hashPassword, verifyPassword } from '../utils/passwordHash'
 import { normalizeProfessionalFields } from '../utils/profileFields'
 import { escapeRegex } from '../constants/domains'
 import { emailDomainAcceptsMail } from '../utils/emailDomain'
 import logger from '../src/logger'
-
-const SALT_ROUNDS = 12
 const VERIFY_TOKEN_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
 
 function generateVerifyToken(): string {
@@ -136,7 +135,7 @@ export async function registerUser(data: {
     throw makeError('This email domain does not appear to exist. Please check the address for typos.', 422)
   }
 
-  const hashed = await bcrypt.hash(data.password, SALT_ROUNDS)
+  const hashed = await hashPassword(data.password)
   const user = new User({ ...data, password: hashed, isVerified: false })
   const rawToken = issueVerifyToken(user)
   await user.save()
@@ -193,7 +192,7 @@ export async function loginUser(email: string, password: string) {
 
   if (user.isSuspended) throw makeError('Account suspended', 403)
 
-  const match = await bcrypt.compare(password, user.password)
+  const match = await verifyPassword(password, user.password)
   if (!match) throw makeError('Invalid credentials', 401)
 
   if (!user.isVerified) throw makeError('Email not verified. Please check your inbox or request a new verification link.', 403)
@@ -292,10 +291,10 @@ export async function changePassword(userId: string, oldPassword: string, newPas
   const user = await User.findById(userId).select('+password')
   if (!user) throw makeError('User not found', 404)
 
-  const match = await bcrypt.compare(oldPassword, user.password)
+  const match = await verifyPassword(oldPassword, user.password)
   if (!match) throw makeError('Current password is incorrect', 400)
 
-  user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
+  user.password = await hashPassword(newPassword)
   user.passwordChangedAt = new Date()
   user.tokenVersion = (user.tokenVersion ?? 0) + 1
   await user.save()
@@ -373,6 +372,7 @@ async function cascadeDeleteUser(
   )
   await Post.deleteMany({ authorId: userId }, { session })
   await Notification.deleteMany({ userId }, { session })
+  await Avatar.deleteMany({ userId }, { session })
 
   // Use a fresh model query instead of reusing a document instance across a
   // possible transaction retry. Mongoose document.deleteOne() marks the
@@ -389,7 +389,7 @@ export async function deleteAccount(userId: string, password: string) {
   const user = await User.findById(userId).select('+password')
   if (!user) throw makeError('User not found', 404)
 
-  const match = await bcrypt.compare(password, user.password)
+  const match = await verifyPassword(password, user.password)
   // This is a failed confirmation inside an authenticated request, not an
   // invalid JWT. Returning 400 prevents the client from ending the session.
   if (!match) throw makeError('Incorrect password', 400)
@@ -489,7 +489,7 @@ export async function resetPassword(token: string, newPassword: string) {
   }).select('+password')
   if (!user) throw makeError('Invalid or expired password reset token', 400)
 
-  user.password = await bcrypt.hash(newPassword, SALT_ROUNDS)
+  user.password = await hashPassword(newPassword)
   user.passwordChangedAt = new Date()
   user.tokenVersion = (user.tokenVersion ?? 0) + 1
   user.resetToken = undefined

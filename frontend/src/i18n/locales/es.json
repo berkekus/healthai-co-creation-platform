@@ -47,10 +47,10 @@
     "hero": {
       "titleLine1": "European HealthTech",
       "titleLine2": "Co-Creation & Innovation Platform",
-      "subtitle": "Un directorio estructurado y nativo de GDPR donde clínicos e ingenieros europeos publican, se emparejan y se reúnen — todo con verificación institucional .edu y una pista de auditoría inmutable."
+      "subtitle": "Un directorio estructurado y nativo de GDPR donde clínicos e ingenieros europeos publican, se emparejan y se reúnen — todo con verificación de correo y una pista de auditoría inmutable."
     },
     "directory": {
-      "verifiedNetwork": "Red institucional verificada",
+      "verifiedNetwork": "Red profesional verificada",
       "join": "Unirse al directorio",
       "engineerLabel": "PARA INGENIEROS",
       "engineerTitle": "Construye con visión clínica.",
@@ -65,7 +65,7 @@
       "zeroPatientData": "Cero datos de pacientes",
       "europeanInstitutions": "Creado para instituciones europeas",
       "gdprNative": "Nativo de GDPR",
-      "body": "¿Planeas una colaboración médico-tecnológica? Cada interacción está regida por la verificación institucional .edu, un registro de auditoría inalterable de 24 meses y una política de cero datos de pacientes. Sin subida de archivos. Sin ambigüedad. Todos los derechos del Artículo 6 y 15-22 son ejercitables desde tu perfil, a un clic de distancia."
+      "body": "¿Planeas una colaboración médico-tecnológica? Cada interacción está regida por la verificación del correo, un registro de auditoría inalterable de 24 meses y una política de cero datos de pacientes. Sin subida de archivos. Sin ambigüedad. Todos los derechos del Artículo 6 y 15-22 son ejercitables desde tu perfil, a un clic de distancia."
     },
     "platform": {
       "eyebrow": "Creado para Europa.",
@@ -111,7 +111,7 @@
       "paragraph1": "Sabemos que las asociaciones médico-tecnológicas pueden estancarse por incertidumbre legal, alcance impreciso y presentaciones equivocadas. Nuestro protocolo está diseñado para facilitar la primera conversación — y legitimar el acuerdo.",
       "paragraph2": "Piensa en la plataforma como el terreno común: una gramática compartida, un NDA compartido, un registro compartido — para que cada reunión empiece documentada.",
       "directoryMatching": "Directorio y Emparejamiento",
-      "institutionalVerification": "Verificación Institucional",
+      "institutionalVerification": "Cuentas verificadas",
       "ndaMeetingFlow": "NDA y Flujo de Reuniones",
       "questionsPrompt": "¿Tienes alguna pregunta sobre la plataforma?",
       "readPolicy": "Leer política →"
@@ -147,7 +147,7 @@
           "desc": "Completa tu rol, institución, ciudad, país, experiencia e intereses de colaboración. Estos campos determinan la puntuación de coincidencia de perfil que ven los usuarios en Explorar publicaciones.",
           "screen": "Perfil",
           "routeLabel": "Abrir perfil",
-          "checkpoints": ["Verifica tu correo institucional", "Añade ciudad y país", "Elige experiencia e intereses"]
+          "checkpoints": ["Verifica tu correo", "Añade ciudad y país", "Elige experiencia e intereses"]
         },
         "browse": {
           "name": "Explorar",
@@ -217,7 +217,7 @@
       "title": "Crear una cuenta",
       "subtitle": "Únete a la plataforma de cocreación de HealthAI",
       "name": "Nombre completo",
-      "email": "Correo institucional (solo .edu o .gov)",
+      "email": "Correo electrónico (se recomienda uno institucional)",
       "password": "Contraseña",
       "confirm": "Confirmar contraseña",
       "role": "Soy",
@@ -250,6 +250,10 @@
     }
   },
   "posts": {
+    "match": {
+      "needsEngineering": "Busca ingeniería",
+      "needsClinical": "Busca aporte clínico"
+    },
     "browse": "Explorar publicaciones",
     "myPosts": "Mis publicaciones",
     "newPost": "Nueva publicación",
@@ -612,9 +616,12 @@
       "editing": "Editando tu perfil"
     },
     "avatar": {
+      "change": "Cambiar foto",
+      "rules": "JPEG, PNG, WebP o GIF, hasta 20 MB",
       "upload": "Subir foto de perfil",
       "wrongType": "Solo se permiten imágenes JPEG, PNG, WebP o GIF.",
-      "tooLarge": "La imagen debe pesar menos de 5 MB."
+      "tooLarge": "La imagen debe pesar menos de 20 MB.",
+      "unreadable": "No se pudo leer esta imagen. Prueba con una foto JPEG o PNG."
     },
     "deleteModal": {
       "badge": "Zona de peligro",
@@ -706,13 +713,13 @@
     "wakingServer": "Activando el servidor — la primera solicitud tras un periodo de inactividad puede tardar hasta un minuto.",
     "login": {
       "heading": "Bienvenido de nuevo",
-      "sub": "Inicia sesión con tu cuenta institucional .edu o .gov.",
+      "sub": "Inicia sesión con el correo con el que te registraste.",
       "tooMany": "Demasiados intentos fallidos",
       "waitSeconds": "Espera {{count}}s antes de volver a intentarlo.",
       "attemptsLeft": "Queda {{count}} intento antes del bloqueo.",
       "attemptsLeft_other": "Quedan {{count}} intentos antes del bloqueo.",
       "resendVerification": "Reenviar correo de verificación →",
-      "emailLabel": "Correo institucional",
+      "emailLabel": "Correo electrónico",
       "emailPlaceholder": "tu@universidad.edu",
       "passwordLabel": "Contraseña",
       "showPassword": "Mostrar contraseña",
@@ -778,8 +785,8 @@
     },
     "forgot": {
       "heading": "Olvidaste tu contraseña",
-      "sub": "Introduce tu correo institucional y te enviaremos un enlace para restablecerla.",
-      "emailLabel": "Correo institucional",
+      "sub": "Introduce el correo con el que te registraste y te enviaremos un enlace para restablecerla.",
+      "emailLabel": "Correo electrónico",
       "emailPlaceholder": "tu@universidad.edu",
       "submitting": "Enviando enlace…",
       "submit": "Enviar enlace de restablecimiento →",
@@ -837,6 +844,16 @@
     }
   },
   "meetingsPage": {
+    "calendarTitle": "Calendario de reuniones",
+    "calendarHelp": "Elige un día marcado para ver sus reuniones en la lista.",
+    "legendConfirmed": "Programada",
+    "legendProposed": "Propuesta, aún sin confirmar",
+    "dayMeetings": "{{count}} reunión",
+    "dayMeetings_other": "{{count}} reuniones",
+    "dayNoMeetings": "sin reuniones",
+    "today": "hoy",
+    "dayFilter": "Reuniones del {{date}}",
+    "clearDay": "Mostrar todos los días",
     "title": "Tus reuniones.",
     "desc": "Revisa solicitudes, confirma horarios y mantén en marcha tu proceso de colaboración.",
     "totalCount": "{{count}} reunión",
@@ -1104,7 +1121,7 @@
     "notFound": "Usuario no encontrado.",
     "goBack": "← Volver",
     "back": "Volver",
-    "verified": "Cuenta institucional verificada",
+    "verified": "Correo verificado",
     "bio": "Biografía",
     "expertise": "Especialidad",
     "memberSince": "Miembro desde {{date}}"
@@ -1495,7 +1512,7 @@
     "forEngineers": "Para ingenieros",
     "contactTeam": "Contactar con el equipo",
     "copyright": "Derechos de autor",
-    "institutionalOnly": "Solo cuentas institucionales .edu. La verificación es automática y única.",
+    "institutionalOnly": "Cada cuenta verifica su correo. Se recomienda una dirección institucional.",
     "noUploads": "Sin subida de archivos. Sin datos de pacientes. Sin excepciones.",
     "builtByTeam": "Creado en Europa · por el equipo HealthAI"
   },
@@ -1515,6 +1532,7 @@
     "network": "No podemos conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo.",
     "timeout": "El servidor ha tardado demasiado en responder. Inténtalo de nuevo.",
     "tooManyRequests": "Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.",
+    "serverBusy": "El servidor está ocupado en este momento. Inténtalo de nuevo en unos instantes.",
     "invalidCredentials": "Correo o contraseña incorrectos.",
     "accountSuspended": "Esta cuenta ha sido suspendida.",
     "emailNotVerified": "Tu correo aún no está verificado. Revisa tu bandeja de entrada o solicita un nuevo enlace de verificación.",
@@ -1572,6 +1590,8 @@
     "aiError": "El servicio de IA no está disponible en este momento. Inténtalo más tarde.",
     "aiNeedsText": "Escribe primero un título o una descripción.",
     "noImage": "Elige una imagen para subir.",
+    "imageWrongType": "Solo se permiten imágenes JPEG, PNG, WebP o GIF.",
+    "imageTooLarge": "Esta imagen es demasiado grande para subirla. Prueba con una foto más pequeña.",
     "contactEmailInvalid": "El correo de contacto no es una dirección válida.",
     "orcidInvalid": "Introduce un ORCID iD válido, p. ej. 0000-0002-1825-0097.",
     "websiteInvalid": "La web de la institución debe ser una dirección que empiece por https://.",
@@ -1658,7 +1678,7 @@
     "titleLine1": "Política de",
     "titleLine2": "privacidad",
     "gdprBadge": "Información sobre derechos RGPD",
-    "lastUpdated": "Última actualización · 19 abr 2026",
+    "lastUpdated": "Última actualización · 7 nov 2026",
     "bindingNote": "Esta traducción se ofrece por comodidad. El texto vinculante es la versión en inglés de esta política.",
     "who": {
       "title": "Quiénes somos",
@@ -1668,14 +1688,14 @@
     "collect": {
       "title": "Datos que recopilamos",
       "accountLabel": "Datos de la cuenta:",
-      "account": "Nombre completo, correo institucional (solo <mono>.edu</mono>), rol, institución, ciudad, país, biografía, etiquetas de experiencia.",
+      "account": "Nombre completo, dirección de correo (se recomienda una institucional), rol, institución, ciudad, país, biografía, etiquetas de experiencia.",
       "activityLabel": "Datos de actividad:",
       "activity": "Publicaciones creadas / editadas, solicitudes de reunión enviadas / recibidas, inicios de sesión.",
       "securityLabel": "Registros de seguridad:",
       "security": "Dirección IP (inicios de sesión), intentos fallidos de inicio de sesión, límites de solicitudes alcanzados. Se conservan 24 meses.",
       "sessionLabel": "Datos de sesión:",
       "session": "Se guarda un token de sesión en el almacenamiento de sesión del navegador, o en el almacenamiento persistente si se marca “Recordarme”. La aplicación cierra la sesión tras 30 minutos de inactividad.",
-      "notCollected": "<b>No</b> recopilamos datos de pacientes, historias clínicas, propiedad intelectual de terceros ni correos personales. En esta plataforma no se permite subir archivos."
+      "notCollected": "<b>No</b> recopilamos datos de pacientes, historias clínicas ni propiedad intelectual de terceros. En esta plataforma no se permite subir archivos."
     },
     "legal": {
       "title": "Base jurídica (RGPD art. 6)",

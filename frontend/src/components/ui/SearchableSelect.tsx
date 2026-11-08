@@ -18,7 +18,7 @@ const MAX_RENDERED = 100
  * yields "i̇", an i with a combining dot that NFD would leave behind as its own
  * character, so the plain fold alone would not match a typed "i".
  */
-function fold(s: string): string {
+export function fold(s: string): string {
   return s
     .replace(/İ/g, 'I')
     .replace(/ı/g, 'i')

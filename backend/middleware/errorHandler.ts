@@ -24,7 +24,7 @@ export const errorHandler = (
   // Multer errors (file upload)
   if ((err as unknown) instanceof MulterError) {
     const me = err as unknown as MulterError
-    const msg = me.code === 'LIMIT_FILE_SIZE' ? 'Image must be under 5 MB' : me.message
+    const msg = me.code === 'LIMIT_FILE_SIZE' ? 'Image is too large' : me.message
     res.status(400).json({ success: false, message: msg })
     return
   }

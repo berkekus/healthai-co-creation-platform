@@ -8,6 +8,8 @@ export type MatchTone = 'city' | 'country' | 'role' | 'expertise' | 'domain'
 export interface MatchReason {
   /** Short label to display on a chip, e.g. "In Berlin" */
   label: string
+  /** Translation key for reasons with fixed wording; `label` is the English fallback. */
+  labelKey?: string
   /** Material Symbols icon name */
   icon: string
   /** Color tone, consumer maps to hai-* classes */
@@ -64,9 +66,9 @@ export function computeMatchReasons(post: Post, user: User | null | undefined): 
 
   // Cross-role matching (core platform value)
   if (user.role === 'engineer' && post.authorRole === 'healthcare_professional') {
-    reasons.push({ label: 'Needs engineering', icon: 'memory', tone: 'role' })
+    reasons.push({ label: 'Needs engineering', labelKey: 'posts.match.needsEngineering', icon: 'memory', tone: 'role' })
   } else if (user.role === 'healthcare_professional' && post.authorRole === 'engineer') {
-    reasons.push({ label: 'Needs clinical input', icon: 'stethoscope', tone: 'role' })
+    reasons.push({ label: 'Needs clinical input', labelKey: 'posts.match.needsClinical', icon: 'stethoscope', tone: 'role' })
   }
 
   // Expertise tag overlap vs expertiseRequired text

@@ -367,6 +367,16 @@
   border-color: rgb(var(--landing-border));
 }
 
+/* Unread count on header icons: bare number with a soft halo in the card colour,
+   so it stays legible where it overlaps the icon in both themes. */
+.count-halo {
+  text-shadow:
+    0 0 1px rgb(var(--surface-card)),
+    0 0 2px rgb(var(--surface-card)),
+    0 0 3px rgb(var(--surface-card)),
+    0 0 4px rgb(var(--surface-card) / 0.8);
+}
+
 /* Login / Register left panel (inline style can't be overridden, use class) */
 .login-left-panel {
   background: linear-gradient(155deg, #ddeef8 0%, #c8e2f4 45%, #b8d6ee 100%);

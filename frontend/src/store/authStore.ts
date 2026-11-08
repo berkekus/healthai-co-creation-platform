@@ -38,7 +38,7 @@ interface AuthState {
   resendVerification: (email: string) => Promise<boolean>
   updateProfile: (data: ProfileUpdate) => Promise<void>
   updateNotifPrefs: (prefs: Partial<NotifPrefs>) => Promise<void>
-  uploadAvatar: (file: File) => Promise<void>
+  uploadAvatar: (photo: Blob) => Promise<void>
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>
   deleteAccount: (password: string) => Promise<void>
   hydrate: () => Promise<void>
@@ -195,11 +195,13 @@ export const useAuthStore = create<AuthState>()((set) => ({
     set((s) => ({ user: s.user ? { ...s.user, notifPrefs: res.data.notifPrefs } : s.user }))
   },
 
-  uploadAvatar: async (file: File) => {
+  uploadAvatar: async (photo: Blob) => {
     set({ isLoading: true, error: null })
     try {
       const form = new FormData()
-      form.append('avatar', file)
+      // The server wants an image extension on the name; a shrunk photo is a nameless JPEG blob.
+      const ext = { 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }[photo.type] ?? 'jpg'
+      form.append('avatar', photo, photo instanceof File ? photo.name : `avatar.${ext}`)
       const { data: res } = await api.post<{ success: boolean; data: User }>('/auth/me/avatar', form, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
