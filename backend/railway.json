@@ -6,7 +6,7 @@
     "buildTarget": "prod"
   },
   "deploy": {
-    "startCommand": "node dist/src/index.js",
+    "startCommand": "node --single-threaded-gc dist/src/index.js",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 30,
     "restartPolicyType": "ON_FAILURE",
