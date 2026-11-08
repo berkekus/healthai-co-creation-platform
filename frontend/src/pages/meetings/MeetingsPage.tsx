@@ -300,7 +300,7 @@ function Hero({ total }: { total: number | null }) {
           {total === null ? t('common.loading') : t('meetingsPage.totalCount', { count: total })}
         </div>
 
-        <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-[var(--primary)] md:text-8xl">
+        <h1 className="mt-5 break-words font-headline text-4xl font-black leading-tight tracking-normal text-[var(--primary)] sm:text-6xl md:text-8xl">
           {t('meetingsPage.title')}
         </h1>
 

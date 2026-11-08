@@ -832,7 +832,7 @@ export default function ProfilePage() {
         </aside>
 
         <div className="min-w-0">
-          <div className="flex items-start justify-between gap-8 pt-10">
+          <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4 pt-10">
             <div>
               <h1 className="font-headline text-5xl font-black leading-none tracking-normal text-hai-plum">
                 {t('profile.title')}<span className="text-hai-teal">.</span>
@@ -854,7 +854,7 @@ export default function ProfilePage() {
 
           {saved && <div className="mt-7 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 px-5 py-4 text-sm font-bold text-hai-plum">{t('profile.saved')}</div>}
 
-          <div className="mt-10 flex items-center justify-between gap-6 rounded-[22px] bg-hai-teal-soft px-7 py-8">
+          <div className="mt-10 flex flex-wrap items-center justify-between gap-6 rounded-[22px] bg-hai-teal-soft px-7 py-8">
             <div className="flex items-center gap-5">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-hai-lime text-hai-teal-dark">
                 <span aria-hidden="true" className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: '"FILL" 1' }}>verified_user</span>
