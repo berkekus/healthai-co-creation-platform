@@ -36,8 +36,12 @@ function limiter(options: Partial<Options>) {
 const MINUTE = 60 * 1000
 const HOUR = 60 * MINUTE
 
-/** Ceiling on all sign-in/sign-up traffic from one address; high enough for a shared campus network. */
-export const authIpLimiter = limiter({ windowMs: 15 * MINUTE, limit: 300, keyGenerator: ipKey })
+/**
+ * Ceiling on all sign-in/sign-up traffic from one address; only a flood guard.
+ * A launch can put a few hundred people on one venue network, each making two
+ * or three auth calls (sign up, re-send link, sign in), so it sits well above that.
+ */
+export const authIpLimiter = limiter({ windowMs: 15 * MINUTE, limit: 1000, keyGenerator: ipKey })
 
 /** Wrong passwords per address and account: stops guessing one account without locking out the room. */
 export const loginLimiter = limiter({
@@ -47,10 +51,15 @@ export const loginLimiter = limiter({
   keyGenerator: req => `${ipKey(req)}|${emailOf(req)}`,
 })
 
-/** Requests that send an email (sign-up link, reset link, re-sent link), per recipient. */
+/**
+ * Requests that send an email (sign-up link, reset link, re-sent link), per recipient.
+ * A rejected request (typo'd domain, address already registered) sends nothing,
+ * so it does not use up that address's budget.
+ */
 export const emailActionLimiter = limiter({
   windowMs: HOUR,
   limit: 5,
+  skipFailedRequests: true,
   keyGenerator: req => emailOf(req) || `ip:${ipKey(req)}`,
 })
 

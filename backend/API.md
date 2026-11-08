@@ -30,11 +30,11 @@ All responses follow the envelope:
 
 ## Auth — `/api/auth`
 
-Rate limits (`429` when exceeded). A class or an office usually reaches the API from one shared public IP, so the per-IP limit is loose and the tight limits follow the account:
+Rate limits (`429` when exceeded). They are on in production and off elsewhere; `RATE_LIMIT_ENABLED=true|false` overrides either way. A class or an office usually reaches the API from one shared public IP, so the per-IP limit is loose and the tight limits follow the account:
 
 | Endpoints | Limit |
 |---|---|
-| `register`, `login`, `forgot-password`, `resend-verification`, `reset-password` | 600 requests / 15 min per IP, shared |
+| `register`, `login`, `forgot-password`, `resend-verification`, `reset-password` | 1000 requests / 15 min per IP, shared |
 | `login` | 10 failed attempts / 15 min per email and IP |
 | `register`, `forgot-password`, `resend-verification` | 5 mails / hour per email address |
 
