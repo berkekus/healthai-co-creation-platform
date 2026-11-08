@@ -49,13 +49,16 @@ function roleLabel(t: TFunction, role: string) {
   return t(`common.role.${role}`, { defaultValue: role })
 }
 
+// Without this mark Excel reads the file as Windows-1254/1252, and ş, ğ, ı, İ come out as "ÅŸ", "Ä±".
+const CSV_BOM = '﻿'
+
 function downloadUsersCSV(users: User[]) {
   const headers = ['name', 'email', 'role', 'institution', 'city', 'country', 'isVerified', 'isSuspended', 'createdAt']
   const rows = users
     .filter(u => u.role !== 'admin')
     .map(u => headers.map(h => csvCell((u as unknown as Record<string, unknown>)[h])).join(','))
   const a = Object.assign(document.createElement('a'), {
-    href: URL.createObjectURL(new Blob([[headers.join(','), ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' })),
+    href: URL.createObjectURL(new Blob([CSV_BOM, [headers.join(','), ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' })),
     download: `healthai-users-${new Date().toISOString().split('T')[0]}.csv`,
   })
   a.click()
@@ -90,7 +93,7 @@ function downloadCSV(logs: ActivityLog[]) {
   const headers = ['timestamp', 'userId', 'userEmail', 'role', 'action', 'targetEntityId', 'result', 'ipAddress']
   const rows = logs.map(l => headers.map(h => csvCell((l as unknown as Record<string, unknown>)[h])).join(','))
   const a = Object.assign(document.createElement('a'), {
-    href: URL.createObjectURL(new Blob([[headers.join(','), ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' })),
+    href: URL.createObjectURL(new Blob([CSV_BOM, [headers.join(','), ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' })),
     download: `healthai-logs-${new Date().toISOString().split('T')[0]}.csv`,
   })
   a.click()
