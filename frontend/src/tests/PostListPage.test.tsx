@@ -41,6 +41,9 @@ const renderAt = (url: string) => renderWithQuery(
 const listRequests = () => vi.mocked(api.get).mock.calls.map(c => c[0] as string).filter(u => u.startsWith('/posts?'))
 const lastListRequest = () => listRequests().slice(-1)[0] ?? ''
 
+// The same words appear in the filter sidebar; these look only at the list itself.
+const inList = (text: string) => screen.getAllByText(text).find(el => !el.closest('aside')) as HTMLElement
+
 describe('PostListPage (server-side list)', () => {
   beforeEach(() => {
     localStorage.clear()
@@ -116,5 +119,22 @@ describe('PostListPage (server-side list)', () => {
     listResponse = { posts: [], total: 6, page: 9, limit: 5, pages: 2 }
     renderAt('/posts?page=9')
     await waitFor(() => expect(screen.getByTestId('search')).toHaveTextContent('page=2'))
+  })
+
+  it('shows the status as its own badge, so expired and closed posts stand out', async () => {
+    listResponse = { posts: [{ ...post('p1', 'Closed project'), status: 'partner_found' }, { ...post('p2', 'Old project'), status: 'expired' }], total: 2, page: 1, limit: 5, pages: 1 }
+    renderAt('/posts?status=all')
+    await screen.findByText('Closed project')
+
+    expect(inList('Partner Found').className).toContain('bg-hai-plum')
+    expect(inList('Expired').className).toContain('bg-tone-amber-soft')
+  })
+
+  it('styles every domain alike, whatever its name', async () => {
+    listResponse = { posts: [{ ...post('p1', 'Two domains'), domains: ['Cardiology', 'Midwifery'] }], total: 1, page: 1, limit: 5, pages: 1 }
+    renderAt('/posts')
+    await screen.findByText('Two domains')
+
+    expect(inList('Cardiology').className).toBe(inList('Midwifery').className)
   })
 })

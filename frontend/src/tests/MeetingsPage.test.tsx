@@ -236,4 +236,40 @@ describe('meeting status styles', () => {
     const classNames = Object.values(MEETING_STATUS_STYLE).map(style => style.className)
     expect(new Set(classNames).size).toBe(classNames.length)
   })
+
+  // Days of the month on screen, so the calendar shows them without paging.
+  const thisMonthDay = (day: number) => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+  }
+
+  it('narrows the list to the meetings of a day picked on the calendar', async () => {
+    const tenth = meeting('confirmed', 'owner', { id: 'a', postTitle: 'Tenth-day project', confirmedSlot: { date: thisMonthDay(10), time: '10:00' } })
+    const twentieth = meeting('confirmed', 'requester', { id: 'b', postTitle: 'Twentieth-day project', confirmedSlot: { date: thisMonthDay(20), time: '10:00' } })
+    renderPage([tenth, twentieth])
+
+    const day = screen.getAllByRole('button', { name: /· 1 meeting/ })
+      .find(button => button.textContent === '10') as HTMLElement
+    fireEvent.click(day)
+
+    expect(day).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.queryAllByText('Twentieth-day project')).toHaveLength(0)
+    expect(screen.getAllByText('Tenth-day project').length).toBeGreaterThan(0)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show all days' }))
+    expect(screen.getAllByText('Twentieth-day project').length).toBeGreaterThan(0)
+  })
+
+  it('counts only this month in the overview until "All time" is chosen', () => {
+    const now = meeting('confirmed', 'owner', { id: 'a', confirmedSlot: { date: thisMonthDay(10), time: '10:00' } })
+    const later = meeting('confirmed', 'requester', { id: 'b', confirmedSlot: { date: '2031-06-01', time: '10:00' } })
+    renderPage([now, later])
+
+    const overview = screen.getByRole('heading', { name: 'Meetings overview' }).closest('section') as HTMLElement
+    const scheduledRow = () => within(overview).getByText('Scheduled').parentElement as HTMLElement
+    expect(scheduledRow()).toHaveTextContent(/^Scheduled1 \(100%\)$/)
+
+    fireEvent.change(within(overview).getByRole('combobox'), { target: { value: 'all' } })
+    expect(scheduledRow()).toHaveTextContent(/^Scheduled2 \(100%\)$/)
+  })
 })

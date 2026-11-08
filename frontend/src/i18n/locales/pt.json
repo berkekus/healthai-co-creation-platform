@@ -47,10 +47,10 @@
     "hero": {
       "titleLine1": "European HealthTech",
       "titleLine2": "Co-Creation & Innovation Platform",
-      "subtitle": "Um diretório estruturado e nativo de GDPR onde clínicos e engenheiros europeus publicam, combinam e se reúnem — tudo com verificação institucional .edu e trilha de auditoria imutável."
+      "subtitle": "Um diretório estruturado e nativo de GDPR onde clínicos e engenheiros europeus publicam, combinam e se reúnem — tudo com verificação de email e trilha de auditoria imutável."
     },
     "directory": {
-      "verifiedNetwork": "Rede institucional verificada",
+      "verifiedNetwork": "Rede profissional verificada",
       "join": "Entrar no diretório",
       "engineerLabel": "PARA ENGENHEIROS",
       "engineerTitle": "Construa com visão clínica.",
@@ -65,7 +65,7 @@
       "zeroPatientData": "Zero dados de pacientes",
       "europeanInstitutions": "Criado para instituições europeias",
       "gdprNative": "Nativo de RGPD",
-      "body": "A planear uma colaboração médico-tecnológica? Cada interação é regida pela verificação institucional .edu, um registo de auditoria inalterável de 24 meses e uma política de zero dados de doentes. Sem carregamento de ficheiros. Sem ambiguidade. Todos os direitos do Artigo 6.º e 15.º-22.º podem ser exercidos a partir do seu perfil, a um clique de distância."
+      "body": "A planear uma colaboração médico-tecnológica? Cada interação é regida pela verificação do email, um registo de auditoria inalterável de 24 meses e uma política de zero dados de doentes. Sem carregamento de ficheiros. Sem ambiguidade. Todos os direitos do Artigo 6.º e 15.º-22.º podem ser exercidos a partir do seu perfil, a um clique de distância."
     },
     "platform": {
       "eyebrow": "Criado para a Europa.",
@@ -111,7 +111,7 @@
       "paragraph1": "Sabemos que as parcerias médico-tecnológicas podem estagnar devido a incerteza jurídica, âmbito impreciso e apresentações erradas. O nosso protocolo foi concebido para facilitar a primeira conversa — e legitimar o acordo.",
       "paragraph2": "Pense na plataforma como o terreno comum: uma gramática partilhada, um NDA partilhado, um registo partilhado — para que cada reunião comece documentada.",
       "directoryMatching": "Diretório e Correspondência",
-      "institutionalVerification": "Verificação Institucional",
+      "institutionalVerification": "Contas verificadas",
       "ndaMeetingFlow": "NDA e Fluxo de Reuniões",
       "questionsPrompt": "Tem alguma pergunta sobre a plataforma?",
       "readPolicy": "Ler política →"
@@ -147,7 +147,7 @@
           "desc": "Complete a sua função, instituição, cidade, país, especialização e interesses de colaboração. Estes campos definem a pontuação de correspondência de perfil que os utilizadores veem em Explorar Publicações.",
           "screen": "Perfil",
           "routeLabel": "Abrir perfil",
-          "checkpoints": ["Verifique o seu email institucional", "Adicione cidade e país", "Escolha especialização e interesses"]
+          "checkpoints": ["Verifique o seu email", "Adicione cidade e país", "Escolha especialização e interesses"]
         },
         "browse": {
           "name": "Explorar",
@@ -217,7 +217,7 @@
       "title": "Criar uma conta",
       "subtitle": "Junte-se à plataforma de cocriação HealthAI",
       "name": "Nome completo",
-      "email": "Email institucional (apenas .edu ou .gov)",
+      "email": "Email (recomenda-se um endereço institucional)",
       "password": "Palavra-passe",
       "confirm": "Confirmar palavra-passe",
       "role": "Eu sou",
@@ -250,6 +250,10 @@
     }
   },
   "posts": {
+    "match": {
+      "needsEngineering": "Procura engenharia",
+      "needsClinical": "Procura apoio clínico"
+    },
     "browse": "Explorar publicações",
     "myPosts": "As minhas publicações",
     "newPost": "Nova publicação",
@@ -612,6 +616,8 @@
       "editing": "A editar o seu perfil"
     },
     "avatar": {
+      "change": "Alterar foto",
+      "rules": "JPEG, PNG, WebP ou GIF, até 5 MB",
       "upload": "Carregar foto de perfil",
       "wrongType": "Apenas são permitidas imagens JPEG, PNG, WebP ou GIF.",
       "tooLarge": "A imagem deve ter menos de 5 MB."
@@ -706,13 +712,13 @@
     "wakingServer": "A acordar o servidor — o primeiro pedido após um período de inatividade pode demorar até um minuto.",
     "login": {
       "heading": "Bem-vindo de volta",
-      "sub": "Inicie sessão com a sua conta institucional .edu ou .gov.",
+      "sub": "Inicie sessão com o email com que se registou.",
       "tooMany": "Demasiadas tentativas falhadas",
       "waitSeconds": "Aguarde {{count}}s antes de tentar novamente.",
       "attemptsLeft": "Resta {{count}} tentativa antes do bloqueio.",
       "attemptsLeft_other": "Restam {{count}} tentativas antes do bloqueio.",
       "resendVerification": "Reenviar email de verificação →",
-      "emailLabel": "Email institucional",
+      "emailLabel": "Email",
       "emailPlaceholder": "voce@universidade.edu",
       "passwordLabel": "Palavra-passe",
       "showPassword": "Mostrar palavra-passe",
@@ -778,8 +784,8 @@
     },
     "forgot": {
       "heading": "Esqueceu-se da sua palavra-passe",
-      "sub": "Introduza o seu email institucional e enviaremos um link de reposição.",
-      "emailLabel": "Email institucional",
+      "sub": "Introduza o email com que se registou e enviaremos um link de reposição.",
+      "emailLabel": "Email",
       "emailPlaceholder": "voce@universidade.edu",
       "submitting": "A enviar link…",
       "submit": "Enviar link de reposição →",
@@ -837,6 +843,16 @@
     }
   },
   "meetingsPage": {
+    "calendarTitle": "Calendário de reuniões",
+    "calendarHelp": "Escolha um dia assinalado para ver as suas reuniões na lista.",
+    "legendConfirmed": "Agendada",
+    "legendProposed": "Proposta, ainda não confirmada",
+    "dayMeetings": "{{count}} reunião",
+    "dayMeetings_other": "{{count}} reuniões",
+    "dayNoMeetings": "sem reuniões",
+    "today": "hoje",
+    "dayFilter": "Reuniões de {{date}}",
+    "clearDay": "Mostrar todos os dias",
     "title": "As suas reuniões.",
     "desc": "Reveja pedidos, confirme horários e mantenha o seu funil de colaboração em movimento.",
     "totalCount": "{{count}} reunião",
@@ -1104,7 +1120,7 @@
     "notFound": "Utilizador não encontrado.",
     "goBack": "← Voltar",
     "back": "Voltar",
-    "verified": "Conta institucional verificada",
+    "verified": "Email verificado",
     "bio": "Biografia",
     "expertise": "Especialidade",
     "memberSince": "Membro desde {{date}}"
@@ -1495,7 +1511,7 @@
     "forEngineers": "Para engenheiros",
     "contactTeam": "Contactar equipa",
     "copyright": "Direitos de autor",
-    "institutionalOnly": "Apenas contas institucionais .edu. A verificação é automática e única.",
+    "institutionalOnly": "Todas as contas verificam o seu email. Recomenda-se um endereço institucional.",
     "noUploads": "Sem carregamento de ficheiros. Sem dados de doentes. Sem exceções.",
     "builtByTeam": "Criado na Europa · pela equipa HealthAI"
   },
@@ -1658,7 +1674,7 @@
     "titleLine1": "Política de",
     "titleLine2": "privacidade",
     "gdprBadge": "Informação sobre direitos RGPD",
-    "lastUpdated": "Última atualização · 19 abr 2026",
+    "lastUpdated": "Última atualização · 7 nov 2026",
     "bindingNote": "Esta tradução é disponibilizada por conveniência. O texto vinculativo é a versão em inglês desta política.",
     "who": {
       "title": "Quem somos",
@@ -1668,14 +1684,14 @@
     "collect": {
       "title": "Dados que recolhemos",
       "accountLabel": "Dados da conta:",
-      "account": "Nome completo, email institucional (apenas <mono>.edu</mono>), função, instituição, cidade, país, biografia, etiquetas de competências.",
+      "account": "Nome completo, endereço de email (recomenda-se um institucional), função, instituição, cidade, país, biografia, etiquetas de competências.",
       "activityLabel": "Dados de atividade:",
       "activity": "Publicações criadas / editadas, pedidos de reunião enviados / recebidos, inícios de sessão.",
       "securityLabel": "Registos de segurança:",
       "security": "Endereço IP (inícios de sessão), tentativas de início de sessão falhadas, limites de pedidos atingidos. Guardados durante 24 meses.",
       "sessionLabel": "Dados de sessão:",
       "session": "Um token de sessão é guardado no armazenamento de sessão do navegador, ou no armazenamento persistente quando “Lembrar-me” está selecionado. A aplicação termina a sessão após 30 minutos de inatividade.",
-      "notCollected": "<b>Não</b> recolhemos dados de doentes, registos clínicos, propriedade intelectual de terceiros nem emails pessoais. Nesta plataforma não é permitido carregar ficheiros."
+      "notCollected": "<b>Não</b> recolhemos dados de doentes, registos clínicos nem propriedade intelectual de terceiros. Nesta plataforma não é permitido carregar ficheiros."
     },
     "legal": {
       "title": "Fundamento jurídico (RGPD art. 6.º)",

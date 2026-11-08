@@ -1,4 +1,5 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest'
+import { StrictMode } from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import '../i18n'
@@ -75,7 +76,7 @@ describe('VerifyEmailPage', () => {
 
   it('shows the failure title in the interface language when the link is invalid', async () => {
     vi.mocked(api.post).mockRejectedValue(new Error('Invalid or expired verification token'))
-    render(<MemoryRouter initialEntries={['/verify-email?token=expired']}><VerifyEmailPage /></MemoryRouter>)
+    render(<MemoryRouter initialEntries={['/verify-email?token=expired-title']}><VerifyEmailPage /></MemoryRouter>)
 
     expect(await screen.findByRole('heading', { name: 'Verification failed.' })).toBeInTheDocument()
   })
@@ -96,5 +97,13 @@ describe('VerifyEmailPage', () => {
     await new Promise(resolve => setTimeout(resolve, 2000))
     expect(screen.queryByText('dashboard page')).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute('href', '/dashboard')
+  })
+
+  it('verifies once and shows the confirmation even when the effect runs twice', async () => {
+    vi.mocked(api.post).mockResolvedValue({ data: { success: true, data: { user: { id: 'alice', name: 'Alice' }, token: 'jwt' } } })
+    render(<StrictMode><MemoryRouter initialEntries={['/verify-email?token=strict-mode']}><VerifyEmailPage /></MemoryRouter></StrictMode>)
+
+    expect(await screen.findByRole('heading', { name: 'Email verified!' })).toBeInTheDocument()
+    expect(vi.mocked(api.post).mock.calls.filter(([url]) => url === '/auth/verify-email')).toHaveLength(1)
   })
 })

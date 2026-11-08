@@ -47,10 +47,10 @@
     "hero": {
       "titleLine1": "European HealthTech",
       "titleLine2": "Co-Creation & Innovation Platform",
-      "subtitle": "Een gestructureerde, GDPR-native directory waar Europese clinici en ingenieurs publiceren, matchen en afspreken — allemaal met institutionele .edu-verificatie en een onveranderlijk auditspoor."
+      "subtitle": "Een gestructureerde, GDPR-native directory waar Europese clinici en ingenieurs publiceren, matchen en afspreken — allemaal met e-mailverificatie en een onveranderlijk auditspoor."
     },
     "directory": {
-      "verifiedNetwork": "Geverifieerd institutioneel netwerk",
+      "verifiedNetwork": "Geverifieerd professioneel netwerk",
       "join": "Word lid van de directory",
       "engineerLabel": "VOOR INGENIEURS",
       "engineerTitle": "Bouw met klinisch inzicht.",
@@ -65,7 +65,7 @@
       "zeroPatientData": "Geen patiëntgegevens",
       "europeanInstitutions": "Gebouwd voor Europese instellingen",
       "gdprNative": "AVG-native",
-      "body": "Plan je een medisch-technische samenwerking? Elke interactie wordt beheerst door institutionele .edu-verificatie, een onveranderlijk auditlogboek van 24 maanden en een beleid van geen patiëntgegevens. Geen bestandsuploads. Geen onduidelijkheid. Elk recht uit Artikel 6 en 15-22 is met één klik vanuit je profiel uit te oefenen."
+      "body": "Plan je een medisch-technische samenwerking? Elke interactie wordt beheerst door e-mailverificatie, een onveranderlijk auditlogboek van 24 maanden en een beleid van geen patiëntgegevens. Geen bestandsuploads. Geen onduidelijkheid. Elk recht uit Artikel 6 en 15-22 is met één klik vanuit je profiel uit te oefenen."
     },
     "platform": {
       "eyebrow": "Gebouwd voor Europa.",
@@ -111,7 +111,7 @@
       "paragraph1": "We weten dat medisch-technische samenwerkingen kunnen vastlopen door juridische onzekerheid, een vaag toepassingsgebied en de verkeerde introductie. Ons protocol is ontworpen om het eerste gesprek eenvoudig te maken — en de afspraak legitiem.",
       "paragraph2": "Zie het platform als het gemeenschappelijke uitgangspunt: een gedeelde taal, een gedeelde NDA, een gedeeld logboek — zodat elke afspraak vastgelegd begint.",
       "directoryMatching": "Directory & Matching",
-      "institutionalVerification": "Institutionele Verificatie",
+      "institutionalVerification": "Geverifieerde accounts",
       "ndaMeetingFlow": "NDA & Vergaderproces",
       "questionsPrompt": "Heb je vragen over het platform?",
       "readPolicy": "Lees beleid →"
@@ -147,7 +147,7 @@
           "desc": "Vul je rol, instelling, stad, land, expertise en samenwerkingsinteresses in. Deze velden bepalen de profielmatchscore die gebruikers zien bij Berichten verkennen.",
           "screen": "Profiel",
           "routeLabel": "Profiel openen",
-          "checkpoints": ["Verifieer je institutionele e-mail", "Voeg stad en land toe", "Kies expertise en interesses"]
+          "checkpoints": ["Verifieer je e-mailadres", "Voeg stad en land toe", "Kies expertise en interesses"]
         },
         "browse": {
           "name": "Verkennen",
@@ -217,7 +217,7 @@
       "title": "Account aanmaken",
       "subtitle": "Word lid van het HealthAI co-creatieplatform",
       "name": "Volledige naam",
-      "email": "Institutioneel e-mailadres (alleen .edu of .gov)",
+      "email": "E-mailadres (een institutioneel adres wordt aanbevolen)",
       "password": "Wachtwoord",
       "confirm": "Bevestig wachtwoord",
       "role": "Ik ben een",
@@ -250,6 +250,10 @@
     }
   },
   "posts": {
+    "match": {
+      "needsEngineering": "Zoekt engineering",
+      "needsClinical": "Zoekt klinische input"
+    },
     "browse": "Berichten verkennen",
     "myPosts": "Mijn berichten",
     "newPost": "Nieuw bericht",
@@ -612,6 +616,8 @@
       "editing": "Je profiel bewerken"
     },
     "avatar": {
+      "change": "Foto wijzigen",
+      "rules": "JPEG, PNG, WebP of GIF, max. 5 MB",
       "upload": "Profielfoto uploaden",
       "wrongType": "Alleen JPEG-, PNG-, WebP- of GIF-afbeeldingen zijn toegestaan.",
       "tooLarge": "De afbeelding moet kleiner zijn dan 5 MB."
@@ -706,13 +712,13 @@
     "wakingServer": "Server wordt gestart — de eerste aanvraag na een rustige periode kan tot een minuut duren.",
     "login": {
       "heading": "Welkom terug",
-      "sub": "Log in met je institutionele .edu- of .gov-account.",
+      "sub": "Log in met het e-mailadres waarmee je je hebt geregistreerd.",
       "tooMany": "Te veel mislukte pogingen",
       "waitSeconds": "Wacht {{count}}s voordat je het opnieuw probeert.",
       "attemptsLeft": "Nog {{count}} poging over voor uitsluiting.",
       "attemptsLeft_other": "Nog {{count}} pogingen over voor uitsluiting.",
       "resendVerification": "Verificatie-e-mail opnieuw versturen →",
-      "emailLabel": "Institutioneel e-mailadres",
+      "emailLabel": "E-mailadres",
       "emailPlaceholder": "jij@universiteit.edu",
       "passwordLabel": "Wachtwoord",
       "showPassword": "Wachtwoord tonen",
@@ -778,8 +784,8 @@
     },
     "forgot": {
       "heading": "Wachtwoord vergeten",
-      "sub": "Voer je institutionele e-mailadres in en we sturen je een resetlink.",
-      "emailLabel": "Institutioneel e-mailadres",
+      "sub": "Voer het e-mailadres in waarmee je je hebt geregistreerd en we sturen je een resetlink.",
+      "emailLabel": "E-mailadres",
       "emailPlaceholder": "jij@universiteit.edu",
       "submitting": "Link wordt verzonden…",
       "submit": "Resetlink versturen →",
@@ -837,6 +843,16 @@
     }
   },
   "meetingsPage": {
+    "calendarTitle": "Vergaderkalender",
+    "calendarHelp": "Kies een gemarkeerde dag om de vergaderingen ervan in de lijst te zien.",
+    "legendConfirmed": "Gepland",
+    "legendProposed": "Voorgesteld, nog niet bevestigd",
+    "dayMeetings": "{{count}} vergadering",
+    "dayMeetings_other": "{{count}} vergaderingen",
+    "dayNoMeetings": "geen vergaderingen",
+    "today": "vandaag",
+    "dayFilter": "Vergaderingen op {{date}}",
+    "clearDay": "Alle dagen tonen",
     "title": "Jouw vergaderingen.",
     "desc": "Bekijk verzoeken, bevestig tijdstippen en houd je samenwerkingspijplijn in beweging.",
     "totalCount": "{{count}} vergadering",
@@ -1104,7 +1120,7 @@
     "notFound": "Gebruiker niet gevonden.",
     "goBack": "← Terug",
     "back": "Terug",
-    "verified": "Geverifieerd institutioneel account",
+    "verified": "Geverifieerd e-mailadres",
     "bio": "Bio",
     "expertise": "Expertise",
     "memberSince": "Lid sinds {{date}}"
@@ -1495,7 +1511,7 @@
     "forEngineers": "Voor ingenieurs",
     "contactTeam": "Contact met team",
     "copyright": "Copyright",
-    "institutionalOnly": "Alleen institutionele .edu-accounts. Verificatie is geautomatiseerd en eenmalig.",
+    "institutionalOnly": "Elk account verifieert zijn e-mailadres. Een institutioneel adres wordt aanbevolen.",
     "noUploads": "Geen bestandsuploads. Geen patiëntgegevens. Geen uitzonderingen.",
     "builtByTeam": "Gebouwd in Europa · door Team HealthAI"
   },
@@ -1658,7 +1674,7 @@
     "titleLine1": "Privacy-",
     "titleLine2": "beleid",
     "gdprBadge": "Informatie over je AVG-rechten",
-    "lastUpdated": "Laatst bijgewerkt · 19 apr 2026",
+    "lastUpdated": "Laatst bijgewerkt · 7 nov 2026",
     "bindingNote": "Deze vertaling is bedoeld voor het gemak. De Engelse tekst van dit beleid is bindend.",
     "who": {
       "title": "Wie we zijn",
@@ -1668,14 +1684,14 @@
     "collect": {
       "title": "Gegevens die we verzamelen",
       "accountLabel": "Accountgegevens:",
-      "account": "Volledige naam, institutioneel e-mailadres (alleen <mono>.edu</mono>), rol, instelling, stad, land, bio, expertisetags.",
+      "account": "Volledige naam, e-mailadres (een institutioneel adres wordt aanbevolen), rol, instelling, stad, land, bio, expertisetags.",
       "activityLabel": "Activiteitsgegevens:",
       "activity": "Geplaatste / bewerkte berichten, verstuurde / ontvangen vergaderverzoeken, inlogmomenten.",
       "securityLabel": "Beveiligingslogs:",
       "security": "IP-adres (inlogmomenten), mislukte inlogpogingen, bereikte verzoeklimieten. Worden 24 maanden bewaard.",
       "sessionLabel": "Sessiegegevens:",
       "session": "Een sessietoken wordt bewaard in de sessieopslag van de browser, of in de blijvende browseropslag als “Onthoud mij” is aangevinkt. De applicatie logt gebruikers uit na 30 minuten inactiviteit.",
-      "notCollected": "We verzamelen <b>geen</b> patiëntgegevens, medische dossiers, bedrijfseigen intellectueel eigendom of persoonlijke e-mailadressen. Bestanden uploaden is op dit platform niet toegestaan."
+      "notCollected": "We verzamelen <b>geen</b> patiëntgegevens, medische dossiers of bedrijfseigen intellectueel eigendom. Bestanden uploaden is op dit platform niet toegestaan."
     },
     "legal": {
       "title": "Rechtsgrond (AVG art. 6)",

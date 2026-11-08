@@ -778,17 +778,36 @@ export default function ProfilePage() {
       <div className="profile-page-layout">
         <aside className="profile-profile-rail rounded-[22px] bg-white/78 px-5 py-8 shadow-[0_32px_80px_-58px_rgba(54,33,62,0.42)]">
           <div className="flex flex-col items-center text-center">
+            {/* Nothing used to say the initials circle could be clicked (survey N30): it now carries a
+                camera badge and a hover hint, with a plain-text action and the file rules below. */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarUploading}
+                className="group relative h-20 w-20 overflow-hidden rounded-full bg-hai-plum text-xl font-black tracking-normal text-hai-mint focus:outline-none focus-visible:ring-2 focus-visible:ring-hai-teal focus-visible:ring-offset-2"
+                aria-label={user.avatarUrl ? t('profile.avatar.change') : t('profile.avatar.upload')}
+              >
+                {avatarSrc ? <img src={avatarSrc} alt="" className="h-full w-full object-cover" /> : <span className="flex h-full w-full items-center justify-center">{initials}</span>}
+                <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-hai-plum/60 text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+                  <span className="material-symbols-outlined text-2xl">photo_camera</span>
+                </span>
+                {avatarUploading && <span className="absolute inset-0 flex items-center justify-center bg-hai-plum/60 text-white">...</span>}
+              </button>
+              <span aria-hidden="true" className="pointer-events-none absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-hai-teal-dark text-white">
+                <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: '"FILL" 1' }}>photo_camera</span>
+              </span>
+            </div>
+            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarChange} />
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={avatarUploading}
-              className="relative h-16 w-16 overflow-hidden rounded-full bg-hai-plum text-xl font-black tracking-normal text-hai-mint"
-              aria-label={t('profile.avatar.upload')}
+              className="mt-3 text-xs font-black text-hai-teal-dark underline underline-offset-2 hover:text-hai-plum disabled:opacity-50"
             >
-              {avatarSrc ? <img src={avatarSrc} alt={user.name} className="h-full w-full object-cover" /> : <span className="flex h-full w-full items-center justify-center">{initials}</span>}
-              {avatarUploading && <span className="absolute inset-0 flex items-center justify-center bg-hai-plum/60 text-white">...</span>}
+              {user.avatarUrl ? t('profile.avatar.change') : t('profile.avatar.upload')}
             </button>
-            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarChange} />
+            <p className="mt-1 text-xs font-semibold text-ink-muted">{t('profile.avatar.rules')}</p>
             <h2 className="mt-5 text-lg font-black leading-tight text-hai-plum">{user.name}</h2>
             <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-ink-muted">
               <span aria-hidden="true" className="material-symbols-outlined text-base">{ROLE_ICON[user.role] ?? 'person'}</span>
@@ -832,6 +851,7 @@ export default function ProfilePage() {
         </aside>
 
         <div className="min-w-0">
+          {/* flex-wrap: on a phone the Edit button ran 13px past the screen edge beside the title. */}
           <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4 pt-10">
             <div>
               <h1 className="font-headline text-5xl font-black leading-none tracking-normal text-hai-plum">
@@ -840,7 +860,7 @@ export default function ProfilePage() {
               <p className="mt-5 text-base font-semibold text-ink-muted">{t('profile.subtitle')}</p>
             </div>
             {!isEditing ? (
-              <button onClick={() => setIsEditing(true)} className="mt-1 inline-flex items-center gap-2 rounded-full bg-hai-plum px-7 py-3 text-sm font-black text-white shadow-[0_18px_36px_-22px_rgba(54,33,62,0.7)]">
+              <button onClick={() => setIsEditing(true)} className="mt-1 inline-flex shrink-0 items-center gap-2 rounded-full bg-hai-plum px-7 py-3 text-sm font-black text-white shadow-[0_18px_36px_-22px_rgba(54,33,62,0.7)]">
                 <span aria-hidden="true" className="material-symbols-outlined text-base">edit</span>
                 {t('profile.edit')}
               </button>
@@ -854,7 +874,7 @@ export default function ProfilePage() {
 
           {saved && <div className="mt-7 rounded-2xl border border-hai-teal/40 bg-hai-mint/70 px-5 py-4 text-sm font-bold text-hai-plum">{t('profile.saved')}</div>}
 
-          <div className="mt-10 flex flex-wrap items-center justify-between gap-6 rounded-[22px] bg-hai-teal-soft px-7 py-8">
+          <div className="mt-10 flex flex-wrap items-center justify-between gap-6 rounded-[22px] bg-hai-teal-soft px-5 py-8 sm:px-7">
             <div className="flex items-center gap-5">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-hai-lime text-hai-teal-dark">
                 <span aria-hidden="true" className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: '"FILL" 1' }}>verified_user</span>

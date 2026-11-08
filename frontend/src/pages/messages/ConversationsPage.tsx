@@ -53,7 +53,7 @@ export default function ConversationsPage() {
             <MessageSquare size={12} />
             {t('messagesPage.count', { count: conversations.length })}
           </div>
-          <h1 className="mt-5 font-headline text-6xl font-black leading-tight tracking-normal text-ink md:text-7xl">
+          <h1 className="mt-5 font-headline text-4xl sm:text-6xl font-black leading-tight tracking-normal text-ink md:text-7xl">
             {t('messagesPage.title')}
           </h1>
           <p className="mt-4 max-w-[520px] text-base leading-7 text-ink-muted">{t('messagesPage.desc')}</p>

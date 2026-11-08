@@ -8,7 +8,7 @@ import {
 import { getPlatformStats } from '../controllers/adminController'
 import { protect, adminOnly, AuthenticatedRequest } from '../middleware/authMiddleware'
 import { avatarUpload } from '../middleware/uploadMiddleware'
-import { authIpLimiter, emailSendLimiter, loginLimiter } from '../middleware/rateLimiter'
+import { authIpLimiter, emailActionLimiter, loginLimiter } from '../middleware/rateLimiter'
 import { asyncHandler } from '../utils/asyncHandler'
 import { recalculateBadges, BADGE_META } from '../services/badgeService'
 import User from '../models/User'
@@ -20,11 +20,12 @@ import type { IUser } from '../models/User'
 
 const router = Router()
 
-// Rate-limited only on unauthenticated mutation endpoints
-router.post('/register',            authIpLimiter, emailSendLimiter, register)
+// Rate-limited only on unauthenticated mutation endpoints: a high per-IP ceiling, then
+// per-account counts so one shared network cannot exhaust everyone's attempts.
+router.post('/register',            authIpLimiter, emailActionLimiter, register)
 router.post('/login',               authIpLimiter, loginLimiter, login)
-router.post('/forgot-password',     authIpLimiter, emailSendLimiter, forgotPassword)
-router.post('/resend-verification', authIpLimiter, emailSendLimiter, resendVerification)
+router.post('/forgot-password',     authIpLimiter, emailActionLimiter, forgotPassword)
+router.post('/resend-verification', authIpLimiter, emailActionLimiter, resendVerification)
 router.post('/reset-password',      authIpLimiter, resetPassword)
 router.post('/verify-email', verifyEmail)
 router.post('/logout', protect, logout)

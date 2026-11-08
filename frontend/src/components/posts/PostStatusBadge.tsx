@@ -10,12 +10,14 @@ type Tone = {
   dot: string
 }
 
+// Same palette as meeting statuses. Expired used to be pale grey on cream and Partner
+// Found was easy to miss among the tags; both now stand out from open posts.
 const CONFIG: Record<PostStatus, Tone> = {
-  draft:             { bg: 'bg-neutral-100',        text: 'text-neutral-600',  dot: 'bg-neutral-400' },
-  active:            { bg: 'bg-hai-mint',           text: 'text-hai-plum',     dot: 'bg-hai-teal' },
-  meeting_scheduled: { bg: 'bg-hai-lime',           text: 'text-hai-plum',     dot: 'bg-hai-plum' },
-  partner_found:     { bg: 'bg-hai-plum',           text: 'text-hai-mint',     dot: 'bg-hai-mint' },
-  expired:           { bg: 'bg-hai-cream/60',       text: 'text-neutral-500',  dot: 'bg-neutral-400' },
+  draft:             { bg: 'bg-tone-gray-soft',  text: 'text-tone-gray',  dot: 'bg-tone-gray' },
+  active:            { bg: 'bg-tone-green-soft', text: 'text-tone-green', dot: 'bg-tone-green' },
+  meeting_scheduled: { bg: 'bg-tone-blue-soft',  text: 'text-tone-blue',  dot: 'bg-tone-blue' },
+  partner_found:     { bg: 'bg-hai-plum',        text: 'text-white',      dot: 'bg-hai-mint' },
+  expired:           { bg: 'bg-tone-amber-soft', text: 'text-tone-amber', dot: 'bg-tone-amber' },
 }
 
 interface Props {
